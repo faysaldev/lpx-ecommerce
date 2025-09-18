@@ -3,9 +3,7 @@ const { password } = require("./custom.validation");
 
 const register = {
   body: Joi.object().keys({
-    firstName: Joi.string().required(),
-    lastName: Joi.string(),
-    fullName: Joi.string(),
+    name: Joi.string().required(),
     email: Joi.string().required().email(),
     password: Joi.string().required().custom(password),
     role: Joi.string().required().valid("user", "admin", "superAdmin"),
@@ -69,13 +67,13 @@ const sendOTP = {
   body: Joi.object().keys({
     phoneNumber: Joi.string().required(),
   }),
-}
+};
 const verifyOTP = {
   body: Joi.object().keys({
     phoneNumber: Joi.string().required(),
     otpCode: Joi.string().required(),
   }),
-}
+};
 module.exports = {
   register,
   login,
@@ -85,5 +83,5 @@ module.exports = {
   resetPassword,
   verifyEmail,
   deleteMe,
-  changePassword
+  changePassword,
 };
