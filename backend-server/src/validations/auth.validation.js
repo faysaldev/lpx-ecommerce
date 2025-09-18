@@ -7,6 +7,7 @@ const register = {
     email: Joi.string().required().email(),
     password: Joi.string().required().custom(password),
     role: Joi.string().required().valid("user", "admin", "superAdmin"),
+    type: Joi.string().required().valid("customer", "seller", "admin"),
   }),
 };
 

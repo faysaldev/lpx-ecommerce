@@ -51,13 +51,12 @@ const userSchema = mongoose.Schema(
       type: String,
       enum: ["customer", "seller", "admin"],
       required: true,
-      default: "customer",
     },
+    // seller, admin, customer
 
     // ─── Driver-only fields ───────────────────────────────────────────────
     address: {
       type: String,
-      required: true,
       default: null,
     },
     // ──────────────────────────────────────────────────────────────────────
@@ -65,7 +64,6 @@ const userSchema = mongoose.Schema(
     phoneNumber: {
       type: String,
       unique: true,
-      required: true,
     },
 
     oneTimeCode: { type: String, default: null },

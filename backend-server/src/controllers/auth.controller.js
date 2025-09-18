@@ -10,36 +10,30 @@ const {
 } = require("../services");
 
 const register = catchAsync(async (req, res) => {
-  const { email, fullName, firstName, lastName, ...rest } = req.body;
+  const { email, name, ...rest } = req.body;
   const isUser = await userService.getUserByEmail(email);
 
   if (isUser) {
     if (isUser.isDeleted) {
       await userService.isUpdateUser(isUser.id, {
-        fullName: fullName || `${firstName} ${lastName}`,
-        firstName,
-        lastName,
+        name,
         email,
-        ...rest
+        ...rest,
       });
     } else if (!isUser.isEmailVerified) {
       await userService.isUpdateUser(isUser.id, {
-        fullName: fullName || `${firstName} ${lastName}`,
-        firstName,
-        lastName,
+        name,
         email,
-        ...rest
+        ...rest,
       });
     } else {
       throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
     }
   } else {
     await userService.createUser({
-      fullName: fullName || `${firstName} ${lastName}`,
-      firstName,
-      lastName,
+      name,
       email,
-      ...rest
+      ...rest,
     });
   }
 
@@ -66,7 +60,11 @@ const login = catchAsync(async (req, res) => {
   if (!isUser) {
     throw new ApiError(httpStatus.NOT_FOUND, "No users found with this email");
   }
-  const user = await authService.loginUserWithEmailAndPassword(email, password, fcmToken);
+  const user = await authService.loginUserWithEmailAndPassword(
+    email,
+    password,
+    fcmToken
+  );
 
   setTimeout(async () => {
     try {
