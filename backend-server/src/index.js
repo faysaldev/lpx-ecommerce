@@ -19,7 +19,7 @@ mongoose.connect(config.mongoose.url, config.mongoose.options).then(() => {
   const socketIO = require("./utils/socketIO");
   const io = socketIo(server, {
     cors: {
-      origin: "*"
+      origin: "*",
     },
   });
 
