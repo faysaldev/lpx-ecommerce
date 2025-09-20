@@ -1,13 +1,13 @@
 const httpStatus = require("http-status");
 const catchAsync = require("../utils/catchAsync");
 const response = require("../config/response");
-const { wishlistServicetService } = require("../services");
+const { wishlistService } = require("../services");
 
 const myWishList = catchAsync(async (req, res) => {
   const mywish = await wishlistService.myWishList(req.user.id);
   res.status(httpStatus.CREATED).json(
     response({
-      message: "All the Vendors",
+      message: "My Wishlist",
       status: "OK",
       statusCode: httpStatus.CREATED,
       data: mywish,
@@ -15,6 +15,35 @@ const myWishList = catchAsync(async (req, res) => {
   );
 });
 
+const addToWishlist = catchAsync(async (req, res) => {
+  const addTowish = await wishlistService.addToWishlist({
+    customer: req.user.id,
+    products: req.body.products,
+  });
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Add to Wish List",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: addTowish,
+    })
+  );
+});
+
+const removeToWishlist = catchAsync(async (req, res) => {
+  const removeTowish = await wishlistService.removeToWishlist(req.params.id);
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Remove Wish to Wish List",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: removeTowish,
+    })
+  );
+});
+
 module.exports = {
   myWishList,
+  addToWishlist,
+  removeToWishlist,
 };

@@ -50,6 +50,7 @@ const userSchema = mongoose.Schema(
       type: String,
       enum: ["customer", "seller", "admin"],
       required: true,
+      default: "customer",
     },
     // seller, admin, customer
 
