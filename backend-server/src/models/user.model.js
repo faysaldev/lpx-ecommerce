@@ -123,3 +123,4 @@ userSchema.index({ type: 1 });
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
+// pusing the comments
