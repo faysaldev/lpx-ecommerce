@@ -1,64 +1,55 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const { roles } = require("../config/roles");
 
-const notificationSchema = new Schema({
+const notificationSchema = new Schema(
+  {
     userId: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
     sendBy: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: false
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
     },
     transactionId: {
-        type: String,
-        required: false,
-        default: null
-    },
-    role: {
-        type: String,
-        required: false,
-        enum: roles,
-        default: null,
+      type: String,
+      required: false,
+      default: null,
     },
     title: {
-        type: String,
+      type: String,
+      required: true,
     },
-    content: {
-        type: String,
-        required: true
+    description: {
+      type: String,
+      required: true,
     },
-    icon: {
-        type: String,
-        required: false
-    },
-    devStatus: {
-        type: String,
-        required: false
-    },
-    image: {
-        type: String,
-        required: false
-    },
-    status: {
-        type: String,
-        enum: ['unread', 'read'],
-        default: 'unread'
+    isRead: {
+      type: Boolean,
+      default: false, // Default is unread
     },
     type: {
-        type: String,
+      type: String,
+      enum: ["orders", "systems", "promotions", "vendor", "price alerts"],
+      required: true,
     },
     priority: {
-        type: String,
-        enum: ['low', 'medium', 'high'],
-        default: 'medium'
+      type: String,
+      enum: ["low", "medium", "high"],
+      default: "medium",
     },
-},
-    {
-        timestamps: true
-    });
+    isDeleted: {
+      type: Boolean,
+      default: false, // Default is not deleted
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+const Notification = mongoose.model("Notification", notificationSchema);
 
-module.exports = mongoose.model("Notification", notificationSchema);
+module.exports = Notification;

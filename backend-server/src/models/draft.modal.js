@@ -1,8 +1,13 @@
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const arrayLimit = (val) => val.length <= 8;
+
 const DraftProductSchema = new Schema({
-  vendor: { type: Schema.Types.ObjectId, ref: "Vendor", required: true }, // Vendor ID reference
-  productName: { type: String, required: true }, // Product name
-  description: { type: String, required: true }, // Product description
-  category: { type: String, required: true }, // Product category
+  vendor: { type: Schema.Types.ObjectId, ref: "Vendor" }, // Vendor ID reference
+  productName: { type: String }, // Product name
+  description: { type: String }, // Product description
+  category: { type: String }, // Product category
   condition: {
     type: String,
     enum: [
@@ -17,7 +22,6 @@ const DraftProductSchema = new Schema({
       "PSA Graded",
       "BGS Graded",
     ],
-    required: true,
   }, // Condition
   rarity: {
     type: String,
@@ -33,22 +37,27 @@ const DraftProductSchema = new Schema({
       "Promo",
       "First Edition",
     ],
-    required: true,
   }, // Rarity
   tags: { type: [String], default: [] },
-  price: { type: Number, required: true },
+  price: { type: Number },
   optionalPrice: { type: Number },
-  stockQuantity: { type: Number, required: true },
+  stockQuantity: { type: Number },
   images: {
     type: [String],
     validate: [arrayLimit, "{PATH} exceeds the limit of 8"],
   },
   shipping: {
-    shippingCost: { type: Number, required: true },
-    weight: { type: Number, required: true },
-    dimensions: { type: Number },
+    shippingCost: { type: Number },
+    weight: { type: Number },
+    dimensions: {
+      length: { type: Number },
+      width: { type: Number },
+      height: { type: Number },
+    },
   },
   isDraft: { type: Boolean, default: true },
 });
 
 const DraftProduct = mongoose.model("DraftProduct", DraftProductSchema);
+
+module.exports = DraftProduct;

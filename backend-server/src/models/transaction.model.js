@@ -8,10 +8,11 @@ const TransactionSchema = new Schema({
   totalPrice: { type: Number, required: true },
   status: {
     type: String,
-    enum: ["pending", "completed", "cancelled"],
+    enum: ["pending", "completed", "processing", "shipped", "cancelled"],
     default: "pending",
   },
   transactionDate: { type: Date, default: Date.now },
 });
 
 const Transaction = mongoose.model("Transaction", TransactionSchema);
+module.exports = Transaction;

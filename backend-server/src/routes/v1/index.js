@@ -7,10 +7,12 @@ const vendorRoute = require("./vendor.routes");
 const cartsRoute = require("./cart.routes");
 const paymentRequestRoute = require("./paymentrequest.routes");
 const productsRoute = require("./product.routes");
+const draftRoute = require("./draft.routes");
 const ratingsRoute = require("./rating.routes");
 const transactionsRoute = require("./transaction.routes");
 const wishlistsRoute = require("./wishlist.routes");
 const adminsRoute = require("./admin.routes");
+const notificationRoute = require("./notifications.routes");
 
 const router = express.Router();
 
@@ -40,6 +42,10 @@ const defaultRoutes = [
     route: productsRoute,
   },
   {
+    path: "/drafts",
+    route: draftRoute,
+  },
+  {
     path: "/ratings",
     route: ratingsRoute,
   },
@@ -54,6 +60,10 @@ const defaultRoutes = [
   {
     path: "/admin",
     route: adminsRoute,
+  },
+  {
+    path: "/notifications",
+    route: notificationRoute,
   },
 ];
 

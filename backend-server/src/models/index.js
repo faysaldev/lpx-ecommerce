@@ -12,3 +12,4 @@ module.exports.Wishlist = require("./wishlist.model");
 module.exports.Transaction = require("./transaction.model");
 module.exports.PaymentRequest = require("./paymentrequest.model");
 module.exports.Rating = require("./rating.model");
+module.exports.Draft = require("./draft.modal");
