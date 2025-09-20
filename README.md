@@ -1,133 +1,63 @@
 # Ecommerce Multivendor - Frontend Setup
 
-Hi, I’m **Faysal** ([Check](https://www.linkedin.com/in/faysaldev/)). I will handle all the backend development for you. My job will include managing authentication, vendor listing, product posting, and other backend-related functionalities. You will be focusing on cleaning up and structuring the frontend code for easier integration.
+Hi, I’m **Faysal** ([LinkedIn](https://www.linkedin.com/in/faysaldev/)). I will handle all the backend development for you, including managing authentication, vendor listing, product posting, and other backend-related functionalities. Your role is to focus on cleaning up and structuring the frontend code for easier integration.
 
-## Backend Work Overview
+### Documentation:
 
-### Step 1: Authentication
+Here is the link to the documentation that outlines the structure and design of the project:  
+[Frontend Documentation with Screenshorts What you need to do](https://docs.google.com/document/d/1DOl1WVcVyol6PcT82H28yK2C3NbnJ9ayw6Nn_Bw4tiU/edit?usp=sharing)
 
-I will handle the following authentication endpoints for you:
-
-- **Sign In**: Login functionality for users and vendors.
-- **Sign Up**: User and vendor registration.
-- **Forgot Password**: API to handle password recovery.
-- **Change Password**: API to update password for users.
-
-### Step 2: Vendor Management
-
-I will create APIs for:
-
-- **Vendor List**: To manage vendor details, create vendors, update, or delete them.
-- **Vendor Profile**: Vendors will be able to manage their store and products.
-
-### Step 3: Product Management
-
-I will create APIs for:
-
-- **Post Products**: Sellers/vendors can post new products to the platform.
-- **Product Listings**: View the list of products and their details.
-- **Product Sales**: Customers can view and buy products.
-
-## Every things from the backend-endpoints
-
-## Your Frontend Task: Clean Up and Setup
-
-### Overview
-
-For the frontend, your task will be to:
-
-1. **Remove backend API calls**: Strip out all API routes related to authentication, vendors, and products.
-2. **Replace API data with dummy data**: Use hardcoded values and mock data to simulate the behavior of products and vendors.
-3. **Remove Authentication Logic**: Remove any references to Clerk or other authentication services and instead hardcode values (such as `test@gmail.com`) for testing purposes.
-4. **Prepare the frontend for integration**: Your code should be clean, structured, and ready to integrate with the backend once I complete the APIs.
-
-### Step-by-Step Procedure
-
-1. **Remove API Calls**:  
-   Remove the following endpoints from the `/api` route:
-
-   - Authentication endpoints (`/signin`, `/signup`, `/forgot-password`, `/change-password`).
-   - Vendor management endpoints (`/vendor/list`, `/vendor/create`, `/vendor/update`).
-   - Product-related endpoints (`/product/create`, `/product/list`, `/product/buy`).
-
-2. **Mock Data**:  
-   For each page, replace dynamic API data with hardcoded mock data. For example:
-
-   - **Products Page**:  
-     Replace the API response with a list of products like this:
-     ```javascript
-     const products = [
-       {
-         id: 1,
-         name: "Product 1",
-         price: 100,
-         description: "Product 1 description",
-         imageUrl: "path/to/image",
-       },
-       {
-         id: 2,
-         name: "Product 2",
-         price: 200,
-         description: "Product 2 description",
-         imageUrl: "path/to/image",
-       },
-       // Add more products as necessary
-     ];
-     ```
-   - **Vendor Page**:  
-     Use hardcoded vendor details:
-     ```javascript
-     const vendor = {
-       id: 1,
-       name: "Vendor 1",
-       description: "This is vendor 1",
-       products: products,
-     };
-     ```
-   - **Customer Dashboard**:  
-     Hardcode customer data, e.g., `test@gmail.com` for testing:
-     ```javascript
-     const customer = { email: "test@gmail.com", name: "Test User" };
-     ```
-
-3. **Remove Authentication Logic**:
-
-   - **Login/SignUp**: Replace the login functionality with a dummy check.
-     For example:
-     ```javascript
-     const user = { email: "test@gmail.com", password: "password" };
-     const login = (email, password) => {
-       if (email === user.email && password === user.password) {
-         // Proceed with user dashboard
-       }
-     };
-     ```
-   - **Remove Clerk or Any Authentication Logic**: Delete any references to Clerk, Firebase, or other authentication services.
-
-4. **Clean Up Routes**:
-
-   - Ensure the front-end routes do not rely on real API data. All data should be either static or mock data for testing purposes.
-   - Example:
-     - In the `routes.js` or `App.js`, make sure the routes for `/login`, `/signup`, `/dashboard` are hardcoded and have dummy data.
-
-5. **UI Components**:
-
-   - For all pages (login, signup, vendor dashboard, product listing, etc.), display the hardcoded data.
-   - Ensure all UI components are working and displaying mock data correctly.
-
-6. **Testing**:
-   - Test the frontend by ensuring the app functions with dummy data (you can manually enter data like `test@gmail.com` to simulate login).
-   - Verify that no API calls are being made (or that any leftover ones are replaced with static data).
-
-### Final Structure
-
-Once completed, your frontend should have the following structure:
-
-- **Authentication Pages**: Login and Signup using hardcoded dummy data.
-- **Product Pages**: Display product details using mock data.
-- **Vendor Pages**: Vendor list and profile management using mock data.
-- **Dashboard**: Show user/vendor data using dummy values like `test@gmail.com`.
+Please refer to this document for guidance on how to improve the frontend code, handle user interface (UI) changes, and address any required edits.
 
 ---
 
-This `README.md` provides a clear step-by-step guide for the frontend developer (you) to clean up and mock the data, preparing the application for backend integration. It also clearly describes the tasks that I (Faysal) will handle in the backend.
+## Frontend Task To-Do List:
+
+1. **Remove "New Payments Method" and "New Address" Options**
+
+   - Remove the options that allow users to add new payment methods and new address. These features are not required at this stage.
+   - Update the UI to reflect these changes.
+
+2. **Handle Product Specifications and Editing**
+
+   - Currently, we are not passing the product specifications and edit functionality, but it is still being displayed on the frontend.
+   - Modify the frontend to hide these specifications or add functionality to pass these details dynamically.
+   - Ensure that new product posting incorporates specification handling, and update the UI accordingly.
+
+3. **Hide "Add User" Button**
+
+   - The "Add User" button is not functional.
+   - You need to make the button functional or hide it completely from the UI until its functionality is implemented.
+
+4. **Remove "Select Filter Option"**
+
+   - The "Select Filter Option" should be hidden from the UI as it is not needed.
+
+5. **Show Dummy Data for Product Details**
+
+   - Since the backend is not passing product details dynamically yet, populate the UI with some dummy product data so we can visualize how the frontend will look with real data.
+
+6. **Analytics Section**
+
+   - Implement a basic analytics display on the frontend to show dummy analytics data (e.g., sales data, product views, etc.).
+   - This is for visual representation until the backend functionality is available.
+
+7. **Update Wishlist and Cart Lists**
+
+   - Add some items to the wishlist and cart list to showcase these features on the frontend.
+   - Ensure the cart and wishlist UI components are styled and working properly with dummy data.
+
+8. **Simplify User Profile**
+   - Update the user profile UI to only show "Name" instead of "First Name" and "Last Name" separately.
+   - This will improve the consistency of the profile details shown.
+
+---
+
+## Steps to Implement:
+
+1. **Clone the Repository**:
+   Clone this repository to your local machine:
+   ```bash
+   git clone https://github.com/faysaldev/khaled_ecommer_multivendor
+   cd ecommerce-multivendor-frontend
+   ```
