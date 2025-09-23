@@ -64,6 +64,7 @@ const userSchema = mongoose.Schema(
     phoneNumber: {
       type: String,
       unique: true,
+      required: true,
     },
 
     oneTimeCode: { type: String, default: null },
