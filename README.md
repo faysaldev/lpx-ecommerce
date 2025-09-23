@@ -1,29 +1,19 @@
+# Ecommerce Multivendor - Frontend Setup
 # Project README
 
-Hey Khalid,  
+Hi, I’m **Faysal**. I will handle all the backend development for you, including managing authentication, vendor listing, product posting, and other backend-related functionalities. Your role is to focus on cleaning up and structuring the frontend code for easier integration. 
 
-As we discussed, this file will serve as a quick way for us to stay aligned on the project.  
-Please remember to keep all official communication within the platform as required.  
-This README will only stay live for a short time (~30 minutes) to exchange updates before being replaced with the official project documentation again.  
+Here is the link to the documentation that outlines the structure and design of the project:  
+[Frontend Documentation with Screenshorts What you need to do](https://docs.google.com/document/d/1DOl1WVcVyol6PcT82H28yK2C3NbnJ9ayw6Nn_Bw4tiU/edit?usp=sharing)
 
+Please refer to this document for guidance on how to improve the frontend code, handle user interface (UI) changes, and address any required edits.
 If you need anything urgent, just leave me a direct message here in the platform.  
 Let’s keep everything professional and normal in the company chat as well.  
 
----
-
-## Temporary Contact (For Internal Reference Only)
-- WhatsApp: [+8801577011695](https://wa.me/8801577011695)
-- Email: [faysalworkspace@gmail.com](mailto:faysalworkspace@gmail.com)
-### Give me a quick message on any of the platforms so I can confirm that you got me. Just ping me now. I'm waiting
-
-
-*(These will be updated with official project contact details in the next version of this README.)*
-
----
-
-## Next Steps
-- Continue communication via the platform.  
-- I’ll update this README with the original documentation shortly.  
-
-Thanks,  
-Faysal
+## Steps to Implement:
+1. **Clone the Repository**:
+   Clone this repository to your local machine:
+   ```bash
+   git clone https://github.com/faysaldev/khaled_ecommer_multivendor
+   cd ecommerce-multivendor-frontend
+   ```
