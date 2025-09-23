@@ -1,7 +1,7 @@
 // Compatibility layer for existing designTokens usage
 // This provides backward compatibility while we migrate to the new token structure
 
-import { tokens } from "../lib/tokens";
+import { tokens } from "@/lib/tokens";
 
 // Create compatibility layer matching the old designTokens structure
 export const designTokens = {
@@ -118,4 +118,4 @@ export const designTokens = {
 };
 
 // Re-export the new tokens as well for migration
-export { tokens, tokens as newTokens } from "../lib/tokens";
+export { tokens, tokens as newTokens } from "@/lib/tokens";
