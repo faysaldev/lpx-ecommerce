@@ -13,10 +13,10 @@ import {
   Truck,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/UI/avatar";
+import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,8 +24,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+} from "@/components/UI/dropdown-menu";
+import { Input } from "@/components/UI/input";
 import {
   Table,
   TableBody,
@@ -33,8 +33,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import adminMockService, { type AdminOrder } from "@/lib/admin-mock";
+} from "@/components/UI/table";
+import adminMockService, { type AdminOrder } from "@/lib/types/admin-mock";
 
 export default function OrdersManagement() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
@@ -50,7 +50,7 @@ export default function OrdersManagement() {
   const stats = {
     totalOrders: orders.length,
     pendingOrders: orders.filter(
-      (o) => o.status === "pending" || o.status === "processing",
+      (o) => o.status === "pending" || o.status === "processing"
     ).length,
     completedOrders: orders.filter((o) => o.status === "completed").length,
     totalRevenue: orders.reduce((sum, order) => sum + order.total, 0),

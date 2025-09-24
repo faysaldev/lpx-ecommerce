@@ -11,9 +11,9 @@ import {
   XCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +21,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/UI/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -29,10 +29,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { VendorStyleFilterBar } from "@/features/browse/components/VendorStyleFilterBar";
-import adminMockService, { type AdminProduct } from "@/lib/admin-mock";
+} from "@/components/UI/table";
+import adminMockService, { type AdminProduct } from "@/lib/types/admin-mock";
 import type { SortOption, ViewMode } from "@/lib/browse-utils";
+import { VendorStyleFilterBar } from "@/components/Browse/VendorStyleFilterBar";
 
 interface StatusVariant {
   variant: "default" | "secondary" | "destructive" | "outline";

@@ -14,9 +14,9 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,8 +24,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+} from "@/components/UI/dropdown-menu";
+import { Input } from "@/components/UI/input";
 import {
   Table,
   TableBody,
@@ -33,11 +33,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import PaymentApprovalDialog from "@/features/payments/components/PaymentApprovalDialog";
-import PaymentRequestTable from "@/features/payments/components/PaymentRequestTable";
-import { PaymentRequestMockAPI } from "@/lib/api/mock/payment-requests";
+} from "@/components/UI/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/UI/tabs";
+import PaymentApprovalDialog from "@/components/Payments/PaymentApprovalDialog";
+import PaymentRequestTable from "@/components/Payments/PaymentRequestTable";
+// import { PaymentRequestMockAPI } from "@/lib/api/mock/payment-requests";
+
+import type {
+  PaymentRequest,
+  PaymentRequestStats,
+  PaymentRequestStatus,
+  VendorPaymentSummary,
+} from "@/lib/payment-request";
 import {
   filterPaymentRequests,
   formatCurrency,
@@ -45,13 +52,7 @@ import {
   getStatusBadgeVariant,
   getStatusDisplayText,
   sortPaymentRequests,
-} from "@/lib/payment-request-utils";
-import type {
-  PaymentRequest,
-  PaymentRequestStats,
-  PaymentRequestStatus,
-  VendorPaymentSummary,
-} from "@/types/payment-request";
+} from "@/lib/utils/helpers";
 
 export default function AdminPaymentManagementPage() {
   const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([]);
@@ -67,22 +68,22 @@ export default function AdminPaymentManagementPage() {
   const [sortBy, setSortBy] = useState<"date" | "amount" | "vendor">("date");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [selectedRequest, setSelectedRequest] = useState<PaymentRequest | null>(
-    null,
+    null
   );
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const [requests, summaries, statistics] = await Promise.all([
-        PaymentRequestMockAPI.getPaymentRequests(),
-        PaymentRequestMockAPI.getVendorSummaries(),
-        PaymentRequestMockAPI.getStats(),
-      ]);
+      // const [requests, summaries, statistics] = await Promise.all([
+      //   PaymentRequestMockAPI.getPaymentRequests(),
+      //   PaymentRequestMockAPI.getVendorSummaries(),
+      //   PaymentRequestMockAPI.getStats(),
+      // ]);
 
-      setPaymentRequests(requests);
-      setVendorSummaries(summaries);
-      setStats(statistics);
+      // setPaymentRequests(requests);
+      // setVendorSummaries(summaries);
+      // setStats(statistics);
     } catch (_error) {
       toast.error("Failed to load payment data");
     } finally {
@@ -102,7 +103,7 @@ export default function AdminPaymentManagementPage() {
       searchQuery: searchQuery || undefined,
     }),
     sortBy,
-    sortOrder,
+    sortOrder
   );
 
   const handleViewRequest = (request: PaymentRequest) => {
@@ -244,7 +245,7 @@ export default function AdminPaymentManagementPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>
-                  Payment Requests ({filteredAndSortedRequests.length})
+                  Payment Requests 5{/* ({filteredAndSortedRequests.length}) */}
                 </CardTitle>
                 <div className="flex items-center gap-2">
                   {/* Search */}
@@ -507,7 +508,7 @@ export default function AdminPaymentManagementPage() {
                           (stats.totalAmount -
                             stats.paidAmount -
                             stats.pendingAmount) *
-                            0.15,
+                            0.15
                         )}
                       </span>
                     </div>
@@ -526,7 +527,7 @@ export default function AdminPaymentManagementPage() {
               <div className="space-y-3">
                 {paymentRequests.slice(0, 5).map((request) => {
                   const { variant, className } = getStatusBadgeVariant(
-                    request.status,
+                    request.status
                   );
                   return (
                     <div

@@ -18,11 +18,11 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/UI/avatar";
+import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
+import { Checkbox } from "@/components/UI/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -38,8 +38,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+} from "@/components/UI/dropdown-menu";
+import { Input } from "@/components/UI/input";
 import { Label } from "@/components/ui/label";
 import {
   Table,
@@ -48,19 +48,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
-import adminMockService, { type AdminVendor } from "@/lib/admin-mock";
+} from "@/components/UI/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/UI/tabs";
+import { Textarea } from "@/components/UI/textarea";
+import adminMockService, { type AdminVendor } from "@/lib/types/admin-mock";
 
 export default function VendorsManagement() {
   const [vendors, setVendors] = useState<AdminVendor[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedVendor, setSelectedVendor] = useState<AdminVendor | null>(
-    null,
+    null
   );
   const [reviewAction, setReviewAction] = useState<"approve" | "reject" | null>(
-    null,
+    null
   );
   const [reviewNotes, setReviewNotes] = useState("");
   const [isReviewDialogOpen, setIsReviewDialogOpen] = useState(false);
@@ -68,7 +68,7 @@ export default function VendorsManagement() {
     "all" | "pending" | "verified" | "suspended"
   >("all");
   const [selectedVendors, setSelectedVendors] = useState<Set<string>>(
-    new Set(),
+    new Set()
   );
 
   useEffect(() => {
@@ -138,7 +138,7 @@ export default function VendorsManagement() {
 
   const handleVendorAction = (
     vendor: AdminVendor,
-    action: "approve" | "reject",
+    action: "approve" | "reject"
   ) => {
     setSelectedVendor(vendor);
     setReviewAction(action);

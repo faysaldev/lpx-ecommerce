@@ -320,3 +320,32 @@ export interface IAPIFactory {
   createWishlistAPI(): IWishlistAPI;
   createPaymentMethodsAPI(): IPaymentMethodsAPI;
 }
+
+export type NotificationType =
+  | "order"
+  | "system"
+  | "promotion"
+  | "vendor"
+  | "price_alert";
+export type NotificationPriority = "low" | "medium" | "high";
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  priority: NotificationPriority;
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  actionUrl?: string;
+  actionLabel?: string;
+  icon?: string;
+  metadata?: {
+    orderId?: string;
+    productId?: string;
+    vendorId?: string;
+    discount?: number;
+    previousPrice?: number;
+    currentPrice?: number;
+  };
+}

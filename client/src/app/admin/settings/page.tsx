@@ -7,12 +7,12 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+} from "@/components/UI/card";
+import { Input } from "@/components/UI/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/UI/separator";
+import { Switch } from "@/components/UI/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/UI/tabs";
 
 export default function SystemSettings() {
   return (
