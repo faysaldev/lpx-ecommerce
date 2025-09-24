@@ -22,7 +22,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { SimplePageLayout } from "@/components/layout/PageLayout";
 import { ProductCard } from "@/components/shared/ProductCard";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
 import { Product } from "@/lib/types";
 import { QuickView } from "@/components/Browse/QuickView";

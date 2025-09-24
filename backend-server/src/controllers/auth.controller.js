@@ -198,6 +198,20 @@ const deleteMe = catchAsync(async (req, res) => {
   );
 });
 
+const resendVerification = catchAsync(async (req, res) => {
+  const { email } = req.params;
+  const verification = await userService.resendVerification(email);
+
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Verification Sended to you Email",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: {},
+    })
+  );
+});
+
 module.exports = {
   register,
   login,
@@ -209,4 +223,5 @@ module.exports = {
   verifyEmail,
   deleteMe,
   changePassword,
+  resendVerification,
 };

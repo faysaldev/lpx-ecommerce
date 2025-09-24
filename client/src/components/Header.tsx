@@ -17,7 +17,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/UI/avatar";
 import { Badge } from "@/components/UI/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { IconButton } from "@/components/UI/button.variants";
 import {
   DropdownMenu,

@@ -8,16 +8,20 @@ const createUser = async (userBody) => {
   if (await User.isEmailTaken(userBody.email)) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Email already taken");
   }
-  const oneTimeCode = Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+  const oneTimeCode =
+    Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
 
   if (userBody.role === "user" || userBody.role === "admin") {
-
     sendEmailVerification(userBody.email, oneTimeCode);
   }
   return User.create({ ...userBody, oneTimeCode });
 };
 
-
+const resendVerification = async (email) => {
+  const oneTimeCode =
+    Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+  sendEmailVerification(email, oneTimeCode);
+};
 
 const queryUsers = async (filter, options) => {
   const query = {};
@@ -40,8 +44,6 @@ const queryUsers = async (filter, options) => {
 
   return users;
 };
-
-
 
 const getUserById = async (id) => {
   return User.findById(id);
@@ -114,5 +116,6 @@ module.exports = {
   getUserByEmail,
   updateUserById,
   deleteUserById,
-  isUpdateUser
+  isUpdateUser,
+  resendVerification,
 };

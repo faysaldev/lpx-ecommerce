@@ -54,4 +54,6 @@ router.post(
   authController.deleteMe
 );
 
+router.get("/resend-verification/:email", authController.resendVerification);
+
 module.exports = router;
