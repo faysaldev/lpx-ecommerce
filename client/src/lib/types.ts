@@ -1,8 +1,11 @@
 // API Types and Interfaces for the data layer abstraction
 
+import { OrderStatus } from "./checkout";
+
 export interface Product {
   id: string;
   name: string;
+  title?: string;
   slug: string;
   description: string;
   price: number;
@@ -38,6 +41,7 @@ export interface Product {
   featured: boolean;
   createdAt: string;
   updatedAt: string;
+  likes?: number;
 }
 
 export interface Category {
@@ -262,6 +266,27 @@ export interface PaymentMethod {
   brand?: string;
   isDefault: boolean;
   createdAt: string;
+}
+export interface OrderEvent {
+  id: string;
+  type:
+    | "status_change"
+    | "payment"
+    | "shipping"
+    | "delivery"
+    | "cancellation"
+    | "refund";
+  status?: OrderStatus;
+  title: string;
+  description: string;
+  timestamp: Date | string;
+  metadata?: {
+    trackingNumber?: string;
+    carrier?: string;
+    refundAmount?: number;
+    paymentMethod?: string;
+    location?: string;
+  };
 }
 
 // Factory interface for creating API instances

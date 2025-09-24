@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Heart, Minus, Package, Plus, X } from "lucide-react";
@@ -106,13 +107,68 @@ interface CartItemProps {
   onRemove: (itemId: string) => void;
 }
 
+interface CartItem {
+  id: string;
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+  vendor: string;
+  product: ExtendedProduct; // The product field is of type ExtendedProduct
+}
+
 export default function CartItem({
   item,
   onUpdateQuantity,
   onRemove,
 }: CartItemProps) {
   const [isUpdating, setIsUpdating] = useState(false);
-  const { product, quantity } = item;
+  const { product, quantity }: any = {
+    id: "1",
+    productId: "101",
+    name: "Product A",
+    price: 100,
+    quantity: 2,
+    image: "https://via.placeholder.com/150",
+    vendor: "Vendor A",
+    product: {
+      id: 101,
+      name: "Product A",
+      price: 100,
+      compareAtPrice: 120,
+      description: "A high-quality product.",
+      category: "Electronics",
+      stock: 5,
+      state: "sealed",
+      grading: undefined, // No grading for this product
+      condition: undefined, // No condition for this product
+      rarity: "Rare",
+      slug: "product-a", // Added missing field
+      originalPrice: 150, // Added missing field
+      image: "https://via.placeholder.com/150", // Added missing field
+      images: [
+        "https://via.placeholder.com/150",
+        "https://via.placeholder.com/150",
+      ], // Added missing field
+      tags: ["electronics", "high quality"], // Added missing field
+      vendorId: "vendor-1", // Added missing field
+      rating: 4.5, // Added missing field
+      reviewCount: 10, // Added missing field
+      createdAt: "2023-01-01T00:00:00Z", // Added missing field
+      updatedAt: "2023-01-01T00:00:00Z", // Added missing field
+      authenticity: {
+        verified: true, // Added missing field
+        certificate: "ABC123", // Added missing field
+        verifiedBy: "Certifier", // Added missing field
+        verificationDate: "2023-01-01", // Added missing field
+      },
+    },
+  };
+
+  console.log(product);
+
+  // const
 
   const handleQuantityChange = async (newQuantity: number) => {
     setIsUpdating(true);
