@@ -1,6 +1,7 @@
 // API Types and Interfaces for the data layer abstraction
 
 import { OrderStatus } from "./checkout";
+import { PaymentRequestItem, PaymentRequestStatus } from "./payment-request";
 
 export interface Product {
   id: string;
@@ -289,6 +290,27 @@ export interface OrderEvent {
   };
 }
 
+export interface PaymentRequest {
+  id: string;
+  vendorId: string;
+  vendorName: string;
+  vendorEmail: string;
+  status: PaymentRequestStatus;
+  requestDate: string;
+  approvedDate?: string;
+  paidDate?: string;
+  rejectedDate?: string;
+  totalAmount: number;
+  commission: number;
+  netAmount: number;
+  items: PaymentRequestItem[];
+  notes?: string;
+  adminNotes?: string;
+  invoiceUrl?: string; // Vendor uploaded invoice
+  paymentProofUrl?: string; // Admin uploaded payment proof
+  approvedBy?: string;
+  rejectedReason?: string;
+}
 // Factory interface for creating API instances
 export interface IAPIFactory {
   createProductAPI(): IProductAPI;
