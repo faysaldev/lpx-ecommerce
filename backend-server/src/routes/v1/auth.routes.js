@@ -55,5 +55,6 @@ router.post(
 );
 
 router.get("/resend-verification/:email", authController.resendVerification);
+router.get("/check-user/:email", authController.checkUserExist);
 
 module.exports = router;

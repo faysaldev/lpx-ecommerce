@@ -34,7 +34,7 @@ import PageLayout from "@/components/layout/PageLayout";
 import { EmptyStates } from "@/components/shared/EmptyState";
 import { ProductCard } from "@/components/shared/ProductCard";
 import { Badge } from "@/components/UI/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
 // import { CategoryBadge } from "@/components/ui/badge.variants";
 import { productStyles } from "@/components/UI/product.variants";

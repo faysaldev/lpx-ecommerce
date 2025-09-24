@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Alert, AlertDescription } from "@/components/UI/alert";
@@ -11,15 +12,20 @@ import {
   CardTitle,
 } from "@/components/UI/card";
 import { Input } from "@/components/UI/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/UI/label";
+import {
+  useResendVerificationMutation,
+  useVerifyEmailMutation,
+} from "@/redux/features/auth/authApi";
 import { ArrowLeft, CheckCircle, Loader2, Mail, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 function VerifyEmailForm() {
   const [verificationCode, setVerificationCode] = useState("");
-  const [error, setError] = useState("");
+  const [errors, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
@@ -27,19 +33,24 @@ function VerifyEmailForm() {
   const [email, setEmail] = useState("");
   //   const { isSignedIn } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [verificationEmailCode] = useVerifyEmailMutation();
+  const [resendVerification, { data, error, isLoading: resendLoading }] =
+    useResendVerificationMutation();
 
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const searchParams = useSearchParams();
   // Extract email from URL params
-  //   useEffect(() => {
-  //     const emailParam = searchParams.get("email");
-  //     if (emailParam) {
-  //       setEmail(decodeURIComponent(emailParam));
-  //     } else {
-  //       // If no email provided, redirect to sign-up
-  //       router.push("/sign-up");
-  //     }
-  //   }, [searchParams, router]);
+  useEffect(() => {
+    // const emailParam = searchParams.get("email");
+    const email = searchParams ? searchParams.get("email") : null;
+
+    if (email) {
+      setEmail(decodeURIComponent(email));
+    } else {
+      // If no email provided, redirect to sign-up
+      router.push("/sign-up");
+    }
+  }, [searchParams, router]);
 
   // Redirect if already signed in
   //   useEffect(() => {
@@ -128,23 +139,14 @@ function VerifyEmailForm() {
         return;
       }
 
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const data = {
+        email: email,
+        code: verificationCode,
+      };
+      console.log(data, "verfiy code");
 
-      // Simulate successful verification
-      setSuccess(true);
-
-      // After showing success, redirect to dashboard
-      setTimeout(() => {
-        const userRole = getDemoUserRole(email);
-        if (userRole === "admin") {
-          router.push("/admin");
-        } else if (userRole === "vendor") {
-          router.push("/vendor/dashboard");
-        } else {
-          router.push("/dashboard");
-        }
-      }, 2000);
+      const res = await verificationEmailCode(data);
+      if (res) router.replace("/auth/signin");
     } catch (_err) {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -158,13 +160,12 @@ function VerifyEmailForm() {
 
     try {
       // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Start countdown timer
-      setResendCountdown(60);
-
+      const response = await resendVerification({ email }).unwrap();
+      console.log(response, "resend email code"); // Log the response data
       // Show success message
-      alert("Verification email sent! Check your inbox (this is a demo).");
+      toast.success(
+        "Verification email sent! Check your inbox (this is a demo)."
+      );
     } catch (_err) {
       setError("Failed to resend email. Please try again.");
     } finally {
@@ -274,7 +275,7 @@ function VerifyEmailForm() {
 
               {error && (
                 <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>{errors}</AlertDescription>
                 </Alert>
               )}
 

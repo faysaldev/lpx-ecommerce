@@ -3,7 +3,7 @@
 import { ArrowLeft, CheckCircle, Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 import { Suspense, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import {
   Card,
   CardContent,
@@ -12,24 +12,34 @@ import {
   CardTitle,
 } from "@/components/UI/card";
 import { Alert, AlertDescription } from "@/components/UI/alert";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/UI/label";
 import { Input } from "@/components/UI/input";
+import {
+  useCheckUserExistMutation,
+  useResitPasswordMutation,
+} from "@/redux/features/auth/authApi";
+import { useRouter } from "next/navigation";
 
 function ForgotPasswordForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [resendVerification, { data, error, isLoading: resendLoading }] =
+    useCheckUserExistMutation();
+  const [resetPasswordSection] = useResitPasswordMutation();
   // Check if email exists in our demo users
-  const isValidDemoEmail = (email: string): boolean => {
-    const demoEmails = [
-      "test@gmail.com",
-      "vendor@gmail.com",
-      "admin@gmail.com",
-    ];
-    return demoEmails.includes(email.toLowerCase());
-  };
+  // const isValidDemoEmail = (email: string): boolean => {
+  //   const demoEmails = [
+  //     "test@gmail.com",
+  //     "vendor@gmail.com",
+  //     "admin@gmail.com",
+  //   ];
+  //   return demoEmails.includes(email.toLowerCase());
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,16 +54,23 @@ function ForgotPasswordForm() {
         return;
       }
 
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (!showPassword) {
+        const response = await resendVerification({ email }).unwrap();
+        if (!response?.data?.data.attributes) {
+          setError(
+            "No account found with this email address. Please check your email or create a new account."
+          );
+          return;
+        }
+
+        setShowPassword(true);
+      } else {
+        const data = { email, password };
+        const res = await resetPasswordSection(data);
+        router.replace("/auth/signin");
+      }
 
       // Check if email exists in our demo system
-      if (!isValidDemoEmail(email)) {
-        setError(
-          "No account found with this email address. Please check your email or create a new account."
-        );
-        return;
-      }
 
       // Simulate successful password reset email sending
       setSuccess(true);
@@ -67,11 +84,6 @@ function ForgotPasswordForm() {
   const handleTryAgain = () => {
     setSuccess(false);
     setEmail("");
-    setError("");
-  };
-
-  const fillDemoEmail = (demoEmail: string) => {
-    setEmail(demoEmail);
     setError("");
   };
 
@@ -173,10 +185,38 @@ function ForgotPasswordForm() {
                   autoComplete="email"
                 />
               </div>
+              {showPassword ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="Type your new password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      autoComplete="password"
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoComplete="email"
+                  />
+                </div>
+              )}
 
               {error && (
                 <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+                  <AlertDescription>{errors}</AlertDescription>
                 </Alert>
               )}
 
@@ -196,7 +236,7 @@ function ForgotPasswordForm() {
             </form>
 
             {/* Demo email buttons */}
-            <div className="mt-6 space-y-2">
+            {/* <div className="mt-6 space-y-2">
               <p className="text-sm text-muted-foreground text-center">
                 Demo emails (click to fill):
               </p>
@@ -229,7 +269,7 @@ function ForgotPasswordForm() {
                   admin@gmail.com (Admin)
                 </Button>
               </div>
-            </div>
+            </div> */}
 
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
@@ -243,14 +283,14 @@ function ForgotPasswordForm() {
               </p>
             </div>
 
-            <div className="mt-4 text-center">
+            {/* <div className="mt-4 text-center">
               <p className="text-sm text-muted-foreground">
                 Don{`'`}t have an account?{" "}
                 <Link href="/sign-up" className="text-primary hover:underline">
                   Sign up
                 </Link>
               </p>
-            </div>
+            </div> */}
 
             <div className="mt-4 p-4 bg-muted rounded-lg">
               <p className="text-xs text-muted-foreground text-center">

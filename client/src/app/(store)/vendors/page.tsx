@@ -29,7 +29,7 @@ import {
   AccordionTrigger,
 } from "@/components/UI/accordion";
 import { Badge } from "@/components/UI/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { Checkbox } from "@/components/UI/checkbox";
 import {
   DropdownMenu,
@@ -63,6 +63,7 @@ import type { Vendor } from "@/lib/types";
 import type { SortOption, ViewMode } from "@/lib/browse-utils";
 import { cn } from "@/lib/utils";
 import { VendorStyleFilterBar } from "@/components/Browse/VendorStyleFilterBar";
+import { useVendorGetsQuery } from "@/redux/features/vendors/vendor";
 
 // Helper function to extend vendor data while preserving our organized data
 const generateExtendedVendors = (vendors: Vendor[]) => {
@@ -1178,6 +1179,10 @@ export default function VendorsPage() {
       willShowEmptyState: paginatedVendors.length === 0,
       willShowVendors: paginatedVendors.length > 0,
     });
+
+  const { data: vendorsData } = useVendorGetsQuery({});
+
+  console.log(vendorsData, "taking vendor data");
 
   return (
     <PageLayout

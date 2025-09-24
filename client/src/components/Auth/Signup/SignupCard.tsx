@@ -12,9 +12,10 @@ import {
   LoadingOutlined,
 } from "@ant-design/icons";
 import Link from "next/link";
-import usePublicAxiosSecure from "@/hooks/useAxiosPublic";
+// import usePublicAxiosSecure from "@/hooks/useAxiosPublic";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+// import axios from "axios";
+import { useRegisterMutation } from "@/redux/features/auth/authApi";
 
 const { Text } = Typography;
 const { Password } = Input;
@@ -24,7 +25,9 @@ function SignupCard() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const router = useRouter();
-  const axiosPublic = usePublicAxiosSecure();
+  // const axiosPublic = usePublicAxiosSecure();
+
+  const [adduser] = useRegisterMutation();
 
   const onFinish = async (values: any) => {
     setLoading(true);
@@ -33,17 +36,18 @@ function SignupCard() {
 
     try {
       console.log(values, "console. value");
-      const res = await axios.post(
-        `${process.env.NEXT_PUBLIC_BACKEND_URI}/api/v1/auth/register`,
-        {
-          email: values.email,
-          password: values.password,
-          name: `${values.firstName}`,
-          phoneNumber: values.phone,
-          role: "user",
-          type: "customer",
-        }
-      );
+      const data = {
+        email: values.email,
+        password: values.password,
+        name: `${values.firstName}`,
+        phoneNumber: values.phone,
+        role: "user",
+        type: "customer",
+      };
+
+      const res = await adduser(data);
+      console.log("add user data show this section ", res);
+
       if (!res.data) return;
       setSuccess(
         "Account created successfully! Redirecting to email verification..."
@@ -212,7 +216,7 @@ function SignupCard() {
 
         {/* Sign In Link */}
         <div className="text-center">
-          <Link href="/sign-in">
+          <Link href="/auth/signin">
             <Button type="link" className="text-indigo-600 font-medium">
               Sign in to your account
             </Button>

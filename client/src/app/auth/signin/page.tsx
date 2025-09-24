@@ -13,8 +13,11 @@ import {
   CardTitle,
 } from "@/components/UI/card";
 import { Input } from "@/components/UI/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/UI/label";
+import { useLoginMutation } from "@/redux/features/auth/authApi";
+import { Button } from "@/components/UI/button";
+import { useAppDispatch } from "@/redux/hooks";
+import { setUser } from "@/redux/features/auth/authSlice";
 
 function SignInForm() {
   const [email, setEmail] = useState("");
@@ -24,6 +27,8 @@ function SignInForm() {
   //   const { login, isSignedIn } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [loginUserSection] = useLoginMutation();
+  const dispatch = useAppDispatch();
 
   //   useEffect(() => {
   //     if (isSignedIn) {
@@ -38,17 +43,19 @@ function SignInForm() {
     setIsLoading(true);
 
     try {
-      //   const success = login(email, password);
-      //   if (success) {
-      //     const redirectUrl = searchParams.get("redirect_url");
-      //     router.push(
-      //       redirectUrl ? decodeURIComponent(redirectUrl) : "/dashboard"
-      //     );
-      //   } else {
-      //     setError(
-      //       'Invalid email or password. Try test@gmail.com with password "password"'
-      //     );
-      //   }
+      const data = {
+        email: email,
+        password: password,
+        fcmToken: "The new Auth FMC token",
+      };
+      const res = await loginUserSection(data);
+      console.log(res);
+      const { user } = res?.data?.data?.attributes;
+      const { token } = res?.data?.data?.attributes?.tokens?.access;
+      if (res) {
+        dispatch(setUser({ user, token }));
+        router.replace("/browse");
+      }
     } catch (_err) {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -105,7 +112,7 @@ function SignInForm() {
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
                   <Link
-                    href="/forgot-password"
+                    href="/auth/forgot-password"
                     className="text-sm text-primary hover:underline"
                   >
                     Forgot password?
@@ -142,7 +149,7 @@ function SignInForm() {
               </Button>
             </form>
 
-            {/* Demo credentials buttons */}
+            {/* Demo credentials buttons
             <div className="mt-6 space-y-2">
               <p className="text-sm text-muted-foreground text-center"></p>
               <div className="flex gap-2">
@@ -174,7 +181,7 @@ function SignInForm() {
                   Admin
                 </Button>
               </div>
-            </div>
+            </div> */}
 
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">

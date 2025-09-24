@@ -1,10 +1,10 @@
 "use client";
-
-import { useRouter } from "next/navigation";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import PageLayout from "@/components/layout/PageLayout";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
 import { Checkbox } from "@/components/UI/checkbox";
 import { Input } from "@/components/UI/input";
@@ -17,23 +17,59 @@ import {
   SelectValue,
 } from "@/components/UI/select";
 import { Textarea } from "@/components/UI/textarea";
+import { useVendorCreateMutation } from "@/redux/features/vendors/vendor";
 
 export default function BecomeVendorPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [vendorCreationApplication] = useVendorCreateMutation();
 
-  const handleApplicationSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const handleApplicationSubmit = async (e: any) => {
+    e.preventDefault(); // Prevent the default form submission behavior
+    setIsSubmitting(true); // Set submission state to true
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const form = e.target; // Get the form element
 
-    toast.success(
-      "Application submitted successfully! We'll review it within 24-48 hours."
-    );
-    router.push("/");
-    setIsSubmitting(false);
+    // Get form values
+    const firstName = form.firstUserName.value;
+    const lastName = form.lastName.value;
+    const storeName = form.storeName.value;
+    const email = form.email.value;
+    const phone = form.phone.value;
+    const category = form.category.value;
+    const website = form.website.value;
+    const description = form.description.value;
+    const experience = form.experience.value;
+    const terms = form.terms.checked;
+
+    const data = {
+      firstName,
+      lastName,
+      storeName,
+      email,
+      phone,
+      category,
+      website,
+      description,
+      experience,
+      terms,
+    };
+
+    console.log("all form data show ", data);
+
+    // You can now call the mutation to create a vendor or process the data
+    try {
+      const res = await vendorCreationApplication(data);
+
+      toast.success(
+        "Application submitted successfully! We'll review it within 24-48 hours."
+      );
+      router.push("/"); // Redirect after submission
+    } catch (error) {
+      toast.error("An error occurred. Please try again.");
+    }
+
+    setIsSubmitting(false); // Reset submission state
   };
 
   return (
@@ -48,17 +84,28 @@ export default function BecomeVendorPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="firstName">First Name *</Label>
-                <Input id="firstName" required className="mt-1" />
+                <Input
+                  name="firstUserName"
+                  id="firstName"
+                  required
+                  className="mt-1"
+                />
               </div>
               <div>
                 <Label htmlFor="lastName">Last Name *</Label>
-                <Input id="lastName" required className="mt-1" />
+                <Input
+                  name="lastName"
+                  id="lastName"
+                  required
+                  className="mt-1"
+                />
               </div>
             </div>
 
             <div>
               <Label htmlFor="storeName">Store Name *</Label>
               <Input
+                name="storeName"
                 id="storeName"
                 placeholder="Your store name"
                 required
@@ -68,17 +115,23 @@ export default function BecomeVendorPage() {
 
             <div>
               <Label htmlFor="email">Email Address *</Label>
-              <Input id="email" type="email" required className="mt-1" />
+              <Input
+                name="email"
+                id="email"
+                type="email"
+                required
+                className="mt-1"
+              />
             </div>
 
             <div>
               <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" type="tel" className="mt-1" />
+              <Input name="phone" id="phone" type="tel" className="mt-1" />
             </div>
 
             <div>
               <Label htmlFor="category">Primary Category *</Label>
-              <Select required>
+              <Select name="category" required>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select a category" />
                 </SelectTrigger>
@@ -97,6 +150,7 @@ export default function BecomeVendorPage() {
             <div>
               <Label htmlFor="website">Website / Social Media</Label>
               <Input
+                name="website"
                 id="website"
                 type="url"
                 placeholder="https://example.com"
@@ -107,6 +161,7 @@ export default function BecomeVendorPage() {
             <div>
               <Label htmlFor="description">Tell us about your business *</Label>
               <Textarea
+                name="description"
                 id="description"
                 placeholder="What types of items do you plan to sell? How long have you been in business?"
                 className="min-h-[120px] mt-1"
@@ -118,7 +173,7 @@ export default function BecomeVendorPage() {
               <Label htmlFor="experience">
                 Experience selling collectibles
               </Label>
-              <Select>
+              <Select name="experience">
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="Select your experience level" />
                 </SelectTrigger>
@@ -132,7 +187,7 @@ export default function BecomeVendorPage() {
             </div>
 
             <div className="flex items-center space-x-2">
-              <Checkbox id="terms" required />
+              <Checkbox name="terms" id="terms" required />
               <label
                 htmlFor="terms"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"

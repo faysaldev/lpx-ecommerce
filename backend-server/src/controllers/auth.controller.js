@@ -212,6 +212,20 @@ const resendVerification = catchAsync(async (req, res) => {
   );
 });
 
+const checkUserExist = catchAsync(async (req, res) => {
+  const { email } = req.params;
+  const verification = await userService.getUserByEmail(email);
+
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Verification Sended to you Email",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: {},
+    })
+  );
+});
+
 module.exports = {
   register,
   login,
@@ -224,4 +238,5 @@ module.exports = {
   deleteMe,
   changePassword,
   resendVerification,
+  checkUserExist,
 };

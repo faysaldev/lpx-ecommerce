@@ -52,14 +52,11 @@ const userSchema = mongoose.Schema(
       required: true,
       default: "customer",
     },
-    // seller, admin, customer
 
-    // ─── Driver-only fields ───────────────────────────────────────────────
     address: {
       type: String,
       default: null,
     },
-    // ──────────────────────────────────────────────────────────────────────
 
     phoneNumber: {
       type: String,
@@ -120,8 +117,7 @@ userSchema.pre("save", async function (next) {
 });
 
 // Indexes
-userSchema.index({ name: 1 });
-userSchema.index({ type: 1 });
+userSchema.index({ email: 1 });
 
 const User = mongoose.model("User", userSchema);
 module.exports = User;
