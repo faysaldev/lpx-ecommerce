@@ -14,7 +14,7 @@ import {
   Store,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/UI/avatar";
 import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
@@ -38,23 +38,18 @@ import {
 import { designTokens } from "@/design-system/compat";
 // import { getNavigationCategories } from "@/lib/categories";
 import { cn } from "@/lib/utils";
+import { useAppSelector, useAppDispatch } from "@/redux/hooks";
+import { logout, selectCurrentUser } from "@/redux/features/auth/authSlice";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [categories, setCategories] = useState<
     { name: string; slug: string; productCount?: number }[]
   >([]);
+  const dispatch = useAppDispatch();
   // const { user, isLoaded, isSignedIn } = useUser();
-  const user = {
-    firstName: "Faysal",
-    fullName: "Faysal Mridha",
-    primaryEmailAddress: {
-      emailAddresses: "faysalworkspace@gmail.com",
-    },
-    emailAddresses: "faysalworkspace@gmail.com",
-    imageUrl: "https://i.ibb.co.com/vC5KzDKV/images.jpg",
-    role: "admin",
-  };
+  const user = useAppSelector(selectCurrentUser);
+
   // const { signOut } = useClerk();
   // const { itemCount } = useCart();
   const isLoaded = true;
@@ -205,11 +200,11 @@ export default function Header() {
                       >
                         <Avatar className="h-10 w-10">
                           <AvatarImage
-                            src={user?.imageUrl}
-                            alt={user?.firstName || "User"}
+                            src={user?.image ? user?.image : "/userProfile.svg"}
+                            alt={user?.name || "User"}
                           />
                           <AvatarFallback>
-                            {user?.firstName?.charAt(0).toUpperCase() || "U"}
+                            {user?.name?.charAt(0).toUpperCase() || "U"}
                           </AvatarFallback>
                         </Avatar>
                       </Button>
@@ -218,10 +213,10 @@ export default function Header() {
                       <DropdownMenuLabel className="font-normal">
                         <div className="flex flex-col space-y-1">
                           <p className="text-sm font-medium leading-none">
-                            {user?.fullName || user?.firstName || "User"}
+                            {user?.name || user?.name || "User"}
                           </p>
                           <p className="text-xs leading-none text-muted-foreground">
-                            {user?.primaryEmailAddress?.emailAddresses}
+                            {user?.email}
                           </p>
                         </div>
                       </DropdownMenuLabel>
@@ -232,7 +227,7 @@ export default function Header() {
                           Dashboard
                         </Link>
                       </DropdownMenuItem>
-                      {user?.role === "vendor" && (
+                      {user?.type === "vendor" && (
                         <DropdownMenuItem asChild>
                           <Link
                             href="/vendor/dashboard"
@@ -243,7 +238,7 @@ export default function Header() {
                           </Link>
                         </DropdownMenuItem>
                       )}
-                      {user?.role === "admin" && (
+                      {user?.type === "admin" && (
                         <DropdownMenuItem asChild>
                           <Link href="/admin" className="cursor-pointer">
                             <Shield className="mr-2 h-4 w-4" />
@@ -278,7 +273,7 @@ export default function Header() {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        // onClick={() => signOut()}
+                        onClick={() => dispatch(logout())}
                         className="cursor-pointer"
                       >
                         <LogOut className="mr-2 h-4 w-4" />
@@ -370,19 +365,21 @@ export default function Header() {
                         <div className="flex items-center gap-3 py-2">
                           <Avatar className="h-8 w-8">
                             <AvatarImage
-                              src={user?.imageUrl}
-                              alt={user?.firstName || "User"}
+                              src={
+                                user?.image ? user?.image : "/userProfile.svg"
+                              }
+                              alt={user?.name || "User"}
                             />
                             <AvatarFallback>
-                              {user?.firstName?.charAt(0).toUpperCase() || "U"}
+                              {user?.name?.charAt(0).toUpperCase() || "U"}
                             </AvatarFallback>
                           </Avatar>
                           <div>
                             <p className="font-medium">
-                              {user?.fullName || user?.firstName || "User"}
+                              {user?.name || user?.name || "User"}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              {user?.primaryEmailAddress?.emailAddresses}
+                              {user?.email}
                             </p>
                           </div>
                         </div>
@@ -422,7 +419,7 @@ export default function Header() {
                         >
                           Settings
                         </Link>
-                        {user?.role !== "vendor" && (
+                        {user?.type !== "vendor" && (
                           <Link
                             href="/sell"
                             className="py-2 hover:text-primary transition"

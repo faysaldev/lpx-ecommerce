@@ -14,7 +14,7 @@ import Link from "next/link";
 import PageLayout from "@/components/layout/PageLayout";
 import { Avatar, AvatarFallback } from "@/components/UI/avatar";
 import { Badge } from "@/components/UI/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import {
   Card,
   CardContent,
@@ -22,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/UI/card";
+import ProtectedRoute from "@/Provider/ProtectedRoutes";
 // import { useWishlist } from "@/context/WishlistContext";
 
 function DashboardContent() {
@@ -231,5 +232,9 @@ function DashboardContent() {
 }
 
 export default function DashboardPage() {
-  return <DashboardContent />;
+  return (
+    <ProtectedRoute allowedTypes={["customer", "admin"]}>
+      <DashboardContent />;
+    </ProtectedRoute>
+  );
 }

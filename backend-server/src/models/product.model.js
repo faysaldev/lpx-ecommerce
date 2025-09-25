@@ -5,10 +5,11 @@ const arrayLimit = (val) => val.length <= 8;
 
 const ProductSchema = new Schema(
   {
-    vendor: { type: Schema.Types.ObjectId, ref: "Vendor", required: true }, // Reference to the Vendor who owns the product
-    productName: { type: String, required: true }, // Name of the product
-    description: { type: String, required: true }, // Description of the product
-    category: { type: String, required: true }, // Product category
+    vendor: { type: Schema.Types.ObjectId, ref: "Vendor", required: true },
+    authorId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    productName: { type: String, required: true },
+    description: { type: String, required: true },
+    category: { type: String, required: true },
     condition: {
       type: String,
       enum: [
@@ -24,7 +25,7 @@ const ProductSchema = new Schema(
         "BGS Graded",
       ],
       required: true,
-    }, // Condition of the product
+    },
     rarity: {
       type: String,
       enum: [
@@ -40,25 +41,21 @@ const ProductSchema = new Schema(
         "First Edition",
       ],
       required: true,
-    }, // Rarity of the product
-    tags: { type: [String], default: [] }, // Tags for the product
-    price: { type: Number, required: true }, // Price of the product
-    optionalPrice: { type: Number }, // Optional price for product
-    stockQuantity: { type: Number, required: true }, // Stock quantity
+    },
+    tags: { type: [String], default: [] },
+    price: { type: Number, required: true },
+    optionalPrice: { type: Number },
+    stockQuantity: { type: Number, required: true },
     images: {
       type: [String],
       validate: [arrayLimit, "{PATH} exceeds the limit of 8"],
-    }, // Array of image URLs (max 8 images)
+    },
     shipping: {
       shippingCost: { type: Number, required: true }, // Shipping cost
       weight: { type: Number, required: true }, // Weight of the product
-      dimensions: {
-        length: { type: Number, required: true }, // Length of the product
-        width: { type: Number }, // Width of the product
-        height: { type: Number }, // Height of the product
-      }, // Dimensions of the product (length, width, height)
+      dimensions: { type: String }, // Dimensions of the product (length, width, height)
     },
-    isDraft: { type: Boolean, default: false }, // Boolean to mark the product as a draft
+    isDraft: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

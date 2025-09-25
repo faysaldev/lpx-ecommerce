@@ -64,20 +64,27 @@ export interface AdminOrder {
 
 export interface AdminVendor {
   id: string;
-  name: string;
-  owner: string;
+  _id?: string;
+  seller: string;
+  firstName: string;
+  lastName: string;
+  ownerName?: string;
+  storeName: string;
   email: string;
-  products: number;
-  sales: number;
-  revenue: number;
-  rating: number;
-  status: "verified" | "pending" | "suspended";
-  joined: string;
-  location: {
-    city: string;
-    country: string;
-  };
-  avatar?: string;
+  description: string;
+  category: string;
+  website: string;
+  socialLinks: {
+    type: string;
+    username: string;
+    _id: string;
+  }[];
+  ratings: number[];
+  averageRating: number;
+  status: "approved" | "pending" | "suspended";
+  verified: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AdminActivity {
@@ -180,7 +187,7 @@ class AdminMockService {
     const pendingProducts = products.filter(
       (p) => p.status === "pending"
     ).length;
-    const activeVendors = vendors.filter((v) => v.status === "verified").length;
+    const activeVendors = vendors.filter((v) => v.status === "approved").length;
     const pendingVendors = vendors.filter((v) => v.status === "pending").length;
 
     return {
@@ -237,10 +244,10 @@ class AdminMockService {
       activities.push({
         id: `activity-vendor-${vendor.id}`,
         action: `Vendor verified`,
-        details: `${vendor.name} has been verified and approved`,
+        details: `${vendor.storeName} has been verified and approved`,
         status: "success",
-        time: this.getRelativeTime(vendor.joined),
-        user: vendor.owner,
+        time: this.getRelativeTime(vendor.createdAt),
+        user: vendor.ownerName,
         type: "vendor",
       });
     });

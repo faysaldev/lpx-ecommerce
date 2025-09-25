@@ -16,7 +16,13 @@ const getMyDrafts = catchAsync(async (req, res) => {
 });
 
 const addNewDrafts = catchAsync(async (req, res) => {
-  const drafts = await draftService.addNewDrafts(req.body);
+  const imagePaths = req?.files?.image?.map((img) => `${img.path}`);
+
+  const drafts = await draftService.addNewDrafts({
+    images: imagePaths,
+    ...req.body,
+    authorId: req.user.id,
+  });
   res.status(httpStatus.CREATED).json(
     response({
       message: "Added Drafts",

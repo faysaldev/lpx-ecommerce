@@ -23,6 +23,4 @@ router
     userController.updateProfile
   );
 
-  
-
 module.exports = router;

@@ -18,7 +18,7 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/UI/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Progress } from "@/components/UI/progress";
 import {

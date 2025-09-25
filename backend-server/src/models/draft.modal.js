@@ -49,11 +49,7 @@ const DraftProductSchema = new Schema({
   shipping: {
     shippingCost: { type: Number },
     weight: { type: Number },
-    dimensions: {
-      length: { type: Number },
-      width: { type: Number },
-      height: { type: Number },
-    },
+    dimensions: { type: String },
   },
   isDraft: { type: Boolean, default: true },
 });

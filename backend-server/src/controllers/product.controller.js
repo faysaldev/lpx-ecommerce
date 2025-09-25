@@ -16,7 +16,14 @@ const getMyProducts = catchAsync(async (req, res) => {
 });
 
 const addNewProducts = catchAsync(async (req, res) => {
-  const products = await productService.addNewProducts(req.body);
+  // console.log(req.files, req.body);
+  // return;
+  const imagePaths = req?.files?.image?.map((img) => `${img.path}`);
+  const products = await productService.addNewProducts({
+    images: imagePaths,
+    ...req.body,
+    authorId: req.user.id,
+  });
   res.status(httpStatus.CREATED).json(
     response({
       message: "Added Products",

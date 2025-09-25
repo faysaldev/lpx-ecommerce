@@ -33,6 +33,7 @@ const createVendorRequest = catchAsync(async (req, res) => {
   const createVendor = await vendorService.createVendorRequest({
     ...req.body,
     seller: req.user.id,
+    ownerName: req.user.name,
   });
   res.status(httpStatus.CREATED).json(
     response({
