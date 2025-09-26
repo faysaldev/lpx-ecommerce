@@ -5,12 +5,13 @@ import Link from "next/link";
 import PageLayout from "@/components/layout/PageLayout";
 import { EmptyStates } from "@/components/shared/EmptyState";
 import { ProductCard } from "@/components/shared/ProductCard";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 // import { useWishlist } from "@/context/WishlistContext";
 import { designTokens } from "@/design-system/compat";
 import { cn } from "@/lib/utils";
 // import type { Product } from "@/lib/types";
 import { useState } from "react";
+import { useGetUserWishlistQuery } from "@/redux/features/wishList/wishlist";
 
 interface Product {
   id: string;
@@ -86,6 +87,9 @@ function WishlistContent() {
       updatedAt: new Date().toISOString(), // Convert to ISO string
     },
   ]);
+  const { data: wishListQuery } = useGetUserWishlistQuery({});
+
+  console.log(wishListQuery, "all the wishlist");
 
   const breadcrumbs = [{ label: "Wishlist" }];
 
