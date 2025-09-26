@@ -1,7 +1,7 @@
 import { Facebook, Instagram, Package, Twitter, Youtube } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/UI/separator";
-
+// manik added comment
 export default function Footer() {
   return (
     <footer className="bg-background border-t border-border text-foreground mt-auto">
