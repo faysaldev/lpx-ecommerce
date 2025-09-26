@@ -18,7 +18,8 @@ const myCartList = catchAsync(async (req, res) => {
 const addToCartlist = catchAsync(async (req, res) => {
   const addToCart = await cartService.addToCartlist({
     customer: req.user.id,
-    products: req.body.products,
+    ...req.body,
+    totalPrice: req.body?.price * req.body?.quantity,
   });
   res.status(httpStatus.CREATED).json(
     response({
@@ -42,8 +43,21 @@ const removeToCartlist = catchAsync(async (req, res) => {
   );
 });
 
+const removeAllCartList = catchAsync(async (req, res) => {
+  const removeCart = await cartService.removeAllCartList(req.params.id);
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Remove Cart to Cart List",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: removeCart,
+    })
+  );
+});
+
 module.exports = {
   myCartList,
   removeToCartlist,
   addToCartlist,
+  removeAllCartList,
 };

@@ -29,11 +29,16 @@ const getVendors = catchAsync(async (req, res) => {
 });
 
 const createVendorRequest = catchAsync(async (req, res) => {
-  console.log(req.user);
+  if (req.file) {
+    req.body.storePhoto = `/uploads/users/${req.file.filename}`;
+  }
+
+  console.log(req);
   const createVendor = await vendorService.createVendorRequest({
     ...req.body,
     seller: req.user.id,
     ownerName: req.user.name,
+    socialLinks: JSON.parse(req?.body?.socialLinks),
   });
   res.status(httpStatus.CREATED).json(
     response({

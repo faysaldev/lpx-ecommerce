@@ -53,7 +53,7 @@ export default function Header() {
   // const { signOut } = useClerk();
   // const { itemCount } = useCart();
   const isLoaded = true;
-  const isSignedIn = true;
+  const isSignedIn = useAppSelector(selectCurrentUser);
   const itemCount = 5;
   const wishlistCount = 7;
   const unreadCount = 9;
@@ -288,13 +288,13 @@ export default function Header() {
                       variant="ghost"
                       className="flex items-center gap-2"
                     >
-                      <Link href="/sign-in">
+                      <Link href="/auth/signin">
                         <LogIn className="h-4 w-4" />
                         <span>Sign In</span>
                       </Link>
                     </Button>
                     <Button asChild>
-                      <Link href="/sign-up">Sign Up</Link>
+                      <Link href="/auth/signup">Sign Up</Link>
                     </Button>
                   </div>
                 )}
@@ -344,14 +344,14 @@ export default function Header() {
                     {isLoaded && !isSignedIn && (
                       <>
                         <Link
-                          href="/sign-in"
+                          href="/auth/signin"
                           className="py-2 hover:text-primary transition"
                           onClick={() => setIsMenuOpen(false)}
                         >
                           Sign In
                         </Link>
                         <Link
-                          href="/sign-up"
+                          href="/auth/signup"
                           className="py-2 hover:text-primary transition"
                           onClick={() => setIsMenuOpen(false)}
                         >

@@ -60,6 +60,8 @@ const createVendorRequest = async (vendorBody) => {
   if (!vendorBody) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
   }
+
+  console.log(vendorBody);
   const createNewVendor = await Vendor.create(vendorBody);
   return createNewVendor;
 };

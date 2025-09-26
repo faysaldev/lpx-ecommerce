@@ -12,4 +12,8 @@ router
   .route("/remove/:id")
   .delete(auth("common"), cartController.removeToCartlist);
 
+router
+  .route("/remove-all")
+  .delete(auth("common"), cartController.removeAllCartList);
+
 module.exports = router;

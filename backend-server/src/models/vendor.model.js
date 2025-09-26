@@ -8,6 +8,7 @@ const VendorSchema = new Schema(
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     storeName: { type: String, required: true },
+    storePhoto: { type: String },
     email: { type: String, required: true },
     description: { type: String },
     category: { type: String },
@@ -24,7 +25,7 @@ const VendorSchema = new Schema(
     averageRating: { type: Number, default: 0 },
     status: {
       type: String,
-      enum: ["pending", "approved", "suspended"],
+      enum: ["pending", "approved", "suspended", "rejected"],
       default: "pending",
     },
     verified: {

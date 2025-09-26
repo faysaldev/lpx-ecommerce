@@ -9,7 +9,8 @@ const paymentRequestRoute = require("./paymentrequest.routes");
 const productsRoute = require("./product.routes");
 const draftRoute = require("./draft.routes");
 const ratingsRoute = require("./rating.routes");
-const transactionsRoute = require("./transaction.routes");
+const orderRoute = require("./order.routes");
+const paymentCardRoute = require("./paymentCard.routes");
 const wishlistsRoute = require("./wishlist.routes");
 const adminsRoute = require("./admin.routes");
 const notificationRoute = require("./notifications.routes");
@@ -50,8 +51,13 @@ const defaultRoutes = [
     route: ratingsRoute,
   },
   {
-    path: "/transaction",
-    route: transactionsRoute,
+    path: "/orders",
+    route: orderRoute,
+  },
+
+  {
+    path: "/cards",
+    route: paymentCardRoute,
   },
   {
     path: "/wishlists",

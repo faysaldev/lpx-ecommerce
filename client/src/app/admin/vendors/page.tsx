@@ -426,8 +426,14 @@ export default function VendorsManagement() {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
-                          <AvatarImage src={vendor.firstName} />
-                          <AvatarFallback>{vendor.firstName}</AvatarFallback>
+                          <AvatarImage
+                            src={`${process.env.NEXT_PUBLIC_BASE_URL}${
+                              vendor?.storePhoto || vendor.firstName.slice(0, 2)
+                            }`}
+                          />
+                          <AvatarFallback>
+                            {vendor.firstName.slice(0, 2)}
+                          </AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium">{vendor.storeName}</p>

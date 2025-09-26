@@ -10,4 +10,8 @@ router
   .route("/remove/:id")
   .delete(auth("common"), wishlistController.removeToWishlist);
 
+router
+  .route("/remove-all")
+  .delete(auth("common"), wishlistController.removeAllFromWishlist);
+
 module.exports = router;

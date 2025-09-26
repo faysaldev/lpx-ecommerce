@@ -70,6 +70,7 @@ export interface AdminVendor {
   lastName: string;
   ownerName?: string;
   storeName: string;
+  storePhoto: string;
   email: string;
   description: string;
   category: string;

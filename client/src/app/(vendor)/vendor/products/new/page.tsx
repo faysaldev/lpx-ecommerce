@@ -389,11 +389,10 @@ export default function NewProductPage() {
       for (let [key, value] of formData.entries()) {
         console.log(key, value);
       }
-      let res;
       if (data.status === "active") {
-        res = await createProducts(formData);
+        await createProducts(formData);
       } else {
-        res = await createDrafts(formData);
+        await createDrafts(formData);
       }
       toast.success(
         data.status === "active"
@@ -411,7 +410,6 @@ export default function NewProductPage() {
 
   const handleSaveDraft = (e: React.MouseEvent) => {
     e.preventDefault();
-    alert("hi");
     setValue("status", "draft");
     handleSubmit((data) => onSubmit(data))();
   };
@@ -785,7 +783,7 @@ export default function NewProductPage() {
               {isSubmitting ? "Saving..." : "Save Draft"}
             </Button>
             <Button
-              type="button"
+              type="submit"
               disabled={isSubmitting}
               onClick={handlePublish}
             >
