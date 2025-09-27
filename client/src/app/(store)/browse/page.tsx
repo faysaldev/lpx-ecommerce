@@ -11,8 +11,8 @@ import { cn } from "@/lib/utils";
 import { Category, Product } from "@/lib/types";
 import { useBrowseFilters } from "@/hooks/useBrowseFilters";
 import PageLayout from "@/components/layout/PageLayout";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/UI/button";
+import { Label } from "@/components/UI/label";
 import {
   Select,
   SelectContent,

@@ -5,110 +5,64 @@ import { TrendingUp } from "lucide-react";
 import Link from "next/link";
 import PageLayout from "@/components/layout/PageLayout";
 import { EmptyStates } from "@/components/shared/EmptyState";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
 import RecentlyViewed from "@/components/cart/RecentlyViewed";
 import CartSummary from "@/components/cart/CartSummary";
-import PromoCode from "@/components/cart/PromoCode";
 import CartItem from "@/components/cart/CartItem";
-// import { useCart } from "@/context/CartContext";
+import { useAllShoppingCartQuery } from "@/redux/features/ShoppingCart/ShoppingCart";
 
-const useCart = () => {
-  const items = [
-    {
-      id: "1",
-      productId: "101",
-      name: "Product A",
-      price: 100,
-      quantity: 2,
-      image: "https://via.placeholder.com/150",
-      vendor: "Vendor A",
-    },
-    {
-      id: "2",
-      productId: "102",
-      name: "Product B",
-      price: 50,
-      quantity: 1,
-      image: "https://via.placeholder.com/150",
-      vendor: "Vendor B",
-    },
-    {
-      id: "3",
-      productId: "103",
-      name: "Product C",
-      price: 25,
-      quantity: 3,
-      image: "https://via.placeholder.com/150",
-      vendor: "Vendor C",
-    },
-  ];
+const CartPage = () => {
+  // Fetch data from the backend
+  const { data, error, isLoading } = useAllShoppingCartQuery({});
+  
+  // If data is still loading or there's an error, show loading or error state
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+  
+  if (error) {
+    return <div>Error loading cart data</div>;
+  }
 
-  const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
-  const subtotal = items.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  // Access the cart items directly from the response
+  const allData = data?.data?.attributes; // Assuming cart items are directly in attributes
+  const items = allData || []; // Directly use `allData` if it represents the cart items
+ 
+
+  // Calculate item count, subtotal, etc.
+  const itemCount = items.reduce((acc: number, item: any) => acc + item.quantity, 0);
+  const subtotal = items.reduce((acc: number, item: any) => {
+    const itemTotal = (item.money || item.price) * item.quantity;
+    return acc + (itemTotal || item.totalPrice || 0);
+  }, 0);
   const shipping = 10; // Flat rate shipping
   const tax = subtotal * 0.1; // 10% tax
   const discount = 15; // Flat discount
   const total = subtotal + shipping + tax - discount;
 
-  const couponCode = "DISCOUNT10";
-
+  const couponCode = allData?.couponCode || ""; // Assuming 'couponCode' comes from the backend
+  
   const updateQuantity = (itemId: string, quantity: number) => {
     console.log(`Updating item ${itemId} to quantity ${quantity}`);
-    // Logic for updating quantity
+    // Logic for updating quantity (trigger API call here)
   };
 
   const removeFromCart = (itemId: string) => {
     console.log(`Removing item ${itemId} from cart`);
-    // Logic for removing item
+    // Logic for removing item (trigger API call here)
   };
 
   const clearCart = () => {
     console.log("Clearing the cart");
-    // Logic for clearing the cart
+    // Logic for clearing the cart (trigger API call here)
   };
 
   const applyCoupon = (code: string) => {
     console.log(`Applying coupon ${code}`);
-    // Logic for applying coupon
+    // Logic for applying coupon (trigger API call here)
   };
 
-  return {
-    items,
-    itemCount,
-    subtotal,
-    shipping,
-    tax,
-    total,
-    discount,
-    couponCode,
-    updateQuantity,
-    removeFromCart,
-    clearCart,
-    applyCoupon,
-  };
-};
-
-export default function CartPage() {
-  const {
-    items,
-    itemCount,
-    subtotal,
-    shipping,
-    tax,
-    total,
-    discount,
-    couponCode,
-    updateQuantity,
-    removeFromCart,
-    clearCart,
-    applyCoupon,
-  } = useCart();
-
-  // Remove coupon function
   const removeCoupon = () => {
     // Reset discount by applying an invalid code
     applyCoupon("");
@@ -156,9 +110,7 @@ export default function CartPage() {
                     (cat) => (
                       <Link
                         key={cat}
-                        href={`/category/${cat
-                          .toLowerCase()
-                          .replace(" ", "-")}`}
+                        href={`/category/${cat.toLowerCase().replace(" ", "-")}`}
                       >
                         <Button
                           variant="secondary"
@@ -180,11 +132,10 @@ export default function CartPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items Section */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Cart Items */}
             <div className="space-y-4">
               {items.map((item: any) => (
                 <CartItem
-                  key={item.id}
+                  key={item.id || `${item.productId}-${Math.random()}`}
                   item={item}
                   onUpdateQuantity={updateQuantity}
                   onRemove={removeFromCart}
@@ -194,11 +145,7 @@ export default function CartPage() {
 
             {/* Promo Code Section */}
             <div className="pt-4 border-t border-border">
-              {/* <PromoCode
-                // onApply={applyCoupon}
-                currentCode={couponCode}
-                onRemove={removeCoupon}
-              /> */}
+              {/* <PromoCode onApply={applyCoupon} currentCode={couponCode} onRemove={removeCoupon} /> */}
             </div>
 
             {/* Recently Viewed - Desktop */}
@@ -230,4 +177,6 @@ export default function CartPage() {
       )}
     </PageLayout>
   );
-}
+};
+
+export default CartPage;

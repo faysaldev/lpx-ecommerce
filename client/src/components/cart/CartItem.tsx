@@ -12,89 +12,15 @@ import {
   SealedBadge,
   StockBadge,
 } from "@/components/UI/badge.variants";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { Card } from "@/components/UI/card";
 import type { CartItem as CartItemType, Product } from "@/lib/types";
 
-const cartItems = [
-  {
-    id: "1",
-    productId: "101",
-    name: "Awesome Product 1",
-    price: 199.99,
-    quantity: 2,
-    image: "https://via.placeholder.com/150",
-    vendor: "Vendor A",
-    product: {
-      id: "101",
-      name: "Awesome Product 1",
-      price: 199.99,
-      compareAtPrice: 249.99,
-      description: "An amazing product with high quality.",
-      category: "Electronics",
-      stock: 10,
-    },
-  },
-];
 
-// },
-// {
-//   id: "2",
-//   productId: "102",
-//   name: "Product B",
-//   price: 99.99,
-//   quantity: 1,
-//   image: "https://via.placeholder.com/150",
-//   vendor: "Vendor B",
-//   product: {
-//     id: "102",
-//     name: "Product B",
-//     price: 99.99,
-//     compareAtPrice: 129.99,
-//     description: "A reliable and affordable product.",
-//     category: "Home Appliances",
-//     stock: 5,
-//   },
-// },
-// {
-//   id: "3",
-//   productId: "103",
-//   name: "Product C",
-//   price: 79.99,
-//   quantity: 3,
-//   image: "https://via.placeholder.com/150",
-//   vendor: "Vendor C",
-//   product: {
-//     id: "103",
-//     name: "Product C",
-//     price: 79.99,
-//     compareAtPrice: 109.99,
-//     description: "An entry-level product with great value.",
-//     category: "Furniture",
-//     stock: 20,
-//   },
-// },
-// {
-//   id: "4",
-//   productId: "104",
-//   name: "Product D",
-//   price: 149.99,
-//   quantity: 1,
-//   image: "https://via.placeholder.com/150",
-//   vendor: "Vendor D",
-//   product: {
-//     id: "104",
-//     name: "Product D",
-//     price: 149.99,
-//     compareAtPrice: 199.99,
-//     description: "A premium product with excellent features.",
-//     category: "Kitchen",
-//     stock: 7,
-//   },
-// },
+
 
 interface ExtendedProduct extends Omit<Product, "state"> {
-  state?: "sealed" | "open"; // Making 'state' optional in ExtendedProduct
+  state?: "sealed" | "open";
   grading?: {
     company: string;
     grade: string;
@@ -107,68 +33,43 @@ interface CartItemProps {
   onRemove: (itemId: string) => void;
 }
 
-interface CartItem {
-  id: string;
-  productId: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  vendor: string;
-  product: ExtendedProduct; // The product field is of type ExtendedProduct
-}
 
-export default function CartItem({
+const CartItem = ({
   item,
   onUpdateQuantity,
   onRemove,
-}: CartItemProps) {
+}: CartItemProps) =>  {
   const [isUpdating, setIsUpdating] = useState(false);
-  const { product, quantity }: any = {
-    id: "1",
-    productId: "101",
-    name: "Product A",
-    price: 100,
-    quantity: 2,
-    image: "https://via.placeholder.com/150",
-    vendor: "Vendor A",
-    product: {
-      id: 101,
-      name: "Product A",
-      price: 100,
-      compareAtPrice: 120,
-      description: "A high-quality product.",
-      category: "Electronics",
-      stock: 5,
-      state: "sealed",
-      grading: undefined, // No grading for this product
-      condition: undefined, // No condition for this product
-      rarity: "Rare",
-      slug: "product-a", // Added missing field
-      originalPrice: 150, // Added missing field
-      image: "https://via.placeholder.com/150", // Added missing field
-      images: [
-        "https://via.placeholder.com/150",
-        "https://via.placeholder.com/150",
-      ], // Added missing field
-      tags: ["electronics", "high quality"], // Added missing field
-      vendorId: "vendor-1", // Added missing field
-      rating: 4.5, // Added missing field
-      reviewCount: 10, // Added missing field
-      createdAt: "2023-01-01T00:00:00Z", // Added missing field
-      updatedAt: "2023-01-01T00:00:00Z", // Added missing field
-      authenticity: {
-        verified: true, // Added missing field
-        certificate: "ABC123", // Added missing field
-        verifiedBy: "Certifier", // Added missing field
-        verificationDate: "2023-01-01", // Added missing field
-      },
-    },
+
+  // Use the nested product object if it exists, otherwise use item properties
+  // Since the API response may have additional properties not in the base CartItem interface
+  const productData = (item as any).product || {
+    id: item.productId,
+    title: item.name,
+    price: (item as any).money || item.price,
+    images: [
+      (item as any).firstImage 
+        ? (item as any).firstImage.startsWith('public/') 
+          ? `/${(item as any).firstImage.replace('public/', '')}` 
+          : (item as any).firstImage
+        : (item.image 
+          ? item.image.startsWith('public/') 
+            ? `/${item.image.replace('public/', '')}` 
+            : item.image
+          : undefined) || "/placeholder.png"
+    ],
+    stock: (item as any).stockQuantity,
+    condition: (item as any).condition,
+    rarity: (item as any).rarity,
+    totalPrice: (item as any).totalPrice,
   };
 
-  console.log(product);
-
-  // const
+  const actualPrice = (item as any).money;
+  const actualQuantity = item.quantity;
+  const availableImageRaw = (item as any).firstImage ;
+  const productName = (item as any).productName ;
+  const productStock = (item as any).stockQuantity ; 
+  const totalPrice = (item as any).totalPrice;
 
   const handleQuantityChange = async (newQuantity: number) => {
     setIsUpdating(true);
@@ -176,27 +77,25 @@ export default function CartItem({
     setTimeout(() => setIsUpdating(false), 300);
   };
 
-  const subtotal = product.price * quantity;
-  const savings = product.compareAtPrice
-    ? (product.compareAtPrice - product.price) * quantity
-    : 0;
+  
+  
 
   return (
     <Card className="p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row gap-4">
         {/* Product Image */}
         <div className="relative w-full sm:w-32 h-32 flex-shrink-0">
-          <Link href={`/product/${product.id}`}>
+          <Link href={`/product/${item.productId}`}>
             <div className="relative w-full h-full rounded-lg overflow-hidden bg-gray-100 cursor-pointer hover:opacity-90 transition">
-              <Image
-                src={product.images[0] || "/placeholder.png"}
-                alt={product.title}
+              {/* <Image
+                src={availableImage || "/placeholder.png"}
+                alt={productName || 'Product image'}
                 fill
                 className="object-cover"
-              />
-              {product.stock <= 5 && (
+              /> */}
+              {productStock <= 5 && (
                 <div className="absolute top-2 right-2">
-                  <StockBadge stock={product.stock} className="text-xs" />
+                  <StockBadge stock={productStock} className="text-xs" />
                 </div>
               )}
             </div>
@@ -209,10 +108,10 @@ export default function CartItem({
           <div className="flex justify-between items-start gap-2">
             <div className="flex-1">
               <Link
-                href={`/product/${product.id}`}
+                href={`/product/${item.productId}`}
                 className="font-medium text-base sm:text-lg hover:text-primary transition line-clamp-2"
               >
-                {product.title}
+                {productName}
               </Link>
             </div>
             <Button
@@ -227,30 +126,30 @@ export default function CartItem({
 
           {/* Product Meta */}
           <div className="flex flex-wrap gap-2">
-            {(product as ExtendedProduct).state === "sealed" && (
+            {(productData as ExtendedProduct).state === "sealed" && (
               <SealedBadge className="text-xs">
                 <Package className="h-3 w-3 mr-1" />
                 Sealed
               </SealedBadge>
             )}
-            {(product as ExtendedProduct).state === "open" &&
-              (product as ExtendedProduct).grading && (
+            {(productData as ExtendedProduct).state === "open" &&
+              (productData as ExtendedProduct).grading && (
                 <GradingBadge
-                  company={(product as ExtendedProduct).grading?.company || ""}
-                  grade={(product as ExtendedProduct).grading?.grade || ""}
+                  company={(productData as ExtendedProduct).grading?.company || ""}
+                  grade={(productData as ExtendedProduct).grading?.grade || ""}
                   className="text-xs"
                 />
               )}
-            {(product as ExtendedProduct).state === "open" &&
-              !(product as ExtendedProduct).grading &&
-              product.condition && (
+            {(productData as ExtendedProduct).state === "open" &&
+              !(productData as ExtendedProduct).grading &&
+              (item as any).condition && (
                 <ConditionBadge
-                  condition={product.condition}
+                  condition={(item as any).condition}
                   className="text-xs"
                 />
               )}
-            {product.rarity && (
-              <RarityBadge rarity={product.rarity} className="text-xs" />
+            {(item as any).rarity && (
+              <RarityBadge rarity={(item as any).rarity} className="text-xs" />
             )}
           </div>
 
@@ -260,22 +159,18 @@ export default function CartItem({
             <div className="space-y-1">
               <div className="flex items-baseline gap-2">
                 <span className="text-lg font-semibold">
-                  ${subtotal.toFixed(2)}
+                  ${totalPrice.toFixed(2)}
                 </span>
-                {savings > 0 && (
+                {/* {savings > 0 && (
                   <span className="text-sm text-muted-foreground line-through">
-                    ${((product.compareAtPrice ?? 0) * quantity).toFixed(2)}
+                    ${((productData.compareAtPrice ?? 0) * actualQuantity).toFixed(2)}
                   </span>
-                )}
+                )} */}
               </div>
               <p className="text-sm text-muted-foreground">
-                ${product.price.toFixed(2)} each
+                ${actualPrice.toFixed(2)} each
               </p>
-              {savings > 0 && (
-                <p className="text-sm text-green-600 font-medium">
-                  You save ${savings.toFixed(2)}
-                </p>
-              )}
+              
             </div>
 
             {/* Quantity Controls */}
@@ -285,14 +180,14 @@ export default function CartItem({
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => handleQuantityChange(quantity - 1)}
-                  disabled={quantity <= 1 || isUpdating}
+                  onClick={() => handleQuantityChange(actualQuantity - 1)}
+                  disabled={actualQuantity <= 1 || isUpdating}
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
                 <input
                   type="number"
-                  value={quantity}
+                  value={actualQuantity}
                   onChange={(e) => {
                     const val = parseInt(e.target.value, 10);
                     if (!Number.isNaN(val) && val > 0) {
@@ -301,22 +196,22 @@ export default function CartItem({
                   }}
                   className="w-12 text-center border-none outline-none focus:ring-0"
                   min="1"
-                  max={product.stock}
+                  max={productStock}
                   disabled={isUpdating}
                 />
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8"
-                  onClick={() => handleQuantityChange(quantity + 1)}
-                  disabled={quantity >= product.stock || isUpdating}
+                  onClick={() => handleQuantityChange(actualQuantity + 1)}
+                  disabled={actualQuantity >= productStock || isUpdating}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              {product.stock <= 10 && (
+              {productStock <= 10 && (
                 <span className="text-xs text-muted-foreground">
-                  ({product.stock} available)
+                  ({productStock} available)
                 </span>
               )}
             </div>
@@ -338,3 +233,5 @@ export default function CartItem({
     </Card>
   );
 }
+
+export default CartItem;
