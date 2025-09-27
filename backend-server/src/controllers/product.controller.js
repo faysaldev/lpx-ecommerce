@@ -33,7 +33,10 @@ const getAllProducts = catchAsync(async (req, res) => {
 const addNewProducts = catchAsync(async (req, res) => {
   // console.log(req.files, req.body);
   // return;
-  const imagePaths = req?.files?.image?.map((img) => `${img.path}`);
+  const imagePaths = req?.files?.image?.map(
+    (img) => `${img.path.replace("public\\", "")}`
+  );
+  console.log(imagePaths);
   const dataFormat = {
     images: imagePaths,
     ...req.body,
