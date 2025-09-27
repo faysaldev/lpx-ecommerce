@@ -17,21 +17,19 @@ import {
   GradingBadge,
   SealedBadge,
 } from "@/components/UI/badge.variants";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/UI/skeleton";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-// import { useWishlist } from "@/context/WishlistContext";
+} from "@/components/UI/tooltip";
 import { designTokens } from "@/design-system/compat";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-// Standard button action order: Cart > Buy > Wishlist > Share
 const _ACTION_ORDER = ["cart", "buy", "wishlist", "share"] as const;
 
 interface ProductCardProps {
@@ -40,13 +38,14 @@ interface ProductCardProps {
   onQuickView?: (product: Product) => void;
   onAddToCart?: (product: Product) => void;
   onAddToWishlist?: (product: Product) => void;
+  onRemoveFromWishlist?: (product: Product) => void;
   onBuyNow?: (product: Product) => void;
   onShare?: (product: Product) => void;
   className?: string;
   showQuickView?: boolean;
+  isWishlistItem?: boolean;
 }
 
-// Loading skeleton for product cards
 export function ProductCardSkeleton({
   viewMode = "grid",
 }: {
@@ -94,20 +93,36 @@ export function ProductCardSkeleton({
   );
 }
 
-export function ProductCard({
+const ProductCard = ({
   product,
   viewMode = "grid",
   onQuickView,
   onAddToCart,
   onAddToWishlist,
+  onRemoveFromWishlist,
   onBuyNow,
   onShare,
   className,
   showQuickView = true,
-}: ProductCardProps) {
+  isWishlistItem = false,
+}: ProductCardProps) => {
+
+
+  // Handle both product data structures (standard Product interface vs wishlist data)
+  const _id = product._id || product.id;
+  const vendorName = product.vendorName || product.vendor;
+  const stockQuantity = product.stockQuantity !== undefined ? product.stockQuantity : product.stock;
+  const productName = product.productName || product.name;
+  const { price, images, condition, category, vendorId, grading } = product;
+  
+  // Use the extracted values
+  const finalProductName = productName;
+  const finalStockQuantity = stockQuantity;
+
+  console.log(product)
+
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  // const { isInWishlist, removeFromWishlist } = useWishlist();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-AE", {
@@ -119,28 +134,34 @@ export function ProductCard({
   };
 
   const getVendorLink = () => {
-    if (product.vendorId) {
-      return `/vendor/${product.vendorId}`;
+    if (vendorId) {
+      return `/vendor/${vendorId}`;
     }
     return null;
   };
 
   const getVendorName = () => {
-    return product.vendor;
+    return vendorName;
   };
 
-  // const handleWishlistClick = (e: React.MouseEvent) => {
-  //   e.preventDefault();
-  //   e.stopPropagation();
-
-  //   if (isInWishlist(product.id)) {
-  //     removeFromWishlist(product.id);
-  //   } else {
-  //     onAddToWishlist?.(product);
-  //   }
-  // };
-
-  // const isProductInWishlist = isInWishlist(product.id);
+  // Helper function to validate image URL
+  const isValidImageUrl = (url: string): boolean => {
+    try {
+      // Check if URL is empty or just whitespace
+      if (!url || typeof url !== 'string' || !url.trim()) {
+        return false;
+      }
+      
+      // Check if it's a valid URL format (either absolute or relative)
+      // Also accept data URLs and blob URLs
+      const absoluteUrlRegex = /^(https?:\/\/|data:image|blob:)/i;
+      const relativeUrlRegex = /^\/[^/]/; // Relative paths like /images/...
+      
+      return absoluteUrlRegex.test(url) || relativeUrlRegex.test(url);
+    } catch (error) {
+      return false;
+    }
+  };
 
   // List View Layout
   if (viewMode === "list") {
@@ -151,14 +172,14 @@ export function ProductCard({
           className
         )}
       >
-        <Link href={`/product/${product.id}`}>
+        <Link href={`/product/${_id}`}>
           <div className="flex">
             {/* Image Section */}
             <div className="relative w-48 h-48 flex-shrink-0 bg-muted">
-              {(product.image || product.images?.[0]) && (
+              {images?.[0] && isValidImageUrl(images?.[0]) && (
                 <Image
-                  src={product.image || product.images?.[0] || ""}
-                  alt={product.name}
+                  src={images?.[0]}
+                  alt={finalProductName}
                   fill
                   className={cn(
                     "object-contain transition-opacity duration-300",
@@ -179,7 +200,7 @@ export function ProductCard({
               <div className="flex justify-between items-start">
                 <div className="flex-1 pr-4">
                   <h3 className="typography-heading-xs hover:text-primary transition-colors line-clamp-1">
-                    {product.name}
+                    {finalProductName}
                   </h3>
 
                   <div className="flex items-center gap-1 mt-1">
@@ -204,36 +225,30 @@ export function ProductCard({
                     )}
                   </div>
 
-                  <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                    {product.description}
-                  </p>
-
                   <div className="flex items-center gap-2 mt-3">
-                    {product.state === "sealed" && (
+                    {condition === "sealed" && (
                       <SealedBadge>
                         <Package className="h-3 w-3 mr-1" />
                         Sealed
                       </SealedBadge>
                     )}
-                    {product.state === "open" && product.grading && (
+                    {condition === "open" && grading && (
                       <GradingBadge
-                        company={product.grading.company}
-                        grade={product.grading.grade}
+                        company={grading.company}
+                        grade={grading.grade}
                       />
                     )}
-                    {product.state === "open" &&
-                      !product.grading &&
-                      product.condition && (
-                        <ConditionBadge condition={product.condition} />
-                      )}
+                    {condition === "open" && !grading && condition && (
+                      <ConditionBadge condition={condition} />
+                    )}
                   </div>
                 </div>
 
                 <div className="text-right">
                   <p className="text-xl font-bold">
-                    {formatPrice(product.price)}
+                    {formatPrice(price)}
                   </p>
-                  {product.stock === 0 ? (
+                  {finalStockQuantity === 0 ? (
                     <p
                       className={cn(
                         "text-sm mt-1",
@@ -242,14 +257,14 @@ export function ProductCard({
                     >
                       Out of Stock
                     </p>
-                  ) : product.stock <= 5 ? (
+                  ) : finalStockQuantity <= 5 ? (
                     <p
                       className={cn(
                         "text-sm mt-1",
                         designTokens.colors.status.warning
                       )}
                     >
-                      Only {product.stock} left
+                      Only {finalStockQuantity} left
                     </p>
                   ) : null}
                 </div>
@@ -263,7 +278,7 @@ export function ProductCard({
                     e.preventDefault();
                     onAddToCart?.(product);
                   }}
-                  disabled={product.stock === 0}
+                  disabled={finalStockQuantity === 0}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
                   Add to Cart
@@ -276,7 +291,7 @@ export function ProductCard({
                     e.preventDefault();
                     onBuyNow?.(product);
                   }}
-                  disabled={product.stock === 0}
+                  disabled={finalStockQuantity === 0}
                 >
                   <Zap className="h-4 w-4 mr-2" />
                   Buy Now
@@ -300,15 +315,15 @@ export function ProductCard({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link href={`/product/${product.id}`}>
+      <Link href={`/product/${_id}`}>
         <div
           className={cn("relative", viewMode === "compact" ? "h-48" : "h-64")}
         >
           <div className="absolute inset-0 bg-muted" />
-          {(product.image || product.images?.[0]) && (
+          {images?.[0] && isValidImageUrl(images?.[0]) && (
             <Image
-              src={product.image || product.images?.[0] || ""}
-              alt={product.name}
+              src={images?.[0]}
+              alt={finalProductName}
               fill
               className={cn(
                 "object-contain transition-all duration-300 group-hover:scale-105",
@@ -325,13 +340,13 @@ export function ProductCard({
 
           {/* Quick View Button */}
           {showQuickView && (
-            <div
-              className={cn(
-                "absolute top-2 right-2 transition-opacity duration-300 flex flex-col gap-2",
-                isHovered ? "opacity-100" : "opacity-0"
-              )}
-            >
-              <TooltipProvider>
+            <TooltipProvider>
+              <div
+                className={cn(
+                  "absolute top-2 right-2 transition-opacity duration-300 flex flex-col gap-2",
+                  isHovered ? "opacity-100" : "opacity-0"
+                )}
+              >
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -348,38 +363,28 @@ export function ProductCard({
                   </TooltipTrigger>
                   <TooltipContent>Quick View</TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
 
-              <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
                       size="icon"
                       variant="secondary"
-                      // onClick={handleWishlistClick}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        isWishlistItem
+                          ? onRemoveFromWishlist?.(product)
+                          : onAddToWishlist?.(product);
+                      }}
                       className="h-8 w-8"
                     >
-                      <Heart
-                      // className={cn(
-                      //   "h-4 w-4",
-                      //   isProductInWishlist && "fill-red-500 text-red-500"
-                      // )}
-                      />
+                      <Heart className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {/* {isProductInWishlist */}
-                    {/* ? "Remove from Wishlist" */}
-                    {/* : */}
-                    {/* " */}
-                    Add to Wishlist
-                    {/* " */}
-                    {/* } */}
+                    {isWishlistItem ? "Remove from Wishlist" : "Add to Wishlist"}
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
 
-              <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -396,8 +401,8 @@ export function ProductCard({
                   </TooltipTrigger>
                   <TooltipContent>Share</TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-            </div>
+              </div>
+            </TooltipProvider>
           )}
         </div>
       </Link>
@@ -407,12 +412,12 @@ export function ProductCard({
       >
         <div className="flex items-start justify-between mb-2">
           <p className="text-xs text-muted-foreground uppercase tracking-wide">
-            {product.category}
+            {category}
           </p>
         </div>
 
         <h3 className="font-semibold hover:text-primary transition-colors line-clamp-2 h-12">
-          {product.name}
+          {finalProductName}
         </h3>
 
         {getVendorLink() ? (
@@ -433,48 +438,43 @@ export function ProductCard({
         )}
 
         <div className="flex gap-1 h-7 items-center my-2">
-          {product.state === "sealed" && (
+          {condition === "sealed" && (
             <SealedBadge className="text-xs">
               <Package className="h-3 w-3 mr-1" />
               Sealed
             </SealedBadge>
           )}
-          {product.state === "open" && product.grading && (
+          {condition === "open" && grading && (
             <GradingBadge
-              company={product.grading.company}
-              grade={product.grading.grade}
+              company={grading.company}
+              grade={grading.grade}
               className="text-xs"
             />
           )}
-          {product.state === "open" &&
-            !product.grading &&
-            product.condition && (
-              <ConditionBadge
-                condition={product.condition}
-                className="text-xs"
-              />
-            )}
+          {condition === "open" && !grading && condition && (
+            <ConditionBadge condition={condition} className="text-xs" />
+          )}
         </div>
 
         <div className="mt-auto">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-xl font-bold">{formatPrice(product.price)}</p>
+              <p className="text-xl font-bold">{formatPrice(price)}</p>
               <div className="h-4 mt-1">
-                {product.stock === 0 ? (
+                {finalStockQuantity === 0 ? (
                   <p
                     className={cn("text-xs", designTokens.colors.status.error)}
                   >
                     Out of Stock
                   </p>
-                ) : product.stock <= 5 ? (
+                ) : finalStockQuantity <= 5 ? (
                   <p
                     className={cn(
                       "text-xs",
                       designTokens.colors.status.warning
                     )}
                   >
-                    Only {product.stock} left
+                    Only {finalStockQuantity} left
                   </p>
                 ) : (
                   <span className="text-xs">&nbsp;</span>
@@ -491,7 +491,7 @@ export function ProductCard({
                 e.preventDefault();
                 onAddToCart?.(product);
               }}
-              disabled={product.stock === 0}
+              disabled={finalStockQuantity === 0}
               className="text-xs w-full"
             >
               <ShoppingCart className="h-4 w-4 mr-1" />
@@ -505,7 +505,7 @@ export function ProductCard({
                 e.preventDefault();
                 onBuyNow?.(product);
               }}
-              disabled={product.stock === 0}
+              disabled={finalStockQuantity === 0}
               className="text-xs w-full"
             >
               <Zap className="h-4 w-4 mr-1" />
@@ -516,4 +516,6 @@ export function ProductCard({
       </CardContent>
     </Card>
   );
-}
+};
+
+export default ProductCard;

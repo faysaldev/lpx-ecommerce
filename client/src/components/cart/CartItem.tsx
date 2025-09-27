@@ -62,6 +62,7 @@ const CartItem = ({
     condition: (item as any).condition,
     rarity: (item as any).rarity,
     totalPrice: (item as any).totalPrice,
+    cartId: (item as any).cartId,  
   };
 
   const actualPrice = (item as any).money;
@@ -70,10 +71,11 @@ const CartItem = ({
   const productName = (item as any).productName ;
   const productStock = (item as any).stockQuantity ; 
   const totalPrice = (item as any).totalPrice;
+  const cartId = (item as any).cartId
 
   const handleQuantityChange = async (newQuantity: number) => {
     setIsUpdating(true);
-    onUpdateQuantity(item.id, newQuantity);
+    onUpdateQuantity(item.productId, newQuantity);
     setTimeout(() => setIsUpdating(false), 300);
   };
 
@@ -117,7 +119,7 @@ const CartItem = ({
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => onRemove(item.id)}
+              onClick={() => onRemove(cartId)}
               className="h-8 w-8"
             >
               <X className="h-4 w-4" />

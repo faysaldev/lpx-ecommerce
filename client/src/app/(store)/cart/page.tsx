@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
+import Swal from "sweetalert2";
 import { TrendingUp } from "lucide-react";
 import Link from "next/link";
 import PageLayout from "@/components/layout/PageLayout";
@@ -10,17 +10,23 @@ import { Card, CardContent } from "@/components/UI/card";
 import RecentlyViewed from "@/components/cart/RecentlyViewed";
 import CartSummary from "@/components/cart/CartSummary";
 import CartItem from "@/components/cart/CartItem";
-import { useAllShoppingCartQuery } from "@/redux/features/ShoppingCart/ShoppingCart";
+import {
+  useAllDeleteCartMutation,
+  useAllShoppingCartQuery,
+  useDeleteSingleCartMutation,
+} from "@/redux/features/ShoppingCart/ShoppingCart";
 
 const CartPage = () => {
-  // Fetch data from the backend
-  const { data, error, isLoading } = useAllShoppingCartQuery({});
-  
+  // Initialize hooks at the top
+  const { data, error, isLoading, refetch } = useAllShoppingCartQuery({});
+  const [deleteSingleCart] = useDeleteSingleCartMutation();
+  const [DeleteAllCart] = useAllDeleteCartMutation();
+
   // If data is still loading or there's an error, show loading or error state
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  
+
   if (error) {
     return <div>Error loading cart data</div>;
   }
@@ -28,10 +34,12 @@ const CartPage = () => {
   // Access the cart items directly from the response
   const allData = data?.data?.attributes; // Assuming cart items are directly in attributes
   const items = allData || []; // Directly use `allData` if it represents the cart items
- 
 
   // Calculate item count, subtotal, etc.
-  const itemCount = items.reduce((acc: number, item: any) => acc + item.quantity, 0);
+  const itemCount = items.reduce(
+    (acc: number, item: any) => acc + item.quantity,
+    0
+  );
   const subtotal = items.reduce((acc: number, item: any) => {
     const itemTotal = (item.money || item.price) * item.quantity;
     return acc + (itemTotal || item.totalPrice || 0);
@@ -42,20 +50,57 @@ const CartPage = () => {
   const total = subtotal + shipping + tax - discount;
 
   const couponCode = allData?.couponCode || ""; // Assuming 'couponCode' comes from the backend
-  
+
   const updateQuantity = (itemId: string, quantity: number) => {
     console.log(`Updating item ${itemId} to quantity ${quantity}`);
     // Logic for updating quantity (trigger API call here)
   };
 
-  const removeFromCart = (itemId: string) => {
-    console.log(`Removing item ${itemId} from cart`);
-    // Logic for removing item (trigger API call here)
+  // Function to remove an item from the cart
+  const removeFromCart = async (itemId: string) => {
+    try {
+      const res = await deleteSingleCart({ id: itemId });
+      if (res && 'data' in res && res.data?.code === 201) {
+        refetch();
+        Swal.fire({
+          title: res?.data?.message || 'Item removed successfully',
+          icon: "success",
+          draggable: true,
+        });
+        console.log(`Item ${itemId} removed from cart`);
+      } 
+    } catch (error) {
+      console.error("Error removing item from cart:", error);
+      Swal.fire({
+        title: 'Error',
+        text: 'An unexpected error occurred while removing the item',
+        icon: "error",
+        draggable: true,
+      });
+    }
   };
 
-  const clearCart = () => {
-    console.log("Clearing the cart");
-    // Logic for clearing the cart (trigger API call here)
+  const clearCart = async () => {
+      try {
+      const res = await DeleteAllCart('');
+      if (res && 'data' in res && res.data?.code === 201) {
+        refetch();
+        Swal.fire({
+          title: res?.data?.message ,
+          icon: "success",
+          draggable: true,
+        });
+       
+      } 
+    } catch (error) {
+      console.error("Error removing item from cart:", error);
+      Swal.fire({
+        title: 'Error',
+        text: 'An unexpected error occurred while removing the item',
+        icon: "error",
+        draggable: true,
+      });
+    }
   };
 
   const applyCoupon = (code: string) => {
@@ -110,7 +155,9 @@ const CartPage = () => {
                     (cat) => (
                       <Link
                         key={cat}
-                        href={`/category/${cat.toLowerCase().replace(" ", "-")}`}
+                        href={`/category/${cat
+                          .toLowerCase()
+                          .replace(" ", "-")}`}
                       >
                         <Button
                           variant="secondary"

@@ -32,7 +32,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import PageLayout from "@/components/layout/PageLayout";
 import { EmptyStates } from "@/components/shared/EmptyState";
-import { ProductCard } from "@/components/shared/ProductCard";
+import ProductCard from "@/components/shared/ProductCard";
 import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";

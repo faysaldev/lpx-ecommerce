@@ -9,11 +9,18 @@ const ShoppingCart = baseApi.injectEndpoints({
       }),
     }),
     DeleteSingleCart: builder.mutation({
-      query: (id) => ({
+      query: ({ id }) => ({
         url: `/carts/remove/${id}`,
+        method: "DELETE",
+      }),
+    }),
+    allDeleteCart: builder.mutation({
+      query: () => ({
+        url: "/carts/remove-all",
+        method: "DELETE",
       }),
     }),
   }),
 });
 
-export const { useAllShoppingCartQuery  } = ShoppingCart;
+export const { useAllShoppingCartQuery, useDeleteSingleCartMutation, useAllDeleteCartMutation  } = ShoppingCart;
