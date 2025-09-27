@@ -51,10 +51,14 @@ const updateVendor = async (query) => {
   }
   console.log(query);
 
-  return Vendor.findByIdAndUpdate(query?.id, {
+  await Vendor.findByIdAndUpdate(query?.id, {
     status: query?.status,
     notes: query?.notes,
   });
+
+  // TODO: here i have to update the user type to customer
+  // await User.findByIdAndUpdate(query?.userId, {});
+  return "updated done";
 };
 
 module.exports = {

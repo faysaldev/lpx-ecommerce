@@ -20,7 +20,6 @@ const VendorSchema = new Schema(
       },
     ],
     experiences: { type: String },
-    logo: { type: String },
     ratings: [{ type: Schema.Types.ObjectId, ref: "Rating" }],
     averageRating: { type: Number, default: 0 },
     status: {
@@ -35,6 +34,14 @@ const VendorSchema = new Schema(
     notes: {
       type: String,
     },
+    contactEmail: { type: String, required: true, unique: true },
+    phoneNumber: { type: String },
+    location: { type: String },
+    storePolicies: {
+      returnPolicy: { type: String },
+      shippingPolicy: { type: String },
+    },
+    productsCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

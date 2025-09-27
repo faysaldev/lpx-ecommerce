@@ -18,7 +18,7 @@ const myWishList = catchAsync(async (req, res) => {
 const addToWishlist = catchAsync(async (req, res) => {
   const addTowish = await wishlistService.addToWishlist({
     customer: req.user.id,
-    products: req.body.productsId,
+    ...req.body,
   });
   res.status(httpStatus.CREATED).json(
     response({

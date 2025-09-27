@@ -23,7 +23,10 @@ const getMyNotification = catchAsync(async (req, res) => {
 });
 
 const addNewNotification = catchAsync(async (req, res) => {
-  const notification = await notificationService.addNewNotification(req.body);
+  const notification = await notificationService.addNewNotification({
+    authorId: req.user.id,
+    ...req.body,
+  });
   res.status(httpStatus.CREATED).json(
     response({
       message: "Added notification",
@@ -37,6 +40,20 @@ const addNewNotification = catchAsync(async (req, res) => {
 const updateNotification = catchAsync(async (req, res) => {
   const notification = await notificationService.updateNotification(
     req.params.id
+  );
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Updated notification",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: notification,
+    })
+  );
+});
+
+const makeAllNotificationRead = catchAsync(async (req, res) => {
+  const notification = await notificationService.makeAllNotificationRead(
+    req.user.id
   );
   res.status(httpStatus.CREATED).json(
     response({
@@ -67,4 +84,5 @@ module.exports = {
   addNewNotification,
   updateNotification,
   removeNotification,
+  makeAllNotificationRead,
 };

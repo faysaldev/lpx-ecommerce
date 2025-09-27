@@ -76,7 +76,9 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <Package className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold">LPX Collect</span>
+            <span className="hidden lg:inline-flex text-xl font-bold">
+              LPX Collect
+            </span>
           </Link>
 
           {/* Professional Tagline */}
@@ -265,12 +267,14 @@ export default function Header() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href="/sell" className="cursor-pointer">
-                          <Store className="mr-2 h-4 w-4" />
-                          Become a Seller
-                        </Link>
-                      </DropdownMenuItem>
+                      {user?.type === "customer" && (
+                        <DropdownMenuItem asChild>
+                          <Link href="/sell" className="cursor-pointer">
+                            <Store className="mr-2 h-4 w-4" />
+                            Become a Seller
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => dispatch(logout())}
