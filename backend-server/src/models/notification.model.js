@@ -4,12 +4,12 @@ const { roles } = require("../config/roles");
 
 const notificationSchema = new Schema(
   {
-    userId: {
+    authorId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    sendBy: {
+    sendTo: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: false,

@@ -30,7 +30,7 @@ const getVendors = catchAsync(async (req, res) => {
 
 const createVendorRequest = catchAsync(async (req, res) => {
   if (req.file) {
-    req.body.storePhoto = `/uploads/users/${req.file.filename}`;
+    req.body.storePhoto = `/uploads/vendors/${req.file.filename}`;
   }
 
   console.log(req);

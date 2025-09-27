@@ -26,6 +26,7 @@ const myWishList = async (userId) => {
 
     return {
       productName: product.productName,
+      vendorId: product.vendor.id,
       vendorName: product.vendor.storeName, // Access the store name from the vendor object
       condition: product.condition,
       price: product.price,

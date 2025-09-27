@@ -15,15 +15,40 @@ const getMyProducts = catchAsync(async (req, res) => {
   );
 });
 
+const getAllProducts = catchAsync(async (req, res) => {
+  const products = await productService.getAllProducts();
+
+  console.log(products);
+
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "All the products",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: products,
+    })
+  );
+});
+
 const addNewProducts = catchAsync(async (req, res) => {
   // console.log(req.files, req.body);
   // return;
-  const imagePaths = req?.files?.image?.map((img) => `${img.path}`);
-  const products = await productService.addNewProducts({
+  const imagePaths = req?.files?.image?.map(
+    (img) => `${img.path.replace("public\\", "")}`
+  );
+  console.log(imagePaths);
+  const dataFormat = {
     images: imagePaths,
     ...req.body,
+    shipping: {
+      shippingCost: req.body.shippingCost,
+      weight: req.body.weight,
+      dimensions: req.body.dimensions,
+    },
     authorId: req.user.id,
-  });
+  };
+
+  const products = await productService.addNewProducts(dataFormat);
   res.status(httpStatus.CREATED).json(
     response({
       message: "Added Products",
@@ -76,4 +101,5 @@ module.exports = {
   productDetails,
   deleteProducts,
   editeProducts,
+  getAllProducts,
 };

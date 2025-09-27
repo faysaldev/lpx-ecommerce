@@ -9,10 +9,15 @@ const getMyProducts = async (userId) => {
   return Product.find({ seller: userId });
 };
 
+const getAllProducts = async () => {
+  return Product.find();
+};
+
 const addNewProducts = async (productsBody) => {
   if (!productsBody) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
   }
+  console.log(productsBody);
   return Product.create(productsBody);
 };
 
@@ -48,4 +53,5 @@ module.exports = {
   productDetails,
   editeProducts,
   deleteProducts,
+  getAllProducts,
 };

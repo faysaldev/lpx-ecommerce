@@ -8,7 +8,7 @@ const getMyNotification = async (userId, notificationType = null) => {
   }
 
   // If notificationType is provided, filter by type
-  const query = { userId: userId };
+  const query = { authorId: userId };
   if (notificationType) {
     query.type = notificationType;
   }
@@ -40,9 +40,30 @@ const removeNotification = async (notificationId) => {
   return Notification.findByIdAndDelete(notificationId);
 };
 
+const makeAllNotificationRead = async (userId) => {
+  if (!userId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+  }
+  try {
+    const result = await Notification.updateMany(
+      { authorId: userId, isRead: false },
+      { $set: { isRead: true } }
+    );
+
+    if (result.nModified === 0) {
+      throw new ApiError(httpStatus.NOT_FOUND, "No unread notifications found");
+    }
+
+    return { message: "All notifications marked as read" };
+  } catch (error) {
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 module.exports = {
   getMyNotification,
   addNewNotification,
   updateNotification,
+  makeAllNotificationRead,
   removeNotification,
 };

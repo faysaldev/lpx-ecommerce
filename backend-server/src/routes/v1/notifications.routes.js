@@ -17,6 +17,10 @@ router
   .patch(auth("common"), notificationController.updateNotification);
 
 router
+  .route("/make-as-read-all")
+  .get(auth("common"), notificationController.makeAllNotificationRead);
+
+router
   .route("/remove/:id")
   .patch(auth("common"), notificationController.removeNotification);
 

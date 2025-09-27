@@ -1,7 +1,6 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const Cart = require("../models/cart.model");
-
 const myCartList = async (userId) => {
   if (!userId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
@@ -18,6 +17,7 @@ const myCartList = async (userId) => {
 
   // Map through cart items to add quantity and calculate the total price if necessary
   return cartItems.map((item) => ({
+    cartId: item._id, // Add the cart _id to the returned object
     productName: item.product.productName, // Correct field name
     vendorName: item.vendorId.storeName, // Correct field name
     condition: item.product.condition,
