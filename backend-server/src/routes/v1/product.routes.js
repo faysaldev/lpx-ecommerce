@@ -15,6 +15,10 @@ router
   .get(auth("common"), productController.getMyProducts);
 
 router
+  .route("/all-products")
+  .get(auth("common"), productController.getAllProducts);
+
+router
   .route("/add")
   .post(
     auth("common"),

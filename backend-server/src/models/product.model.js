@@ -51,11 +51,15 @@ const ProductSchema = new Schema(
       validate: [arrayLimit, "{PATH} exceeds the limit of 8"],
     },
     shipping: {
-      shippingCost: { type: Number, required: true }, // Shipping cost
-      weight: { type: Number, required: true }, // Weight of the product
+      shippingCost: { type: Number, required: true },
+      weight: { type: Number, required: true },
       dimensions: { type: String }, // Dimensions of the product (length, width, height)
     },
     isDraft: { type: Boolean, default: false },
+    discountPercentage: { type: Number, default: 0 },
+    brand: { type: String },
+    inStock: { type: Boolean, required: true, default: true },
+    acceptOffers: { type: Boolean, required: true, default: false },
   },
   { timestamps: true }
 );
