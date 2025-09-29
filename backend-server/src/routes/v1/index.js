@@ -14,6 +14,7 @@ const paymentCardRoute = require("./paymentCard.routes");
 const wishlistsRoute = require("./wishlist.routes");
 const adminsRoute = require("./admin.routes");
 const notificationRoute = require("./notifications.routes");
+const stripeRoute = require("./stripe.routes");
 
 const router = express.Router();
 
@@ -70,6 +71,10 @@ const defaultRoutes = [
   {
     path: "/notifications",
     route: notificationRoute,
+  },
+  {
+    path: "/stripes",
+    route: stripeRoute,
   },
 ];
 

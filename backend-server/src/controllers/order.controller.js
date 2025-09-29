@@ -3,6 +3,7 @@ const catchAsync = require("../utils/catchAsync");
 const response = require("../config/response");
 const { orderService } = require("../services");
 const { sendNotificationEmail } = require("../services/email.service");
+const { addNewNotification } = require("./notification.controller");
 
 const myOrders = catchAsync(async (req, res) => {
   const ordres = await orderService.myOrders(req.user.id);
@@ -35,6 +36,7 @@ const createOrder = catchAsync(async (req, res) => {
 
   // Send notification
   await sendNotificationEmail(req.user.email, notificationBody);
+  // await addNewNotification({ authorId: req.user.id, ...req.body });
 
   res.status(httpStatus.CREATED).json(
     response({
