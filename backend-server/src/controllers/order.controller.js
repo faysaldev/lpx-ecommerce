@@ -28,7 +28,7 @@ const createOrder = catchAsync(async (req, res) => {
     description:
       "Your recent order has been shipped and is on its way. Tracking number: TRK789456123. Expected delivery: 7-10 business days.",
     priority: "high",
-    type: "orders",
+    type: "order",
     transactionId: ordres?.orderID,
     timestamp: new Date(),
   };

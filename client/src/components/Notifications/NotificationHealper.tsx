@@ -10,7 +10,7 @@ export const mapBackendTypeToFrontend = (
   backendType: string
 ): NotificationType => {
   switch (backendType) {
-    case "orders":
+    case "order":
       return "order";
     case "system":
     case "promotion":
