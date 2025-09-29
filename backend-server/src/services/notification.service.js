@@ -9,7 +9,7 @@ const getMyNotification = async (userId, notificationType = null) => {
 
   // If notificationType is provided, filter by type
   const query = { authorId: userId };
-  if (notificationType) {
+  if (notificationType && notificationType != "all") {
     query.type = notificationType;
   }
 

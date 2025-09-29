@@ -349,3 +349,44 @@ export interface Notification {
     currentPrice?: number;
   };
 }
+
+export interface Notification {
+  id: string;
+  type: NotificationType;
+  priority: NotificationPriority;
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  actionUrl?: string;
+  actionLabel?: string;
+  metadata?: {
+    orderId?: string;
+    productId?: string;
+    vendorId?: string;
+    discount?: number;
+    previousPrice?: number;
+    currentPrice?: number;
+  };
+}
+
+export interface ApiNotification {
+  _id: string;
+  authorId: string;
+  sendTo: string;
+  transactionId?: string;
+  title: string;
+  description: string;
+  isRead: boolean;
+  type: string;
+  priority: "low" | "medium" | "high";
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+export interface NotificationGroup {
+  title: string;
+  notifications: Notification[];
+}
