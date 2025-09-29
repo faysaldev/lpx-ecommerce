@@ -173,11 +173,12 @@ function CheckoutContent() {
           <div className="lg:col-span-2">
             <Card>
               <CardContent className="p-6">
+                <ShippingForm />
                 <h2 className={cn(designTokens.typography.h3, "mb-6")}>
                   {/* {getStepTitle()} */}
-                  Here we Go
+                  {/* Here we Go */}
                 </h2>
-                6{/* {renderStepContent()} */}
+                {/* 6{renderStepContent()} */}
               </CardContent>
             </Card>
           </div>

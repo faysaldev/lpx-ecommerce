@@ -19,7 +19,7 @@ import {
 import { Textarea } from "@/components/UI/textarea";
 // import { useCheckout } from "@/context/CheckoutContext";
 import type { ShippingAddress } from "@/lib/checkout";
-import { Label } from "../ui/label";
+import { Label } from "../UI/label";
 
 const shippingSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
