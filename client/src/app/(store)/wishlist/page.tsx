@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import { ArrowRight, ShoppingBag, Trash2 } from "lucide-react";
 import Link from "next/link";
 import PageLayout from "@/components/layout/PageLayout";
@@ -9,13 +8,25 @@ import ProductCard from "@/components/shared/ProductCard";
 import { Button } from "@/components/UI/button";
 import { designTokens } from "@/design-system/compat";
 import { cn } from "@/lib/utils";
-import { useAllGetWishListQuery } from "@/redux/features/GetWishList/GetWishList";
+import { useAllDeleteWishListMutation, useAllGetWishListQuery } from "@/redux/features/GetWishList/GetWishList";
 
 const WishlistContent = () => {
+  
   const { data } = useAllGetWishListQuery({});
   const allData = data?.data?.attributes;
+  
+  const [DeleteAllWish] = useAllDeleteWishListMutation()
 
-  console.log(allData)
+  const  HandleDeleteAllWish = async () => {
+      try{
+        const res = await DeleteAllWish('')
+        if(res?.data?.code === 200){
+          console.log("Delete sucessfull")
+        }
+      }catch(error){
+        console.log(error)
+      }
+  }
 
   const breadcrumbs = [{ label: "Wishlist" }];
   if (!allData || allData.length === 0) {
@@ -43,6 +54,7 @@ const WishlistContent = () => {
         </h2>
         {allData.length > 0 && (
           <Button
+            onClick={HandleDeleteAllWish}
             variant="outline"
             size="sm"
             className="text-destructive hover:text-destructive hover:bg-destructive/10"

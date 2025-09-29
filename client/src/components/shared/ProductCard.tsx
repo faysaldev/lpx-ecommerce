@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// TODO: marging to master
 "use client";
 
 import {
@@ -30,21 +32,7 @@ import { designTokens } from "@/design-system/compat";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-const _ACTION_ORDER = ["cart", "buy", "wishlist", "share"] as const;
 
-interface ProductCardProps {
-  product: Product;
-  viewMode?: "grid" | "list" | "compact";
-  onQuickView?: (product: Product) => void;
-  onAddToCart?: (product: Product) => void;
-  onAddToWishlist?: (product: Product) => void;
-  onRemoveFromWishlist?: (product: Product) => void;
-  onBuyNow?: (product: Product) => void;
-  onShare?: (product: Product) => void;
-  className?: string;
-  showQuickView?: boolean;
-  isWishlistItem?: boolean;
-}
 
 export function ProductCardSkeleton({
   viewMode = "grid",
@@ -105,33 +93,28 @@ const ProductCard = ({
   className,
   showQuickView = true,
   isWishlistItem = false,
-}: ProductCardProps) => {
-
-
-  // Handle both product data structures (standard Product interface vs wishlist data)
-  const _id = product._id || product.id;
-  const vendorName = product.vendorName || product.vendor;
-  const stockQuantity = product.stockQuantity !== undefined ? product.stockQuantity : product.stock;
-  const productName = product.productName || product.name;
-  const { price, images, condition, category, vendorId, grading } = product;
+}:any) => {
+  // Handle both product data structures (standard Product interface vs form schema)
+  const _id = product._id ;
+  const vendorName = product.vendorName ;
+  const stockQuantity = product.stockQuantity ;
+  const productName = product.productName ;
+  const condition = product.condition || product.state || "";
+  const category = product.category || product.categorySlug || "";
+  const vendorId = product.vendorId || "";
+  const grading = product.grading;
+  const price = product.price || 0;
+  const images = product.images || (product.image ? [product.image] : []); // Handle both images array and single image
   
   // Use the extracted values
   const finalProductName = productName;
   const finalStockQuantity = stockQuantity;
-
-  console.log(product)
+  const finalCondition = condition;
 
   const [imageLoaded, setImageLoaded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-AE", {
-      style: "currency",
-      currency: "AED",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
+  
 
   const getVendorLink = () => {
     if (vendorId) {
@@ -142,25 +125,6 @@ const ProductCard = ({
 
   const getVendorName = () => {
     return vendorName;
-  };
-
-  // Helper function to validate image URL
-  const isValidImageUrl = (url: string): boolean => {
-    try {
-      // Check if URL is empty or just whitespace
-      if (!url || typeof url !== 'string' || !url.trim()) {
-        return false;
-      }
-      
-      // Check if it's a valid URL format (either absolute or relative)
-      // Also accept data URLs and blob URLs
-      const absoluteUrlRegex = /^(https?:\/\/|data:image|blob:)/i;
-      const relativeUrlRegex = /^\/[^/]/; // Relative paths like /images/...
-      
-      return absoluteUrlRegex.test(url) || relativeUrlRegex.test(url);
-    } catch (error) {
-      return false;
-    }
   };
 
   // List View Layout
@@ -176,9 +140,9 @@ const ProductCard = ({
           <div className="flex">
             {/* Image Section */}
             <div className="relative w-48 h-48 flex-shrink-0 bg-muted">
-              {images?.[0] && isValidImageUrl(images?.[0]) && (
+              {images?.[0] ? (
                 <Image
-                  src={images?.[0]}
+                  src={`${process.env.NEXT_PUBLIC_BASE_URL}/${images[0].replace(/\\/g, '/')}`}
                   alt={finalProductName}
                   fill
                   className={cn(
@@ -187,8 +151,7 @@ const ProductCard = ({
                   )}
                   onLoad={() => setImageLoaded(true)}
                 />
-              )}
-              {!imageLoaded && (
+              ) : (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Package className="h-12 w-12 text-muted-foreground/30" />
                 </div>
@@ -226,32 +189,30 @@ const ProductCard = ({
                   </div>
 
                   <div className="flex items-center gap-2 mt-3">
-                    {condition === "sealed" && (
+                    {finalCondition === "sealed" && (
                       <SealedBadge>
                         <Package className="h-3 w-3 mr-1" />
                         Sealed
                       </SealedBadge>
                     )}
-                    {condition === "open" && grading && (
+                    {finalCondition === "open" && grading && (
                       <GradingBadge
                         company={grading.company}
                         grade={grading.grade}
                       />
                     )}
-                    {condition === "open" && !grading && condition && (
-                      <ConditionBadge condition={condition} />
+                    {finalCondition === "open" && !grading && finalCondition && (
+                      <ConditionBadge condition={finalCondition} />
                     )}
                   </div>
                 </div>
 
                 <div className="text-right">
-                  <p className="text-xl font-bold">
-                    {formatPrice(price)}
-                  </p>
+                  <p className="text-xl font-bold">${price}</p>
                   {finalStockQuantity === 0 ? (
                     <p
                       className={cn(
-                        "text-sm mt-1",
+                        "text-sm ",
                         designTokens.colors.status.error
                       )}
                     >
@@ -260,7 +221,7 @@ const ProductCard = ({
                   ) : finalStockQuantity <= 5 ? (
                     <p
                       className={cn(
-                        "text-sm mt-1",
+                        "text-sm ",
                         designTokens.colors.status.warning
                       )}
                     >
@@ -320,19 +281,19 @@ const ProductCard = ({
           className={cn("relative", viewMode === "compact" ? "h-48" : "h-64")}
         >
           <div className="absolute inset-0 bg-muted" />
-          {images?.[0] && isValidImageUrl(images?.[0]) && (
+
+          {images?.[0] ? (
             <Image
-              src={images?.[0]}
+              src={`${process.env.NEXT_PUBLIC_BASE_URL}/${images[0]}`}
               alt={finalProductName}
               fill
               className={cn(
-                "object-contain transition-all duration-300 group-hover:scale-105",
+                "object-contain transition-opacity duration-300",
                 imageLoaded ? "opacity-100" : "opacity-0"
               )}
               onLoad={() => setImageLoaded(true)}
             />
-          )}
-          {!imageLoaded && (
+          ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <Package className="h-12 w-12 text-muted-foreground/30" />
             </div>
@@ -381,7 +342,9 @@ const ProductCard = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {isWishlistItem ? "Remove from Wishlist" : "Add to Wishlist"}
+                    {isWishlistItem
+                      ? "Remove from Wishlist"
+                      : "Add to Wishlist"}
                   </TooltipContent>
                 </Tooltip>
 
@@ -438,28 +401,28 @@ const ProductCard = ({
         )}
 
         <div className="flex gap-1 h-7 items-center my-2">
-          {condition === "sealed" && (
+          {finalCondition === "sealed" && (
             <SealedBadge className="text-xs">
               <Package className="h-3 w-3 mr-1" />
               Sealed
             </SealedBadge>
           )}
-          {condition === "open" && grading && (
+          {finalCondition === "open" && grading && (
             <GradingBadge
               company={grading.company}
               grade={grading.grade}
               className="text-xs"
             />
           )}
-          {condition === "open" && !grading && condition && (
-            <ConditionBadge condition={condition} className="text-xs" />
+          {finalCondition === "open" && !grading && finalCondition && (
+            <ConditionBadge condition={finalCondition} className="text-xs" />
           )}
         </div>
 
         <div className="mt-auto">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-xl font-bold">{formatPrice(price)}</p>
+              <p className="text-xl font-bold">${price}</p>
               <div className="h-4 mt-1">
                 {finalStockQuantity === 0 ? (
                   <p
@@ -519,3 +482,4 @@ const ProductCard = ({
 };
 
 export default ProductCard;
+

@@ -10,7 +10,7 @@ const GetWishList = baseApi.injectEndpoints({
     }),
     AllDeleteWishList: builder.mutation({
       query: () => ({
-        url: "/carts/remove-all",
+        url: "/wishlists/remove-all",
         method: "DELETE",
       }),
     }),
