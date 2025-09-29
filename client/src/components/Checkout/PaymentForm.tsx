@@ -16,11 +16,11 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "@/components/UI/button.variants";
-import { Checkbox } from "@/components/UI/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/UI/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/UI/label";
 import { RadioGroup, RadioGroupItem } from "@/components/UI/radio-group";
-// import { useCheckout } from "@/context/CheckoutContext";
+import { useCheckout } from "@/context/CheckoutContext";
 import { cn } from "@/lib/utils";
 import type { PaymentMethod } from "@/lib/checkout";
 
@@ -58,144 +58,9 @@ const paymentSchema = z
     }
   );
 
-// Simulated Checkout Data
-// const checkoutData = {
-//   paymentMethod: {
-//     type: "card", // Or "paypal" or "crypto"
-//     cardNumber: "4242424242424242",
-//     cardHolder: "John Doe",
-//     expiryDate: "12/24",
-//     cvv: "123",
-//     saveCard: false,
-//   },
-//   shippingAddress: {
-//     firstName: "John",
-//     lastName: "Doe",
-//     address: "123 Main St",
-//     address2: "Apt 4B",
-//     city: "Dhaka",
-//     state: "Dhaka",
-//     postalCode: "1212",
-//     country: "Bangladesh",
-//     phone: "123-456-7890",
-//   },
-//   billingAddress: {
-//     firstName: "John",
-//     lastName: "Doe",
-//     address: "123 Main St",
-//     address2: "Apt 4B",
-//     city: "Dhaka",
-//     state: "Dhaka",
-//     postalCode: "1212",
-//     country: "Bangladesh",
-//   },
-//   sameAsShipping: true,
-//   acceptTerms: true,
-//   subscribeNewsletter: false,
-//   orderNotes: "Please handle with care.",
-//   paymentMethod: {
-//     type: "card", // "card", "paypal", or "crypto"
-//   },
-// };
-
-const checkoutData = {
-  paymentMethod: {
-    type: "card", // Or "paypal" or "crypto"
-    cardNumber: "4242424242424242",
-    cardHolder: "John Doe",
-    expiryDate: "12/24",
-    cvv: "123",
-    saveCard: false,
-  },
-  shippingAddress: {
-    firstName: "John",
-    lastName: "Doe",
-    address: "123 Main St",
-    address2: "Apt 4B",
-    city: "Dhaka",
-    state: "Dhaka",
-    postalCode: "1212",
-    country: "Bangladesh",
-    phone: "123-456-7890",
-  },
-  billingAddress: {
-    firstName: "John",
-    lastName: "Doe",
-    address: "123 Main St",
-    address2: "Apt 4B",
-    city: "Dhaka",
-    state: "Dhaka",
-    postalCode: "1212",
-    country: "Bangladesh",
-  },
-  sameAsShipping: true,
-  acceptTerms: true,
-  subscribeNewsletter: false,
-  orderNotes: "Please handle with care.",
-};
-
-// Simulated Items for Order
-const items = [
-  {
-    id: "1",
-    productId: "101",
-    name: "Product A",
-    price: 100,
-    quantity: 2,
-    image: "https://via.placeholder.com/150",
-    vendor: "Vendor A",
-    product: {
-      id: "101",
-      name: "Product A",
-      price: 100,
-      compareAtPrice: 120,
-      description: "A high-quality product.",
-      category: "Electronics",
-      stock: 5,
-      state: "sealed",
-      grading: undefined,
-      condition: undefined,
-      rarity: "Rare",
-    },
-  },
-  {
-    id: "2",
-    productId: "102",
-    name: "Product B",
-    price: 50,
-    quantity: 1,
-    image: "https://via.placeholder.com/150",
-    vendor: "Vendor B",
-    product: {
-      id: "102",
-      name: "Product B",
-      price: 50,
-      compareAtPrice: 60,
-      description: "Affordable product.",
-      category: "Home Appliances",
-      stock: 10,
-      state: "open",
-      grading: { company: "PSA", grade: "9" },
-      condition: "Near Mint",
-      rarity: "Common",
-    },
-  },
-];
-
-// Calculate the necessary totals and values for the checkout
-const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
-const subtotal = items.reduce(
-  (acc, item) => acc + item.product.price * item.quantity,
-  0
-);
-const shipping = 10; // Flat shipping fee
-const tax = subtotal * 0.1; // 10% tax
-const discount = 20; // Hardcoded discount
-const total = subtotal + shipping + tax - discount;
-
 export default function PaymentForm() {
-  // const { checkoutData, updatePaymentMethod, nextStep, prevStep } =
-  //   useCheckout();
+  const { checkoutData, updateCheckoutData, nextStep, prevStep } = useCheckout();
+  
   const [paymentType, setPaymentType] = useState<"card" | "paypal" | "crypto">(
     (checkoutData.paymentMethod?.type as "card" | "paypal" | "crypto") || "card"
   );
@@ -209,27 +74,13 @@ export default function PaymentForm() {
   } = useForm<PaymentMethod>({
     resolver: zodResolver(paymentSchema),
     defaultValues: {
-      ...checkoutData.paymentMethod,
-      type:
-        checkoutData.paymentMethod?.type === "card" ||
-        checkoutData.paymentMethod?.type === "paypal" ||
-        checkoutData.paymentMethod?.type === "crypto"
-          ? checkoutData.paymentMethod?.type
-          : "card", // Default if type is invalid
-      cardNumber: "",
-      cardHolder: "",
-      expiryDate: "",
-      cvv: "",
-      saveCard: false,
+      type: checkoutData.paymentMethod?.type || "card",
+      cardNumber: checkoutData.paymentMethod?.cardNumber || "",
+      cardHolder: checkoutData.paymentMethod?.cardHolder || "",
+      expiryDate: checkoutData.paymentMethod?.expiryDate || "",
+      cvv: checkoutData.paymentMethod?.cvv || "",
+      saveCard: checkoutData.paymentMethod?.saveCard || false,
     },
-    // defaultValues: checkoutData.paymentMethod || {
-    //   type: "card",
-    //   cardNumber: "",
-    //   cardHolder: "",
-    //   expiryDate: "",
-    //   cvv: "",
-    //   saveCard: false,
-    // },
   });
 
   const formatCardNumber = (value: string) => {
@@ -249,22 +100,38 @@ export default function PaymentForm() {
   };
 
   const onSubmit = (data: PaymentMethod) => {
-    // updatePaymentMethod({ ...data, type: paymentType });
-    // nextStep();
+    // Update checkout data with payment method
+    updateCheckoutData({
+      ...checkoutData,
+      paymentMethod: { ...data, type: paymentType }
+    });
+    
+    console.log("Payment data saved:", { ...data, type: paymentType });
+    
+    // Move to review step
+    nextStep();
   };
 
   const handlePaymentTypeChange = (type: "card" | "paypal" | "crypto") => {
     setPaymentType(type);
-    if (type !== "card") {
-      // For non-card payments, just save the type
-      // updatePaymentMethod({ type });
-      // nextStep();
+    setValue("type", type);
+    
+    // For non-card payments, save immediately and move to next step
+    if (type === "paypal") {
+      updateCheckoutData({
+        ...checkoutData,
+        paymentMethod: { type: "paypal" }
+      });
+      nextStep();
+    } else if (type === "crypto") {
+      // Crypto is disabled, so don't do anything
+      return;
     }
   };
 
   return (
     <form
-      // onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(onSubmit)}
       className="space-y-6"
     >
       {/* Payment Method Selection */}
@@ -483,7 +350,7 @@ export default function PaymentForm() {
       <div className="flex justify-between pt-6 border-t">
         <SecondaryButton
           type="button"
-          // onClick={prevStep}
+          onClick={prevStep}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Billing

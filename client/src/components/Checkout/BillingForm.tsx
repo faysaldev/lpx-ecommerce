@@ -9,7 +9,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "@/components/UI/button.variants";
-import { Checkbox } from "@/components/UI/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/UI/input";
 import {
   Select,
@@ -18,9 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/UI/select";
-// import { useCheckout } from "@/context/CheckoutContext";
+import { useCheckout } from "@/context/CheckoutContext";
 import type { BillingAddress } from "@/lib/checkout";
-import { Label } from "../ui/label";
+import { Label } from "../UI/label";
 
 const billingSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -53,19 +53,13 @@ const states = [
 ];
 
 export default function BillingForm() {
-  // const {
-  //   checkoutData,
-  //   updateBillingAddress,
-  //   setSameAsShipping,
-  //   nextStep,
-  //   prevStep,
-  // } = useCheckout();
-
-  const checkoutData = {
-    billingAddress: "Saver, Dhaka",
-    shippingAddress: "Zirani",
-    sameAsShipping: "Saronika",
-  };
+  const {
+    checkoutData,
+    updateBillingAddress,
+    setSameAsShipping,
+    nextStep,
+    prevStep,
+  } = useCheckout();
 
   const {
     register,
@@ -77,41 +71,48 @@ export default function BillingForm() {
   } = useForm<BillingAddress>({
     resolver: zodResolver(billingSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      company: "",
-      vatNumber: "",
-      address:
-        checkoutData.billingAddress || checkoutData.shippingAddress || "",
-      address2: "",
-      city: "",
-      state: "",
-      postalCode: "",
-      country: "US",
+      firstName: checkoutData.billingAddress?.firstName || "",
+      lastName: checkoutData.billingAddress?.lastName || "",
+      email: checkoutData.billingAddress?.email || "",
+      phone: checkoutData.billingAddress?.phone || "",
+      company: checkoutData.billingAddress?.company || "",
+      vatNumber: checkoutData.billingAddress?.vatNumber || "",
+      address: checkoutData.billingAddress?.address || checkoutData.shippingAddress?.address || "",
+      address2: checkoutData.billingAddress?.address2 || "",
+      city: checkoutData.billingAddress?.city || "",
+      state: checkoutData.billingAddress?.state || "",
+      postalCode: checkoutData.billingAddress?.postalCode || "",
+      country: checkoutData.billingAddress?.country || "US",
     },
   });
 
   // Update form when same as shipping changes
-  // useEffect(() => {
-  //   if (checkoutData.sameAsShipping && checkoutData.shippingAddress) {
-  //     reset(checkoutData.shippingAddress);
-  //   }
-  // }, [checkoutData.sameAsShipping, checkoutData.shippingAddress, reset]);
+  useEffect(() => {
+    if (checkoutData.sameAsShipping && checkoutData.shippingAddress) {
+      reset({
+        ...checkoutData.shippingAddress,
+        company: "",
+        vatNumber: "",
+      });
+    }
+  }, [checkoutData.sameAsShipping, checkoutData.shippingAddress, reset]);
 
   const onSubmit = (data: BillingAddress) => {
-    // if (!checkoutData.sameAsShipping) {
-    //   updateBillingAddress(data);
-    // }
-    // nextStep();
+    if (!checkoutData.sameAsShipping) {
+      updateBillingAddress(data);
+    }
+    nextStep();
   };
 
   const handleSameAsShippingChange = (checked: boolean) => {
-    // setSameAsShipping(checked);
-    // if (checked && checkoutData.shippingAddress) {
-    //   reset(checkoutData.shippingAddress);
-    // }
+    setSameAsShipping(checked);
+    if (checked && checkoutData.shippingAddress) {
+      reset({
+        ...checkoutData.shippingAddress,
+        company: "",
+        vatNumber: "",
+      });
+    }
   };
 
   return (
@@ -121,8 +122,8 @@ export default function BillingForm() {
         <div className="flex items-center space-x-2">
           <Checkbox
             id="sameAsShipping"
-            checked={checkoutData.sameAsShipping === "true"}
-            onCheckedChange={handleSameAsShippingChange}
+            checked={checkoutData.sameAsShipping}
+            onCheckedChange={(checked) => handleSameAsShippingChange(!!checked)}
           />
           <Label
             htmlFor="sameAsShipping"
@@ -346,7 +347,7 @@ export default function BillingForm() {
       <div className="flex justify-between pt-6 border-t">
         <SecondaryButton
           type="button"
-          // onClick={prevStep}
+          onClick={prevStep}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Shipping

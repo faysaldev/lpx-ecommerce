@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/UI/select";
 import { Textarea } from "@/components/UI/textarea";
-// import { useCheckout } from "@/context/CheckoutContext";
+import { useCheckout } from "@/context/CheckoutContext";
 import type { ShippingAddress } from "@/lib/checkout";
 import { Label } from "../UI/label";
 
@@ -50,44 +50,10 @@ const states = [
   { value: "WA", label: "Washington" },
 ];
 
-const checkoutData = {
-  paymentMethod: {
-    type: "card", // Or "paypal" or "crypto"
-    cardNumber: "4242424242424242",
-    cardHolder: "John Doe",
-    expiryDate: "12/24",
-    cvv: "123",
-    saveCard: false,
-  },
-  shippingAddress: {
-    firstName: "John",
-    lastName: "Doe",
-    address: "123 Main St",
-    address2: "Apt 4B",
-    city: "Dhaka",
-    state: "Dhaka",
-    postalCode: "1212",
-    country: "Bangladesh",
-    phone: "123-456-7890",
-  },
-  billingAddress: {
-    firstName: "John",
-    lastName: "Doe",
-    address: "123 Main St",
-    address2: "Apt 4B",
-    city: "Dhaka",
-    state: "Dhaka",
-    postalCode: "1212",
-    country: "Bangladesh",
-  },
-  sameAsShipping: true,
-  acceptTerms: true,
-  subscribeNewsletter: false,
-  orderNotes: "Please handle with care.",
-};
+
 
 export default function ShippingForm() {
-  // const { checkoutData, updateShippingAddress, nextStep } = useCheckout();
+  const { checkoutData, updateShippingAddress, nextStep } = useCheckout();
 
   const {
     register,
@@ -113,8 +79,8 @@ export default function ShippingForm() {
   });
 
   const onSubmit = (data: ShippingAddress) => {
-    // updateShippingAddress(data);
-    // nextStep();
+    updateShippingAddress(data);
+    nextStep();
   };
 
   return (
