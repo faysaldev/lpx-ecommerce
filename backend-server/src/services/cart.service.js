@@ -1,36 +1,42 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const Cart = require("../models/cart.model");
+
 const myCartList = async (userId) => {
   if (!userId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticated");
   }
 
-  // Populate the necessary fields: Product details and Vendor details
   const cartItems = await Cart.find({ customer: userId })
     .populate(
       "product",
-      "productName condition price stockQuantity category images rarity originalPrice"
-    ) // Populating correct product fields
-    .populate("vendorId", "storeName") // Populating vendor's name
-    .lean(); // Using .lean() for better performance, return plain JavaScript objects
+      "productName condition price stockQuantity category images rarity"
+    )
+    .populate("vendorId", "storeName")
+    .lean();
 
-  // Map through cart items to add quantity and calculate the total price if necessary
-  return cartItems.map((item) => ({
-    cartId: item._id, // Add the cart _id to the returned object
-    productName: item.product.productName, // Correct field name
-    vendorName: item.vendorId.storeName, // Correct field name
-    condition: item.product.condition,
-    money: item.product.price, // Assuming 'money' refers to price
-    stockQuantity: item.product.stockQuantity,
-    productId: item.product._id,
-    category: item.product.category,
-    firstImage: item.product.images[0], // Assuming images is an array
-    rarity: item.product.rarity,
-    originalPrice: item.product.originalPrice,
-    quantity: item.quantity, // Quantity in the cart
-    totalPrice: item.price * item.quantity, // Assuming you want to calculate the total price
-  }));
+  return cartItems
+    .map((item) => {
+      if (!item.product) {
+        return null; // Handle missing product gracefully
+      }
+      const { product } = item;
+      return {
+        cartId: item._id,
+        productName: product.productName,
+        vendorName: item.vendorId.storeName,
+        condition: product.condition,
+        price: product.price,
+        stockQuantity: product.stockQuantity,
+        productId: product._id,
+        category: product.category,
+        firstImage: product.images[0],
+        rarity: product.rarity,
+        quantity: item.quantity,
+        totalPrice: item.price * item.quantity,
+      };
+    })
+    .filter(Boolean); // Filter out null values if any
 };
 
 const addToCartlist = async (CartListBody) => {
