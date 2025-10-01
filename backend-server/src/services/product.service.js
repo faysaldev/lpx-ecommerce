@@ -47,6 +47,81 @@ const deleteProducts = async (productsId) => {
   return Product.findByIdAndDelete(productsId);
 };
 
+const searchProducts = async ({
+  query,
+  minPrice,
+  maxPrice,
+  condition,
+  sortBy,
+  page,
+  limit,
+}) => {
+  // Construct the search query object
+  const searchQuery = {};
+
+  // Handle multiple query filters (name, tags, category, etc.)
+  if (query) {
+    const queryRegEx = { $regex: query, $options: "i" }; // Case-insensitive regex search
+
+    searchQuery.$or = [
+      { productName: queryRegEx }, // Check productName
+      { category: queryRegEx }, // Check category
+      { tags: { $in: query.split(",") } }, // Check tags
+    ];
+  }
+
+  // Price range filter
+  if (minPrice) searchQuery.price = { ...searchQuery.price, $gte: minPrice };
+  if (maxPrice) searchQuery.price = { ...searchQuery.price, $lte: maxPrice };
+
+  // Condition filter
+  if (condition) searchQuery.condition = condition;
+
+  // Determine sort option
+  let sort = {};
+  switch (sortBy) {
+    case "lowToHigh":
+      sort.price = 1;
+      break;
+    case "highToLow":
+      sort.price = -1;
+      break;
+    case "A-Z":
+      sort.productName = 1;
+      break;
+    case "a-z":
+      sort.productName = -1;
+      break;
+    case "newestFirst":
+    default:
+      sort.createdAt = -1;
+  }
+
+  // Pagination logic
+  const skip = (page - 1) * limit;
+
+  // Query the database with the built query object and populate vendor details
+  const products = await Product.find(searchQuery)
+    .populate("vendor", "storeName") // Populate the vendor's store name
+    .select(
+      "productName category description price stockQuantity condition images tags"
+    ) // Select specific fields
+    .skip(skip) // Pagination: skip to the appropriate page
+    .limit(Number(limit)) // Limit the number of results
+    .sort(sort) // Sorting based on user input
+    .lean(); // Return plain JavaScript objects
+
+  // If no products are found, throw an error
+  if (products.length === 0) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "No products found with the given filters."
+    );
+  }
+
+  return products;
+};
+
 module.exports = {
   getMyProducts,
   addNewProducts,
@@ -54,4 +129,5 @@ module.exports = {
   editeProducts,
   deleteProducts,
   getAllProducts,
+  searchProducts,
 };
