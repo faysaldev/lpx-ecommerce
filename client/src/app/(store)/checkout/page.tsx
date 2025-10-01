@@ -3,12 +3,12 @@
 import { AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import { Alert, AlertDescription } from "@/components/UI/alert";
 import { Card, CardContent } from "@/components/UI/card";
 // import { useCart } from "@/context/CartContext";
-// import { CheckoutProvider, useCheckout } from "@/context/CheckoutContext";
+import { CheckoutProvider, useCheckout } from "@/context/CheckoutContext";
 import { designTokens } from "@/design-system/compat";
 import BillingForm from "@/components/Checkout/BillingForm";
 import CheckoutSteps from "@/components/Checkout/CheckoutSteps";
@@ -77,8 +77,7 @@ function CheckoutContent() {
   const router = useRouter();
   // const { items } = useCart();
   const authLoading = false; // No auth loading in frontend-only app
-  // const { currentStep, setCurrentStep } = useCheckout();
-  const [currentStep, setCurrentStep] = useState<CheckoutStep>("shipping");
+  const { currentStep } = useCheckout();
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -113,18 +112,18 @@ function CheckoutContent() {
   }
 
   const renderStepContent = () => {
-    // switch (currentStep) {
-    //   case "shipping":
-    //     return <ShippingForm />;
-    //   case "billing":
-    //     return <BillingForm />;
-    //   case "payment":
-    //     return <PaymentForm />;
-    //   case "review":
-    //     return <OrderReview />;
-    //   default:
-    //     return <ShippingForm />;
-    // }
+    switch (currentStep) {
+      case "shipping":
+        return <ShippingForm />;
+      case "billing":
+        return <BillingForm />;
+      case "payment":
+        return <PaymentForm />;
+      case "review":
+        return <OrderReview />;
+      default:
+        return <ShippingForm />;
+    }
   };
 
   const getStepTitle = () => {
@@ -166,19 +165,29 @@ function CheckoutContent() {
         </Alert>
 
         {/* Checkout Progress */}
-        <CheckoutSteps currentStep={currentStep} onStepClick={setCurrentStep} />
+        <CheckoutSteps 
+          currentStep={currentStep} 
+          onStepClick={(step) => {
+            // Allow navigation to completed steps or current step, but not ahead of current
+            if (step === "shipping" || 
+                step === "billing" && ["shipping", "billing"].includes(currentStep) ||
+                step === "payment" && ["shipping", "billing", "payment"].includes(currentStep) ||
+                step === "review" && ["shipping", "billing", "payment", "review"].includes(currentStep)) {
+              // For now, just allow navigation to previous steps
+              // In a real implementation, you might want to validate that required fields are filled
+            }
+          }} 
+        />
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2">
             <Card>
               <CardContent className="p-6">
-                <ShippingForm />
-                <h2 className={cn(designTokens.typography.h3, "mb-6")}>
-                  {/* {getStepTitle()} */}
-                  {/* Here we Go */}
-                </h2>
-                {/* 6{renderStepContent()} */}
+                {currentStep === "shipping" && <ShippingForm />}
+                {currentStep === "billing" && <BillingForm />}
+                {currentStep === "payment" && <PaymentForm />}
+                {currentStep === "review" && <OrderReview />}
               </CardContent>
             </Card>
           </div>
@@ -197,8 +206,8 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    // <CheckoutProvider>
-    <CheckoutContent />
-    // </CheckoutProvider>
+    <CheckoutProvider>
+      <CheckoutContent />
+    </CheckoutProvider>
   );
 }

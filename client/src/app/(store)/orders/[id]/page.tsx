@@ -305,7 +305,7 @@ export default function OrderDetailsPage() {
             <div className="flex flex-col lg:items-end gap-3">
               <div className="text-right">
                 <p className="text-sm text-muted-foreground">Total Amount</p>
-                <p className="text-2xl font-bold">${order.total.toFixed(2)}</p>
+                <p className="text-2xl font-bold">${Number(order.total || 0).toFixed(2)}</p>
               </div>
               <div className="flex gap-2">
                 {/* {canCancelOrder(order) && ( */}
@@ -362,12 +362,12 @@ export default function OrderDetailsPage() {
                         </p>
                       )}
                       <p className="text-sm text-muted-foreground">
-                        Qty: {item.quantity} × ${item.price.toFixed(2)}
+                        Qty: {item.quantity} × ${Number(item.price || 0).toFixed(2)}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ${Number((item.price || 0) * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -380,12 +380,12 @@ export default function OrderDetailsPage() {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal</span>
-                  <span>${order.subtotal.toFixed(2)}</span>
+                  <span>${Number(order.subtotal || 0).toFixed(2)}</span>
                 </div>
                 {order.discount > 0 && (
                   <div className="flex justify-between text-sm text-green-600">
                     <span>Discount</span>
-                    <span>-${order.discount.toFixed(2)}</span>
+                    <span>-${Number(order.discount || 0).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
@@ -393,17 +393,17 @@ export default function OrderDetailsPage() {
                   <span>
                     {order.shipping === 0
                       ? "FREE"
-                      : `$${order.shipping.toFixed(2)}`}
+                      : `${Number(order.shipping || 0).toFixed(2)}`}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Tax</span>
-                  <span>${order.tax.toFixed(2)}</span>
+                  <span>${Number(order.tax || 0).toFixed(2)}</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between font-semibold text-lg">
                   <span>Total</span>
-                  <span>${order.total.toFixed(2)}</span>
+                  <span>${Number(order.total || 0).toFixed(2)}</span>
                 </div>
               </div>
             </CardContent>

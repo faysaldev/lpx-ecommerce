@@ -111,7 +111,7 @@ function OrderCard({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b">
           <div className="mb-2 sm:mb-0">
             <p className="text-sm text-muted-foreground">Total Amount</p>
-            <p className="text-xl font-bold">${order.total.toFixed(2)}</p>
+            <p className="text-xl font-bold">${Number(order.total || 0).toFixed(2)}</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" asChild>
@@ -153,11 +153,11 @@ function OrderCard({
                     <div className="flex-1">
                       <p className="font-medium">{item.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        Quantity: {item.quantity} × ${item.price.toFixed(2)}
+                        Quantity: {item.quantity} × ${Number(item.price || 0).toFixed(2)}
                       </p>
                     </div>
                     <p className="font-semibold">
-                      ${(item.quantity * item.price).toFixed(2)}
+                      ${Number((item.quantity || 0) * (item.price || 0)).toFixed(2)}
                     </p>
                   </div>
                 ))}
@@ -206,23 +206,23 @@ function OrderCard({
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>${order.subtotal.toFixed(2)}</span>
+                  <span>${Number(order.subtotal || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
                   <span>
                     {order.shipping === 0
                       ? "FREE"
-                      : `$${order.shipping.toFixed(2)}`}
+                      : `${Number(order.shipping || 0).toFixed(2)}`}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Tax</span>
-                  <span>${order.tax.toFixed(2)}</span>
+                  <span>${Number(order.tax || 0).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-semibold pt-2 border-t">
                   <span>Total</span>
-                  <span>${order.total.toFixed(2)}</span>
+                  <span>${Number(order.total || 0).toFixed(2)}</span>
                 </div>
               </div>
             </div>

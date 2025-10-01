@@ -254,11 +254,18 @@ class AdminMockService {
     });
 
     return activities
-      .sort(
-        (a, b) =>
-          new Date(this.parseRelativeTime(b.time)).getTime() -
-          new Date(this.parseRelativeTime(a.time)).getTime()
-      )
+      .sort((a, b) => {
+        const dateA = new Date(this.parseRelativeTime(a.time));
+        const dateB = new Date(this.parseRelativeTime(b.time));
+        
+        // Handle invalid dates by treating them as the oldest possible
+        if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
+          return isNaN(dateA.getTime()) ? 1 : -1;
+        }
+        
+        // Sort in descending order (newest first)
+        return dateB.getTime() - dateA.getTime();
+      })
       .slice(0, 5);
   }
 
@@ -306,7 +313,17 @@ class AdminMockService {
 
   private getRelativeTime(dateString: string): string {
     const date = new Date(dateString);
+    // Check if the date is valid
+    if (isNaN(date.getTime())) {
+      return "Just now"; // Default to "Just now" for invalid dates
+    }
+    
     const now = new Date();
+    // Check if the date is in the future
+    if (date > now) {
+      return "Just now";
+    }
+    
     const diffInHours = Math.floor(
       (now.getTime() - date.getTime()) / (1000 * 60 * 60)
     );
@@ -321,6 +338,8 @@ class AdminMockService {
     if (diffInWeeks < 4) return `${diffInWeeks}w ago`;
 
     const diffInMonths = Math.floor(diffInDays / 30);
+    // Prevent extremely large month numbers
+    if (diffInMonths > 999) return "Long ago";
     return `${diffInMonths}mo ago`;
   }
 
@@ -329,27 +348,79 @@ class AdminMockService {
     const now = new Date();
 
     if (relativeTime.includes("h ago")) {
-      const hours = parseInt(relativeTime, 10);
-      return new Date(now.getTime() - hours * 60 * 60 * 1000).toISOString();
+      const match = relativeTime.match(/(\d+)h ago/);
+      if (match) {
+        const hours = parseInt(match[1], 10);
+        if (isNaN(hours) || hours <= 0) {
+          return now.toISOString();
+        }
+        // Limit to prevent date overflow
+        const safeHours = Math.min(hours, 8760); // Limit to 1 year max
+        const resultDate = new Date(now.getTime() - safeHours * 60 * 60 * 1000);
+        // Ensure the date is not in the future or invalid
+        if (resultDate > now) {
+          return now.toISOString();
+        }
+        return resultDate.toISOString();
+      }
     }
 
     if (relativeTime.includes("d ago")) {
-      const days = parseInt(relativeTime, 10);
-      return new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString();
+      const match = relativeTime.match(/(\d+)d ago/);
+      if (match) {
+        const days = parseInt(match[1], 10);
+        if (isNaN(days) || days <= 0) {
+          return now.toISOString();
+        }
+        // Limit to prevent date overflow
+        const safeDays = Math.min(days, 365); // Limit to 1 year max
+        const resultDate = new Date(now.getTime() - safeDays * 24 * 60 * 60 * 1000);
+        // Ensure the date is not in the future or invalid
+        if (resultDate > now) {
+          return now.toISOString();
+        }
+        return resultDate.toISOString();
+      }
     }
 
     if (relativeTime.includes("w ago")) {
-      const weeks = parseInt(relativeTime, 10);
-      return new Date(
-        now.getTime() - weeks * 7 * 24 * 60 * 60 * 1000
-      ).toISOString();
+      const match = relativeTime.match(/(\d+)w ago/);
+      if (match) {
+        const weeks = parseInt(match[1], 10);
+        if (isNaN(weeks) || weeks <= 0) {
+          return now.toISOString();
+        }
+        // Limit to prevent date overflow
+        const safeWeeks = Math.min(weeks, 52); // Limit to 1 year max
+        const resultDate = new Date(
+          now.getTime() - safeWeeks * 7 * 24 * 60 * 60 * 1000
+        );
+        // Ensure the date is not in the future or invalid
+        if (resultDate > now) {
+          return now.toISOString();
+        }
+        return resultDate.toISOString();
+      }
     }
 
     if (relativeTime.includes("mo ago")) {
-      const months = parseInt(relativeTime, 10);
-      return new Date(
-        now.getTime() - months * 30 * 24 * 60 * 60 * 1000
-      ).toISOString();
+      const match = relativeTime.match(/(\d+)mo ago/);
+      if (match) {
+        const months = parseInt(match[1], 10);
+        if (isNaN(months) || months <= 0) {
+          return now.toISOString();
+        }
+        // Limit to prevent date overflow
+        const safeMonths = Math.min(months, 12); // Limit to 1 year max
+        const resultDate = new Date(
+          now.getTime() - safeMonths * 30 * 24 * 60 * 60 * 1000
+        );
+        // Ensure the date is not in the future or invalid
+        if (resultDate > now) {
+          return now.toISOString();
+        }
+        return resultDate.toISOString();
+      }
     }
 
     return now.toISOString();
