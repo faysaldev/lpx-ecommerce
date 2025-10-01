@@ -22,4 +22,10 @@ router
   .route("/all-products")
   .get(auth("common"), adminController.getAllProductsAdmin);
 
+router
+  .route("/order-stats")
+  .get(auth("common"), adminController.getAdminOrderStats);
+
+router.route("/all-orders").get(auth("common"), adminController.getAllOrders);
+
 module.exports = router;

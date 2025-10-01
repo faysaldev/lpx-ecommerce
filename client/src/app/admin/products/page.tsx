@@ -340,7 +340,7 @@ export default function ProductsManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedProducts.length === 0 ? (
+              {sortedProducts?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center py-8">
                     <div className="text-muted-foreground">
@@ -355,7 +355,7 @@ export default function ProductsManagement() {
                   </TableCell>
                 </TableRow>
               ) : (
-                sortedProducts.map((product) => (
+                sortedProducts?.map((product) => (
                   <TableRow key={product._id}>
                     <TableCell className="font-medium">
                       {product.productName}

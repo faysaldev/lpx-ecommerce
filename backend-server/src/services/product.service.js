@@ -113,10 +113,7 @@ const searchProducts = async ({
 
   // If no products are found, throw an error
   if (products.length === 0) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      "No products found with the given filters."
-    );
+    return "No products found with the given filters.";
   }
 
   return products;

@@ -311,13 +311,74 @@ const getAllProductsAdmin = async ({
 
   // If no products are found, throw an error
   if (products.length === 0) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      "No products found with the given filters."
-    );
+    return [];
   }
 
   return products;
+};
+
+const getAdminOrderStats = async () => {
+  // Total Orders
+  const totalOrders = await Order.countDocuments();
+
+  // Orders in Pending or Processing status
+  const pendingOrders = await Order.countDocuments({
+    status: { $in: ["pending", "processing"] },
+  });
+
+  // Completed Orders
+  const completedOrders = await Order.countDocuments({ status: "completed" });
+
+  // Total Sales (from completed orders)
+  const totalSales = await Order.aggregate([
+    { $match: { status: "completed" } },
+    { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
+  ]);
+
+  return {
+    totalOrders,
+    pendingOrders,
+    completedOrders,
+    totalSales: totalSales[0]?.totalSales || 0,
+  };
+};
+
+// Fetch all orders with detailed information
+const getAllOrders = async ({ query, page, limit }) => {
+  const skip = (page - 1) * limit;
+
+  // Constructing the filter query
+  const searchQuery = {};
+
+  // If a 'query' parameter is passed, filter by order ID or customer name
+  if (query) {
+    const queryRegEx = { $regex: query, $options: "i" }; // Case-insensitive regex search
+    searchQuery.$or = [
+      { orderID: queryRegEx }, // Check orderID
+      { "customer.name": queryRegEx }, // Check customer name
+    ];
+  }
+
+  // Query the database with filters and pagination
+  const orders = await Order.find(searchQuery)
+    .populate("customer", "name email image") // Populate customer details
+    .select("orderID customer totalAmount status totalItems createdAt vendorId") // Select relevant fields
+    .skip(skip) // Pagination
+    .limit(Number(limit)) // Limit the number of results
+    .sort({ createdAt: -1 }) // Sort by order creation time (latest first)
+    .lean(); // Use lean to return plain JavaScript objects
+
+  // If no orders are found, throw an error
+  if (orders.length === 0) {
+    return [];
+  }
+
+  // Add additional details to each order (like how many items)
+  for (let order of orders) {
+    order.itemsCount = order.totalItems.length; // Count how many items in the order
+  }
+
+  return orders;
 };
 
 module.exports = {
@@ -327,4 +388,6 @@ module.exports = {
   getAdminDashboardData,
   getAllProductsAdmin,
   getAdminProductStats,
+  getAdminOrderStats,
+  getAllOrders,
 };
