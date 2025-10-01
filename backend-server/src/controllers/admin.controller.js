@@ -68,8 +68,25 @@ const updateStatus = catchAsync(async (req, res) => {
   );
 });
 
+const getAdminDashboard = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  const dashboardData = await adminService.getAdminDashboardData();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Admin Dashboard data fetched successfully",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: dashboardData,
+    })
+  );
+});
+
 module.exports = {
   getAllUsers,
   getAllVendors,
   updateStatus,
+  getAdminDashboard,
 };

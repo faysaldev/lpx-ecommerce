@@ -10,4 +10,6 @@ router
   .route("/update-vendor")
   .patch(auth("common"), adminController.updateStatus);
 
+router.get("/dashboard", adminController.getAdminDashboard);
+
 module.exports = router;
