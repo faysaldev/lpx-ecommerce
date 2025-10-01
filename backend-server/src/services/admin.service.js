@@ -206,9 +206,125 @@ const getAdminDashboardData = async () => {
   };
 };
 
+const getAdminProductStats = async () => {
+  // Total Products
+  const totalProducts = await Product.countDocuments();
+
+  // Active Products (e.g., in stock, not flagged)
+  const activeProducts = await Product.countDocuments({
+    inStock: true,
+    isDraft: false,
+  });
+
+  // Pending Review Products (assuming a 'pending' status or something similar)
+  const pendingReview = await Product.countDocuments({ status: "pending" });
+
+  // Flagged Products (assuming a 'flagged' field or similar)
+  const flaggedProducts = await Product.countDocuments({ flagged: true });
+
+  // Canceled Products (assuming canceled products are flagged or have a canceled status)
+  const canceledProducts = await Product.countDocuments({ status: "canceled" });
+
+  return {
+    totalProducts,
+    activeProducts,
+    pendingReview,
+    flaggedProducts,
+    canceledProducts,
+  };
+};
+
+// Get all products with sales, price, stock, and vendor info
+const getAllProductsAdmin = async ({
+  query,
+  minPrice,
+  maxPrice,
+  condition,
+  sortBy,
+  page,
+  limit,
+}) => {
+  const searchQuery = {};
+
+  // Handle multiple query filters (name, tags, category, etc.)
+  if (query) {
+    const queryRegEx = { $regex: query, $options: "i" }; // Case-insensitive regex search
+    searchQuery.$or = [
+      { productName: queryRegEx }, // Check productName
+      { category: queryRegEx }, // Check category
+      { tags: { $in: query.split(",") } }, // Check tags
+    ];
+  }
+
+  // Price range filter
+  if (minPrice) searchQuery.price = { ...searchQuery.price, $gte: minPrice };
+  if (maxPrice) searchQuery.price = { ...searchQuery.price, $lte: maxPrice };
+
+  // Condition filter
+  if (condition) searchQuery.condition = condition;
+
+  // Pagination logic
+  const skip = (page - 1) * limit;
+
+  // Determine sort option
+  let sort = {};
+  switch (sortBy) {
+    case "lowToHigh":
+      sort.price = 1;
+      break;
+    case "highToLow":
+      sort.price = -1;
+      break;
+    case "A-Z":
+      sort.productName = 1;
+      break;
+    case "a-z":
+      sort.productName = -1;
+      break;
+    case "newestFirst":
+    default:
+      sort.createdAt = -1;
+  }
+
+  // Query the database with the built query object
+  const products = await Product.find(searchQuery)
+    .populate("vendor", "storeName") // Populate the vendor's store name
+    .select("productName category price stockQuantity condition vendor") // Select specific fields
+    .skip(skip) // Pagination: skip to the appropriate page
+    .limit(Number(limit)) // Limit the number of results
+    .sort(sort) // Sorting based on user input
+    .lean(); // Return plain JavaScript objects
+
+  // Get product sales from orders
+  for (let product of products) {
+    const sales = await Order.aggregate([
+      { $match: { "totalItems.productId": product._id, status: "delivered" } },
+      {
+        $group: {
+          _id: "$totalItems.productId",
+          totalSales: { $sum: "$totalItems.price" },
+        },
+      },
+    ]);
+    product.sales = sales.length > 0 ? sales[0].totalSales : 0;
+  }
+
+  // If no products are found, throw an error
+  if (products.length === 0) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "No products found with the given filters."
+    );
+  }
+
+  return products;
+};
+
 module.exports = {
   getAllUsers,
   getAllVendors,
   updateVendor,
   getAdminDashboardData,
+  getAllProductsAdmin,
+  getAdminProductStats,
 };
