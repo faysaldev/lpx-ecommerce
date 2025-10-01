@@ -6,7 +6,6 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
-// import { designTokens } from "@/design-system/compat";
 import { cn } from "@/lib/utils";
 import { Category, Product } from "@/lib/types";
 import { useBrowseFilters } from "@/hooks/useBrowseFilters";
@@ -28,53 +27,23 @@ import { ProductGrid } from "@/components/Browse/ProductGrid";
 import { QuickView } from "@/components/Browse/QuickView";
 import { productStyles } from "@/components/UI/product.variants";
 import { Pagination } from "@/components/Browse/Pagination";
+import { 
+  useAllCategoriesQuery, 
+  useAllProductsBrowseCollectiblesQuery 
+} from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 
 function BrowsePageContent() {
-  const _searchParams = useSearchParams();
-  // const { addToCart } = useCart();
-  // const { addToWishlist } = useWishlist();
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
-    null
-  );
+
+  const searchParams = useSearchParams();
+
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(24);
-  const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [_loading, setLoading] = useState(true);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  // Get unique vendors for filtering
-  // const _vendors = getUniqueVendors(products);
-
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       const productAPI = getProductAPI();
-  //       const categoryAPI = getCategoryAPI();
-
-  //       const [productsResponse, categoriesResponse] = await Promise.all([
-  //         productAPI.getProducts({ limit: 100 }),
-  //         categoryAPI.getCategories(),
-  //       ]);
-
-  //       if (productsResponse.success) {
-  //         setProducts(productsResponse.data.data);
-  //       }
-
-  //       if (categoriesResponse.success) {
-  //         setCategories(categoriesResponse.data);
-  //       }
-  //     } catch (error) {
-  //       if (process.env.NODE_ENV !== "production")
-  //         console.error("Failed to fetch data:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-  //   fetchData();
-  // }, []);
-
-  // Use the custom hook for filters
-  const {
+  
+    const {
     filters,
     sortOption,
     viewMode,
@@ -85,11 +54,68 @@ function BrowsePageContent() {
     clearFilters,
     setSortOption,
     setViewMode,
-    // saveFilterPreset,
-    // loadFilterPreset,
-    // getFilterPresets,
   } = useBrowseFilters(products);
 
+  // Fetch categories from backend
+  const { data: categoriesData, isLoading: categoriesLoading } = useAllCategoriesQuery({});
+  // Fetch products with dynamic params
+  const { 
+    data: productsData, 
+    isLoading: productsLoading,
+    isFetching: productsFetching,
+  } = useAllProductsBrowseCollectiblesQuery({
+    query: searchParams.get('query'),
+    minPrice: searchParams.get('min_price'),
+    maxPrice: searchParams.get('max_price'),
+    condition: searchParams.get('conditions'),
+    sortBy: searchParams.get('sort'),
+    limit: itemsPerPage,
+    category: searchParams.get('category'),
+  });
+
+   console.log(searchParams.get('query'))
+  
+  console.log(productsData)
+ 
+
+  // Process categories data from backend
+  useEffect(() => {
+    if (categoriesData?.data?.attributes) {
+      const backendCategories = categoriesData.data.attributes;
+      
+      // Transform backend categories to match your Category type
+      const transformedCategories: Category[] = backendCategories.map((cat: any) => ({
+        id: cat._id,
+        name: cat.name,
+        slug: cat.name.toLowerCase().replace(/\s+&\s+/g, '-').replace(/\s+/g, '-'),
+        description: cat.description,
+        image: cat.image || '',
+        productCount: cat.productCount || 0,
+        createdAt: cat.createdAt,
+        updatedAt: cat.updatedAt,
+      }));
+      
+      setCategories(transformedCategories);
+      console.log('Transformed Categories:', transformedCategories);
+    }
+  }, [categoriesData]);
+
+  // console.log(updateFilter,"filter data")
+
+  // Process products data from backend
+  useEffect(() => {
+    if (productsData?.data) {
+      setProducts(productsData.data);
+      console.log('Products Data:', productsData);
+    }
+  }, [productsData]);
+
+  // Use the custom hook for filters
+
+
+  console.log(filters)
+
+  
   // Calculate pagination
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
   const paginatedProducts = useMemo(() => {
@@ -100,12 +126,11 @@ function BrowsePageContent() {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, []);
+  }, [filters]);
 
   // Handle page change
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    // Scroll to top of product grid
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -115,7 +140,7 @@ function BrowsePageContent() {
     setCurrentPage(1);
   };
 
-  // Generate active filter pills for VendorStyleFilterBar
+  // Generate active filter pills
   const getActiveFilterPills = () => {
     const pills = [];
 
@@ -170,7 +195,7 @@ function BrowsePageContent() {
     return pills;
   };
 
-  // Handle filter removal from badges
+  // Handle filter removal
   const handleRemoveFilter = (type: string, value: string) => {
     switch (type) {
       case "search":
@@ -204,27 +229,12 @@ function BrowsePageContent() {
   };
 
   // Handle product actions
-  // const handleAddToCart = (product: Product) => {
-  //   const domainProduct = toDomainProduct(product);
-  //   addToCart(domainProduct, 1);
-  //   toast.success(`${product.name} added to cart`);
-  // };
-
-  // const handleAddToWishlist = (product: Product) => {
-  //   const domainProduct = toDomainProduct(product);
-  //   addToWishlist(domainProduct);
-  //   toast.success(`${product.name} added to wishlist`);
-  // };
-
   const handleBuyNow = (product: Product) => {
-    // TODO: Implement buy now functionality
-    if (process.env.NODE_ENV !== "production")
-      console.log("Buy now clicked for:", product.id);
+    console.log("Buy now clicked for:", product.id);
     toast.info("Buy now functionality coming soon!");
   };
 
   const handleShare = (product: Product) => {
-    // TODO: Implement share functionality
     if (navigator.share) {
       navigator
         .share({
@@ -244,7 +254,6 @@ function BrowsePageContent() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Clear filters with Escape
       if (e.key === "Escape" && activeFilterCount > 0) {
         e.preventDefault();
         clearFilters();
@@ -255,11 +264,19 @@ function BrowsePageContent() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [activeFilterCount, clearFilters]);
 
+  // Loading state
+  const isLoading = productsLoading || categoriesLoading || productsFetching;
+
+
+  
+
   return (
     <PageLayout
       title="Browse Collectibles"
       description={
-        isFiltering
+        isLoading
+          ? "Loading..."
+          : isFiltering
           ? "Filtering..."
           : `${filteredProducts.length} items found${
               filteredProducts.length > itemsPerPage
@@ -323,12 +340,14 @@ function BrowsePageContent() {
                       updateFilter("categories", []);
                     }
                   }}
+                  disabled={categoriesLoading}
                 >
                   <SelectTrigger className={cn(productStyles.forms.select.md)}>
-                    <SelectValue placeholder="Select categories..." />
+                    <SelectValue placeholder={
+                      categoriesLoading ? "Loading..." : "Select categories..."
+                    } />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.slug}>
                         {category.name}
@@ -424,10 +443,8 @@ function BrowsePageContent() {
         <ProductGrid
           products={paginatedProducts}
           viewMode={viewMode}
-          isLoading={isFiltering}
+          isLoading={isLoading}
           onQuickView={(product: Product) => setQuickViewProduct(product)}
-          // onAddToCart={handleAddToCart}
-          // onAddToWishlist={handleAddToWishlist}
           onBuyNow={handleBuyNow}
           onShare={handleShare}
         />
@@ -446,13 +463,12 @@ function BrowsePageContent() {
           />
         </div>
       )}
+
       {/* Quick View Modal */}
       <QuickView
         product={quickViewProduct}
         isOpen={quickViewProduct !== null}
         onClose={() => setQuickViewProduct(null)}
-        // onAddToCart={handleAddToCart}
-        // onAddToWishlist={handleAddToWishlist}
       />
     </PageLayout>
   );
