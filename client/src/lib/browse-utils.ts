@@ -68,8 +68,6 @@ export const SORT_OPTIONS = [
   { value: "newest", label: "Newest First", icon: "clock" },
   { value: "price-asc", label: "Price: Low to High", icon: "arrow-up" },
   { value: "price-desc", label: "Price: High to Low", icon: "arrow-down" },
-  { value: "name-asc", label: "Name: A to Z", icon: "sort-asc" },
-  { value: "name-desc", label: "Name: Z to A", icon: "sort-desc" },
 ];
 
 export function filterProducts(

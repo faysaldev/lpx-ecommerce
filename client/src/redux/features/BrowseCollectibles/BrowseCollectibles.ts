@@ -13,15 +13,10 @@ const BrowseCollectibles = baseApi.injectEndpoints({
         limit,
         category,
       }) => ({
-        url: `/products/search?query=${query || ""}&minPrice=${
-          minPrice || ""
-        }&maxPrice=${maxPrice || ""}&condition=${condition || ""}&sortBy=${
-          sortBy || ""
-        }&page=${page || ""}&limit=${limit || ""}&category=${category || ""}`,
+        url: `/products/search?query=${query}&minPrice=${minPrice}&maxPrice=${maxPrice}&condition=${condition}&sortBy=${sortBy}&page=${page}&limit=${limit}&category=${category}`,
         method: "GET",
       }),
     }),
-
     AllCategories: builder.query({
       query: () => ({
         url: "/categories/all",
