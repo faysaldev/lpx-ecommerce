@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -13,6 +14,7 @@ import {
   Heart,
   Instagram,
   LayoutList,
+  Linkedin,
   MapPin,
   MessageCircle,
   Package,
@@ -26,9 +28,8 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-// import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import PageLayout from "@/components/layout/PageLayout";
 import { EmptyStates } from "@/components/shared/EmptyState";
@@ -36,41 +37,24 @@ import ProductCard from "@/components/shared/ProductCard";
 import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
-// import { CategoryBadge } from "@/components/ui/badge.variants";
 import { productStyles } from "@/components/UI/product.variants";
-// import { Progress } from "@/components/ui/progress";
-// import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
-// import { useCart } from "@/context/CartContext";
-// import { useWishlist } from "@/context/WishlistContext";
-// import { QuickView } from "@/features/browse/components/QuickView";
-// import { MockProductAPI, MockVendorAPI } from "@/lib/api/mock";
-// import { toDomainProduct } from "@/lib/api/product-adapters";
+import { Skeleton } from "@/components/UI/skeleton";
 import type { Category, Product, Vendor } from "@/lib/types";
-// import { designTokens } from "@/design-system/compat";
 import { cn } from "@/lib/utils";
 import { QuickView } from "@/components/Browse/QuickView";
+import {
+  useSearchSingleVendorProductsQuery,
+  useVendorSingleDetailsGetsQuery,
+} from "@/redux/features/vendors/vendor";
+import VendorPageSkeleton from "@/components/Vendors/SingleVendorView/VendorPageSkeleton";
 
 type ViewMode = "grid" | "list";
 
-// Initialize API instances
-// const vendorAPI = new MockVendorAPI();
-// const _productAPI = new MockProductAPI();
-
 export default function VendorStorefrontPage() {
-  const params: Record<string, string | string[]> | null = useParams();
-  const vendorId = params ? (params.id as string | null) : null;
-  // const { addToCart } = useCart();
-  // const { addToWishlist } = useWishlist();
+  const params = useParams();
+  const vendorId = params?.id as string;
 
-  // State for data
-  const [vendor, setVendor] = useState<Vendor | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [productsLoading, setProductsLoading] = useState(false);
-
-  // UI state
+  // State for UI controls
   const [isFollowing, setIsFollowing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
@@ -85,96 +69,114 @@ export default function VendorStorefrontPage() {
   // Sort options
   const sortOptions = [
     { value: "newest", label: "Newest First" },
-    { value: "price-asc", label: "Price: Low to High" },
-    { value: "price-desc", label: "Price: High to Low" },
-    { value: "popular", label: "Most Popular" },
+    { value: "highToLow", label: "Price: High to Low" },
+    { value: "lowToHigh", label: "Price: Low to High" },
+    { value: "mostPopular", label: "Most Popular" },
   ];
 
-  // Fetch vendor data
-  useEffect(() => {
-    async function fetchVendor() {
-      try {
-        // setLoading(true);
-        // setError(null);
-        // const response = await vendorAPI.getVendorById(vendorId);
-        // if (response.success) {
-        //   setVendor(response.data);
-        // } else {
-        //   setError(response.error.message);
-        // }
-      } catch (_err) {
-        setError("Failed to load vendor information");
-      } finally {
-        setLoading(false);
+  // Fetch vendor details
+  const {
+    data: vendorSingleDetails,
+    isLoading: isVendorLoading,
+    isError: isVendorError,
+  } = useVendorSingleDetailsGetsQuery(vendorId!, {
+    skip: !vendorId,
+  });
+
+  // Fetch vendor products with filters
+  const { data: vendorProductsData, isLoading: isProductsLoading } =
+    useSearchSingleVendorProductsQuery(
+      {
+        vendorId: vendorId!,
+        query: searchQuery || undefined,
+        category: selectedCategory !== "all" ? selectedCategory : undefined,
+        sortBy: sortBy as "mostPopular" | "highToLow" | "lowToHigh" | "newest",
+      },
+      {
+        skip: !vendorId,
       }
-    }
+    );
 
-    if (vendorId) {
-      fetchVendor();
-    }
-  }, [vendorId]);
+  // Transform vendor data
+  const vendor = useMemo(() => {
+    if (!vendorSingleDetails?.data?.attributes) return null;
 
-  // Fetch vendor products
-  useEffect(() => {
-    async function fetchProducts() {
-      if (!vendor) return;
+    const vendorData = vendorSingleDetails.data.attributes;
+    return {
+      id: vendorData._id,
+      slug:
+        vendorData.slug ||
+        vendorData.storeName.replace(/\s+/g, "-").toLowerCase(), // Adding slug
+      name: vendorData.storeName,
+      description: vendorData.description || "No description available",
+      location: vendorData.location,
+      rating: vendorData.averageRating || 0,
+      verified: vendorData.verified || false,
+      totalProducts: vendorData.productsCount || 0,
+      specialties: vendorData.category ? [vendorData.category] : [],
+      joinedDate: vendorData.createdAt,
+      logo: vendorData.storePhoto,
+      ownerName: vendorData.ownerName,
+      email: vendorData.email,
+      website: vendorData.website,
+      socialMedia: vendorData.socialLinks?.reduce((acc: any, link: any) => {
+        acc[link.type] = `https://${link.type}.com/${link.username}`;
+        return acc;
+      }, {}),
+      contact: {
+        website: vendorData.website,
+        email: vendorData.contactEmail,
+        phone: vendorData.phoneNumber,
+      },
+      policies: vendorData.storePolicies
+        ? {
+            shipping: vendorData.storePolicies.shippingPolicy,
+            returns: vendorData.storePolicies.returnPolicy,
+            authenticity: vendorData.storePolicies.authenticityPolicy, // Assuming this policy exists
+          }
+        : undefined,
+      responseTime: "within hours",
+      totalSales: 0, // You might want to calculate this from orders
+    } as Vendor;
+  }, [vendorSingleDetails]);
 
-      try {
-        setProductsLoading(true);
+  // Transform products data
+  const products = useMemo(() => {
+    if (!vendorProductsData?.data?.attributes?.products) return [];
 
-        // const response = await vendorAPI.getVendorProducts(vendor.id, {
-        //   search: searchQuery || undefined,
-        //   sortBy: sortBy as
-        //     | "featured"
-        //     | "newest"
-        //     | "price-asc"
-        //     | "price-desc"
-        //     | "rating"
-        //     | "popular"
-        //     | "name",
-        // });
+    return vendorProductsData.data.attributes.products.map(
+      (product: any) =>
+        ({
+          id: product._id,
+          name: product.productName,
+          price: product.price,
+          image: product.images?.[0] || "",
+          images: product.images || [],
+          category: product.category,
+          categorySlug:
+            product.category?.toLowerCase().replace(/\s+/g, "-") ||
+            "uncategorized",
+          vendor: product.vendor?.storeName || vendor?.name || "Unknown Vendor",
+          vendorId: product.vendor?._id || vendorId,
+          stock: product.stockQuantity || 0,
+          condition: product.condition || "new",
+          rating: 0, // You might want to add ratings to your product schema
+          reviewCount: 0,
+        } as Product)
+    );
+  }, [vendorProductsData, vendor, vendorId]);
 
-        // if (response.success) {
-        //   setProducts(response.data.data);
-        // }
-      } catch (err) {
-        if (process.env.NODE_ENV !== "production")
-          console.error("Failed to fetch products:", err);
-      } finally {
-        setProductsLoading(false);
-      }
-    }
-
-    fetchProducts();
-  }, [vendor, searchQuery, sortBy]);
-
-  // Filter and sort products
-  const vendorProducts = useMemo(() => {
-    let filtered = [...products];
-
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter((p) => p.categorySlug === selectedCategory);
-    }
-
-    return filtered;
-  }, [products, selectedCategory]);
-
-  // Get unique categories from vendor products
+  // Get unique categories from products
   const vendorCategories = useMemo(() => {
     const categoryMap = new Map();
 
-    products.forEach((p) => {
-      const category =
-        typeof p.category === "string"
-          ? {
-              id: p.categorySlug || p.category,
-              name: p.category,
-              slug: p.categorySlug || p.category,
-            }
-          : p.category;
-
-      if (category && !categoryMap.has(category.slug)) {
-        categoryMap.set(category.slug, category);
+    products.forEach((p: any) => {
+      if (p.category && !categoryMap.has(p.categorySlug)) {
+        categoryMap.set(p.categorySlug, {
+          id: p.categorySlug,
+          name: p.category,
+          slug: p.categorySlug,
+        });
       }
     });
 
@@ -187,26 +189,18 @@ export default function VendorStorefrontPage() {
 
   // Handle product actions
   const handleAddToCart = (product: Product) => {
-    // const domainProduct = toDomainProduct(product);
-    // addToCart(domainProduct, 1);
     toast.success(`${product.name} added to cart`);
   };
 
   const handleAddToWishlist = (product: Product) => {
-    // const domainProduct = toDomainProduct(product);
-    // addToWishlist(domainProduct);
     toast.success(`${product.name} added to wishlist`);
   };
 
   const handleBuyNow = (product: Product) => {
-    // TODO: Implement buy now functionality
-    if (process.env.NODE_ENV !== "production")
-      console.log("Buy now clicked for:", product.id);
     toast.info("Buy now functionality coming soon!");
   };
 
   const handleShare = (product: Product) => {
-    // TODO: Implement share functionality
     if (navigator.share) {
       navigator
         .share({
@@ -224,7 +218,7 @@ export default function VendorStorefrontPage() {
   };
 
   // Loading state
-  if (loading) {
+  if (isVendorLoading) {
     return (
       <PageLayout
         title="Loading..."
@@ -239,7 +233,7 @@ export default function VendorStorefrontPage() {
   }
 
   // Error state
-  if (error || !vendor) {
+  if (isVendorError || !vendor) {
     return (
       <PageLayout
         title="Vendor Not Found"
@@ -264,10 +258,9 @@ export default function VendorStorefrontPage() {
       description={vendor.description}
       breadcrumbs={breadcrumbs}
     >
-      {/* Vendor Header Card - Enhanced with Real Data */}
+      {/* Vendor Header Card */}
       <Card className="mb-8 border-0 shadow-none">
         <CardContent className="p-0 space-y-6">
-          {/* Sidebar-Style Layout */}
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Left Sidebar Info */}
             <div className="lg:w-80 w-full space-y-4 lg:sticky lg:top-4 lg:self-start">
@@ -276,7 +269,7 @@ export default function VendorStorefrontPage() {
                 <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
                   {vendor.logo ? (
                     <Image
-                      src={vendor.logo}
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}/${vendor.logo}`}
                       alt={vendor.name}
                       width={80}
                       height={80}
@@ -297,13 +290,11 @@ export default function VendorStorefrontPage() {
                   <div className="flex items-center justify-center gap-1 text-sm">
                     <Star className="h-4 w-4 text-yellow-500 fill-current" />
                     <span className="font-semibold">{vendor.rating}</span>
-                    <span className="text-muted-foreground">
-                      ({vendor.reviewCount || 0} reviews)
-                    </span>
+                    <span className="text-muted-foreground">(0 reviews)</span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {vendor.totalSales?.toLocaleString() || 0} sales •{" "}
-                    {vendor.totalProducts || vendor.productCount || 0} items
+                    {vendor.totalProducts || 0} items
                   </div>
                   <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
                     <Clock className="h-3 w-3" />
@@ -312,9 +303,7 @@ export default function VendorStorefrontPage() {
                   {vendor.location && (
                     <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
                       <MapPin className="h-3 w-3" />
-                      {typeof vendor.location === "string"
-                        ? vendor.location
-                        : `${vendor.location.city}, ${vendor.location.country}`}
+                      {vendor?.location}
                     </div>
                   )}
                   <div className="text-xs text-muted-foreground">
@@ -327,7 +316,7 @@ export default function VendorStorefrontPage() {
                 </div>
               </div>
 
-              {/* Quick Stats - Enhanced */}
+              {/* Specialties */}
               {vendor.specialties && vendor.specialties.length > 0 && (
                 <div className="border rounded-lg p-4">
                   <h3 className="font-medium text-sm mb-2 flex items-center gap-2">
@@ -400,6 +389,17 @@ export default function VendorStorefrontPage() {
                         <Twitter className="h-4 w-4" />
                       </a>
                     )}
+
+                    {vendor.socialMedia?.twitter && (
+                      <a
+                        href={vendor.socialMedia.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 border rounded-md hover:bg-accent"
+                      >
+                        <Linkedin className="h-4 w-4" />
+                      </a>
+                    )}
                   </div>
                 </div>
               )}
@@ -432,9 +432,8 @@ export default function VendorStorefrontPage() {
               <div id="products" className="space-y-6">
                 <h2 className="text-xl font-semibold">Products</h2>
 
-                {/* Compact Filter Bar - Matching Browse Page */}
+                {/* Filter Bar */}
                 <div className="mb-6">
-                  {/* Filter Toggle & Quick Actions */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-4">
                       <button
@@ -450,9 +449,9 @@ export default function VendorStorefrontPage() {
                         />
                         <span>Filters</span>
                         {activeFilterCount > 0 && (
-                          <span className="badge badge-primary">
+                          <Badge variant="secondary" className="ml-2">
                             {activeFilterCount}
-                          </span>
+                          </Badge>
                         )}
                         {isFilterExpanded ? (
                           <ChevronUp className={productStyles.forms.icon.md} />
@@ -488,7 +487,7 @@ export default function VendorStorefrontPage() {
                       {!isFilterExpanded && activeFilterCount > 0 && (
                         <div className="flex items-center gap-2">
                           {selectedCategory !== "all" && (
-                            <span className="badge badge-secondary">
+                            <Badge variant="secondary" className="gap-1 pr-1">
                               {
                                 vendorCategories.find(
                                   (c) => c.slug === selectedCategory
@@ -501,10 +500,10 @@ export default function VendorStorefrontPage() {
                               >
                                 <X className="h-3 w-3" />
                               </button>
-                            </span>
+                            </Badge>
                           )}
                           {searchQuery && (
-                            <span className="badge badge-secondary">
+                            <Badge variant="secondary" className="gap-1 pr-1">
                               Search: {searchQuery}
                               <button
                                 type="button"
@@ -513,7 +512,7 @@ export default function VendorStorefrontPage() {
                               >
                                 <X className="h-3 w-3" />
                               </button>
-                            </span>
+                            </Badge>
                           )}
                         </div>
                       )}
@@ -549,7 +548,7 @@ export default function VendorStorefrontPage() {
                           </span>
                         </button>
                         {isSortOpen && (
-                          <div className="dropdown-menu right-0">
+                          <div className="absolute right-0 mt-1 w-48 bg-popover border border-input rounded-md shadow-lg z-10">
                             {sortOptions.map((option) => (
                               <button
                                 type="button"
@@ -558,11 +557,10 @@ export default function VendorStorefrontPage() {
                                   setSortBy(option.value);
                                   setIsSortOpen(false);
                                 }}
-                                className={`dropdown-item ${
-                                  sortBy === option.value
-                                    ? "dropdown-item-active"
-                                    : ""
-                                }`}
+                                className={cn(
+                                  "w-full text-left px-3 py-2 text-sm hover:bg-accent",
+                                  sortBy === option.value && "bg-accent"
+                                )}
                               >
                                 {option.label}
                               </button>
@@ -608,7 +606,7 @@ export default function VendorStorefrontPage() {
 
                   {/* Expandable Filter Content */}
                   {isFilterExpanded && (
-                    <div className="border-t border-border animate-slide-up py-4">
+                    <div className="border-t border-border py-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {/* Category Filter */}
                         <div>
@@ -632,15 +630,7 @@ export default function VendorStorefrontPage() {
                             <option value="all">All Categories</option>
                             {vendorCategories.map((cat) => (
                               <option key={cat.id} value={cat.slug}>
-                                {cat.name} (
-                                {
-                                  products.filter(
-                                    (p) =>
-                                      p.vendorId === vendorId &&
-                                      p.categorySlug === cat.slug
-                                  ).length
-                                }
-                                )
+                                {cat.name}
                               </option>
                             ))}
                           </select>
@@ -697,62 +687,42 @@ export default function VendorStorefrontPage() {
                 </div>
 
                 {/* Products Grid/List */}
-                {productsLoading ? (
+                {isProductsLoading ? (
                   <div
                     className={
                       viewMode === "grid"
-                        ? `grid grid-cols-2 lg:grid-cols-3 gap-4`
+                        ? "grid grid-cols-2 lg:grid-cols-3 gap-4"
                         : "space-y-4"
                     }
                   >
-                    {Array.from({ length: 6 }, (_, index) => ({
-                      id: `vendor-${vendorId}-product-skeleton-${index}-${Math.random()
-                        .toString(36)
-                        .substr(2, 9)}`,
-                      index,
-                    })).map((item) => (
-                      <div
-                        key={item.id}
-                        className={viewMode === "grid" ? "" : "h-48"}
-                      >
-                        <Skeleton
-                          className={
-                            viewMode === "grid"
-                              ? "h-64 rounded-lg"
-                              : "h-48 rounded-lg"
-                          }
-                        />
-                      </div>
+                    {Array.from({ length: 6 }, (_, index) => (
+                      <Skeleton
+                        key={index}
+                        className={
+                          viewMode === "grid"
+                            ? "h-64 rounded-lg"
+                            : "h-48 rounded-lg"
+                        }
+                      />
                     ))}
                   </div>
-                ) : vendorProducts.length === 0 ? (
+                ) : products.length === 0 ? (
                   <EmptyStates.NoProducts />
                 ) : (
                   <div
                     className={
                       viewMode === "grid"
-                        ? `grid grid-cols-2 lg:grid-cols-3 gap-4`
+                        ? "grid grid-cols-2 lg:grid-cols-3 gap-4"
                         : "space-y-4"
                     }
                   >
-                    {vendorProducts.map((product) => (
+                    {products.map((product: any) => (
                       <ProductCard
                         key={product.id}
-                        product={{
-                          ...product,
-                          name: product.name,
-                          image: product.image || product.images?.[0] || "",
-                          category: product.category,
-                          categorySlug:
-                            product.categorySlug ||
-                            product.category.toLowerCase().replace(/\s+/g, "-"),
-                          vendor: vendor.name,
-                          stock: product.stock || 0,
-                          condition: product.condition || "new",
-                        }}
+                        product={product}
                         viewMode={viewMode}
                         showQuickView={true}
-                        onQuickView={(p) => setQuickViewProduct(p)}
+                        onQuickView={setQuickViewProduct}
                         onAddToCart={handleAddToCart}
                         onAddToWishlist={handleAddToWishlist}
                         onBuyNow={handleBuyNow}
@@ -767,14 +737,10 @@ export default function VendorStorefrontPage() {
         </CardContent>
       </Card>
 
-      {/* Enhanced About Section */}
+      {/* About Section */}
       <div className="flex flex-col lg:flex-row gap-6 mt-8">
-        {/* Keep sidebar space */}
         <div className="lg:w-80 w-full" />
-
-        {/* Main content area */}
         <div className="flex-1 space-y-6">
-          {/* About Section */}
           <div className="bg-card rounded-lg border p-6">
             <h2 className="text-lg font-semibold mb-4">About {vendor.name}</h2>
             <p className="text-muted-foreground leading-relaxed">
@@ -809,17 +775,6 @@ export default function VendorStorefrontPage() {
                     </p>
                   </div>
                 )}
-                {vendor.policies.authenticity && (
-                  <div>
-                    <h3 className="font-medium text-sm mb-2 flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4" />
-                      Authenticity Guarantee
-                    </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {vendor.policies.authenticity}
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
           )}
@@ -835,71 +790,5 @@ export default function VendorStorefrontPage() {
         onAddToWishlist={handleAddToWishlist}
       />
     </PageLayout>
-  );
-}
-
-// Loading skeleton component
-function VendorPageSkeleton() {
-  return (
-    <Card className="mb-8 border-0 shadow-none">
-      <CardContent className="p-0 space-y-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar Skeleton */}
-          <div className="lg:w-80 w-full space-y-4">
-            <div className="text-center bg-card rounded-lg p-6 border">
-              <Skeleton className="w-20 h-20 rounded-full mx-auto mb-3" />
-              <Skeleton className="h-6 w-32 mx-auto mb-2" />
-              <Skeleton className="h-4 w-24 mx-auto mb-3" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-28 mx-auto" />
-                <Skeleton className="h-4 w-36 mx-auto" />
-                <Skeleton className="h-4 w-32 mx-auto" />
-                <Skeleton className="h-4 w-40 mx-auto" />
-              </div>
-            </div>
-            <div className="border rounded-lg p-4 space-y-3">
-              <Skeleton className="h-5 w-24" />
-              <div className="flex flex-wrap gap-1">
-                <Skeleton className="h-6 w-16" />
-                <Skeleton className="h-6 w-20" />
-                <Skeleton className="h-6 w-14" />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Skeleton className="h-9 w-full" />
-              <Skeleton className="h-9 w-full" />
-            </div>
-          </div>
-
-          {/* Main Content Skeleton */}
-          <div className="flex-1">
-            <div className="space-y-6">
-              <Skeleton className="h-8 w-32" />
-
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Skeleton className="h-10 w-32" />
-                  <div className="flex gap-2">
-                    <Skeleton className="h-10 w-40" />
-                    <Skeleton className="h-10 w-20" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-                  {Array.from({ length: 6 }, (_, index) => ({
-                    id: `vendor-gallery-skeleton-${index}-${Math.random()
-                      .toString(36)
-                      .substr(2, 9)}`,
-                    index,
-                  })).map((item) => (
-                    <Skeleton key={item.id} className="h-64 rounded-lg" />
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
   );
 }

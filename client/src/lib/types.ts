@@ -157,6 +157,7 @@ export interface Vendor {
   verified: boolean;
   featured?: boolean;
   joinedDate: string;
+  storePhoto?: string; // Store photo URL
   location?:
     | {
         city?: string;
@@ -173,6 +174,9 @@ export interface Vendor {
     facebook?: string;
     twitter?: string;
     instagram?: string;
+    linkedin?: string;
+    youtube?: string;
+    pinterest?: string;
   };
   specialties?: string[];
   policies?: {

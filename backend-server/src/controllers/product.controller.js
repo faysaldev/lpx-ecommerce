@@ -104,6 +104,7 @@ const searchProducts = catchAsync(async (req, res) => {
     sortBy = "newestFirst", // Default sort: newestFirst
     page = 1, // Default page: 1
     limit = 20, // Default limit: 20
+    category,
   } = req.query;
 
   // Call the service with all the query parameters
@@ -115,6 +116,7 @@ const searchProducts = catchAsync(async (req, res) => {
     sortBy,
     page,
     limit,
+    category,
   });
 
   res.status(httpStatus.OK).json({

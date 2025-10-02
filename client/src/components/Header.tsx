@@ -14,7 +14,7 @@ import {
   Store,
 } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/UI/avatar";
 import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
@@ -40,12 +40,16 @@ import { designTokens } from "@/design-system/compat";
 import { cn } from "@/lib/utils";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { logout, selectCurrentUser } from "@/redux/features/auth/authSlice";
+import { useAllCategoriesQuery } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [categories, setCategories] = useState<
     { name: string; slug: string; productCount?: number }[]
   >([]);
+  const { data: categoriesData, isLoading: categoriesLoading } =
+    useAllCategoriesQuery({});
+
   const dispatch = useAppDispatch();
   // const { user, isLoaded, isSignedIn } = useUser();
   const user = useAppSelector(selectCurrentUser);
@@ -60,11 +64,12 @@ export default function Header() {
   // const { wishlistCount } = useWishlist();
   // const { unreadCount } = useNotifications();
 
-  // useEffect(() => {
-  //   // Load categories on mount
-  //   getNavigationCategories().then(setCategories);
-  // }, []);
+  useEffect(() => {
+    // Load categories on mount
+    setCategories(categoriesData?.data?.attributes || []);
+  }, [categoriesData]);
 
+  console.log("Categories Data:", categories);
   // Memoize categories to prevent unnecessary re-renders
   const memoizedCategories = useMemo(() => categories, [categories]);
 

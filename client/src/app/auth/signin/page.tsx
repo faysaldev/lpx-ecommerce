@@ -3,7 +3,7 @@
 import { Loader2, LogIn } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useState } from "react";
 import { Alert, AlertDescription } from "@/components/UI/alert";
 import {
   Card,
@@ -49,7 +49,8 @@ function SignInForm() {
         fcmToken: "The new Auth FMC token",
       };
       const res = await loginUserSection(data);
-      console.log(res);
+      console.log();
+
       const { user } = res?.data?.data?.attributes;
       const { token } = res?.data?.data?.attributes?.tokens?.access;
       if (res) {
@@ -57,25 +58,10 @@ function SignInForm() {
         router.replace("/browse");
       }
     } catch (_err) {
-      setError("Something went wrong. Please try again.");
+      setError("No users found with this email");
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const fillTestCredentials = () => {
-    setEmail("test@gmail.com");
-    setPassword("password");
-  };
-
-  const fillVendorCredentials = () => {
-    setEmail("vendor@gmail.com");
-    setPassword("password");
-  };
-
-  const fillAdminCredentials = () => {
-    setEmail("admin@gmail.com");
-    setPassword("password");
   };
 
   return (
