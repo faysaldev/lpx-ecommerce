@@ -4,8 +4,23 @@ const response = require("../config/response");
 const { vendorService } = require("../services");
 
 const allVendors = catchAsync(async (req, res) => {
-  console.log(req.query);
-  const vendors = await vendorService.allVendors(req.params);
+  const {
+    page = 1, // Default page: 1
+    limit = 10, // Default limit: 10
+    search = "", // Search term for store name, description
+    sortBy = "createdAt", // Default sort: newest first
+    category = "", // Category filter
+    ratingFilter = "", // Rating filter (optional)
+  } = req.query;
+
+  const vendors = await vendorService.allVendors({
+    page,
+    limit,
+    search,
+    sortBy,
+    category,
+    ratingFilter,
+  });
   res.status(httpStatus.CREATED).json(
     response({
       message: "All the Vendors",

@@ -55,6 +55,7 @@ const searchProducts = async ({
   sortBy,
   page,
   limit,
+  category, // added category parameter
 }) => {
   // Construct the search query object
   const searchQuery = {};
@@ -68,6 +69,12 @@ const searchProducts = async ({
       { category: queryRegEx }, // Check category
       { tags: { $in: query.split(",") } }, // Check tags
     ];
+  }
+
+  // Category filter
+  if (category) {
+    const categoryRegEx = { $regex: category, $options: "i" }; // Case-insensitive regex for category
+    searchQuery.category = categoryRegEx; // Add category filter to search query
   }
 
   // Price range filter
@@ -111,13 +118,86 @@ const searchProducts = async ({
     .sort(sort) // Sorting based on user input
     .lean(); // Return plain JavaScript objects
 
-  // If no products are found, throw an error
+  // If no products are found, return a message
   if (products.length === 0) {
-    return "No products found with the given filters.";
+    return [];
   }
 
   return products;
 };
+
+// const searchProducts = async ({
+//   query,
+//   minPrice,
+//   maxPrice,
+//   condition,
+//   sortBy,
+//   page,
+//   limit,
+//   category,
+// }) => {
+//   // Construct the search query object
+//   const searchQuery = {};
+
+//   // Handle multiple query filters (name, tags, category, etc.)
+//   if (query) {
+//     const queryRegEx = { $regex: query, $options: "i" }; // Case-insensitive regex search
+
+//     searchQuery.$or = [
+//       { productName: queryRegEx }, // Check productName
+//       { category: queryRegEx }, // Check category
+//       { tags: { $in: query.split(",") } }, // Check tags
+//     ];
+//   }
+
+//   // Price range filter
+//   if (minPrice) searchQuery.price = { ...searchQuery.price, $gte: minPrice };
+//   if (maxPrice) searchQuery.price = { ...searchQuery.price, $lte: maxPrice };
+
+//   // Condition filter
+//   if (condition) searchQuery.condition = condition;
+
+//   // Determine sort option
+//   let sort = {};
+//   switch (sortBy) {
+//     case "lowToHigh":
+//       sort.price = 1;
+//       break;
+//     case "highToLow":
+//       sort.price = -1;
+//       break;
+//     case "A-Z":
+//       sort.productName = 1;
+//       break;
+//     case "a-z":
+//       sort.productName = -1;
+//       break;
+//     case "newestFirst":
+//     default:
+//       sort.createdAt = -1;
+//   }
+
+//   // Pagination logic
+//   const skip = (page - 1) * limit;
+
+//   // Query the database with the built query object and populate vendor details
+//   const products = await Product.find(searchQuery)
+//     .populate("vendor", "storeName") // Populate the vendor's store name
+//     .select(
+//       "productName category description price stockQuantity condition images tags"
+//     ) // Select specific fields
+//     .skip(skip) // Pagination: skip to the appropriate page
+//     .limit(Number(limit)) // Limit the number of results
+//     .sort(sort) // Sorting based on user input
+//     .lean(); // Return plain JavaScript objects
+
+//   // If no products are found, throw an error
+//   if (products.length === 0) {
+//     return "No products found with the given filters.";
+//   }
+
+//   return products;
+// };
 
 module.exports = {
   getMyProducts,

@@ -50,34 +50,25 @@ const OrderSchema = new Schema(
         image: { type: String }, // Assuming an array of image URLs
         quantity: { type: Number, required: true },
         price: { type: Number, required: true },
+        vendorId: {
+          type: Schema.Types.ObjectId,
+          ref: "Vendor",
+          required: true,
+        },
       },
     ],
     total: { type: Number, required: true },
     shipping: { type: Number, required: true },
     tax: { type: Number, required: true },
     orderNotes: { type: String },
+    coupon: {
+      code: { type: String },
+      discountPercentage: { type: Number, min: 0, max: 100 },
+      isValid: { type: Boolean, default: true },
+    },
   },
   { timestamps: true }
 );
 
 const Order = mongoose.model("Order", OrderSchema);
 module.exports = Order;
-
-// const mongoose = require("mongoose");
-// const Schema = mongoose.Schema;
-// const TransactionSchema = new Schema({
-//   seller: { type: Schema.Types.ObjectId, ref: "User", required: true },
-//   customer: { type: Schema.Types.ObjectId, ref: "User", required: true },
-//   product: { type: Schema.Types.ObjectId, ref: "Product", required: true },
-//   quantity: { type: Number, required: true },
-//   totalPrice: { type: Number, required: true },
-//   status: {
-//     type: String,
-//     enum: ["pending", "completed", "processing", "shipped", "cancelled"],
-//     default: "pending",
-//   },
-//   transactionDate: { type: Date, default: Date.now },
-// });
-
-// const Transaction = mongoose.model("Transaction", TransactionSchema);
-// module.exports = Transaction;

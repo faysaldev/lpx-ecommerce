@@ -157,6 +157,7 @@ export interface Vendor {
   verified: boolean;
   featured?: boolean;
   joinedDate: string;
+  storePhoto?: string; // Store photo URL
   location?:
     | {
         city?: string;

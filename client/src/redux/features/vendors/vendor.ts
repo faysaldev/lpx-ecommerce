@@ -15,7 +15,22 @@ const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+
+    searchVendorCollection: builder.query({
+      query: ({ search, page, limit, category, sortBy, ratingFilter }) => ({
+        url: `/vendors/search?search=${search || ""}&page=${page || ""}&limit=${
+          limit || ""
+        }&category=${category || ""}&sortBy=${sortBy || ""}&ratingFilter=${
+          ratingFilter || ""
+        }`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useVendorCreateMutation, useVendorGetsQuery } = authApi;
+export const {
+  useVendorCreateMutation,
+  useVendorGetsQuery,
+  useSearchVendorCollectionQuery,
+} = authApi;

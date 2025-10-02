@@ -6,7 +6,11 @@ export type SortOption =
   | "price-asc"
   | "price-desc"
   | "name-asc"
-  | "name-desc";
+  | "name-desc"
+  | "highToLow"
+  | "lowToHigh"
+  | "A-Z"
+  | "Z-A";
 
 export interface PriceRange {
   min: number;
