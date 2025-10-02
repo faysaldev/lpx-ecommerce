@@ -31,6 +31,7 @@ import { designTokens } from "@/design-system/compat";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import ConditionBadgeComponent from "../Vendors/SingleVendorView/ConditionBadgeComponent";
+import { useAddTocartMutation } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 
 export function ProductCardSkeleton({
   viewMode = "grid",
@@ -123,8 +124,10 @@ const ProductCard = ({
     image,
   } = product;
 
+  const [addtoCartProduct] = useAddTocartMutation();
+
   const addToCart = ({ productId, vendorId }: any) => {
-    alert("Added to cart");
+    addtoCartProduct({ productId, vendorId, quantity: 1, price });
   };
 
   // Use the correct ID (support both _id and id)
@@ -470,6 +473,7 @@ const ProductCard = ({
                 addToCart({
                   productId: product.id,
                   vendorId: product.vendorId,
+                  price: product.price,
                 })
               }
               disabled={finalStockQuantity === 0}

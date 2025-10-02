@@ -25,16 +25,31 @@ const BrowseCollectibles = baseApi.injectEndpoints({
     }),
 
     addTocart: builder.mutation({
-      query: ({ productId, vendorId, quantity, price }) => ({
+      query: (cartBody) => ({
         url: `/carts/add`,
-        body: { productId, vendorId, quantity, price },
+        body: cartBody,
         method: "POST",
       }),
     }),
 
     remmoveTocart: builder.query({
-      query: ({ productId }) => ({
+      query: (productId) => ({
         url: `/carts/remove/${productId}`,
+        method: "DELETE",
+      }),
+    }),
+
+    addToWishList: builder.mutation({
+      query: (wishlistBody) => ({
+        url: `/wishlists/add`,
+        body: wishlistBody,
+        method: "POST",
+      }),
+    }),
+
+    remmoveToWishlist: builder.query({
+      query: (wishlitId) => ({
+        url: `/wishlists/remove/${wishlitId}`,
         method: "DELETE",
       }),
     }),
@@ -45,4 +60,5 @@ export const {
   useAllProductsBrowseCollectiblesQuery,
   useAllCategoriesQuery,
   useAddTocartMutation,
+  useRemmoveTocartQuery,
 } = BrowseCollectibles;
