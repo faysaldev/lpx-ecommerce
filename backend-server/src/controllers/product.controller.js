@@ -95,6 +95,38 @@ const editeProducts = catchAsync(async (req, res) => {
   );
 });
 
+const searchProducts = catchAsync(async (req, res) => {
+  const {
+    query,
+    minPrice,
+    maxPrice,
+    condition,
+    sortBy = "newestFirst", // Default sort: newestFirst
+    page = 1, // Default page: 1
+    limit = 20, // Default limit: 20
+    category,
+  } = req.query;
+
+  // Call the service with all the query parameters
+  const products = await productService.searchProducts({
+    query,
+    minPrice,
+    maxPrice,
+    condition,
+    sortBy,
+    page,
+    limit,
+    category,
+  });
+
+  res.status(httpStatus.OK).json({
+    message: "Products fetched successfully",
+    status: "OK",
+    statusCode: httpStatus.OK,
+    data: products,
+  });
+});
+
 module.exports = {
   getMyProducts,
   addNewProducts,
@@ -102,4 +134,5 @@ module.exports = {
   deleteProducts,
   editeProducts,
   getAllProducts,
+  searchProducts,
 };

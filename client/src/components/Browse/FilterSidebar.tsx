@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import {
   DollarSign,
   Filter,
@@ -23,16 +23,15 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Switch } from "@/components/ui/switch";
-import type { Category, Product } from "@/lib/api/types";
+} from "@/components/UI/accordion";
+import { Badge } from "@/components/UI/badge";
+import { Button } from "@/components/UI/button";
+import { Checkbox } from "@/components/UI/checkbox";
+import { Input } from "@/components/UI/input";
+import { Label } from "@/components/UI/label";
+import { ScrollArea } from "@/components/UI/scroll-area";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/UI/sheet";
+import { Switch } from "@/components/UI/switch";
 import {
   type BrowseFilters,
   CONDITIONS,
@@ -49,8 +48,8 @@ interface FilterSidebarProps {
     value: BrowseFilters[K],
   ) => void;
   onClearFilters: () => void;
-  categories: Category[];
-  products: Product[];
+  categories: any;
+  products: any;
   className?: string;
 }
 
@@ -156,7 +155,7 @@ export function FilterSidebar({
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-2 pt-2">
-                  {categories.map((category) => (
+                  {categories.map((category:any) => (
                     <div
                       key={category.id}
                       className="flex items-center space-x-2"

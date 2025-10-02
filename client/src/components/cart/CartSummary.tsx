@@ -13,6 +13,8 @@ import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Separator } from "@/components/UI/separator";
+import { useAppSelector } from "@/redux/hooks";
+import { selectCurrentUser } from "@/redux/features/auth/authSlice";
 // import { useAuth } from "@/context/AuthContext";
 
 interface CartSummaryProps {
@@ -35,7 +37,7 @@ export default function CartSummary({
   couponCode,
 }: CartSummaryProps) {
   const router = useRouter();
-  // const { isSignedIn } = useAuth();
+  const user  = useAppSelector(selectCurrentUser);
 
   const FREE_SHIPPING_THRESHOLD = 100;
   const remainingForFreeShipping = Math.max(
@@ -45,11 +47,11 @@ export default function CartSummary({
   const discountAmount = subtotal * discount;
 
   const handleCheckout = () => {
-    // if (isSignedIn) {
-    //   router.push("/checkout");
-    // } else {
-    //   router.push("/sign-in?redirect_url=/checkout");
-    // }
+    if (user) {
+      router.push("/checkout");
+    } else {
+      router.push("/sign-in?redirect_url=/checkout");
+    }
   };
 
   return (
@@ -61,7 +63,7 @@ export default function CartSummary({
         {/* Item Count */}
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Items ({itemCount})</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>${Number(subtotal || 0).toFixed(2)}</span>
         </div>
 
         {/* Discount */}
@@ -76,7 +78,7 @@ export default function CartSummary({
               )}
             </div>
             <span className="text-green-600">
-              -${discountAmount.toFixed(2)}
+              -${Number(discountAmount || 0).toFixed(2)}
             </span>
           </div>
         )}
@@ -88,7 +90,7 @@ export default function CartSummary({
             <span
               className={shipping === 0 ? "text-green-600 font-medium" : ""}
             >
-              {shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}
+              {shipping === 0 ? "FREE" : `${Number(shipping || 0).toFixed(2)}`}
             </span>
           </div>
 
@@ -99,7 +101,7 @@ export default function CartSummary({
                 <Truck className="h-4 w-4 text-blue-600 mt-0.5" />
                 <div className="flex-1">
                   <p className="text-xs text-blue-900 dark:text-blue-100">
-                    Add ${remainingForFreeShipping.toFixed(2)} more for free
+                    Add ${Number(remainingForFreeShipping || 0).toFixed(2)} more for free
                     shipping!
                   </p>
                   <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-1.5 mt-2">
@@ -133,7 +135,7 @@ export default function CartSummary({
             <span className="text-muted-foreground">Estimated tax</span>
             <Info className="h-3 w-3 text-muted-foreground" />
           </div>
-          <span>${tax.toFixed(2)}</span>
+          <span>${Number(tax || 0).toFixed(2)}</span>
         </div>
 
         <Separator />
@@ -141,7 +143,7 @@ export default function CartSummary({
         {/* Total */}
         <div className="flex items-center justify-between">
           <span className="font-semibold text-lg">Total</span>
-          <span className="font-bold text-xl">${total.toFixed(2)}</span>
+          <span className="font-bold text-xl">${Number(total || 0).toFixed(2)}</span>
         </div>
 
         {/* Checkout Button */}

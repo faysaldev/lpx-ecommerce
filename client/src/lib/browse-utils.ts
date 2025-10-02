@@ -6,7 +6,11 @@ export type SortOption =
   | "price-asc"
   | "price-desc"
   | "name-asc"
-  | "name-desc";
+  | "name-desc"
+  | "highToLow"
+  | "lowToHigh"
+  | "A-Z"
+  | "Z-A";
 
 export interface PriceRange {
   min: number;
@@ -64,8 +68,6 @@ export const SORT_OPTIONS = [
   { value: "newest", label: "Newest First", icon: "clock" },
   { value: "price-asc", label: "Price: Low to High", icon: "arrow-up" },
   { value: "price-desc", label: "Price: High to Low", icon: "arrow-down" },
-  { value: "name-asc", label: "Name: A to Z", icon: "sort-asc" },
-  { value: "name-desc", label: "Name: Z to A", icon: "sort-desc" },
 ];
 
 export function filterProducts(
@@ -77,10 +79,10 @@ export function filterProducts(
     if (filters.search) {
       const searchLower = filters.search.toLowerCase();
       const matchesSearch =
-        product.name.toLowerCase().includes(searchLower) ||
-        product.description.toLowerCase().includes(searchLower) ||
-        product.category.toLowerCase().includes(searchLower) ||
-        product.vendor.toLowerCase().includes(searchLower) ||
+        product.name?.toLowerCase().includes(searchLower) ||
+        product.description?.toLowerCase().includes(searchLower) ||
+        product.category?.toLowerCase().includes(searchLower) ||
+        (typeof product.vendor === 'string' && product.vendor.toLowerCase().includes(searchLower)) ||
         product.tags?.some((tag) => tag.toLowerCase().includes(searchLower));
 
       if (!matchesSearch) return false;
@@ -88,11 +90,24 @@ export function filterProducts(
 
     // Category filter
     if (filters.categories.length > 0) {
-      if (
-        !product.categorySlug ||
-        !filters.categories.includes(product.categorySlug)
-      )
+      // Check if product matches any selected category
+      // First try to match against categorySlug
+      let matchesCategory = false;
+      
+      if (product.categorySlug && filters.categories.includes(product.categorySlug)) {
+        matchesCategory = true;
+      } 
+      // If not matched, try to match against category name converted to slug format
+      else if (product.category) {
+        const categorySlug = product.category.toLowerCase().replace(/\s+&\s+/g, '-').replace(/\s+/g, '-');
+        if (filters.categories.includes(categorySlug)) {
+          matchesCategory = true;
+        }
+      }
+      
+      if (!matchesCategory) {
         return false;
+      }
     }
 
     // Condition filter
@@ -235,7 +250,7 @@ export function getPriceHistogram(
     ).length;
 
     histogram.push({
-      range: `$${Math.round(rangeMin)}-$${Math.round(rangeMax)}`,
+      range: `${Math.round(rangeMin)}-${Math.round(rangeMax)}`,
       count,
     });
   }
@@ -254,7 +269,10 @@ export function getUniqueVendors(
       if (vendor) vendor.count++;
     } else {
       if (product.vendorId) {
-        vendorMap.set(product.vendorId, { name: product.vendor, count: 1 });
+        vendorMap.set(product.vendorId, { 
+          name: typeof product.vendor === 'string' ? product.vendor : product.vendorId, 
+          count: 1 
+        });
       }
     }
   });
@@ -423,7 +441,7 @@ export function createSearchFilter(
 
   return (product: Product) => {
     // Search in name
-    if (product.name.toLowerCase().includes(term)) {
+    if (product.name?.toLowerCase().includes(term)) {
       return true;
     }
 
@@ -438,12 +456,12 @@ export function createSearchFilter(
     }
 
     // Search in category name
-    if (product.category.toLowerCase().includes(term)) {
+    if (product.category?.toLowerCase().includes(term)) {
       return true;
     }
 
     // Search in vendor name
-    if (product.vendor.toLowerCase().includes(term)) {
+    if (typeof product.vendor === 'string' && product.vendor.toLowerCase().includes(term)) {
       return true;
     }
 

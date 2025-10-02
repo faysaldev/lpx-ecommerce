@@ -18,13 +18,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from "@/components/UI/tooltip";
 // import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import { cn } from "@/lib/utils";
 

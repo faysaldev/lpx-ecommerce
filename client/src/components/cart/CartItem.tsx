@@ -65,7 +65,7 @@ const CartItem = ({
     cartId: (item as any).cartId,  
   };
 
-  const actualPrice = (item as any).money;
+  const actualPrice = (item as any).money || item.price || 0;
   const actualQuantity = item.quantity;
   const availableImageRaw = (item as any).firstImage ;
   const productName = (item as any).productName ;
@@ -161,7 +161,7 @@ const CartItem = ({
             <div className="space-y-1">
               <div className="flex items-baseline gap-2">
                 <span className="text-lg font-semibold">
-                  ${totalPrice.toFixed(2)}
+                  ${Number(totalPrice || 0).toFixed(2)}
                 </span>
                 {/* {savings > 0 && (
                   <span className="text-sm text-muted-foreground line-through">
@@ -170,7 +170,7 @@ const CartItem = ({
                 )} */}
               </div>
               <p className="text-sm text-muted-foreground">
-                ${actualPrice.toFixed(2)} each
+                ${Number(actualPrice || 0).toFixed(2)} each
               </p>
               
             </div>

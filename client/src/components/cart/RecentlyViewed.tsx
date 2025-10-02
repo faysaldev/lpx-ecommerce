@@ -57,11 +57,11 @@ export default function RecentlyViewed({ className }: RecentlyViewedProps) {
                 <div className="flex items-center gap-2 mt-1">
                   {product.price && (
                     <span className="text-xs text-gray-500 line-through">
-                      ${product.price.toFixed(2)}
+                      ${Number(product.price || 0).toFixed(2)}
                     </span>
                   )}
                   <span className="text-sm font-bold">
-                    ${product.price.toFixed(2)}
+                    ${Number(product.price || 0).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mt-2">

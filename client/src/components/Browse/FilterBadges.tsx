@@ -1,9 +1,9 @@
 "use client";
 
 import { Filter, X } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/UI/badge";
+import { Button } from "@/components/UI/button";
+import { ScrollArea, ScrollBar } from "@/components/UI/scroll-area";
 import { type BrowseFilters, formatFilterLabel } from "@/lib/browse-utils";
 import { cn } from "@/lib/utils";
 

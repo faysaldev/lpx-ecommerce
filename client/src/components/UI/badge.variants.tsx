@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Badge, type BadgeProps } from "@/components/ui/badge";
+import { Badge, type BadgeProps } from "@/components/UI/badge";
 import { designTokens } from "@/design-system/compat";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,7 @@ export const FeaturedBadge = React.forwardRef<HTMLDivElement, BadgeProps>(
         {children}
       </Badge>
     );
-  },
+  }
 );
 FeaturedBadge.displayName = "FeaturedBadge";
 
@@ -36,7 +36,7 @@ export const DiscountBadge = React.forwardRef<HTMLDivElement, BadgeProps>(
         {...props}
       />
     );
-  },
+  }
 );
 DiscountBadge.displayName = "DiscountBadge";
 
@@ -51,8 +51,8 @@ export const StockBadge = React.forwardRef<
     stock === 0
       ? "Out of stock"
       : stock <= 5
-        ? `Only ${stock} left`
-        : "In stock";
+      ? `Only ${stock} left`
+      : "In stock";
 
   return (
     <Badge
@@ -60,7 +60,7 @@ export const StockBadge = React.forwardRef<
       className={cn(
         "w-fit",
         stock <= 5 && stock > 0 && designTokens.colors.status.warning,
-        className,
+        className
       )}
       {...props}
     >
@@ -82,7 +82,7 @@ export const SealedBadge = React.forwardRef<HTMLDivElement, BadgeProps>(
         {children || "Sealed"}
       </Badge>
     );
-  },
+  }
 );
 SealedBadge.displayName = "SealedBadge";
 
@@ -124,7 +124,7 @@ export const CategoryBadge = React.forwardRef<HTMLDivElement, BadgeProps>(
         {...props}
       />
     );
-  },
+  }
 );
 CategoryBadge.displayName = "CategoryBadge";
 
@@ -136,7 +136,7 @@ export const NewBadge = React.forwardRef<HTMLDivElement, BadgeProps>(
         NEW
       </Badge>
     );
-  },
+  }
 );
 NewBadge.displayName = "NewBadge";
 

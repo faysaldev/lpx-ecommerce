@@ -34,6 +34,9 @@ export interface CheckoutData {
   orderNotes?: string;
   acceptTerms: boolean;
   subscribeNewsletter: boolean;
+  shipping?: number;
+  discount?: number;
+  couponCode?: string;
 }
 
 export type OrderStatus =

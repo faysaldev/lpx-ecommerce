@@ -17,13 +17,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Badge } from "@/components/UI/badge";
-import { Button } from "../ui/button";
+import { Button } from "../UI/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/UI/dialog";
 import { Separator } from "@/components/UI/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/UI/tabs";
 import type { Product } from "@/lib/types";

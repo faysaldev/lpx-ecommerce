@@ -10,4 +10,22 @@ router
   .route("/update-vendor")
   .patch(auth("common"), adminController.updateStatus);
 
+router
+  .route("/dashboard")
+  .get(auth("common"), adminController.getAdminDashboard);
+
+router
+  .route("/product-stats")
+  .get(auth("common"), adminController.getAdminProductStats);
+
+router
+  .route("/all-products")
+  .get(auth("common"), adminController.getAllProductsAdmin);
+
+router
+  .route("/order-stats")
+  .get(auth("common"), adminController.getAdminOrderStats);
+
+router.route("/all-orders").get(auth("common"), adminController.getAllOrders);
+
 module.exports = router;

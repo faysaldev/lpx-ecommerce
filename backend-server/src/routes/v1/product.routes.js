@@ -39,4 +39,6 @@ router
   .route("/details/:id")
   .get(auth("common"), productController.productDetails);
 
+router.get("/search", productController.searchProducts);
+
 module.exports = router;

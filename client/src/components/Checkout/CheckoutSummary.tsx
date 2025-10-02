@@ -61,25 +61,22 @@ const items = [
   },
 ];
 
-const checkoutData = {
-  sameAsShipping: "true",
-  couponCode: "DISCOUNT10",
-  discount: 20, // Assume a discount for the coupon
-  shipping: 10, // Shipping fee
-};
+import { useCheckout } from "@/context/CheckoutContext";
 
 export default function CheckoutSummary() {
+  const { checkoutData } = useCheckout();
+  
   // Calculate item count, subtotal, etc.
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = items.reduce(
     (acc, item) => acc + item.product.price * item.quantity,
     0
   );
-  const shipping = checkoutData.shipping;
+  const shipping = checkoutData.shipping || 0;
   const tax = subtotal * 0.1; // 10% tax
-  const discount = checkoutData.discount;
+  const discount = checkoutData.discount || 0;
   const total = subtotal + shipping + tax - discount;
-  const couponCode = checkoutData.couponCode;
+  const couponCode = checkoutData.couponCode || "";
   // const { items, subtotal, shipping, tax, discount, total, couponCode } =
   //   useCart();
 
@@ -108,11 +105,11 @@ export default function CheckoutSummary() {
                     {item.product.title}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Qty: {item.quantity} × ${item.product.price.toFixed(2)}
+                    Qty: {item.quantity} × ${Number(item.product.price || 0).toFixed(2)}
                   </p>
                 </div>
                 <div className="text-sm font-medium">
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  ${Number((item.product.price || 0) * item.quantity).toFixed(2)}
                 </div>
               </div>
             ))}
@@ -124,13 +121,13 @@ export default function CheckoutSummary() {
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>Subtotal</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>${Number(subtotal || 0).toFixed(2)}</span>
             </div>
 
             {couponCode && discount > 0 && (
               <div className="flex justify-between text-sm">
                 <span className="text-green-600">Discount ({couponCode})</span>
-                <span className="text-green-600">-${discount.toFixed(2)}</span>
+                <span className="text-green-600">-${Number(discount || 0).toFixed(2)}</span>
               </div>
             )}
 
@@ -142,14 +139,14 @@ export default function CheckoutSummary() {
                     FREE
                   </Badge>
                 ) : (
-                  `$${shipping.toFixed(2)}`
+                  `${Number(shipping || 0).toFixed(2)}`
                 )}
               </span>
             </div>
 
             <div className="flex justify-between text-sm">
               <span>Tax</span>
-              <span>${tax.toFixed(2)}</span>
+              <span>${Number(tax || 0).toFixed(2)}</span>
             </div>
           </div>
 
@@ -159,7 +156,7 @@ export default function CheckoutSummary() {
           <div className="flex justify-between items-center">
             <span className="font-semibold text-lg">Total</span>
             <span className="font-bold text-xl text-primary">
-              ${total.toFixed(2)}
+              ${Number(total || 0).toFixed(2)}
             </span>
           </div>
 
@@ -167,7 +164,7 @@ export default function CheckoutSummary() {
           {shipping > 0 && subtotal < 100 && (
             <div className="bg-blue-50 dark:bg-blue-950/30 rounded-lg p-3">
               <p className="text-xs text-blue-600 dark:text-blue-400">
-                Add ${(100 - subtotal).toFixed(2)} more for free shipping!
+                Add ${Number(100 - (subtotal || 0)).toFixed(2)} more for free shipping!
               </p>
               <div className="mt-2 w-full bg-blue-100 dark:bg-blue-900 rounded-full h-2">
                 <div

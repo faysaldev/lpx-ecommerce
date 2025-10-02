@@ -23,7 +23,7 @@ import {
   useAllNotificationsReadMutation,
   useAllDeleteNotificationsMutation,
 } from "@/redux/features/Notifications/Notifications";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/UI/checkbox";
 import { useAppSelector } from "@/redux/hooks";
 import { selectCurrentUser } from "@/redux/features/auth/authSlice";
 import {

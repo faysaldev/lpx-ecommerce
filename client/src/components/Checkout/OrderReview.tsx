@@ -11,118 +11,92 @@ import {
   Package,
 } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   PrimaryButton,
   SecondaryButton,
 } from "@/components/UI/button.variants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
-import { Checkbox } from "@/components/UI/checkbox";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/UI/separator";
 import { Textarea } from "@/components/UI/textarea";
 // import { useCart } from "@/context/CartContext";
-// import { useCheckout } from "@/context/CheckoutContext";
+import { useCheckout } from "@/context/CheckoutContext";
 import { cn } from "@/lib/utils";
 import type { BillingAddress, ShippingAddress } from "@/lib/checkout";
-import { Label } from "../ui/label";
+import { Label } from "../UI/label";
 
-const checkoutData = {
-  shippingAddress: {
-    firstName: "John",
-    lastName: "Doe",
-    address: "123 Main St",
-    address2: "Apt 4B",
-    city: "Dhaka",
-    state: "Dhaka",
-    postalCode: "1212",
-    country: "Bangladesh",
-    phone: "123-456-7890",
-  },
-  billingAddress: {
-    firstName: "John",
-    lastName: "Doe",
-    address: "123 Main St",
-    address2: "Apt 4B",
-    city: "Dhaka",
-    state: "Dhaka",
-    postalCode: "1212",
-    country: "Bangladesh",
-  },
-  sameAsShipping: true,
-  paymentMethod: {
-    type: "card",
-    cardNumber: "1234567812345678",
-  },
-  acceptTerms: true,
-  subscribeNewsletter: false,
-  orderNotes: "Please handle with care.",
-  couponCode: "DISCOUNT10",
-  discount: 20, // Discount applied from the coupon code
-  shipping: 10, // Shipping cost
-};
+const OrderReview = () => {
+  const {
+    checkoutData,
+    prevStep,
+    setCurrentStep,
+    nextStep,
+    updateCheckoutData,
+  } = useCheckout();
+  
+  // Debug: log checkout data to console
+  useEffect(() => {
+    console.log("Order Review - Full Checkout Data:", checkoutData);
+    
+    // Log each part of the checkout data
+    console.log("Shipping Address:", checkoutData.shippingAddress);
+    console.log("Billing Address:", checkoutData.billingAddress);
+    console.log("Same as Shipping:", checkoutData.sameAsShipping);
+    console.log("Payment Method:", checkoutData.paymentMethod);
+    console.log("Accept Terms:", checkoutData.acceptTerms);
+    console.log("Subscribe Newsletter:", checkoutData.subscribeNewsletter);
+    console.log("Order Notes:", checkoutData.orderNotes);
+  }, [checkoutData]);
 
-const items = [
-  {
-    id: "1",
-    productId: "101",
-    name: "Product A",
-    price: 100,
-    quantity: 2,
-    image: "https://via.placeholder.com/150",
-    vendor: "Vendor A",
-    product: {
-      id: "101",
+  // You would normally get items from cart context, but for now we'll use mock data
+  // In a real implementation, you would use useCart() hook
+  const items = [
+    {
+      id: "1",
+      productId: "101",
       name: "Product A",
       price: 100,
-      compareAtPrice: 120,
-      description: "A high-quality product.",
-      category: "Electronics",
-      stock: 5,
-      state: "sealed",
-      grading: undefined,
-      condition: undefined,
-      rarity: "Rare",
+      quantity: 2,
+      image: "https://via.placeholder.com/150",
+      vendor: "Vendor A",
+      product: {
+        id: "101",
+        name: "Product A",
+        price: 100,
+        compareAtPrice: 120,
+        description: "A high-quality product.",
+        category: "Electronics",
+        stock: 5,
+        state: "sealed",
+        grading: undefined,
+        condition: undefined,
+        rarity: "Rare",
+      },
     },
-  },
-  {
-    id: "2",
-    productId: "102",
-    name: "Product B",
-    price: 50,
-    quantity: 1,
-    image: "https://via.placeholder.com/150",
-    vendor: "Vendor B",
-    product: {
-      id: "102",
+    {
+      id: "2",
+      productId: "102",
       name: "Product B",
       price: 50,
-      compareAtPrice: 60,
-      description: "Affordable product.",
-      category: "Home Appliances",
-      stock: 10,
-      state: "open",
-      grading: { company: "PSA", grade: "9" },
-      condition: "Near Mint",
-      rarity: "Common",
+      quantity: 1,
+      image: "https://via.placeholder.com/150",
+      vendor: "Vendor B",
+      product: {
+        id: "102",
+        name: "Product B",
+        price: 50,
+        compareAtPrice: 60,
+        description: "Affordable product.",
+        category: "Home Appliances",
+        stock: 10,
+        state: "open",
+        grading: { company: "PSA", grade: "9" },
+        condition: "Near Mint",
+        rarity: "Common",
+      },
     },
-  },
-];
-
-export default function OrderReview() {
-  // const {
-  //   checkoutData,
-  //   prevStep,
-  //   setCurrentStep,
-  //   setOrderNotes,
-  //   setAcceptTerms,
-  //   setSubscribeNewsletter,
-  //   placeOrder,
-  //   isProcessing,
-  // } = useCheckout();
-  // const { items, subtotal, shipping, tax, discount, total } = useCart();
-  // const [orderNotes, setLocalOrderNotes] = useState(
-  //   checkoutData.orderNotes || ""
-  // );
+  ];
 
   // Calculate the necessary totals and values for the checkout
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
@@ -130,15 +104,43 @@ export default function OrderReview() {
     (acc, item) => acc + item.product.price * item.quantity,
     0
   );
-  const shipping = checkoutData.shipping;
+  const shipping = checkoutData.shipping  || 10; 
   const tax = subtotal * 0.1; // 10% tax
-  const discount = checkoutData.discount;
+  const discount = checkoutData.discount || 0; 
   const total = subtotal + shipping + tax - discount;
 
+  const [orderNotes, setOrderNotesLocal] = useState(checkoutData.orderNotes || "");
+  const [acceptTerms, setAcceptTermsLocal] = useState(checkoutData.acceptTerms || false);
+  const [subscribeNewsletter, setSubscribeNewsletterLocal] = useState(checkoutData.subscribeNewsletter || false);
   const [isProcessing, setIsProcessing] = useState(false);
+  
   const handlePlaceOrder = async () => {
-    // setOrderNotes(orderNotes);
-    // await placeOrder();
+    // Update checkout data with the current values
+    updateCheckoutData({
+      ...checkoutData,
+      orderNotes,
+      acceptTerms,
+      subscribeNewsletter
+    });
+    
+    // Here you would typically place the actual order
+    // For now, we'll just log the data
+    console.log("Attempting to place order with data:", {
+      checkoutData,
+      orderNotes,
+      acceptTerms,
+      subscribeNewsletter
+    });
+    
+    // Simulate order processing
+    setIsProcessing(true);
+    setTimeout(() => {
+      setIsProcessing(false);
+      // In a real app, this would navigate to the order confirmation page
+      console.log("Order placed successfully!");
+    }, 2000);
+
+    nextStep();
   };
 
   const formatAddress = (
@@ -185,21 +187,21 @@ ${address.country}`;
             <div key={item.id} className="flex items-center gap-4">
               <div className="relative w-16 h-16 bg-gray-100 rounded-lg overflow-hidden">
                 <Image
-                  src={item.product.images[0]}
-                  alt={item.product.title}
+                  src={item.product.image || item.image}
+                  alt={item.product.name}
                   fill
                   className="object-cover"
                 />
               </div>
               <div className="flex-1">
-                <h4 className="font-medium text-sm">{item.product.title}</h4>
+                <h4 className="font-medium text-sm">{item.product.name}</h4>
                 <p className="text-sm text-muted-foreground">
-                  Qty: {item.quantity} × ${item.product.price.toFixed(2)}
+                  Qty: {item.quantity} × ${Number(item.product.price || 0).toFixed(2)}
                 </p>
               </div>
               <div className="text-right">
                 <p className="font-semibold">
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  ${Number((item.product.price || 0) * item.quantity).toFixed(2)}
                 </p>
               </div>
             </div>
@@ -219,7 +221,7 @@ ${address.country}`;
               </span>
               <button
                 type="button"
-                // onClick={() => setCurrentStep("shipping")}
+                onClick={() => setCurrentStep("shipping")}
                 className="text-primary hover:underline"
               >
                 <Edit className="h-3 w-3" />
@@ -228,7 +230,7 @@ ${address.country}`;
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground whitespace-pre-line">
-              {formatAddress(checkoutData?.shippingAddress.address)}
+              {formatAddress(checkoutData?.shippingAddress)}
             </p>
             {checkoutData.shippingAddress?.phone && (
               <p className="text-sm text-muted-foreground mt-2">
@@ -248,7 +250,7 @@ ${address.country}`;
               </span>
               <button
                 type="button"
-                // onClick={() => setCurrentStep("billing")}
+                onClick={() => setCurrentStep("billing")}
                 className="text-primary hover:underline"
               >
                 <Edit className="h-3 w-3" />
@@ -278,7 +280,7 @@ ${address.country}`;
               </span>
               <button
                 type="button"
-                // onClick={() => setCurrentStep("payment")}
+                onClick={() => setCurrentStep("payment")}
                 className="text-primary hover:underline"
               >
                 <Edit className="h-3 w-3" />
@@ -301,26 +303,26 @@ ${address.country}`;
         <CardContent className="space-y-3">
           <div className="flex justify-between text-sm">
             <span>Subtotal</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>${Number(subtotal || 0).toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span>Shipping</span>
-            <span>{shipping === 0 ? "FREE" : `$${shipping.toFixed(2)}`}</span>
+            <span>{shipping === 0 ? "FREE" : `${Number(shipping || 0).toFixed(2)}`}</span>
           </div>
           <div className="flex justify-between text-sm">
             <span>Tax</span>
-            <span>${tax.toFixed(2)}</span>
+            <span>${Number(tax || 0).toFixed(2)}</span>
           </div>
           {discount > 0 && (
             <div className="flex justify-between text-sm text-green-600">
               <span>Discount</span>
-              <span>-${discount.toFixed(2)}</span>
+              <span>-${Number(discount || 0).toFixed(2)}</span>
             </div>
           )}
           <Separator />
           <div className="flex justify-between font-semibold text-lg">
             <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>${Number(total || 0).toFixed(2)}</span>
           </div>
         </CardContent>
       </Card>
@@ -330,8 +332,8 @@ ${address.country}`;
         <Label htmlFor="orderNotes">Order Notes (Optional)</Label>
         <Textarea
           id="orderNotes"
-          // value={orderNotes}
-          // onChange={(e) => setLocalOrderNotes(e.target.value)}
+          value={orderNotes}
+          onChange={(e) => setOrderNotesLocal(e.target.value)}
           placeholder="Add any special instructions for your order..."
           rows={3}
           className="mt-2"
@@ -343,8 +345,8 @@ ${address.country}`;
         <div className="flex items-start space-x-2">
           <Checkbox
             id="acceptTerms"
-            checked={checkoutData.acceptTerms}
-            // onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
+            checked={acceptTerms}
+            onCheckedChange={(checked) => setAcceptTermsLocal(!!checked)}
             className="mt-0.5"
           />
           <Label
@@ -366,10 +368,8 @@ ${address.country}`;
         <div className="flex items-start space-x-2">
           <Checkbox
             id="subscribeNewsletter"
-            checked={checkoutData.subscribeNewsletter}
-            // onCheckedChange={(checked) =>
-            //   setSubscribeNewsletter(checked as boolean)
-            // }
+            checked={subscribeNewsletter}
+            onCheckedChange={(checked) => setSubscribeNewsletterLocal(!!checked)}
             className="mt-0.5"
           />
           <Label
@@ -382,7 +382,7 @@ ${address.country}`;
       </div>
 
       {/* Error Message */}
-      {!checkoutData.acceptTerms && (
+      {!acceptTerms && (
         <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
           <p className="text-sm text-red-600 dark:text-red-400">
             Please accept the terms and conditions to continue
@@ -394,8 +394,8 @@ ${address.country}`;
       <div className="flex justify-between pt-6 border-t">
         <SecondaryButton
           type="button"
-          // onClick={prevStep}
-          // disabled={isProcessing}
+          onClick={prevStep}
+          disabled={isProcessing}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Payment
@@ -403,7 +403,7 @@ ${address.country}`;
         <PrimaryButton
           onClick={handlePlaceOrder}
           size="lg"
-          disabled={!checkoutData.acceptTerms || isProcessing}
+          disabled={!acceptTerms || isProcessing}
           className={cn("min-w-[200px]", isProcessing && "cursor-not-allowed")}
         >
           {isProcessing ? (
@@ -414,11 +414,13 @@ ${address.country}`;
           ) : (
             <>
               <CheckCircle className="mr-2 h-4 w-4" />
-              Place Order (${total.toFixed(2)})
+              Place Order (${Number(total || 0).toFixed(2)})
             </>
           )}
         </PrimaryButton>
       </div>
     </div>
   );
-}
+} 
+
+export default OrderReview

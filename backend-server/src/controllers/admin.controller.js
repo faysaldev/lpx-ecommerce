@@ -68,8 +68,123 @@ const updateStatus = catchAsync(async (req, res) => {
   );
 });
 
+const getAdminDashboard = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  if (req.user.type !== "admin") return;
+  const dashboardData = await adminService.getAdminDashboardData();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Admin Dashboard data fetched successfully",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: dashboardData,
+    })
+  );
+});
+
+const getAdminProductStats = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  if (req.user.type !== "admin") return;
+  const dashboardProductStats = await adminService.getAdminProductStats();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Admin Dashboard data fetched successfully",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: dashboardProductStats,
+    })
+  );
+});
+
+const getAllProductsAdmin = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  if (req.user.type !== "admin") return;
+  const {
+    query,
+    minPrice,
+    maxPrice,
+    condition,
+    sortBy = "newestFirst", // Default sort: newestFirst
+    page = 1, // Default page: 1
+    limit = 20, // Default limit: 20
+  } = req.query;
+  const addProductsFromAdmin = await adminService.getAllProductsAdmin({
+    query,
+    minPrice,
+    maxPrice,
+    condition,
+    sortBy,
+    page,
+    limit,
+  });
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Admin Dashboard data fetched successfully",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: addProductsFromAdmin,
+    })
+  );
+});
+
+const getAdminOrderStats = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  if (req.user.type !== "admin") return;
+  const dashboardOrdersStats = await adminService.getAdminOrderStats();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Admin Dashboard data fetched successfully",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: dashboardOrdersStats,
+    })
+  );
+});
+
+const getAllOrders = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  if (req.user.type !== "admin") return;
+  const {
+    query,
+    page = 1, // Default page: 1
+    limit = 20, // Default limit: 20
+  } = req.query;
+  const dashboardOrdersStats = await adminService.getAllOrders({
+    query,
+    page,
+    limit,
+  });
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Admin Dashboard data fetched successfully",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: dashboardOrdersStats,
+    })
+  );
+});
 module.exports = {
   getAllUsers,
   getAllVendors,
   updateStatus,
+  getAdminDashboard,
+  getAdminProductStats,
+  getAllProductsAdmin,
+  getAdminOrderStats,
+  getAllOrders,
 };
