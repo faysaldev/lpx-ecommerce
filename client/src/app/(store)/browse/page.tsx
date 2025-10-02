@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import { Filter } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -33,17 +32,15 @@ import {
 } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 
 function BrowsePageContent() {
-
   const searchParams = useSearchParams();
-
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(24);
   const [categories, setCategories] = useState<Category[]>([]);
+  
   const [products, setProducts] = useState<Product[]>([]);
 
-  
-    const {
+  const {
     filters,
     sortOption,
     viewMode,
@@ -64,17 +61,16 @@ function BrowsePageContent() {
     isLoading: productsLoading,
     isFetching: productsFetching,
   } = useAllProductsBrowseCollectiblesQuery({
-    query: searchParams.get('query'),
+    query: searchParams.get('q'),
     minPrice: searchParams.get('min_price'),
     maxPrice: searchParams.get('max_price'),
     condition: searchParams.get('conditions'),
     sortBy: searchParams.get('sort'),
+    page: currentPage,
     limit: itemsPerPage,
     category: searchParams.get('category'),
   });
 
-   console.log(searchParams.get('query'))
-  
   console.log(productsData)
  
 
@@ -87,7 +83,7 @@ function BrowsePageContent() {
       const transformedCategories: Category[] = backendCategories.map((cat: any) => ({
         id: cat._id,
         name: cat.name,
-        slug: cat.name.toLowerCase().replace(/\s+&\s+/g, '-').replace(/\s+/g, '-'),
+        slug: cat.name,
         description: cat.description,
         image: cat.image || '',
         productCount: cat.productCount || 0,
@@ -96,7 +92,6 @@ function BrowsePageContent() {
       }));
       
       setCategories(transformedCategories);
-      console.log('Transformed Categories:', transformedCategories);
     }
   }, [categoriesData]);
 
@@ -110,10 +105,7 @@ function BrowsePageContent() {
     }
   }, [productsData]);
 
-  // Use the custom hook for filters
 
-
-  console.log(filters)
 
   
   // Calculate pagination
@@ -170,7 +162,7 @@ function BrowsePageContent() {
       pills.push({
         type: "price",
         value: "price",
-        label: `$${filters.priceRange.min}-$${filters.priceRange.max}`,
+        label: `${filters.priceRange.min}-${filters.priceRange.max}`,
       });
     }
 
@@ -230,8 +222,8 @@ function BrowsePageContent() {
 
   // Handle product actions
   const handleBuyNow = (product: Product) => {
-    console.log("Buy now clicked for:", product.id);
-    toast.info("Buy now functionality coming soon!");
+    // console.log("Buy now clicked for:", product.id);
+    // toast.info("Buy now functionality coming soon!");
   };
 
   const handleShare = (product: Product) => {
@@ -349,7 +341,7 @@ function BrowsePageContent() {
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.slug}>
+                      <SelectItem key={category.id} value={category.name}>
                         {category.name}
                       </SelectItem>
                     ))}
