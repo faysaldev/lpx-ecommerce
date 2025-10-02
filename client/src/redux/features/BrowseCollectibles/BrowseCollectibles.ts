@@ -23,8 +23,26 @@ const BrowseCollectibles = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+
+    addTocart: builder.mutation({
+      query: ({ productId, vendorId, quantity, price }) => ({
+        url: `/carts/add`,
+        body: { productId, vendorId, quantity, price },
+        method: "POST",
+      }),
+    }),
+
+    remmoveTocart: builder.query({
+      query: ({ productId }) => ({
+        url: `/carts/remove/${productId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
-export const { useAllProductsBrowseCollectiblesQuery, useAllCategoriesQuery } =
-  BrowseCollectibles;
+export const {
+  useAllProductsBrowseCollectiblesQuery,
+  useAllCategoriesQuery,
+  useAddTocartMutation,
+} = BrowseCollectibles;

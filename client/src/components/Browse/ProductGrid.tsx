@@ -2,7 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { EmptyStates } from "@/components/shared/EmptyState";
-import ProductCard, { ProductCardSkeleton } from "@/components/shared/ProductCard";
+import ProductCard, {
+  ProductCardSkeleton,
+} from "@/components/shared/ProductCard";
 import { Skeleton } from "@/components/UI/skeleton";
 import type { Product } from "@/lib/types";
 import type { ViewMode } from "@/lib/browse-utils";

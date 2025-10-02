@@ -123,6 +123,10 @@ const ProductCard = ({
     image,
   } = product;
 
+  const addToCart = ({ productId, vendorId }: any) => {
+    alert("Added to cart");
+  };
+
   // Use the correct ID (support both _id and id)
   const productId = _id || id;
 
@@ -251,10 +255,12 @@ const ProductCard = ({
               <div className="flex items-center gap-2 mt-4">
                 <Button
                   size="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onAddToCart?.(product);
-                  }}
+                  onClick={() =>
+                    addToCart({
+                      productId: product.id,
+                      vendorId: product.vendorId,
+                    })
+                  }
                   disabled={finalStockQuantity === 0}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
@@ -460,10 +466,12 @@ const ProductCard = ({
           <div className="grid grid-cols-2 gap-2">
             <Button
               size="sm"
-              onClick={(e) => {
-                e.preventDefault();
-                onAddToCart?.(product);
-              }}
+              onClick={() =>
+                addToCart({
+                  productId: product.id,
+                  vendorId: product.vendorId,
+                })
+              }
               disabled={finalStockQuantity === 0}
               className="text-xs w-full"
             >
