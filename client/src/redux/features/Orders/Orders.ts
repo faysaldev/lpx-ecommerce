@@ -8,7 +8,14 @@ const BrowseCollectibles = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    singleOrderDetails: builder.query({
+      query: (orderId) => ({
+        url: `/orders/order-details/${orderId}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useAllUserOrdersQuery } = BrowseCollectibles;
+export const { useAllUserOrdersQuery, useSingleOrderDetailsQuery } =
+  BrowseCollectibles;

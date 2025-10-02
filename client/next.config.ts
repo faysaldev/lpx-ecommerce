@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
       "faysal3000.sobhoy.com",
       "10.10.11.69",
       "images.pokemontcg.io",
+      "example.com",
     ],
   },
 };
