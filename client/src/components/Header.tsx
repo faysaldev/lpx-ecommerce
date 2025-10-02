@@ -69,8 +69,6 @@ export default function Header() {
     setCategories(categoriesData?.data?.attributes || []);
   }, [categoriesData]);
 
-  console.log("Categories Data:", categories);
-  // Memoize categories to prevent unnecessary re-renders
   const memoizedCategories = useMemo(() => categories, [categories]);
 
   return (

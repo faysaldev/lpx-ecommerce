@@ -6,13 +6,26 @@ const { sendNotificationEmail } = require("../services/email.service");
 const { addNewNotification } = require("./notification.controller");
 
 const myOrders = catchAsync(async (req, res) => {
-  const ordres = await orderService.myOrders(req.user.id);
+  const {
+    status, // Filter by order status
+    sortBy = "newestFirst", // Sorting option: newest first by default
+    page = 1, // Default page: 1
+    limit = 10, // Default limit: 10 orders per page
+  } = req.query;
+
+  // Pass parameters to the service
+  const orders = await orderService.myOrders(req.user.id, {
+    status,
+    sortBy,
+    page,
+    limit,
+  });
   res.status(httpStatus.CREATED).json(
     response({
       message: "All the Orders",
       status: "OK",
       statusCode: httpStatus.CREATED,
-      data: ordres,
+      data: orders,
     })
   );
 });
