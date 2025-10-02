@@ -174,6 +174,9 @@ export interface Vendor {
     facebook?: string;
     twitter?: string;
     instagram?: string;
+    linkedin?: string;
+    youtube?: string;
+    pinterest?: string;
   };
   specialties?: string[];
   policies?: {

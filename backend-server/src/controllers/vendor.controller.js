@@ -3,6 +3,47 @@ const catchAsync = require("../utils/catchAsync");
 const response = require("../config/response");
 const { vendorService } = require("../services");
 
+const getSingleVendors = catchAsync(async (req, res) => {
+  const vendors = await vendorService.getSingleVendors(req.params.id);
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Signle  Vendors",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: vendors,
+    })
+  );
+});
+
+const searchSingleOwnerShop = catchAsync(async (req, res) => {
+  const vendorId = req.params.id;
+  const {
+    query = "",
+    category = "",
+    sortBy = "createdAt",
+    page = 1,
+    limit = 10,
+  } = req.query;
+
+  const products = await vendorService.searchSingleOwnerShop({
+    vendorId,
+    query,
+    category,
+    sortBy,
+    page,
+    limit,
+  });
+
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "All the Vendors",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: products,
+    })
+  );
+});
+
 const allVendors = catchAsync(async (req, res) => {
   const {
     page = 1, // Default page: 1
@@ -54,6 +95,7 @@ const createVendorRequest = catchAsync(async (req, res) => {
     seller: req.user.id,
     ownerName: req.user.name,
     socialLinks: JSON.parse(req?.body?.socialLinks),
+    storePolicies: JSON.parse(req?.body?.storePolicies),
   });
   res.status(httpStatus.CREATED).json(
     response({
@@ -84,4 +126,6 @@ module.exports = {
   createVendorRequest,
   approvedVendorRequest,
   allVendors,
+  getSingleVendors,
+  searchSingleOwnerShop,
 };

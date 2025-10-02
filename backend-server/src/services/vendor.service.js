@@ -3,6 +3,74 @@ const ApiError = require("../utils/ApiError");
 const Vendor = require("../models/vendor.model");
 const Rating = require("../models/rating.model");
 const Order = require("../models/order.model");
+const Product = require("../models/product.model");
+
+const searchSingleOwnerShop = async ({
+  vendorId,
+  query = "",
+  category = "",
+  sortBy = "createdAt",
+  page = 1,
+  limit = 10,
+}) => {
+  const skip = (page - 1) * limit;
+
+  // Build the search query for products
+  const searchQuery = {
+    vendor: vendorId,
+    ...(query && { productName: { $regex: query, $options: "i" } }),
+    ...(category && { category: { $regex: category, $options: "i" } }),
+  };
+
+  // Sorting
+  let sortOrder = {};
+  switch (sortBy) {
+    case "newest":
+      sortOrder = { createdAt: -1 }; // Newest first
+      break;
+    case "lowToHigh":
+      sortOrder = { price: 1 }; // Low to high price
+      break;
+    case "highToLow":
+      sortOrder = { price: -1 }; // High to low price
+      break;
+    case "mostPopular":
+      sortOrder = { averageRating: -1 }; // Based on ratings
+      break;
+    default:
+      sortOrder = { createdAt: -1 }; // Default: Newest first
+  }
+
+  // Fetch filtered and sorted products
+  const products = await Product.find(searchQuery)
+    .populate("vendor", "storeName")
+    .select(
+      "productName category price stockQuantity condition images vendor averageRating vendorName"
+    )
+    .skip(skip)
+    .limit(limit)
+    .sort(sortOrder)
+    .lean();
+
+  // Get the total number of products for pagination
+  const totalProducts = await Product.countDocuments(searchQuery);
+
+  const totalPages = Math.ceil(totalProducts / limit);
+
+  return {
+    products,
+    currentPage: page,
+    totalPages,
+    totalProducts,
+  };
+};
+
+const getSingleVendors = async (vendorId) => {
+  if (!vendorId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+  }
+  return Vendor.findById(vendorId);
+};
 
 const allVendors = async ({
   page = 1,
@@ -145,4 +213,6 @@ module.exports = {
   createVendorRequest,
   approvedVendorRequest,
   allVendors,
+  getSingleVendors,
+  searchSingleOwnerShop,
 };
