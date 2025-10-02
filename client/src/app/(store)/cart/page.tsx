@@ -60,20 +60,20 @@ const CartPage = () => {
   const removeFromCart = async (itemId: string) => {
     try {
       const res = await deleteSingleCart({ id: itemId });
-      if (res && 'data' in res && res.data?.code === 201) {
+      if (res && "data" in res && res.data?.code === 201) {
         refetch();
         Swal.fire({
-          title: res?.data?.message || 'Item removed successfully',
+          title: res?.data?.message || "Item removed successfully",
           icon: "success",
           draggable: true,
         });
         console.log(`Item ${itemId} removed from cart`);
-      } 
+      }
     } catch (error) {
       console.error("Error removing item from cart:", error);
       Swal.fire({
-        title: 'Error',
-        text: 'An unexpected error occurred while removing the item',
+        title: "Error",
+        text: "An unexpected error occurred while removing the item",
         icon: "error",
         draggable: true,
       });
@@ -81,22 +81,21 @@ const CartPage = () => {
   };
 
   const clearCart = async () => {
-      try {
-      const res = await DeleteAllCart('');
-      if (res && 'data' in res && res.data?.code === 201) {
+    try {
+      const res = await DeleteAllCart("");
+      if (res && "data" in res && res.data?.code === 201) {
         refetch();
         Swal.fire({
-          title: res?.data?.message ,
+          title: res?.data?.message,
           icon: "success",
           draggable: true,
         });
-       
-      } 
+      }
     } catch (error) {
       console.error("Error removing item from cart:", error);
       Swal.fire({
-        title: 'Error',
-        text: 'An unexpected error occurred while removing the item',
+        title: "Error",
+        text: "An unexpected error occurred while removing the item",
         icon: "error",
         draggable: true,
       });
