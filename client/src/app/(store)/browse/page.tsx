@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import { Filter } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
@@ -33,21 +32,20 @@ import {
 } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 
 function BrowsePageContent() {
-
   const searchParams = useSearchParams();
-
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(24);
   const [categories, setCategories] = useState<Category[]>([]);
+  
   const [products, setProducts] = useState<Product[]>([]);
 
-  
-    const {
+
+
+  const {
     filters,
     sortOption,
     viewMode,
-    filteredProducts,
     activeFilterCount,
     isFiltering,
     updateFilter,
@@ -64,20 +62,18 @@ function BrowsePageContent() {
     isLoading: productsLoading,
     isFetching: productsFetching,
   } = useAllProductsBrowseCollectiblesQuery({
-    query: searchParams.get('query'),
-    minPrice: searchParams.get('min_price'),
-    maxPrice: searchParams.get('max_price'),
-    condition: searchParams.get('conditions'),
-    sortBy: searchParams.get('sort'),
-    limit: itemsPerPage,
-    category: searchParams.get('category'),
+    query: filters.search || searchParams.get('q') || '',
+    minPrice: filters.priceRange.min > 0 ? filters.priceRange.min.toString() : searchParams.get('min_price') || '',
+    maxPrice: filters.priceRange.max < 10000 ? filters.priceRange.max.toString() : searchParams.get('max_price') || '',
+    condition: filters.conditions.length > 0 ? filters.conditions[0] : searchParams.get('conditions') || '',
+    sortBy: sortOption || searchParams.get('sort') || '',
+    page: currentPage.toString(),
+    limit: itemsPerPage.toString(),
+    category: filters.categories.length > 0 ? filters.categories[0] : searchParams.get('category') || '',
   });
 
-   console.log(searchParams.get('query'))
-  
-  console.log(productsData)
- 
 
+ 
   // Process categories data from backend
   useEffect(() => {
     if (categoriesData?.data?.attributes) {
@@ -87,7 +83,7 @@ function BrowsePageContent() {
       const transformedCategories: Category[] = backendCategories.map((cat: any) => ({
         id: cat._id,
         name: cat.name,
-        slug: cat.name.toLowerCase().replace(/\s+&\s+/g, '-').replace(/\s+/g, '-'),
+        slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-'),
         description: cat.description,
         image: cat.image || '',
         productCount: cat.productCount || 0,
@@ -96,32 +92,30 @@ function BrowsePageContent() {
       }));
       
       setCategories(transformedCategories);
-      console.log('Transformed Categories:', transformedCategories);
+      // console.log('Transformed Categories:', transformedCategories);
     }
   }, [categoriesData]);
 
-  // console.log(updateFilter,"filter data")
+
 
   // Process products data from backend
   useEffect(() => {
     if (productsData?.data) {
       setProducts(productsData.data);
-      console.log('Products Data:', productsData);
+      // console.log('Backend filtered products:', productsData);
     }
   }, [productsData]);
 
-  // Use the custom hook for filters
-
-
-  console.log(filters)
+  // Use backend filtered results directly
+  const backendFilteredProducts = productsData?.data || [];
 
   
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  // Calculate pagination using backend filtered results
+  const totalPages = Math.ceil(backendFilteredProducts.length / itemsPerPage);
   const paginatedProducts = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
-    return filteredProducts.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredProducts, currentPage, itemsPerPage]);
+    return backendFilteredProducts.slice(startIndex, startIndex + itemsPerPage);
+  }, [backendFilteredProducts, currentPage, itemsPerPage]);
 
   // Reset to first page when filters change
   useEffect(() => {
@@ -170,7 +164,7 @@ function BrowsePageContent() {
       pills.push({
         type: "price",
         value: "price",
-        label: `$${filters.priceRange.min}-$${filters.priceRange.max}`,
+        label: `${filters.priceRange.min}-${filters.priceRange.max}`,
       });
     }
 
@@ -230,8 +224,8 @@ function BrowsePageContent() {
 
   // Handle product actions
   const handleBuyNow = (product: Product) => {
-    console.log("Buy now clicked for:", product.id);
-    toast.info("Buy now functionality coming soon!");
+    // console.log("Buy now clicked for:", product.id);
+    // toast.info("Buy now functionality coming soon!");
   };
 
   const handleShare = (product: Product) => {
@@ -278,8 +272,8 @@ function BrowsePageContent() {
           ? "Loading..."
           : isFiltering
           ? "Filtering..."
-          : `${filteredProducts.length} items found${
-              filteredProducts.length > itemsPerPage
+          : `${backendFilteredProducts.length} items found${
+              backendFilteredProducts.length > itemsPerPage
                 ? ` • Page ${currentPage} of ${totalPages}`
                 : ""
             }`
@@ -349,7 +343,7 @@ function BrowsePageContent() {
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.slug}>
+                      <SelectItem key={category.id} value={category.name}>
                         {category.name}
                       </SelectItem>
                     ))}
@@ -451,12 +445,12 @@ function BrowsePageContent() {
       </div>
 
       {/* Pagination */}
-      {filteredProducts.length > 0 && (
+      {backendFilteredProducts.length > 0 && (
         <div className="mt-8 pt-6 border-t border-border">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            totalItems={filteredProducts.length}
+            totalItems={backendFilteredProducts.length}
             itemsPerPage={itemsPerPage}
             onPageChange={handlePageChange}
             onItemsPerPageChange={handleItemsPerPageChange}
