@@ -1,6 +1,5 @@
 const httpStatus = require("http-status");
 const { User, Product, Order, Rating } = require("../models");
-const ApiError = require("../utils/ApiError");
 const moment = require("moment");
 
 // Get Featured Products based on ratings, sales, and orders
@@ -109,7 +108,39 @@ const getLpsStatistics = async () => {
   };
 };
 
+const hasUserPurchased = async ({ userId, entityId, type }) => {
+  if (!["vendor", "product"].includes(type)) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Invalid type, must be 'vendor' or 'product'"
+    );
+  }
+
+  let query = { customer: userId }; // Filter by user (customer)
+
+  if (type === "product") {
+    // If type is 'product', we check if the productId exists in the totalItems
+    query = {
+      ...query,
+      "totalItems.productId": entityId, // Check if the productId exists in totalItems
+    };
+  } else if (type === "vendor") {
+    // If type is 'vendor', we check if the vendorId exists in the totalItems
+    query = {
+      ...query,
+      "totalItems.vendorId": entityId, // Check if the vendorId exists in totalItems
+    };
+  }
+
+  // Find matching orders based on the query
+  const order = await Order.findOne(query).lean();
+
+  // If the order exists, it means the user has purchased from the specified product/vendor
+  return !!order; // Return true if an order is found, otherwise false
+};
+
 module.exports = {
   getFeturedProducts,
   getLpsStatistics,
+  hasUserPurchased,
 };

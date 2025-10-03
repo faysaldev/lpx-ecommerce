@@ -24,7 +24,23 @@ const getLpsStatistics = catchAsync(async (req, res) => {
   });
 });
 
+//has purchased product
+const hasUserPurchased = catchAsync(async (req, res) => {
+  const statistics = await utilsService.hasUserPurchased({
+    userId: req.user.id,
+    entityId: req.query.id,
+    type: req.query.type,
+  });
+  res.status(httpStatus.OK).json({
+    message: "LPS Statistics",
+    status: "OK",
+    statusCode: httpStatus.OK,
+    data: statistics,
+  });
+});
+
 module.exports = {
   getFeaturedProducts,
   getLpsStatistics,
+  hasUserPurchased,
 };

@@ -2,19 +2,19 @@ const httpStatus = require("http-status");
 const { Rating } = require("../models");
 const ApiError = require("../utils/ApiError");
 
-const getMyratings = async (authorId, ratingType) => {
-  if (!ratingType || !authorId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Missing required parameters");
-  }
-
+const getMyratings = async (Id, ratingType) => {
+  // Ensure the ratingType is valid
   if (!["vendor", "product"].includes(ratingType)) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Invalid rating type");
   }
 
+  // Fetch the ratings with populated author details (name, image, and user id)
   const ratings = await Rating.find({
     ratingType: ratingType,
-    author: authorId,
-  });
+    referenceId: Id,
+  })
+    .populate("author", "name image _id") // Populating the user's name, image, and _id
+    .lean(); // Use lean() to return plain JavaScript objects instead of Mongoose documents
 
   return ratings;
 };

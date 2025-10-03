@@ -40,10 +40,53 @@ const myCartList = async (userId) => {
 };
 
 const addToCartlist = async (CartListBody) => {
-  if (!CartListBody) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+  const { customer, product, vendorId, quantity, price } = CartListBody;
+
+  // Ensure that the product, vendorId, and customer are provided
+  if (!customer || !product || !vendorId || !price) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Required fields missing");
   }
-  return Cart.create(CartListBody);
+
+  // Check if the product is already in the cart for this customer and vendor
+  const existingCartItem = await Cart.findOne({
+    customer: customer,
+    product: product,
+    vendorId: vendorId,
+  });
+
+  if (existingCartItem) {
+    // If the product is already in the cart, update the quantity and totalPrice
+    let newQuantity = existingCartItem.quantity;
+
+    // If quantity is provided, update accordingly, otherwise add 1 by default
+    newQuantity += quantity ? quantity : 1;
+
+    // Recalculate the total price
+    const newTotalPrice = newQuantity * price;
+
+    // Update the cart item with the new quantity and total price
+    existingCartItem.quantity = newQuantity;
+    existingCartItem.totalPrice = newTotalPrice;
+
+    // Save the updated cart item
+    await existingCartItem.save();
+
+    return existingCartItem; // Return the updated cart item
+  } else {
+    // If the product isn't already in the cart, create a new entry
+    const totalPrice = quantity * price; // Calculate total price
+
+    const newCartItem = await Cart.create({
+      customer,
+      product,
+      vendorId,
+      quantity,
+      price,
+      totalPrice,
+    });
+
+    return newCartItem; // Return the newly added cart item
+  }
 };
 
 const removeToCartlist = async (id) => {

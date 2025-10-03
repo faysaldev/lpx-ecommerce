@@ -5,8 +5,8 @@ const { ratingService } = require("../services");
 
 const getMyratings = catchAsync(async (req, res) => {
   const myratings = await ratingService.getMyratings(
-    req.user.id,
-    req.params.type
+    req.query.id,
+    req.query.type
   );
   res.status(httpStatus.CREATED).json(
     response({

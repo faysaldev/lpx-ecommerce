@@ -4,9 +4,7 @@ const { ratingController } = require("../../controllers");
 
 const router = express.Router();
 
-router
-  .route("/my-ratings/:type")
-  .get(auth("common"), ratingController.getMyratings);
+router.route("/my-ratings").get(ratingController.getMyratings);
 router.route("/add").post(auth("common"), ratingController.addNewRatings);
 router
   .route("/update/:id")
