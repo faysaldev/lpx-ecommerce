@@ -56,12 +56,15 @@ export const defaultFilters: BrowseFilters = {
 };
 
 export const CONDITIONS = [
-  { value: "mint", label: "Mint", color: "bg-green-500" },
-  { value: "near-mint", label: "Near Mint", color: "bg-green-400" },
-  { value: "excellent", label: "Excellent", color: "bg-blue-500" },
-  { value: "good", label: "Good", color: "bg-yellow-500" },
-  { value: "fair", label: "Fair", color: "bg-orange-500" },
-  { value: "poor", label: "Poor", color: "bg-red-500" },
+  { value: "Mint", label: "Mint", color: "bg-green-500" },
+  { value: "Near Mint", label: "Near Mint", color: "bg-green-400" },
+  { value: "Excellent", label: "Excellent", color: "bg-blue-500" },
+  { value: "Good", label: "Good", color: "bg-yellow-500" },
+  { value: "Fair", label: "Fair", color: "bg-orange-500" },
+  { value: "Poor", label: "Poor", color: "bg-red-500" },
+  { value: "CGC Graded", label: "CGC Graded", color: "bg-teal-500" },
+  { value: "PSA Graded", label: "PSA Graded", color: "bg-blue-600" },
+  { value: "BGS Graded", label: "BGS Graded", color: "bg-purple-600" },
 ];
 
 export const SORT_OPTIONS = [
@@ -82,7 +85,8 @@ export function filterProducts(
         product.name?.toLowerCase().includes(searchLower) ||
         product.description?.toLowerCase().includes(searchLower) ||
         product.category?.toLowerCase().includes(searchLower) ||
-        (typeof product.vendor === 'string' && product.vendor.toLowerCase().includes(searchLower)) ||
+        (typeof product.vendor === "string" &&
+          product.vendor.toLowerCase().includes(searchLower)) ||
         product.tags?.some((tag) => tag.toLowerCase().includes(searchLower));
 
       if (!matchesSearch) return false;
@@ -93,18 +97,24 @@ export function filterProducts(
       // Check if product matches any selected category
       // First try to match against categorySlug
       let matchesCategory = false;
-      
-      if (product.categorySlug && filters.categories.includes(product.categorySlug)) {
+
+      if (
+        product.categorySlug &&
+        filters.categories.includes(product.categorySlug)
+      ) {
         matchesCategory = true;
-      } 
+      }
       // If not matched, try to match against category name converted to slug format
       else if (product.category) {
-        const categorySlug = product.category.toLowerCase().replace(/\s+&\s+/g, '-').replace(/\s+/g, '-');
+        const categorySlug = product.category
+          .toLowerCase()
+          .replace(/\s+&\s+/g, "-")
+          .replace(/\s+/g, "-");
         if (filters.categories.includes(categorySlug)) {
           matchesCategory = true;
         }
       }
-      
+
       if (!matchesCategory) {
         return false;
       }
@@ -269,9 +279,12 @@ export function getUniqueVendors(
       if (vendor) vendor.count++;
     } else {
       if (product.vendorId) {
-        vendorMap.set(product.vendorId, { 
-          name: typeof product.vendor === 'string' ? product.vendor : product.vendorId, 
-          count: 1 
+        vendorMap.set(product.vendorId, {
+          name:
+            typeof product.vendor === "string"
+              ? product.vendor
+              : product.vendorId,
+          count: 1,
         });
       }
     }
@@ -461,7 +474,10 @@ export function createSearchFilter(
     }
 
     // Search in vendor name
-    if (typeof product.vendor === 'string' && product.vendor.toLowerCase().includes(term)) {
+    if (
+      typeof product.vendor === "string" &&
+      product.vendor.toLowerCase().includes(term)
+    ) {
       return true;
     }
 

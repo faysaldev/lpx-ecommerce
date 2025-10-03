@@ -26,21 +26,21 @@ import { ProductGrid } from "@/components/Browse/ProductGrid";
 import { QuickView } from "@/components/Browse/QuickView";
 import { productStyles } from "@/components/UI/product.variants";
 import { Pagination } from "@/components/Browse/Pagination";
-import { 
-  useAllCategoriesQuery, 
-  useAllProductsBrowseCollectiblesQuery 
+import {
+  useAllCategoriesQuery,
+  useAllProductsBrowseCollectiblesQuery,
 } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 
 function BrowsePageContent() {
   const searchParams = useSearchParams();
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
+    null
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(24);
   const [categories, setCategories] = useState<Category[]>([]);
-  
+
   const [products, setProducts] = useState<Product[]>([]);
-
-
 
   const {
     filters,
@@ -55,48 +55,59 @@ function BrowsePageContent() {
   } = useBrowseFilters(products);
 
   // Fetch categories from backend
-  const { data: categoriesData, isLoading: categoriesLoading } = useAllCategoriesQuery({});
+  const { data: categoriesData, isLoading: categoriesLoading } =
+    useAllCategoriesQuery({});
   // Fetch products with dynamic params
-  const { 
-    data: productsData, 
+  const {
+    data: productsData,
     isLoading: productsLoading,
     isFetching: productsFetching,
   } = useAllProductsBrowseCollectiblesQuery({
-    query: filters.search || searchParams.get('q') || '',
-    minPrice: filters.priceRange.min > 0 ? filters.priceRange.min.toString() : searchParams.get('min_price') || '',
-    maxPrice: filters.priceRange.max < 10000 ? filters.priceRange.max.toString() : searchParams.get('max_price') || '',
-    condition: filters.conditions.length > 0 ? filters.conditions[0] : searchParams.get('conditions') || '',
-    sortBy: sortOption || searchParams.get('sort') || '',
+    query: filters.search || searchParams.get("q") || "",
+    minPrice:
+      filters.priceRange.min > 0
+        ? filters.priceRange.min.toString()
+        : searchParams.get("min_price") || "",
+    maxPrice:
+      filters.priceRange.max < 10000
+        ? filters.priceRange.max.toString()
+        : searchParams.get("max_price") || "",
+    condition:
+      filters.conditions.length > 0
+        ? filters.conditions[0]
+        : searchParams.get("conditions") || "",
+    sortBy: sortOption || searchParams.get("sort") || "",
     page: currentPage.toString(),
     limit: itemsPerPage.toString(),
-    category: filters.categories.length > 0 ? filters.categories[0] : searchParams.get('category') || '',
+    category:
+      filters.categories.length > 0
+        ? filters.categories[0]
+        : searchParams.get("category") || "",
   });
 
-
- 
   // Process categories data from backend
   useEffect(() => {
     if (categoriesData?.data?.attributes) {
       const backendCategories = categoriesData.data.attributes;
-      
+
       // Transform backend categories to match your Category type
-      const transformedCategories: Category[] = backendCategories.map((cat: any) => ({
-        id: cat._id,
-        name: cat.name,
-        slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-'),
-        description: cat.description,
-        image: cat.image || '',
-        productCount: cat.productCount || 0,
-        createdAt: cat.createdAt,
-        updatedAt: cat.updatedAt,
-      }));
-      
+      const transformedCategories: Category[] = backendCategories.map(
+        (cat: any) => ({
+          id: cat._id,
+          name: cat.name,
+          slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, "-"),
+          description: cat.description,
+          image: cat.image || "",
+          productCount: cat.productCount || 0,
+          createdAt: cat.createdAt,
+          updatedAt: cat.updatedAt,
+        })
+      );
+
       setCategories(transformedCategories);
       // console.log('Transformed Categories:', transformedCategories);
     }
   }, [categoriesData]);
-
-
 
   // Process products data from backend
   useEffect(() => {
@@ -109,7 +120,6 @@ function BrowsePageContent() {
   // Use backend filtered results directly
   const backendFilteredProducts = productsData?.data || [];
 
-  
   // Calculate pagination using backend filtered results
   const totalPages = Math.ceil(backendFilteredProducts.length / itemsPerPage);
   const paginatedProducts = useMemo(() => {
@@ -261,9 +271,6 @@ function BrowsePageContent() {
   // Loading state
   const isLoading = productsLoading || categoriesLoading || productsFetching;
 
-
-  
-
   return (
     <PageLayout
       title="Browse Collectibles"
@@ -337,11 +344,18 @@ function BrowsePageContent() {
                   disabled={categoriesLoading}
                 >
                   <SelectTrigger className={cn(productStyles.forms.select.md)}>
-                    <SelectValue placeholder={
-                      categoriesLoading ? "Loading..." : "Select categories..."
-                    } />
+                    <SelectValue
+                      placeholder={
+                        categoriesLoading
+                          ? "Loading..."
+                          : "Select categories..."
+                      }
+                    />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem key="all" value="all">
+                      All Categories
+                    </SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.name}>
                         {category.name}

@@ -135,7 +135,7 @@ function VendorCard({
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col gap-2">
+                {/* <div className="flex flex-col gap-2">
                   <Button
                     size="sm"
                     variant={isFollowing ? "outline" : "default"}
@@ -151,7 +151,7 @@ function VendorCard({
                     <MessageSquare className="h-3 w-3" />
                     Contact
                   </Button>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -168,7 +168,7 @@ function VendorCard({
           <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/10 rounded-lg flex items-center justify-center">
             <Store className="h-8 w-8 text-primary" />
           </div>
-          <Button
+          {/* <Button
             size="sm"
             variant={isFollowing ? "outline" : "default"}
             onClick={handleFollow}
@@ -176,7 +176,7 @@ function VendorCard({
           >
             <Heart className={cn("h-3 w-3", isFollowing && "fill-current")} />
             {isFollowing ? "Following" : "Follow"}
-          </Button>
+          </Button> */}
         </div>
 
         {/* Title & Badges */}

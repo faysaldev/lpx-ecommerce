@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { logout, selectCurrentUser } from "@/redux/features/auth/authSlice";
 import { useAllCategoriesQuery } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
+import { setAllCategories } from "@/redux/features/Common/CommonSlice";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,7 +49,7 @@ export default function Header() {
     { name: string; slug: string; productCount?: number }[]
   >([]);
   const { data: categoriesData, isLoading: categoriesLoading } =
-    useAllCategoriesQuery({});
+    useAllCategoriesQuery({}); // Assuming your query hook here
 
   const dispatch = useAppDispatch();
   // const { user, isLoaded, isSignedIn } = useUser();
@@ -67,6 +68,7 @@ export default function Header() {
   useEffect(() => {
     // Load categories on mount
     setCategories(categoriesData?.data?.attributes || []);
+    dispatch(setAllCategories(categoriesData?.data?.attributes || null));
   }, [categoriesData]);
 
   // console.log("Categories Data:", categories);
