@@ -15,3 +15,4 @@ module.exports.wishlistService = require("./wishlist.service");
 module.exports.notificationService = require("./notification.service");
 module.exports.stripeService = require("./stripe.service");
 module.exports.categoriesService = require("./categories.service");
+module.exports.utilsService = require("./utils.service");

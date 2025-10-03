@@ -13,3 +13,4 @@ module.exports.wishlistController = require("./wishlist.controller");
 module.exports.notificationController = require("./notification.controller");
 module.exports.stripeController = require("./stripe.controller");
 module.exports.categoriesController = require("./categories.controller");
+module.exports.utilsController = require("./utils.controller");

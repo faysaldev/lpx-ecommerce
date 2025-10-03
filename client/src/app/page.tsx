@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -26,16 +27,22 @@ import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
 import { Product } from "@/lib/types";
 import { QuickView } from "@/components/Browse/QuickView";
-// import { useCart } from "@/context/CartContext";
-// import { useWishlist } from "@/context/WishlistContext";
-// import { QuickView } from "@/features/browse/components/QuickView";
-// import { getProductAPI } from "@/lib/api/client";
-// import { toDomainProduct } from "@/lib/api/product-adapters";
-// import type { Product } from "@/lib/api/types";
+import {
+  useLandingpageFetureProductsQuery,
+  useLandingpageStatiticsQuery,
+} from "@/redux/features/Common/LandingPageUtils";
 
 export default function Home() {
   // const { addToCart } = useCart();
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const { data: fetchFeaturedProducts, isLoading } =
+    useLandingpageFetureProductsQuery({});
+
+  const { data: fetchStatistics, isLoading: isStatsLoading } =
+    useLandingpageStatiticsQuery({});
+
+  console.log(fetchFeaturedProducts?.data, "featured products");
+  console.log(fetchStatistics?.data, "statistics");
 
   useEffect(() => {
     async function fetchFeaturedProducts() {
@@ -145,7 +152,7 @@ export default function Home() {
                 <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-8 border-t">
                   <div>
                     <p className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                      50K+
+                      {fetchStatistics?.data?.activeUsers || "50K"}+
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
                       Active Collectors
@@ -153,7 +160,7 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                      100K+
+                      {fetchStatistics?.data?.listedItems || "100K+"}
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
                       Verified Items
@@ -161,7 +168,7 @@ export default function Home() {
                   </div>
                   <div>
                     <p className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                      99.9%
+                      {fetchStatistics?.data?.satisfaction}
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
                       Satisfaction
@@ -188,22 +195,24 @@ export default function Home() {
                 <div className="relative">
                   <div className="overflow-x-auto scrollbar-hide">
                     <div className="flex gap-6 pb-4">
-                      {featuredProducts.map((product, index) => (
-                        <div
-                          key={product.id || `product-${index}`}
-                          className="w-[320px] min-w-[320px] max-w-[320px] flex-shrink-0"
-                        >
-                          <ProductCard
-                            product={product}
-                            viewMode="grid"
-                            onQuickView={setQuickViewProduct}
-                            onAddToCart={handleAddToCart}
-                            onAddToWishlist={handleAddToWishlist}
-                            onBuyNow={handleBuyNow}
-                            onShare={handleShare}
-                          />
-                        </div>
-                      ))}
+                      {fetchFeaturedProducts?.data?.map(
+                        (product: any, index: any) => (
+                          <div
+                            key={product.id || `product-${index}`}
+                            className="w-[320px] min-w-[320px] max-w-[320px] flex-shrink-0"
+                          >
+                            <ProductCard
+                              product={product}
+                              viewMode="grid"
+                              onQuickView={setQuickViewProduct}
+                              onAddToCart={handleAddToCart}
+                              onAddToWishlist={handleAddToWishlist}
+                              onBuyNow={handleBuyNow}
+                              onShare={handleShare}
+                            />
+                          </div>
+                        )
+                      )}
                     </div>
                   </div>
 
@@ -379,7 +388,7 @@ export default function Home() {
                       <TrendingUp className="h-6 w-6 text-green-500" />
                     </div>
                     <p className="text-3xl font-bold mb-2 bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
-                      $5M+
+                      {fetchStatistics?.data?.monthlyVolume || "$1M"} +
                     </p>
                     <p className="text-sm text-muted-foreground">
                       Monthly Volume
@@ -393,7 +402,7 @@ export default function Home() {
                       <Package className="h-6 w-6 text-blue-500" />
                     </div>
                     <p className="text-3xl font-bold mb-2 bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-                      100K+
+                      {fetchStatistics?.data?.listedItems || "100K"}+
                     </p>
                     <p className="text-sm text-muted-foreground">
                       Listed Items
@@ -407,7 +416,7 @@ export default function Home() {
                       <Users className="h-6 w-6 text-purple-500" />
                     </div>
                     <p className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-purple-400 bg-clip-text text-transparent">
-                      50K+
+                      {fetchStatistics?.data?.activeUsers || "50K+"}+
                     </p>
                     <p className="text-sm text-muted-foreground">
                       Active Users
@@ -421,7 +430,7 @@ export default function Home() {
                       <Award className="h-6 w-6 text-yellow-500" />
                     </div>
                     <p className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-600 to-yellow-400 bg-clip-text text-transparent">
-                      99.9%
+                      {fetchStatistics?.data?.satisfaction || "99%"}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       Satisfaction
