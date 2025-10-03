@@ -23,9 +23,24 @@ const addNewProducts = async (productsBody) => {
 
 const productDetails = async (productsId) => {
   if (!productsId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+    throw new ApiError(httpStatus.BAD_REQUEST, "Product ID is required");
   }
-  return Product.findById(productsId);
+
+  // Fetch the product with populated vendor details
+  const product = await Product.findById(productsId)
+    .populate({
+      path: "vendor", // Populate the vendor details
+      select:
+        "storeName storePhoto averageRating verified contactEmail phoneNumber storePolicies", // Select vendor details
+    })
+    .lean(); // Use lean to return plain JavaScript objects instead of Mongoose documents
+
+  if (!product) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  // Return the populated product details
+  return product;
 };
 
 const editeProducts = async (productsId, productsData) => {
