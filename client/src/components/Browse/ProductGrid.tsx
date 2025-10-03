@@ -38,6 +38,8 @@ export function ProductGrid({
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const observerRef = useRef<HTMLDivElement>(null);
 
+  console.log(products, "products in product grid");
+
   // Infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(

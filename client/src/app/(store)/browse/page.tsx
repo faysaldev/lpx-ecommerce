@@ -33,6 +33,7 @@ import {
 
 function BrowsePageContent() {
   const searchParams = useSearchParams();
+  //   const params: Record<string, string | string[]> | null = useParams();
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
     null
   );

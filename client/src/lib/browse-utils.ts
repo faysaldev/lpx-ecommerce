@@ -69,8 +69,8 @@ export const CONDITIONS = [
 
 export const SORT_OPTIONS = [
   { value: "newest", label: "Newest First", icon: "clock" },
-  { value: "price-asc", label: "Price: Low to High", icon: "arrow-up" },
-  { value: "price-desc", label: "Price: High to Low", icon: "arrow-down" },
+  { value: "lowToHigh", label: "Price: Low to High", icon: "arrow-up" },
+  { value: "highToLow", label: "Price: High to Low", icon: "arrow-down" },
 ];
 
 export function filterProducts(

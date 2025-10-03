@@ -1,3 +1,5 @@
+// TODO: actual code over here
+
 "use client";
 
 import { useParams } from "next/navigation";
@@ -9,44 +11,34 @@ import type { Category, Product } from "@/lib/types";
 import type { SortOption, ViewMode } from "@/lib/browse-utils";
 import { VendorStyleFilterBar } from "@/components/Browse/VendorStyleFilterBar";
 import { ProductGrid } from "@/components/Browse/ProductGrid";
+import { useAllProductsBrowseCollectiblesQuery } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 
 export default function CategoryPage() {
-  const params: Record<string, string | string[]> | null = useParams();
-  const categorySlug = params ? (params.slug as string | null) : null;
+  const params: Record<string, string> | null = useParams();
+  const categorySlug = params?.slug ? decodeURIComponent(params.slug) : null;
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [searchQuery, setSearchQuery] = useState("");
-  const [category, setCategory] = useState<Category | null>(null);
+  // const [category, setCategory] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(false);
 
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     try {
-  //       const categoryAPI = getCategoryAPI();
-  //       const productAPI = getProductAPI();
+  const {
+    data: productsData,
+    isLoading: productsLoading,
+    isFetching: productsFetching,
+  } = useAllProductsBrowseCollectiblesQuery({
+    query: searchQuery,
+    minPrice: 0,
+    maxPrice: Infinity,
+    condition: "",
+    sortBy: sortBy,
+    page: 1,
+    limit: 10,
+    category: categorySlug?.toString() || "", // Use categorySlug from URL params
+  });
 
-  //       const [categoryResponse, productsResponse] = await Promise.all([
-  //         categoryAPI.getCategoryBySlug(categorySlug),
-  //         productAPI.getProductsByCategory(categorySlug),
-  //       ]);
-
-  //       if (categoryResponse.success) {
-  //         setCategory(categoryResponse.data);
-  //       }
-
-  //       if (productsResponse.success) {
-  //         setProducts(productsResponse.data.data);
-  //       }
-  //     } catch (error) {
-  //       if (process.env.NODE_ENV !== "production")
-  //         console.error("Failed to fetch category data:", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-  //   fetchData();
-  // }, [categorySlug]);
+  console.log(categorySlug, "categorySlug");
 
   // Get products for this category
   const categoryProducts = useMemo(() => {
@@ -119,7 +111,7 @@ export default function CategoryPage() {
     }
   };
 
-  if (loading) {
+  if (productsLoading) {
     return (
       <PageLayout>
         <div className="flex items-center justify-center min-h-[400px]">
@@ -132,7 +124,7 @@ export default function CategoryPage() {
     );
   }
 
-  if (!category) {
+  if (!categorySlug) {
     return (
       <PageLayout>
         <EmptyStates.Error
@@ -148,13 +140,13 @@ export default function CategoryPage() {
 
   return (
     <PageLayout
-      title={category.name}
+      title={categorySlug || "Unknown Category"}
       description={`${categoryProducts.length} ${
         categoryProducts.length === 1 ? "product" : "products"
       } found`}
       breadcrumbs={[
         { label: "Browse", href: "/browse" },
-        { label: category.name },
+        { label: categorySlug, href: `/category/${categorySlug}` },
       ]}
     >
       <div className="space-y-6">
@@ -187,9 +179,9 @@ export default function CategoryPage() {
 
         {/* Products Grid/List */}
         <ProductGrid
-          products={categoryProducts}
+          products={productsData?.data || []}
           viewMode={viewMode}
-          isLoading={loading}
+          isLoading={productsLoading}
           onAddToCart={handleAddToCart}
           onAddToWishlist={handleAddToWishlist}
           onBuyNow={handleBuyNow}

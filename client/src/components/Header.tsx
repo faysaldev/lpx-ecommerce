@@ -116,9 +116,9 @@ export default function Header() {
                 <DropdownMenuContent className="w-[400px] md:w-[500px]">
                   <div className="grid gap-3 p-4 md:grid-cols-2">
                     {memoizedCategories.map((category) => (
-                      <DropdownMenuItem key={category.slug}>
+                      <DropdownMenuItem key={category.name}>
                         <Link
-                          href={`/category/${category.slug}`}
+                          href={`/category/${encodeURI(category.name)}`}
                           className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer w-full"
                         >
                           <div className="text-sm font-medium leading-none">
