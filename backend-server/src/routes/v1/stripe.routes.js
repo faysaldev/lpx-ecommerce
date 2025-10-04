@@ -4,15 +4,25 @@ const {
   paymentRequestController,
   stripeController,
 } = require("../../controllers");
+const bodyParser = require("body-parser");
 
 const router = express.Router();
 
 router
-  .route("/create-payment-intent")
-  .post(auth("common"), stripeController.createPayment);
+  .route("/webhook")
+  .post(
+    bodyParser.raw({ type: "application/json" }),
+    stripeController.webHookPaymentLoad
+  );
 
+// checkout session
 router
-  .route("/confirm-payment")
-  .post(auth("common"), stripeController.confirmPayment);
+  .route("/checkout")
+  .post(auth("common"), stripeController.checkOutSession);
+
+// complete the checkout data
+router
+  .route("/completion")
+  .get(auth("common"), stripeController.checkoutComplete);
 
 module.exports = router;

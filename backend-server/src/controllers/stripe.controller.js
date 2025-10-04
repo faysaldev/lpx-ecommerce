@@ -1,69 +1,67 @@
-// const httpStatus = require("http-status");
-// const catchAsync = require("../utils/catchAsync");
-// const response = require("../config/response");
-// const { paymentrequestService } = require("../services");
+const httpStatus = require("http-status");
+const response = require("../config/response");
+const { stripeService, orderService } = require("../services");
+const {
+  forMatOrderData,
+  forMatStripeLineItems,
+} = require("../utils/StripeCheckoutHelper");
 
-const { stripeService } = require("../services");
+const checkOutSession = async (req, res) => {
+  const data = {
+    customer: req.user.id,
+    ...req.body,
+  };
+  const orderData = forMatOrderData(data);
+  const stripeItems = forMatStripeLineItems(data);
 
-// const getpaymentRequest = catchAsync(async (req, res) => {
-//   const paymentRequest = await paymentrequestService.getpaymentRequest(
-//     req.user.id
-//   );
-//   res.status(httpStatus.CREATED).json(
-//     response({
-//       message: "All the Paybacks Request",
-//       status: "OK",
-//       statusCode: httpStatus.CREATED,
-//       data: paymentRequest,
-//     })
-//   );
-// });
+  console.log(stripeItems);
 
-// Step 1: Create a payment intent and return the client secret to the frontend
-const createPayment = async (req, res) => {
-  try {
-    const { amount, currency } = req.body; // Get the amount and currency from the request body
+  const orderCreate = await orderService.createOrder(orderData);
 
-    // Create a payment intent
-    const paymentIntent = await stripeService.createPaymentIntent(
-      amount,
-      currency
-    );
-
-    res.json({
-      clientSecret: paymentIntent.client_secret,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  const checkoutData = await stripeService.checkOutSession(
+    stripeItems,
+    req.user.id,
+    orderCreate?._id
+  );
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Checkout Created",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: checkoutData,
+    })
+  );
 };
 
-// Step 2: Confirm the payment intent after the user submits their payment method
-const confirmPayment = async (req, res) => {
-  try {
-    const { paymentIntentId, paymentMethodId } = req.body;
+const checkoutComplete = async (req, res) => {
+  const completedData = await stripeService.checkoutComplete(
+    req.query.session_id
+  );
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "checkout Session",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: completedData,
+    })
+  );
+};
 
-    // Confirm the payment intent
-    const paymentIntent = await stripeService.confirmPaymentIntent(
-      paymentIntentId,
-      paymentMethodId
-    );
-
-    if (paymentIntent.status === "succeeded") {
-      res.json({ success: true, paymentIntent });
-    } else {
-      res.json({ success: false, message: "Payment failed" });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+const webHookPaymentLoad = async (req, res) => {
+  let event = req.body;
+  const webHookData = await stripeService.checkoutComplete(event);
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "checkout Weebhook Hits",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: "Webhook Hit",
+    })
+  );
 };
 
 module.exports = {
-  createPayment,
-  confirmPayment,
+  checkOutSession,
+  checkoutComplete,
+  webHookPaymentLoad,
 };
-
-// module.exports = {
-//   getpaymentRequest,
-// };

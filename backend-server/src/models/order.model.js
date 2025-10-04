@@ -7,7 +7,6 @@ const OrderSchema = new Schema(
     paymentCardId: {
       type: Schema.Types.ObjectId,
       ref: "PaymentCard",
-      required: true,
     },
     orderID: {
       type: String,
@@ -20,7 +19,14 @@ const OrderSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "processing", "shipped", "delivered", "cancelled"],
+      enum: [
+        "unpaid",
+        "pending",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+      ],
       default: "pending",
     },
     totalAmount: {
@@ -28,16 +34,16 @@ const OrderSchema = new Schema(
       required: true,
     },
     shippingInformation: {
-      firstName: { type: String, required: true },
-      lastName: { type: String, required: true },
-      email: { type: String, required: true },
-      phoneNumber: { type: String, required: true },
-      streetAddress: { type: String, required: true },
+      firstName: { type: String },
+      lastName: { type: String },
+      email: { type: String },
+      phoneNumber: { type: String },
+      streetAddress: { type: String },
       apartment: { type: String },
-      city: { type: String, required: true },
-      state: { type: String, required: true },
-      zipCode: { type: String, required: true },
-      country: { type: String, required: true },
+      city: { type: String },
+      state: { type: String },
+      zipCode: { type: String },
+      country: { type: String },
       deliveryInstructions: { type: String },
     },
     totalItems: [
