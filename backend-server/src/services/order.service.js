@@ -175,8 +175,16 @@ const getOrderSingleDetails = async (orderId) => {
   };
 };
 
+const editeSingleOrder = async (orderId, newData) => {
+  if (!orderId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Order ID is required");
+  }
+  return Order.findByIdAndUpdate(orderId, newData);
+};
+
 module.exports = {
   myOrders,
   createOrder,
   getOrderSingleDetails,
+  editeSingleOrder,
 };

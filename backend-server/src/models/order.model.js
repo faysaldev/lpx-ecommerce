@@ -36,6 +36,7 @@ const OrderSchema = new Schema(
     shippingInformation: {
       firstName: { type: String },
       lastName: { type: String },
+      name: { type: String },
       email: { type: String },
       phoneNumber: { type: String },
       streetAddress: { type: String },
