@@ -1,48 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react/no-unescaped-entities */
 "use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  AlertCircle,
-  Camera,
-  DollarSign,
-  ExternalLink,
-  Package,
-  Plus,
-  Save,
-  Trash2,
-  Upload,
-  X,
-} from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { AlertCircle, DollarSign, ExternalLink, Eye, Package, Save, ImagePlus, X, Upload } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import PageLayout from "@/components/layout/PageLayout";
-import { Alert, AlertDescription } from "@/components/UI/alert";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/UI/alert-dialog";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/UI/card";
+import { Button } from "@/components/UI/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Checkbox } from "@/components/UI/checkbox";
 import { Input } from "@/components/UI/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/UI/label";
 import { RadioGroup, RadioGroupItem } from "@/components/UI/radio-group";
 import {
   Select,
@@ -53,52 +24,51 @@ import {
 } from "@/components/UI/select";
 import { Separator } from "@/components/UI/separator";
 import { Textarea } from "@/components/UI/textarea";
-// import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
-import { cn } from "@/lib/utils";
+import {
+  useDraftsCreateMutation,
+  useGetSingleProductQuery,
+  useProductCreateMutation,
+} from "@/redux/features/products/product";
+import TagInput from "@/components/Vendors/AddnewProduct/TagInput";
+import ConditionSelector from "@/components/Vendors/AddnewProduct/ConditionSelector";
+import { Alert, AlertDescription } from "@/components/UI/alert";
+import Image from "next/image";
+import { useSelector } from "react-redux";
 
 const productSchema = z.object({
-  name: z.string().min(1, "Product name is required").max(100, "Name too long"),
+  productName: z
+    .string()
+    .min(1, "Product name is required")
+    .max(100, "Name too long"),
   description: z
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(1000, "Description too long"),
   price: z.number().min(0.01, "Price must be greater than 0"),
-  originalPrice: z.number().optional(),
+  optionalPrice: z.number().optional(),
   category: z.string().min(1, "Category is required"),
   condition: z.string().min(1, "Condition is required"),
+  rarity: z.string().min(1, "Rarity is required"),
   brand: z.string().optional(),
-  year: z.string().optional(),
-  rarity: z.string().optional(),
-  stock: z.number().min(0, "Stock cannot be negative").default(1),
-  sku: z.string().optional(),
-  weight: z.number().optional(),
-  dimensions: z.string().optional(),
+  stockQuantity: z.number().min(1, "Stock must be at least 1").default(1),
+  tags: z.array(z.string()).default([]),
+  isDraft: z.boolean().default(true),
+  discountPercentage: z.number().min(0).max(100).optional(),
   shippingCost: z
     .number()
     .min(0, "Shipping cost cannot be negative")
     .default(0),
-  tags: z.array(z.string()).default([]),
-  status: z.enum(["draft", "active", "paused"]).default("draft"),
+  weight: z.number().min(0, "Weight cannot be negative").optional(),
+  dimensions: z.string().optional(),
   acceptOffers: z.boolean().default(false),
   minOffer: z.number().optional(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-const categories = [
-  "Trading Cards",
-  "Comics",
-  "Sports Cards",
-  "Coins",
-  "Stamps",
-  "Toys",
-  "Action Figures",
-  "Vintage Items",
-  "Memorabilia",
-  "Art & Prints",
-];
 
-const conditions = [
+
+const rawConditions = [
   "Mint",
   "Near Mint",
   "Excellent",
@@ -106,10 +76,9 @@ const conditions = [
   "Good",
   "Fair",
   "Poor",
-  "CGC Graded",
-  "PSA Graded",
-  "BGS Graded",
 ];
+
+
 
 const rarities = [
   "Common",
@@ -124,373 +93,439 @@ const rarities = [
   "First Edition",
 ];
 
-// Mock product data - in a real app this would come from your API
-const mockProduct = {
-  id: "1",
-  name: "Charizard Base Set Holo",
-  description:
-    "Near mint condition Charizard from Base Set 1999. This iconic Pokemon card is in excellent condition with minimal wear. Card has been stored in protective sleeve since acquisition.",
-  price: 299.99,
-  originalPrice: 349.99,
-  images: ["/api/placeholder/300/300", "/api/placeholder/300/300"],
-  category: "Trading Cards",
-  condition: "Near Mint",
-  brand: "Wizards of the Coast",
-  year: "1999",
-  rarity: "Rare",
-  stock: 1,
-  sku: "CHAR-BS-001",
-  weight: 0.5,
-  dimensions: "3.5 x 2.5 x 0.1 in",
-  shippingCost: 5.99,
-  tags: ["pokemon", "charizard", "base set", "holo", "vintage"],
-  status: "active" as const,
-  acceptOffers: true,
-  minOffer: 250.0,
-  views: 245,
-  wishlistCount: 12,
-  rating: 4.8,
-  reviewCount: 15,
-  vendor: "Current Vendor",
-  dateCreated: new Date("2024-01-15"),
-  lastUpdated: new Date("2024-02-01"),
-};
-
-function ImageUploadSection({
-  images,
-  onImagesChange,
-  existingImages,
-  onExistingImageRemove,
-}: {
+// Image Upload Section Component
+interface ImageUploadSectionProps {
   images: File[];
   onImagesChange: (images: File[]) => void;
-  existingImages: string[];
-  onExistingImageRemove: (index: number) => void;
-}) {
-  const totalImages = existingImages.length + images.length;
+  existingImages?: string[];
+}
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const newFiles = Array.from(e.target.files);
-      const validFiles = newFiles.filter((file) => {
-        const isValidType = file.type.startsWith("image/");
-        const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
-        return isValidType && isValidSize;
+const ImageUploadSection = ({ 
+  images, 
+  onImagesChange, 
+  existingImages = [] 
+}: ImageUploadSectionProps) => {
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [existingPreviews, setExistingPreviews] = useState<string[]>([]);
+
+  // Load existing images from backend
+  useEffect(() => {
+    if (existingImages && existingImages.length > 0) {
+      const formattedImages = existingImages.map(img => {
+        // Replace backslashes with forward slashes for URL
+        const cleanPath = img.replace(/\\/g, '/');
+        return `${process.env.NEXT_PUBLIC_BASE_URL}/${cleanPath}`;
+      });
+      setExistingPreviews(formattedImages);
+    }
+  }, [existingImages]);
+
+  // Generate previews for new uploaded files
+  useEffect(() => {
+    if (images.length === 0) {
+      setPreviews([]);
+      return;
+    }
+
+    const newPreviews: string[] = [];
+    images.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        newPreviews.push(reader.result as string);
+        if (newPreviews.length === images.length) {
+          setPreviews([...newPreviews]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    return () => {
+      previews.forEach((preview) => URL.revokeObjectURL(preview));
+    };
+  }, [images]);
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files || []);
+      if (files.length === 0) return;
+
+      const validFiles = files.filter((file) => {
+        if (!file.type.startsWith("image/")) {
+          alert(`${file.name} is not an image file`);
+          return false;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          alert(`${file.name} is larger than 5MB`);
+          return false;
+        }
+        return true;
       });
 
-      if (validFiles.length !== newFiles.length) {
-        toast.error(
-          "Some files were skipped. Only images under 5MB are allowed."
-        );
+      const totalImages = images.length + existingPreviews.length + validFiles.length;
+      if (totalImages > 10) {
+        alert("Maximum 10 images allowed");
+        return;
       }
 
-      const remainingSlots = 8 - totalImages;
-      const filesToAdd = validFiles.slice(0, remainingSlots);
+      onImagesChange([...images, ...validFiles]);
+    },
+    [images, existingPreviews.length, onImagesChange]
+  );
 
-      if (filesToAdd.length < validFiles.length) {
-        toast.warning("Maximum 8 images allowed. Some images were not added.");
-      }
+  const removeNewImage = useCallback(
+    (index: number) => {
+      const newImages = images.filter((_, i) => i !== index);
+      onImagesChange(newImages);
+    },
+    [images, onImagesChange]
+  );
 
-      onImagesChange([...images, ...filesToAdd]);
-    }
-  };
+  const removeExistingImage = useCallback(
+    (index: number) => {
+      const newExistingPreviews = existingPreviews.filter((_, i) => i !== index);
+      setExistingPreviews(newExistingPreviews);
+    },
+    [existingPreviews]
+  );
 
-  const removeNewImage = (index: number) => {
-    onImagesChange(images.filter((_, i) => i !== index));
-  };
+  const replaceExistingImage = useCallback(
+    (index: number) => {
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = "image/*";
+      input.onchange = (e: Event) => {
+        const target = e.target as HTMLInputElement;
+        const file = target.files?.[0];
+        if (file) {
+          if (!file.type.startsWith("image/")) {
+            alert("Please select an image file");
+            return;
+          }
+          if (file.size > 5 * 1024 * 1024) {
+            alert("Image size should be less than 5MB");
+            return;
+          }
+          // Remove the existing image and add new one
+          const newExistingPreviews = existingPreviews.filter((_, i) => i !== index);
+          setExistingPreviews(newExistingPreviews);
+          onImagesChange([...images, file]);
+        }
+      };
+      input.click();
+    },
+    [existingPreviews, images, onImagesChange]
+  );
+
+  const totalImages = existingPreviews.length + previews.length;
 
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Camera className="h-5 w-5" />
+          <ImagePlus className="h-5 w-5" />
           Product Images
         </CardTitle>
-        <CardDescription>
-          Update your product images. The first image will be the main image.
-        </CardDescription>
+        <p className="text-sm text-muted-foreground">
+          Upload up to 10 high-quality images. First image will be the main product image.
+        </p>
       </CardHeader>
-      <CardContent>
-        {/* Existing Images */}
-        {existingImages.length > 0 && (
-          <div className="mb-6">
-            <h4 className="font-medium mb-3">Current Images</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {existingImages.map((imageUrl, index) => (
-                <div key={`existing-${imageUrl}`} className="relative group">
-                  <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                    <Image
-                      src={imageUrl}
-                      alt={`Product ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => onExistingImageRemove(index)}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                  {index === 0 && (
-                    <div className="absolute bottom-2 left-2">
-                      <div className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-                        Main
-                      </div>
-                    </div>
-                  )}
+      <CardContent className="space-y-4">
+        {/* Image Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {/* Existing Images from Backend */}
+          {existingPreviews.map((preview, index) => (
+            <div
+              key={`existing-${index}`}
+              className="relative aspect-square rounded-lg border-2 border-dashed border-muted-foreground/25 overflow-hidden group"
+            >
+              <img
+                src={preview}
+                alt={`Existing product ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => replaceExistingImage(index)}
+                  className="h-8 px-2"
+                >
+                  <Upload className="h-4 w-4 mr-1" />
+                  Replace
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => removeExistingImage(index)}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              {index === 0 && (
+                <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                  Main
                 </div>
-              ))}
+              )}
             </div>
-          </div>
-        )}
+          ))}
 
-        {/* Upload Area */}
-        <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center mb-4">
-          <input
-            type="file"
-            multiple
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-            id="image-upload"
-            disabled={totalImages >= 8}
-          />
-          <label
-            htmlFor="image-upload"
-            className={cn(
-              "cursor-pointer flex flex-col items-center gap-2",
-              totalImages >= 8 && "cursor-not-allowed opacity-50"
-            )}
-          >
-            <Upload className="h-8 w-8 text-muted-foreground" />
-            <div>
-              <p className="font-medium">
-                {totalImages >= 8
-                  ? "Maximum images reached"
-                  : "Click to upload more images"}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                PNG, JPG up to 5MB each ({totalImages}/8 images)
-              </p>
+          {/* New Uploaded Images */}
+          {previews.map((preview, index) => (
+            <div
+              key={`new-${index}`}
+              className="relative aspect-square rounded-lg border-2 border-dashed border-primary/50 overflow-hidden group"
+            >
+              <Image
+                width={300}
+                height={300}
+                src={preview}
+                alt={`New upload ${index + 1}`}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => removeNewImage(index)}
+                  className="h-8 w-8 p-0"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
+                New
+              </div>
+              {existingPreviews.length === 0 && index === 0 && (
+                <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                  Main
+                </div>
+              )}
             </div>
-          </label>
+          ))}
+
+          {/* Upload Button */}
+          {totalImages < 10 && (
+            <Label
+              htmlFor="image-upload"
+              className="relative aspect-square rounded-lg border-2 border-dashed border-muted-foreground/25 hover:border-primary/50 transition-colors cursor-pointer flex flex-col items-center justify-center gap-2 bg-muted/50 hover:bg-muted"
+            >
+              <ImagePlus className="h-8 w-8 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground text-center px-2">
+                Add Image
+              </span>
+              <input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileChange}
+                className="hidden"
+              />
+            </Label>
+          )}
         </div>
 
-        {/* New Images Preview */}
-        {images.length > 0 && (
-          <div>
-            <h4 className="font-medium mb-3">New Images to Add</h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {images.map((image, index) => (
-                <div
-                  key={`new-${image.name}-${image.size}-${index}`}
-                  className="relative group"
-                >
-                  <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                    <Image
-                      src={URL.createObjectURL(image)}
-                      alt={`New ${index + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    className="absolute top-2 right-2 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => removeNewImage(index)}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                  <div className="absolute bottom-2 left-2">
-                    <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded">
-                      New
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Image Counter */}
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">
+            {totalImages} / 10 images
+          </span>
+          {totalImages > 0 && (
+            <span className="text-xs text-muted-foreground">
+              {existingPreviews.length > 0 && (
+                <span className="text-blue-600">
+                  {existingPreviews.length} existing
+                </span>
+              )}
+              {existingPreviews.length > 0 && previews.length > 0 && " • "}
+              {previews.length > 0 && (
+                <span className="text-green-600">{previews.length} new</span>
+              )}
+            </span>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
-}
+};
 
-function TagInput({
-  tags,
-  onTagsChange,
-}: {
-  tags: string[];
-  onTagsChange: (tags: string[]) => void;
-}) {
-  const [inputValue, setInputValue] = useState("");
+const NewProductPage = () => {
+  const { id } = useParams<{ id: string }>();
+  const { data, isLoading } = useGetSingleProductQuery(id);
+  const singleData = data?.data?.attributes;
+  console.log("Fetched product data:", singleData);
 
-  const handleAddTag = () => {
-    if (
-      inputValue.trim() &&
-      !tags.includes(inputValue.trim()) &&
-      tags.length < 10
-    ) {
-      onTagsChange([...tags, inputValue.trim()]);
-      setInputValue("");
-    }
-  };
+  const categories = useSelector((state: any) => state.common.categories);
+  // console.log("Fetched categories from Redux:", categories);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      handleAddTag();
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    onTagsChange(tags.filter((tag) => tag !== tagToRemove));
-  };
-
-  return (
-    <div className="space-y-3">
-      <div className="flex gap-2">
-        <Input
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Add a tag (e.g., vintage, rare, pokemon)"
-          className="flex-1"
-          maxLength={20}
-        />
-        <Button
-          type="button"
-          onClick={handleAddTag}
-          variant="outline"
-          disabled={
-            !inputValue.trim() ||
-            tags.includes(inputValue.trim()) ||
-            tags.length >= 10
-          }
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
-      </div>
-
-      {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {tags.map((tag) => (
-            <div
-              key={tag}
-              className="bg-muted text-muted-foreground px-3 py-1 rounded-full text-sm flex items-center gap-2"
-            >
-              {tag}
-              <button
-                type="button"
-                onClick={() => removeTag(tag)}
-                className="hover:text-destructive"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function EditProductPage({
-  params: _params,
-}: {
-  params: { id: string };
-}) {
   const router = useRouter();
-  const [product, _setProduct] = useState(mockProduct);
   const [images, setImages] = useState<File[]>([]);
-  const [existingImages, setExistingImages] = useState<string[]>(
-    mockProduct.images
-  );
-  const [tags, setTags] = useState<string[]>(mockProduct.tags);
+  const [tags, setTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<ProductFormData>({
-    // @ts-expect-error - Schema mismatch temporarily ignored for build
     resolver: zodResolver(productSchema),
     defaultValues: {
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      originalPrice: product.originalPrice,
-      category: product.category,
-      condition: product.condition,
-      brand: product.brand,
-      year: product.year,
-      rarity: product.rarity,
-      stock: product.stock || 1,
-      sku: product.sku,
-      weight: product.weight,
-      dimensions: product.dimensions,
-      shippingCost: product.shippingCost || 0,
-      tags: product.tags || [],
-      status: product.status || "draft",
-      acceptOffers: product.acceptOffers || false,
-      minOffer: product.minOffer,
+      isDraft: true,
+      stockQuantity: 1,
+      shippingCost: 0,
+      acceptOffers: false,
     },
   });
 
-  const watchedStatus = watch("status");
+  // Populate form with fetched data
+  useEffect(() => {
+    if (singleData) {
+      console.log("Loading product data:", singleData);
+      
+      reset({
+        productName: singleData.productName || "",
+        description: singleData.description || "",
+        price: Number(singleData.price) || 0,
+        optionalPrice: singleData.optionalPrice ? Number(singleData.optionalPrice) : undefined,
+        category: singleData.category || "",
+        condition: singleData.condition || "",
+        rarity: singleData.rarity || "",
+        brand: singleData.brand || "",
+        stockQuantity: Number(singleData.stockQuantity) || 1,
+        isDraft: Boolean(singleData.isDraft),
+        discountPercentage: singleData.discountPercentage ? Number(singleData.discountPercentage) : undefined,
+        shippingCost: singleData.shipping?.shippingCost ? Number(singleData.shipping.shippingCost) : 0,
+        weight: singleData.shipping?.weight ? Number(singleData.shipping.weight) : undefined,
+        dimensions: singleData.shipping?.dimensions || "",
+        acceptOffers: Boolean(singleData.acceptOffers),
+        minOffer: singleData.minOffer ? Number(singleData.minOffer) : undefined,
+      });
+
+      // Set tags - filter out empty strings
+      if (singleData.tags && Array.isArray(singleData.tags)) {
+        const filteredTags = singleData.tags.filter((tag: string) => tag && tag.trim() !== "");
+        setTags(filteredTags);
+      }
+    }
+  }, [singleData, reset]);
+
+  const watchedIsDraft = watch("isDraft");
   const watchedAcceptOffers = watch("acceptOffers");
+  const watchedCategory = watch("category");
+  const watchedCondition = watch("condition");
+  const watchedRarity = watch("rarity");
+  
+  const [createProducts] = useProductCreateMutation();
+  const [createDrafts] = useDraftsCreateMutation();
 
   const onSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    try {
+      const formData = new FormData();
 
-    const productData = {
-      ...data,
-      tags,
-      existingImages,
-      newImages: images.map((img) => URL.createObjectURL(img)), // In real app, upload to server
-      lastUpdated: new Date(),
-    };
+      // Append all form data
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (typeof value === "boolean") {
+            formData.append(key, value.toString());
+          } else {
+            formData.append(key, value.toString());
+          }
+        }
+      });
 
-    if (process.env.NODE_ENV !== "production")
-      console.log("Updating product:", productData);
+      // Append images (only if new images are uploaded)
+      if (images.length > 0) {
+        images.forEach((image) => {
+          formData.append("image", image);
+        });
+      }
 
-    toast.success("Product updated successfully!");
-    router.push("/vendor/dashboard");
+      formData.append("vendor", singleData?.vendor?._id || "68d4c54fd4a487006236fabc");
+      
+      // Append tags
+      if (tags && tags.length > 0) {
+        tags.forEach((tag) => {
+          if (tag.trim()) {
+            formData.append("tags", tag);
+          }
+        });
+      }
+
+      // Submit based on draft status
+      if (data.isDraft) {
+        await createDrafts(formData).unwrap();
+        toast.success("Product saved as draft!");
+      } else {
+        await createProducts(formData).unwrap();
+        toast.success("Product updated successfully!");
+      }
+
+      router.push("/vendor/dashboard");
+    } catch (error) {
+      toast.error("An error occurred while updating the product.");
+      console.error("Error updating product:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
+  if (isLoading) {
+    return (
+      <PageLayout
+        title="Edit Product"
+        description="Loading..."
+        breadcrumbs={[
+          { label: "Dashboard", href: "/vendor/dashboard" },
+          { label: "Products", href: "/vendor/dashboard" },
+          { label: "Edit Product" },
+        ]}
+      >
+        <div className="flex items-center justify-center py-12">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading product data...</p>
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    toast.success("Product deleted successfully!");
-    router.push("/vendor/dashboard");
-  };
-
-  const handleExistingImageRemove = (index: number) => {
-    setExistingImages(existingImages.filter((_, i) => i !== index));
-    toast.info("Image will be removed when you save changes");
-  };
+  if (!singleData) {
+    return (
+      <PageLayout
+        title="Edit Product"
+        description="Product not found"
+        breadcrumbs={[
+          { label: "Dashboard", href: "/vendor/dashboard" },
+          { label: "Products", href: "/vendor/dashboard" },
+          { label: "Edit Product" },
+        ]}
+      >
+        <div className="flex items-center justify-center py-12">
+          <Alert variant="destructive" className="max-w-md">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Product not found. It may have been deleted or you don't have permission to edit it.
+            </AlertDescription>
+          </Alert>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
-    // <ProtectedRoute>
     <PageLayout
       title="Edit Product"
-      description={`Edit "${product.name}"`}
+      description={`Edit "${singleData.productName}"`}
       breadcrumbs={[
         { label: "Dashboard", href: "/vendor/dashboard" },
         { label: "Products", href: "/vendor/dashboard" },
@@ -498,7 +533,7 @@ export default function EditProductPage({
       ]}
     >
       {/* Product Status Alert */}
-      {product.status === "active" && (
+      {!singleData.isDraft && (
         <Alert className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
@@ -506,8 +541,9 @@ export default function EditProductPage({
             take effect immediately after saving.
             <Button asChild variant="link" className="p-0 ml-2 h-auto">
               <a
-                href={`/product/${product.id}`}
+                href={`/product/${singleData._id}`}
                 target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex items-center gap-1"
               >
                 View live listing <ExternalLink className="h-3 w-3" />
@@ -517,14 +553,12 @@ export default function EditProductPage({
         </Alert>
       )}
 
-      {/* onSubmit={handleSubmit(onSubmit)} */}
-      <form className="space-y-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         {/* Images Section */}
-        <ImageUploadSection
-          images={images}
+        <ImageUploadSection 
+          images={images} 
           onImagesChange={setImages}
-          existingImages={existingImages}
-          onExistingImageRemove={handleExistingImageRemove}
+          existingImages={singleData.images}
         />
 
         {/* Basic Information */}
@@ -538,11 +572,16 @@ export default function EditProductPage({
           <CardContent className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
-                <Label htmlFor="name">Product Name *</Label>
-                <Input id="name" {...register("name")} className="mt-1" />
-                {errors.name && (
+                <Label htmlFor="productName">Product Name *</Label>
+                <Input
+                  id="productName"
+                  {...register("productName")}
+                  placeholder="e.g., Charizard Base Set Holo"
+                  className="mt-1"
+                />
+                {errors.productName && (
                   <p className="text-sm text-destructive mt-1">
-                    {errors.name.message}
+                    {errors.productName.message}
                   </p>
                 )}
               </div>
@@ -552,6 +591,7 @@ export default function EditProductPage({
                 <Textarea
                   id="description"
                   {...register("description")}
+                  placeholder="Describe your product in detail. Include condition, authenticity, provenance, and any special features."
                   className="mt-1 min-h-[120px]"
                 />
                 {errors.description && (
@@ -563,17 +603,17 @@ export default function EditProductPage({
 
               <div>
                 <Label htmlFor="category">Category *</Label>
-                <Select
-                  value={watch("category")}
+                <Select 
+                  value={watchedCategory || ""}
                   onValueChange={(value) => setValue("category", value)}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue />
+                    <SelectValue placeholder={singleData?.category} />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
+                    {categories?.map((category:any) => (
+                      <SelectItem key={category._id} value={category._id}>
+                        {category?.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -586,49 +626,13 @@ export default function EditProductPage({
               </div>
 
               <div>
-                <Label htmlFor="condition">Condition *</Label>
-                <Select
-                  value={watch("condition")}
-                  onValueChange={(value) => setValue("condition", value)}
+                <Label htmlFor="rarity">Rarity *</Label>
+                <Select 
+                  value={watchedRarity || ""}
+                  onValueChange={(value) => setValue("rarity", value)}
                 >
                   <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {conditions.map((condition) => (
-                      <SelectItem key={condition} value={condition}>
-                        {condition}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.condition && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.condition.message}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="brand">Brand/Manufacturer</Label>
-                <Input id="brand" {...register("brand")} className="mt-1" />
-              </div>
-
-              <div>
-                <Label htmlFor="year">Year</Label>
-                <Input id="year" {...register("year")} className="mt-1" />
-              </div>
-
-              <div>
-                <Label htmlFor="rarity">Rarity</Label>
-                <Select
-                  value={watch("rarity") || ""}
-                  onValueChange={(value) =>
-                    setValue("rarity", value || undefined)
-                  }
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select rarity" />
+                    <SelectValue placeholder={singleData?.rarity} />
                   </SelectTrigger>
                   <SelectContent>
                     {rarities.map((rarity) => (
@@ -638,11 +642,41 @@ export default function EditProductPage({
                     ))}
                   </SelectContent>
                 </Select>
+                {errors.rarity && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.rarity.message}
+                  </p>
+                )}
               </div>
 
               <div>
-                <Label htmlFor="sku">SKU/Item Number</Label>
-                <Input id="sku" {...register("sku")} className="mt-1" />
+                <Label htmlFor="brand">Brand/Manufacturer</Label>
+                <Input
+                  id="brand"
+                  {...register("brand")}
+                  placeholder="e.g., Topps, Wizards of the Coast"
+                  className="mt-1"
+                />
+              </div>
+               
+               
+              <div className="md:col-span-2">
+                <Label htmlFor="condition">Condition *</Label>
+                <Select 
+                  value={watchedCondition || ""}
+                  onValueChange={(value) => setValue("condition", value)}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder={singleData?.condition} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {rawConditions?.map((Condition:any) => (
+                      <SelectItem key={Condition} value={Condition}>
+                        {Condition}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -675,6 +709,7 @@ export default function EditProductPage({
                   step="0.01"
                   min="0.01"
                   {...register("price", { valueAsNumber: true })}
+                  placeholder="0.00"
                   className="mt-1"
                 />
                 {errors.price && (
@@ -685,31 +720,52 @@ export default function EditProductPage({
               </div>
 
               <div>
-                <Label htmlFor="originalPrice">Original Price (optional)</Label>
+                <Label htmlFor="optionalPrice">Original Price (optional)</Label>
                 <Input
-                  id="originalPrice"
+                  id="optionalPrice"
                   type="number"
                   step="0.01"
                   min="0"
-                  {...register("originalPrice", { valueAsNumber: true })}
+                  {...register("optionalPrice", { valueAsNumber: true })}
+                  placeholder="0.00"
                   className="mt-1"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Show as crossed out for sale pricing
+                </p>
               </div>
 
               <div>
-                <Label htmlFor="stock">Stock Quantity *</Label>
+                <Label htmlFor="stockQuantity">Stock Quantity *</Label>
                 <Input
-                  id="stock"
+                  id="stockQuantity"
                   type="number"
-                  min="0"
-                  {...register("stock", { valueAsNumber: true })}
+                  min="1"
+                  {...register("stockQuantity", { valueAsNumber: true })}
+                  placeholder="1"
                   className="mt-1"
                 />
-                {errors.stock && (
+                {errors.stockQuantity && (
                   <p className="text-sm text-destructive mt-1">
-                    {errors.stock.message}
+                    {errors.stockQuantity.message}
                   </p>
                 )}
+              </div>
+
+              <div>
+                <Label htmlFor="discountPercentage">Discount Percentage</Label>
+                <Input
+                  id="discountPercentage"
+                  type="number"
+                  min="0"
+                  max="100"
+                  {...register("discountPercentage", { valueAsNumber: true })}
+                  placeholder="0"
+                  className="mt-1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Percentage discount (0-100)
+                </p>
               </div>
             </div>
 
@@ -739,6 +795,7 @@ export default function EditProductPage({
                     step="0.01"
                     min="0"
                     {...register("minOffer", { valueAsNumber: true })}
+                    placeholder="Enter minimum acceptable offer"
                     className="mt-1 max-w-xs"
                   />
                 </div>
@@ -762,8 +819,12 @@ export default function EditProductPage({
                   step="0.01"
                   min="0"
                   {...register("shippingCost", { valueAsNumber: true })}
+                  placeholder="0.00"
                   className="mt-1"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Set to 0 for free shipping
+                </p>
               </div>
 
               <div>
@@ -774,6 +835,7 @@ export default function EditProductPage({
                   step="0.1"
                   min="0"
                   {...register("weight", { valueAsNumber: true })}
+                  placeholder="e.g., 0.5"
                   className="mt-1"
                 />
               </div>
@@ -783,6 +845,7 @@ export default function EditProductPage({
                 <Input
                   id="dimensions"
                   {...register("dimensions")}
+                  placeholder="e.g., 3.5 x 2.5 x 0.1 in"
                   className="mt-1"
                 />
               </div>
@@ -793,23 +856,22 @@ export default function EditProductPage({
         {/* Publishing Options */}
         <Card>
           <CardHeader>
-            <CardTitle>Publishing Status</CardTitle>
+            <CardTitle>Publishing Options</CardTitle>
           </CardHeader>
           <CardContent>
             <RadioGroup
-              value={watchedStatus}
-              onValueChange={(value) =>
-                setValue("status", value as "draft" | "active" | "paused")
-              }
+              value={watchedIsDraft ? "draft" : "active"}
+              onValueChange={(value) => setValue("isDraft", value === "draft")}
               className="space-y-3"
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="draft" id="draft" />
                 <Label htmlFor="draft" className="flex-1">
                   <div>
-                    <p className="font-medium">Draft</p>
+                    <p className="font-medium">Save as Draft</p>
                     <p className="text-sm text-muted-foreground">
-                      Hide from buyers while you make changes.
+                      Save your product without publishing. You can edit and
+                      publish later.
                     </p>
                   </div>
                 </Label>
@@ -818,20 +880,9 @@ export default function EditProductPage({
                 <RadioGroupItem value="active" id="active" />
                 <Label htmlFor="active" className="flex-1">
                   <div>
-                    <p className="font-medium">Active</p>
+                    <p className="font-medium">Publish Now</p>
                     <p className="text-sm text-muted-foreground">
-                      Visible to buyers and available for purchase.
-                    </p>
-                  </div>
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="paused" id="paused" />
-                <Label htmlFor="paused" className="flex-1">
-                  <div>
-                    <p className="font-medium">Paused</p>
-                    <p className="text-sm text-muted-foreground">
-                      Temporarily unavailable for purchase but still visible.
+                      Make your product visible to buyers immediately.
                     </p>
                   </div>
                 </Label>
@@ -842,51 +893,44 @@ export default function EditProductPage({
 
         {/* Action Buttons */}
         <div className="flex justify-between items-center pt-6 border-t">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="destructive" type="button">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Product
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Product</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to delete ${product.name}? This action
-                  cannot be undone. The product will be permanently removed from
-                  your store and all associated data will be lost.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDelete}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? "Deleting..." : "Delete Product"}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push("/vendor/dashboard")}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </Button>
 
           <div className="flex gap-3">
             <Button
               type="button"
               variant="outline"
-              onClick={() => router.push("/vendor/dashboard")}
+              disabled={isSubmitting}
+              onClick={() => {
+                setValue("isDraft", true);
+                handleSubmit(onSubmit)();
+              }}
             >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
               <Save className="mr-2 h-4 w-4" />
-              {isSubmitting ? "Saving..." : "Save Changes"}
+              {isSubmitting ? "Saving..." : "Save Draft"}
+            </Button>
+            <Button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => {
+                setValue("isDraft", false);
+                handleSubmit(onSubmit)();
+              }}
+            >
+              <Eye className="mr-2 h-4 w-4" />
+              {isSubmitting ? "Publishing..." : "Publish Now"}
             </Button>
           </div>
         </div>
       </form>
     </PageLayout>
-    // </ProtectedRoute>
   );
-}
+};
+
+export default NewProductPage;

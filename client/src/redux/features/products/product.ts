@@ -9,6 +9,16 @@ const authApi = baseApi.injectEndpoints({
         body: productInfo,
       }),
     }),
+    productUpdate: builder.mutation({
+      query: (args) => {
+        const { id, productInfo } = args;
+        return {
+          url: `/products/update/${id}`,
+          method: "PUT",
+          body: productInfo,
+        };
+      },
+    }),
     draftsCreate: builder.mutation({
       query: (productInfo) => ({
         url: "/drafts/add",
@@ -16,7 +26,13 @@ const authApi = baseApi.injectEndpoints({
         body: productInfo,
       }),
     }),
+    getSingleProduct: builder.query({
+      query: (id) => ({
+        url: `/products/details/${id}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useProductCreateMutation, useDraftsCreateMutation } = authApi;
+export const { useProductCreateMutation, useProductUpdateMutation, useDraftsCreateMutation, useGetSingleProductQuery} = authApi;

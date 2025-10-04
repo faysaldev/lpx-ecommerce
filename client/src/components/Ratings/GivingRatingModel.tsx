@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../UI/dialog";
 import { Textarea } from "@/components/UI/textarea";
 import { Label } from "@/components/UI/label";
 import { Star, User, X } from "lucide-react";
@@ -114,7 +114,6 @@ export default function ReviewModal({
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">Vendor</p>
                 </div>
               </div>
             </CardContent>

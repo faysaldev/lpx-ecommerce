@@ -74,12 +74,20 @@ export function ReviewCard({
   date,
   verified = false,
 }: ReviewCardProps) {
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
         <div className="flex items-start space-x-3">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={userImage} alt={userName} />
+            <AvatarImage
+              src={
+                userImage
+                  ? `${process.env.NEXT_PUBLIC_BASE_URL}${userImage}`
+                  : ''
+              }
+              alt={userName}
+            />
             <AvatarFallback className="bg-primary/10">
               {userName.charAt(0).toUpperCase()}
             </AvatarFallback>
