@@ -275,7 +275,7 @@ function ProductTable({
           {products.map((product) => (
             <TableRow key={product.id}>
               <TableCell>
-                <Image
+                <img
                   src={product.images?.[0] || "/placeholder.jpg"}
                   alt={product.name}
                   width={64}

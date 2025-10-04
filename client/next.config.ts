@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
       "10.10.11.69",
       "images.pokemontcg.io",
       "example.com",
+      "images.unsplash.com",
     ],
   },
 };

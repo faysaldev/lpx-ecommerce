@@ -10,4 +10,24 @@ router
   .route("/has-user-purchased")
   .get(auth("common"), utilsController.hasUserPurchased);
 
+// get customer dashboard details
+router
+  .route("/customer-dashboard")
+  .get(auth("common"), utilsController.getCustomerDashboard);
+
+// get vendor Dashboard - overview
+router
+  .route("/vendor/overview")
+  .get(auth("common"), utilsController.vendorDashboardOverview);
+
+// get vendor Dashboard - recent order
+router
+  .route("/vendor/recent-order")
+  .get(auth("common"), utilsController.getRecentOrders);
+
+// get vendor Dashboard - products
+router
+  .route("/vendor/products")
+  .get(auth("common"), utilsController.getVendorProducts);
+
 module.exports = router;
