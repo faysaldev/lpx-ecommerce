@@ -4,9 +4,11 @@ import { selectCurrentUser } from "@/redux/features/auth/authSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { useRouter } from "next/navigation";
 
+type UserType = "admin" | "seller" | "customer";
+
 interface ProtectedRouteProps {
   children: ReactNode;
-  allowedTypes: string[];
+  allowedTypes: UserType[];
 }
 
 const ProtectedRoute = ({ children, allowedTypes }: ProtectedRouteProps) => {

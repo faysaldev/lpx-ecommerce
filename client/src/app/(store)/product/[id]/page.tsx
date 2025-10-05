@@ -19,7 +19,7 @@ import {
   SealedBadge,
   StockBadge,
 } from "@/components/UI/badge.variants";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { designTokens } from "@/design-system/compat";
 // import { getProductAPI } from "@/lib/api/client";
 import type { Product } from "@/lib/types";

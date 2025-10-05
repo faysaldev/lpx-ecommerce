@@ -13,7 +13,12 @@ const postCategories = async (categoriesBody) => {
   return Category.create(categoriesBody);
 };
 
+const singleDelete = async (categoryId) => {
+  return Category.findByIdAndDelete(categoryId);
+};
+
 module.exports = {
   getCategories,
   postCategories,
+  singleDelete,
 };

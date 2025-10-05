@@ -37,6 +37,7 @@ import {
   NotificationError,
   NotificationLoading,
 } from "@/components/Notifications/NotificationLoadingAndError";
+import ProtectedRoute from "@/Provider/ProtectedRoutes";
 
 function groupNotificationsByTime(
   notifications: Notification[]
@@ -288,160 +289,168 @@ export default function NotificationsPage() {
   }
 
   return (
-    <PageLayout
-      title="Notifications"
-      description={
-        unreadCount > 0
-          ? `You have ${unreadCount} unread notification${
-              unreadCount === 1 ? "" : "s"
-            }`
-          : "You're all caught up!"
-      }
-      breadcrumbs={[
-        { label: "Dashboard", href: "/dashboard" },
-        { label: "Notifications" },
-      ]}
-    >
-      {/* Header Actions */}
-      <div className="flex justify-end mb-8">
-        <div className="flex items-center gap-2">
-          {selectedNotifications.size > 0 ? (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBulkMarkAsRead}
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Mark as read
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBulkDelete}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete ({selectedNotifications.size})
-              </Button>
-            </>
-          ) : (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={markAllAsRead}
-                disabled={unreadCount === 0}
-              >
-                <Check className="mr-2 h-4 w-4" />
-                Mark all read
-              </Button>
+    <ProtectedRoute allowedTypes={["customer", "admin", "seller"]}>
+      <PageLayout
+        title="Notifications"
+        description={
+          unreadCount > 0
+            ? `You have ${unreadCount} unread notification${
+                unreadCount === 1 ? "" : "s"
+              }`
+            : "You're all caught up!"
+        }
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Notifications" },
+        ]}
+      >
+        {/* Header Actions */}
+        <div className="flex justify-end mb-8">
+          <div className="flex items-center gap-2">
+            {selectedNotifications.size > 0 ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBulkMarkAsRead}
+                >
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Mark as read
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleBulkDelete}
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete ({selectedNotifications.size})
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={markAllAsRead}
+                  disabled={unreadCount === 0}
+                >
+                  <Check className="mr-2 h-4 w-4" />
+                  Mark all read
+                </Button>
 
-              <Button variant="outline" size="sm" onClick={() => refetch()}>
-                <RefreshCcw className="mr-2 h-4 w-4" />
-                Refresh
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="mb-6 space-y-4">
-        <Tabs
-          value={filterType}
-          onValueChange={(value) =>
-            setFilterType(value as "all" | NotificationType)
-          }
-        >
-          <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
-            <TabsTrigger value="all">
-              All {notifications.length > 0 && `(${notifications.length})`}
-            </TabsTrigger>
-            <TabsTrigger value="order">
-              Orders ({notifications.filter((n) => n.type === "order").length})
-            </TabsTrigger>
-            <TabsTrigger value="system">
-              System ({notifications.filter((n) => n.type === "system").length})
-            </TabsTrigger>
-            <TabsTrigger value="promotion">
-              Promotions (
-              {notifications.filter((n) => n.type === "promotion").length})
-            </TabsTrigger>
-            <TabsTrigger value="vendor">
-              Vendors ({notifications.filter((n) => n.type === "vendor").length}
-              )
-            </TabsTrigger>
-            <TabsTrigger value="price_alert">
-              Price Alerts (
-              {notifications.filter((n) => n.type === "price_alert").length})
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Checkbox
-                checked={
-                  selectedNotifications.size ===
-                    displayedNotifications.length &&
-                  displayedNotifications.length > 0
-                }
-                onCheckedChange={handleSelectAll}
-                disabled={displayedNotifications.length === 0}
-              />
-              <span className="text-sm text-muted-foreground">Select all</span>
-            </div>
-            <Separator orientation="vertical" className="h-5" />
-            <div className="flex items-center gap-2">
-              <Checkbox
-                checked={showUnreadOnly}
-                onCheckedChange={(checked) =>
-                  setShowUnreadOnly(checked as boolean)
-                }
-              />
-              <span className="text-sm text-muted-foreground">Unread only</span>
-            </div>
+                <Button variant="outline" size="sm" onClick={() => refetch()}>
+                  <RefreshCcw className="mr-2 h-4 w-4" />
+                  Refresh
+                </Button>
+              </>
+            )}
           </div>
-
-          {displayedNotifications.length > 0 && (
-            <span className="text-sm text-muted-foreground">
-              Showing {displayedNotifications.length} notification
-              {displayedNotifications.length !== 1 ? "s" : ""}
-            </span>
-          )}
         </div>
-      </div>
 
-      {/* Notifications List */}
-      {displayedNotifications.length === 0 ? (
-        <EmptyStates.NoNotifications />
-      ) : (
-        <div className="space-y-6">
-          {groupedNotifications.map((group) => (
-            <div key={group.title}>
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">
-                {group.title}
-              </h3>
-              <div className="space-y-2">
-                {group.notifications.map((notification) => (
-                  <NotificationCard
-                    key={notification.id}
-                    notification={notification}
-                    onRead={markAsRead}
-                    onDelete={deleteNotification}
-                    isSelected={selectedNotifications.has(notification.id)}
-                    onSelect={handleSelectNotification}
-                    notificationColors={notificationColors}
-                    notificationIcons={notificationIcons}
-                  />
-                ))}
+        {/* Filters */}
+        <div className="mb-6 space-y-4">
+          <Tabs
+            value={filterType}
+            onValueChange={(value) =>
+              setFilterType(value as "all" | NotificationType)
+            }
+          >
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6">
+              <TabsTrigger value="all">
+                All {notifications.length > 0 && `(${notifications.length})`}
+              </TabsTrigger>
+              <TabsTrigger value="order">
+                Orders ({notifications.filter((n) => n.type === "order").length}
+                )
+              </TabsTrigger>
+              <TabsTrigger value="system">
+                System (
+                {notifications.filter((n) => n.type === "system").length})
+              </TabsTrigger>
+              <TabsTrigger value="promotion">
+                Promotions (
+                {notifications.filter((n) => n.type === "promotion").length})
+              </TabsTrigger>
+              <TabsTrigger value="vendor">
+                Vendors (
+                {notifications.filter((n) => n.type === "vendor").length})
+              </TabsTrigger>
+              <TabsTrigger value="price_alert">
+                Price Alerts (
+                {notifications.filter((n) => n.type === "price_alert").length})
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={
+                    selectedNotifications.size ===
+                      displayedNotifications.length &&
+                    displayedNotifications.length > 0
+                  }
+                  onCheckedChange={handleSelectAll}
+                  disabled={displayedNotifications.length === 0}
+                />
+                <span className="text-sm text-muted-foreground">
+                  Select all
+                </span>
+              </div>
+              <Separator orientation="vertical" className="h-5" />
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  checked={showUnreadOnly}
+                  onCheckedChange={(checked) =>
+                    setShowUnreadOnly(checked as boolean)
+                  }
+                />
+                <span className="text-sm text-muted-foreground">
+                  Unread only
+                </span>
               </div>
             </div>
-          ))}
+
+            {displayedNotifications.length > 0 && (
+              <span className="text-sm text-muted-foreground">
+                Showing {displayedNotifications.length} notification
+                {displayedNotifications.length !== 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
         </div>
-      )}
-    </PageLayout>
+
+        {/* Notifications List */}
+        {displayedNotifications.length === 0 ? (
+          <EmptyStates.NoNotifications />
+        ) : (
+          <div className="space-y-6">
+            {groupedNotifications.map((group) => (
+              <div key={group.title}>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                  {group.title}
+                </h3>
+                <div className="space-y-2">
+                  {group.notifications.map((notification) => (
+                    <NotificationCard
+                      key={notification.id}
+                      notification={notification}
+                      onRead={markAsRead}
+                      onDelete={deleteNotification}
+                      isSelected={selectedNotifications.has(notification.id)}
+                      onSelect={handleSelectNotification}
+                      notificationColors={notificationColors}
+                      notificationIcons={notificationIcons}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </PageLayout>
+    </ProtectedRoute>
   );
 }

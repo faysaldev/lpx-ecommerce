@@ -28,7 +28,21 @@ const postCategories = catchAsync(async (req, res) => {
   );
 });
 
+const categoriesDelete = catchAsync(async (req, res) => {
+  if (req.user.type !== "admin") return;
+  const categories = await categoriesService.singleDelete(req.params.id);
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Category Deleted",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: categories,
+    })
+  );
+});
+
 module.exports = {
   getCategories,
+  categoriesDelete,
   postCategories,
 };

@@ -46,6 +46,7 @@ import {
 } from "@/redux/features/admin/AdminVendor";
 import VendorReviewDialog from "@/components/Admin/VendorReviewDialog";
 import { getStatusBadge } from "@/components/Vendors/Admin/getStatus";
+import { useRouter } from "next/navigation";
 
 export default function VendorsManagement() {
   const [vendors, setVendors] = useState<AdminVendor[]>([]);
@@ -53,6 +54,7 @@ export default function VendorsManagement() {
   const [selectedVendor, setSelectedVendor] = useState<AdminVendor | null>(
     null
   );
+  const router = useRouter();
   const [reviewAction, setReviewAction] = useState<"approve" | "reject" | null>(
     null
   );
@@ -145,9 +147,7 @@ export default function VendorsManagement() {
   };
 
   const handleViewVendorDetails = (vendor: AdminVendor) => {
-    toast.info("Vendor Details", {
-      description: `Opening detailed view for ${vendor.storeName}`,
-    });
+    router.push(`/vendor/${vendor._id}`);
   };
 
   const handleSelectVendor = (vendorId: string, checked: boolean) => {

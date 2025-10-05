@@ -198,6 +198,7 @@ export default function BecomeVendorPage() {
 
       if (res.error) {
         throw new Error("Failed to submit application");
+        console.log(res.error);
       }
 
       toast.success(
@@ -206,7 +207,7 @@ export default function BecomeVendorPage() {
       router.push("/");
     } catch (error: any) {
       console.error("Submission error:", error);
-      toast.error(error.message || "An error occurred. Please try again.");
+      toast(error.message || "An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }

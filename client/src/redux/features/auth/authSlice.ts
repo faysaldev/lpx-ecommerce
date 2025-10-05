@@ -7,7 +7,7 @@ interface User {
   image: string | null; // image might be null
   password: string;
   role: "user" | "admin";
-  type: "customer" | "vendor" | "admin"; // Modify as per your requirements
+  type: "customer" | "seller" | "admin"; // Modify as per your requirements
   address: string | null;
   phoneNumber: string;
   isProfileCompleted: boolean;

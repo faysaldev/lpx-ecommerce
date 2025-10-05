@@ -15,7 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
+} from "../UI/dialog";
 import { Button } from "../UI/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../UI/avatar";
 import { Label } from "../UI/label";
@@ -58,7 +58,12 @@ function VendorReviewDialog({
             <div className="bg-muted/30 rounded-lg p-4">
               <div className="flex items-center gap-3 mb-3">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={selectedVendor.storeName} />
+                  <AvatarImage
+                    src={`${process.env.NEXT_PUBLIC_BASE_URL}${
+                      selectedVendor?.storePhoto ||
+                      selectedVendor.firstName.slice(0, 2)
+                    }`}
+                  />
                   <AvatarFallback>{selectedVendor.storeName}</AvatarFallback>
                 </Avatar>
                 <div>
@@ -77,7 +82,7 @@ function VendorReviewDialog({
                   <span>
                     {/* {selectedVendor.location.city},{" "} */}
                     {/* {selectedVendor.location.country} */}
-                    Dhaka Chottogram
+                    {selectedVendor?.location}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -88,7 +93,7 @@ function VendorReviewDialog({
                   <Package className="h-4 w-4 text-muted-foreground" />
                   <span>
                     {/* {selectedVendor.products}  */}
-                    345 products ready
+                    {selectedVendor?.productsCount} products ready
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
