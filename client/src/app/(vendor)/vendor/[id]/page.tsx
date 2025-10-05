@@ -47,12 +47,16 @@ import {
   useVendorSingleDetailsGetsQuery,
 } from "@/redux/features/vendors/vendor";
 import VendorPageSkeleton from "@/components/Vendors/SingleVendorView/VendorPageSkeleton";
+import ReviewAndRatingsProduct from "@/components/ReviewAndRatingsProduct/ReviewAndRatingsProduct";
 
 type ViewMode = "grid" | "list";
 
 export default function VendorStorefrontPage() {
   const params = useParams();
   const vendorId = params?.id as string;
+  const type = "vendor";
+  const id = vendorId;
+  const idtype = { id, type };
 
   // State for UI controls
   const [isFollowing, setIsFollowing] = useState(false);
@@ -303,7 +307,7 @@ export default function VendorStorefrontPage() {
                   {vendor.location && (
                     <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
                       <MapPin className="h-3 w-3" />
-                      {vendor?.location}
+                      {/* {vendor?.location} */}
                     </div>
                   )}
                   <div className="text-xs text-muted-foreground">
@@ -789,6 +793,8 @@ export default function VendorStorefrontPage() {
         onAddToCart={handleAddToCart}
         onAddToWishlist={handleAddToWishlist}
       />
+
+      <ReviewAndRatingsProduct idtype={idtype} />
     </PageLayout>
   );
 }

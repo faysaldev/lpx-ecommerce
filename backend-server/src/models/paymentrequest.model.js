@@ -6,7 +6,11 @@ const PaymentRequestSchema = new Schema(
     seller: { type: Schema.Types.ObjectId, ref: "User", required: true },
     amountRequested: { type: Number, required: true },
     requestDate: { type: Date, default: Date.now },
-    status: { type: String, enum: ["pending", "paid"], default: "pending" },
+    status: {
+      type: String,
+      enum: ["pending", "paid", "rejected"],
+      default: "pending",
+    },
     invoiceImage: { type: String }, // URL to the invoice image uploaded by the seller
     paidDate: { type: Date },
   },
@@ -14,3 +18,5 @@ const PaymentRequestSchema = new Schema(
 );
 
 const PaymentRequest = mongoose.model("PaymentRequest", PaymentRequestSchema);
+
+module.exports = PaymentRequest;

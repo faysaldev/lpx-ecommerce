@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -23,70 +24,55 @@ import {
   CardTitle,
 } from "@/components/UI/card";
 import ProtectedRoute from "@/Provider/ProtectedRoutes";
-// import { useWishlist } from "@/context/WishlistContext";
+import { useDashBoardStatiticsQuery } from "@/redux/features/Orders/Orders";
 
 function DashboardContent() {
-  const wishlistCount = 5;
+  const { data, isLoading } = useDashBoardStatiticsQuery({});
+  const allData = data?.data;
 
+  // Use backend data if available, otherwise show loading state
   const stats = [
     {
       label: "Total Orders",
-      value: 3,
+      value: allData?.stats?.totalOrders || 0,
       icon: ShoppingBag,
       color: "text-blue-600",
     },
     {
       label: "Wishlist Items",
-      value: wishlistCount,
+      value: allData?.stats?.totalWishlistItems || 0,
       icon: Heart,
       color: "text-red-600",
     },
     {
       label: "Reviews Written",
-      value: 5,
+      value: allData?.stats?.totalReviews || 0,
       icon: Star,
       color: "text-yellow-600",
     },
     {
       label: "Member Since",
-      value: "Jan 2024",
+      value: allData?.stats?.joinedAt
+        ? new Date(allData.stats.joinedAt).toLocaleDateString("en-US", {
+            month: "short",
+            year: "numeric",
+          })
+        : "N/A",
       icon: Clock,
       color: "text-green-600",
     },
   ];
 
-  const recentOrders = [
-    {
-      id: "1",
-      date: "2024-01-15",
-      total: 299.99,
-      status: "delivered",
-      items: 2,
-    },
-    {
-      id: "2",
-      date: "2024-01-10",
-      total: 599.99,
-      status: "shipped",
-      items: 1,
-    },
-    {
-      id: "3",
-      date: "2024-01-05",
-      total: 149.99,
-      status: "processing",
-      items: 3,
-    },
-  ];
-
   const getStatusColor = (status: string) => {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case "delivered":
         return "bg-green-100 text-green-800";
       case "shipped":
         return "bg-blue-100 text-blue-800";
       case "processing":
         return "bg-yellow-100 text-yellow-800";
+      case "pending":
+        return "bg-orange-100 text-orange-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
@@ -119,7 +105,9 @@ function DashboardContent() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
+                  <p className="text-2xl font-bold">
+                    {isLoading ? "..." : stat.value}
+                  </p>
                 </div>
                 <stat.icon className={`h-8 w-8 ${stat.color}`} />
               </div>
@@ -140,31 +128,40 @@ function DashboardContent() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {recentOrders.map((order) => (
-                  <div
-                    key={order.id}
-                    className="flex items-center justify-between p-4 border rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium">Order #{order.id}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(order.date).toLocaleDateString()} •{" "}
-                        {order.items} items
-                      </p>
+              {isLoading ? (
+                <p className="text-center text-muted-foreground py-4">
+                  Loading orders...
+                </p>
+              ) : allData?.recentOrders && allData.recentOrders.length > 0 ? (
+                <div className="space-y-4">
+                  {allData.recentOrders.map((order: any, index:number) => (
+                    <div
+                      key={order.orderMongoId}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div>
+                        <p className="font-medium">Order #{index}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(order.orderDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">${order.price}</p>
+                        <Badge
+                          className={getStatusColor(order.status)}
+                          variant="secondary"
+                        >
+                          {order.status}
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-bold">${order.total}</p>
-                      <Badge
-                        className={getStatusColor(order.status)}
-                        variant="secondary"
-                      >
-                        {order.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-4">
+                  No orders found
+                </p>
+              )}
               <Button asChild variant="outline" className="w-full mt-4">
                 <Link href="/orders">
                   View All Orders
@@ -234,7 +231,7 @@ function DashboardContent() {
 export default function DashboardPage() {
   return (
     <ProtectedRoute allowedTypes={["customer", "admin"]}>
-      <DashboardContent />;
+      <DashboardContent />
     </ProtectedRoute>
   );
 }

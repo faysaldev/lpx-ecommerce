@@ -39,8 +39,73 @@ const hasUserPurchased = catchAsync(async (req, res) => {
   });
 });
 
+const getCustomerDashboard = catchAsync(async (req, res) => {
+  const statistics = await utilsService.getCustomerDashboard(req.user.id);
+  res.status(httpStatus.OK).json({
+    message: "LPS customer Statistics",
+    status: "OK",
+    statusCode: httpStatus.OK,
+    data: statistics,
+  });
+});
+
+const getRecentOrders = catchAsync(async (req, res) => {
+  const { page, limit } = req.query;
+  const recentOrdersData = await utilsService.getRecentOrders(
+    req.user.id,
+    page,
+    limit
+  );
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Vendor Recent Orders",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: recentOrdersData,
+    })
+  );
+});
+
+const vendorDashboardOverview = catchAsync(async (req, res) => {
+  const recentOrdersData = await utilsService.vendorDashboardOverview(
+    req.user.id
+  );
+
+  res.status(httpStatus.OK).json({
+    message: "Vendor Recent Orders",
+    status: "OK",
+    statusCode: httpStatus.OK,
+    data: recentOrdersData,
+  });
+});
+
+const getVendorProducts = catchAsync(async (req, res) => {
+  const { page, limit, search, status, sortBy } = req.query;
+  const productsData = await utilsService.getVendorProducts(req.user.id, {
+    page,
+    limit,
+    search,
+    status,
+    sortBy,
+  });
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Vendor Products",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: productsData,
+    })
+  );
+});
+
 module.exports = {
   getFeaturedProducts,
   getLpsStatistics,
   hasUserPurchased,
+  getCustomerDashboard,
+  vendorDashboardOverview,
+  getVendorProducts,
+  getRecentOrders,
 };
