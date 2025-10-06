@@ -10,14 +10,21 @@ interface CategoryAttributes {
   updatedAt: string;
   __v: number;
 }
+type UserHeaderStatus = {
+  unreadNotificationsCount: number;
+  cartItemsCount: number;
+  wishlistItemsCount: number;
+};
 
 // Define the state for categories
 type CommonState = {
   categories: CategoryAttributes[] | null;
+  headerStatics: UserHeaderStatus | null;
 };
 
 const initialState: CommonState = {
   categories: null,
+  headerStatics: null,
 };
 
 const commonSlice = createSlice({
@@ -29,6 +36,13 @@ const commonSlice = createSlice({
       action: PayloadAction<CategoryAttributes[] | null>
     ) => {
       state.categories = action.payload;
+    },
+
+    setHeaderStatitics: (
+      state,
+      action: PayloadAction<UserHeaderStatus | null>
+    ) => {
+      state.headerStatics = action.payload;
     },
     addCategory: (state, action: PayloadAction<CategoryAttributes>) => {
       if (state.categories) {
@@ -43,8 +57,12 @@ const commonSlice = createSlice({
   },
 });
 
-export const { setAllCategories, addCategory, resetCategories } =
-  commonSlice.actions;
+export const {
+  setAllCategories,
+  addCategory,
+  resetCategories,
+  setHeaderStatitics,
+} = commonSlice.actions;
 
 export default commonSlice.reducer;
 
@@ -52,3 +70,7 @@ export default commonSlice.reducer;
 export const selectCategories = (
   state: RootState
 ): CategoryAttributes[] | null => state.common.categories;
+
+export const selectHeaderStatitics = (
+  state: RootState
+): UserHeaderStatus | null => state.common.headerStatics;

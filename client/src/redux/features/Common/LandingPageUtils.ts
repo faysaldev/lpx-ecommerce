@@ -15,10 +15,17 @@ const BrowseCollectibles = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    LandingpageHeaderStatitics: builder.query({
+      query: () => ({
+        url: "/lpx/header-statitics",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
 export const {
   useLandingpageFetureProductsQuery,
   useLandingpageStatiticsQuery,
+  useLandingpageHeaderStatiticsQuery,
 } = BrowseCollectibles;

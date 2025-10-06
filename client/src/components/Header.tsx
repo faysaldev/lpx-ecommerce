@@ -42,16 +42,23 @@ import { cn } from "@/lib/utils";
 import { useAppSelector, useAppDispatch } from "@/redux/hooks";
 import { logout, selectCurrentUser } from "@/redux/features/auth/authSlice";
 import { useAllCategoriesQuery } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
-import { setAllCategories } from "@/redux/features/Common/CommonSlice";
+import {
+  selectHeaderStatitics,
+  setAllCategories,
+  setHeaderStatitics,
+} from "@/redux/features/Common/CommonSlice";
+import { useLandingpageHeaderStatiticsQuery } from "@/redux/features/Common/LandingPageUtils";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [categories, setCategories] = useState<
     { name: string; slug: string; productCount?: number }[]
   >([]);
+  const headerStats = useAppSelector(selectHeaderStatitics);
   const { data: categoriesData, isLoading: categoriesLoading } =
-    useAllCategoriesQuery({}); // Assuming your query hook here
-
+    useAllCategoriesQuery({});
+  // Always call hooks at the top level
+  const { data: headerStatitics } = useLandingpageHeaderStatiticsQuery({});
   const dispatch = useAppDispatch();
   // const { user, isLoaded, isSignedIn } = useUser();
   const user = useAppSelector(selectCurrentUser);
@@ -70,6 +77,7 @@ export default function Header() {
     // Load categories on mount
     setCategories(categoriesData?.data?.attributes || []);
     dispatch(setAllCategories(categoriesData?.data?.attributes || null));
+    dispatch(setHeaderStatitics(headerStatitics?.data));
   }, [categoriesData]);
 
   // console.log("Categories Data:", categories);
@@ -119,7 +127,7 @@ export default function Header() {
                     {memoizedCategories.map((category: any) => (
                       <DropdownMenuItem key={category.name}>
                         <Link
-                          href={`/category/${(category.name)}`}
+                          href={`/category/${category.name}`}
                           className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer w-full"
                         >
                           <div className="text-sm font-medium leading-none">
