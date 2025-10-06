@@ -11,11 +11,11 @@ const authApi = baseApi.injectEndpoints({
     }),
     productUpdate: builder.mutation({
       query: (args) => {
-        const { id, productInfo } = args;
+        const { id, data } = args;
         return {
-          url: `/products/update/${id}`,
-          method: "PUT",
-          body: productInfo,
+          url: `/products/edite/${id}`,
+          method: "PATCH",
+          body: data,
         };
       },
     }),

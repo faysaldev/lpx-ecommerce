@@ -17,46 +17,52 @@ import {
   useDeleteSingleCartMutation,
 } from "@/redux/features/ShoppingCart/ShoppingCart";
 import ProtectedRoute from "@/Provider/ProtectedRoutes";
+import { useState } from "react";
+
 
 const CartPage = () => {
   // Initialize hooks at the top
-  const { data, error, isLoading, refetch } = useAllShoppingCartQuery({});
+  const { data, refetch } = useAllShoppingCartQuery({});
   const [deleteSingleCart] = useDeleteSingleCartMutation();
   const [DeleteAllCart] = useAllDeleteCartMutation();
 
-  // If data is still loading or there's an error, show loading or error state
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
-  if (error) {
-    return <div>Error loading cart data</div>;
-  }
+ 
 
   // Access the cart items directly from the response
   const allData = data?.data?.attributes; // Assuming cart items are directly in attributes
-  const items = allData || []; // Directly use `allData` if it represents the cart items
+  const items = allData || []; 
+  console.log("cart items:", items);
+
+  
+
+// const [getquantity, setGetQuantity] = useState();
+//TODO: showing updating quantity from the child components
+  const updateQuantity = (itemId: string, quantity: number, calculatedTotalPrice:number) => {
+    console.log(`Updating item ${itemId} to quantity ${quantity} totalprice ${calculatedTotalPrice}`);
+     console.log(calculatedTotalPrice, "from cart page");
+    //  setGetQuantity(calculatedTotalPrice);
+  };
+
 
   // Calculate item count, subtotal, etc.
   const itemCount = items.reduce(
     (acc: number, item: any) => acc + item.quantity,
     0
   );
+ 
   const subtotal = items.reduce((acc: number, item: any) => {
-    const itemTotal = (item.money || item.price) * item.quantity;
+    const itemTotal =  item.price * item.quantity;
     return acc + (itemTotal || item.totalPrice || 0);
   }, 0);
+
   const shipping = 10; // Flat rate shipping
-  const tax = subtotal * 0.1; // 10% tax
-  const discount = 15; // Flat discount
+  const tax = subtotal  * 0.1; // 10% tax
+  const discount = 0; // Flat discount
   const total = subtotal + shipping + tax - discount;
 
-  const couponCode = allData?.couponCode || ""; // Assuming 'couponCode' comes from the backend
+  const couponCode = allData?.couponCode || ""; 
 
-  const updateQuantity = (itemId: string, quantity: number) => {
-    console.log(`Updating item ${itemId} to quantity ${quantity}`);
-    // Logic for updating quantity (trigger API call here)
-  };
 
   // Function to remove an item from the cart
   const removeFromCart = async (itemId: string) => {
@@ -209,6 +215,7 @@ const CartPage = () => {
                 <CartSummary
                   subtotal={subtotal}
                   shipping={shipping}
+                  items={items}
                   tax={tax}
                   total={total}
                   discount={discount}

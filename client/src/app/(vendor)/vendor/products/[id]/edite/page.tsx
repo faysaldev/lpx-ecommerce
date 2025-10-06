@@ -25,12 +25,11 @@ import {
 import { Separator } from "@/components/UI/separator";
 import { Textarea } from "@/components/UI/textarea";
 import {
-  useDraftsCreateMutation,
   useGetSingleProductQuery,
-  useProductCreateMutation,
+  useProductUpdateMutation,
 } from "@/redux/features/products/product";
 import TagInput from "@/components/Vendors/AddnewProduct/TagInput";
-import ConditionSelector from "@/components/Vendors/AddnewProduct/ConditionSelector";
+
 import { Alert, AlertDescription } from "@/components/UI/alert";
 import Image from "next/image";
 import { useSelector } from "react-redux";
@@ -66,8 +65,6 @@ const productSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-
-
 const rawConditions = [
   "Mint",
   "Near Mint",
@@ -77,8 +74,6 @@ const rawConditions = [
   "Fair",
   "Poor",
 ];
-
-
 
 const rarities = [
   "Common",
@@ -98,12 +93,14 @@ interface ImageUploadSectionProps {
   images: File[];
   onImagesChange: (images: File[]) => void;
   existingImages?: string[];
+  onExistingImagesChange?: (images: string[]) => void;
 }
 
 const ImageUploadSection = ({ 
   images, 
   onImagesChange, 
-  existingImages = [] 
+  existingImages = [],
+  onExistingImagesChange
 }: ImageUploadSectionProps) => {
   const [previews, setPreviews] = useState<string[]>([]);
   const [existingPreviews, setExistingPreviews] = useState<string[]>([]);
@@ -112,13 +109,23 @@ const ImageUploadSection = ({
   useEffect(() => {
     if (existingImages && existingImages.length > 0) {
       const formattedImages = existingImages.map(img => {
-        // Replace backslashes with forward slashes for URL
         const cleanPath = img.replace(/\\/g, '/');
         return `${process.env.NEXT_PUBLIC_BASE_URL}/${cleanPath}`;
       });
       setExistingPreviews(formattedImages);
     }
   }, [existingImages]);
+
+  // Sync existing previews with parent component
+  useEffect(() => {
+    if (onExistingImagesChange) {
+      const originalPaths = existingPreviews.map(preview => {
+        const baseUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/`;
+        return preview.replace(baseUrl, '').replace(/\//g, '\\');
+      });
+      onExistingImagesChange(originalPaths);
+    }
+  }, [existingPreviews, onExistingImagesChange]);
 
   // Generate previews for new uploaded files
   useEffect(() => {
@@ -151,11 +158,11 @@ const ImageUploadSection = ({
 
       const validFiles = files.filter((file) => {
         if (!file.type.startsWith("image/")) {
-          alert(`${file.name} is not an image file`);
+          toast.error(`${file.name} is not an image file`);
           return false;
         }
         if (file.size > 5 * 1024 * 1024) {
-          alert(`${file.name} is larger than 5MB`);
+          toast.error(`${file.name} is larger than 5MB`);
           return false;
         }
         return true;
@@ -163,7 +170,7 @@ const ImageUploadSection = ({
 
       const totalImages = images.length + existingPreviews.length + validFiles.length;
       if (totalImages > 10) {
-        alert("Maximum 10 images allowed");
+        toast.error("Maximum 10 images allowed");
         return;
       }
 
@@ -198,14 +205,13 @@ const ImageUploadSection = ({
         const file = target.files?.[0];
         if (file) {
           if (!file.type.startsWith("image/")) {
-            alert("Please select an image file");
+            toast.error("Please select an image file");
             return;
           }
           if (file.size > 5 * 1024 * 1024) {
-            alert("Image size should be less than 5MB");
+            toast.error("Image size should be less than 5MB");
             return;
           }
-          // Remove the existing image and add new one
           const newExistingPreviews = existingPreviews.filter((_, i) => i !== index);
           setExistingPreviews(newExistingPreviews);
           onImagesChange([...images, file]);
@@ -238,7 +244,9 @@ const ImageUploadSection = ({
               key={`existing-${index}`}
               className="relative aspect-square rounded-lg border-2 border-dashed border-muted-foreground/25 overflow-hidden group"
             >
-              <img
+              <Image
+                width={300}
+                height={300}
                 src={preview}
                 alt={`Existing product ${index + 1}`}
                 className="w-full h-full object-cover"
@@ -357,13 +365,12 @@ const NewProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading } = useGetSingleProductQuery(id);
   const singleData = data?.data?.attributes;
-  console.log("Fetched product data:", singleData);
 
   const categories = useSelector((state: any) => state.common.categories);
-  // console.log("Fetched categories from Redux:", categories);
 
   const router = useRouter();
   const [images, setImages] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -387,8 +394,6 @@ const NewProductPage = () => {
   // Populate form with fetched data
   useEffect(() => {
     if (singleData) {
-      console.log("Loading product data:", singleData);
-      
       reset({
         productName: singleData.productName || "",
         description: singleData.description || "",
@@ -413,6 +418,11 @@ const NewProductPage = () => {
         const filteredTags = singleData.tags.filter((tag: string) => tag && tag.trim() !== "");
         setTags(filteredTags);
       }
+
+      // Set existing images
+      if (singleData.images && Array.isArray(singleData.images)) {
+        setExistingImages(singleData.images);
+      }
     }
   }, [singleData, reset]);
 
@@ -422,54 +432,104 @@ const NewProductPage = () => {
   const watchedCondition = watch("condition");
   const watchedRarity = watch("rarity");
   
-  const [createProducts] = useProductCreateMutation();
-  const [createDrafts] = useDraftsCreateMutation();
+  const [UpdateProducts] = useProductUpdateMutation();
 
+  // Form submission with proper FormData handling
   const onSubmit = async (data: ProductFormData) => {
+    console.log("Form data:", data);
     setIsSubmitting(true);
+    
+    const formData = new FormData();
 
     try {
-      const formData = new FormData();
+      // Basic product information
+      formData.append("productName", data.productName);
+      formData.append("description", data.description);
+      formData.append("price", data.price.toString());
+      formData.append("category", data.category);
+      formData.append("condition", data.condition);
+      formData.append("rarity", data.rarity);
+      formData.append("stockQuantity", data.stockQuantity.toString());
+      formData.append("isDraft", data.isDraft.toString());
+      formData.append("acceptOffers", data.acceptOffers.toString());
 
-      // Append all form data
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          if (typeof value === "boolean") {
-            formData.append(key, value.toString());
-          } else {
-            formData.append(key, value.toString());
-          }
-        }
-      });
-
-      // Append images (only if new images are uploaded)
-      if (images.length > 0) {
-        images.forEach((image) => {
-          formData.append("image", image);
-        });
+      // Optional fields - only append if they have values
+      if (data.optionalPrice) {
+        formData.append("optionalPrice", data.optionalPrice.toString());
+      }
+      
+      if (data.brand && data.brand.trim()) {
+        formData.append("brand", data.brand.trim());
       }
 
-      formData.append("vendor", singleData?.vendor?._id || "68d4c54fd4a487006236fabc");
+      if (data.discountPercentage !== undefined && data.discountPercentage !== null) {
+        formData.append("discountPercentage", data.discountPercentage.toString());
+      }
+
+      if (data.minOffer && data.acceptOffers) {
+        formData.append("minOffer", data.minOffer.toString());
+      }
+
+      // Shipping information
+      formData.append("shippingCost", data.shippingCost.toString());
       
-      // Append tags
+      if (data.weight) {
+        formData.append("shippingWeight", data.weight.toString());
+      }
+      
+      if (data.dimensions && data.dimensions.trim()) {
+        formData.append("shippingDimensions", data.dimensions.trim());
+      }
+
+      // Vendor ID
+      if (singleData?.vendor?._id) {
+        formData.append("vendor", singleData.vendor._id);
+      }
+
+      // Tags - append each tag individually
       if (tags && tags.length > 0) {
         tags.forEach((tag) => {
           if (tag.trim()) {
-            formData.append("tags", tag);
+            formData.append("tags", tag.trim());
           }
         });
       }
 
-      // Submit based on draft status
-      if (data.isDraft) {
-        await createDrafts(formData).unwrap();
-        toast.success("Product saved as draft!");
-      } else {
-        await createProducts(formData).unwrap();
-        toast.success("Product updated successfully!");
+      // Existing images that weren't removed
+      if (existingImages && existingImages.length > 0) {
+        existingImages.forEach((img) => {
+          formData.append("existingImages", img);
+        });
       }
 
-      router.push("/vendor/dashboard");
+      // New images - only append new images
+      if (images.length > 0) {
+        images.forEach((image) => {
+          formData.append("images", image);
+        });
+      }
+
+      // Calculate inStock based on stockQuantity
+      formData.append("inStock", (data.stockQuantity > 0).toString());
+
+      // Debug: Log FormData contents
+      console.log("FormData entries:");
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      // Send update request
+      const res = await UpdateProducts({ id, data: formData });
+      console.log("Update response:", res);
+
+      // Handle response
+      if (res.error) {
+        toast.error("Failed to update product. Please try again.");
+        console.error("Update error:", res.error);
+      } else {
+        toast.success("Product updated successfully!");
+        router.push("/vendor/dashboard");
+      }
     } catch (error) {
       toast.error("An error occurred while updating the product.");
       console.error("Error updating product:", error);
@@ -559,6 +619,7 @@ const NewProductPage = () => {
           images={images} 
           onImagesChange={setImages}
           existingImages={singleData.images}
+          onExistingImagesChange={setExistingImages}
         />
 
         {/* Basic Information */}
@@ -658,7 +719,6 @@ const NewProductPage = () => {
                   className="mt-1"
                 />
               </div>
-               
                
               <div className="md:col-span-2">
                 <Label htmlFor="condition">Condition *</Label>
@@ -904,27 +964,11 @@ const NewProductPage = () => {
 
           <div className="flex gap-3">
             <Button
-              type="button"
-              variant="outline"
+              type="submit"
               disabled={isSubmitting}
-              onClick={() => {
-                setValue("isDraft", true);
-                handleSubmit(onSubmit)();
-              }}
             >
               <Save className="mr-2 h-4 w-4" />
-              {isSubmitting ? "Saving..." : "Save Draft"}
-            </Button>
-            <Button
-              type="button"
-              disabled={isSubmitting}
-              onClick={() => {
-                setValue("isDraft", false);
-                handleSubmit(onSubmit)();
-              }}
-            >
-              <Eye className="mr-2 h-4 w-4" />
-              {isSubmitting ? "Publishing..." : "Publish Now"}
+              {isSubmitting ? "Updating..." : "Update Product"}
             </Button>
           </div>
         </div>
