@@ -79,7 +79,7 @@ export default function VendorPaymentRequestsPage() {
     status?: string;
     sort?: string;
   }) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const params = new URLSearchParams(searchParams?.toString());
 
     if (updates.page !== undefined) {
       if (updates.page > 1) params.set("page", updates.page.toString());
