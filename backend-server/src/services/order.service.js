@@ -179,7 +179,42 @@ const editeSingleOrder = async (orderId, newData) => {
   if (!orderId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Order ID is required");
   }
-  return Order.findByIdAndUpdate(orderId, newData);
+
+  const updateData = {
+    status: newData.status || undefined, // Only update status if it's provided
+    shippingInformation: {
+      firstName: newData.shippingInformation?.name?.split(" ")[0] || "",
+      lastName: newData.shippingInformation?.name?.split(" ")[1] || "",
+      name: newData.shippingInformation?.name,
+      email: newData.shippingInformation?.email,
+      phoneNumber: newData.shippingInformation?.phoneNumber,
+      streetAddress: newData.shippingInformation?.address?.line1,
+      apartment: newData.shippingInformation?.address?.line2,
+      city: newData.shippingInformation?.address?.city,
+      state: newData.shippingInformation?.address?.state,
+      zipCode: newData.shippingInformation?.address?.postal_code,
+      country: newData.shippingInformation?.address?.country,
+      deliveryInstructions:
+        newData.shippingInformation?.deliveryInstructions || "",
+    },
+    billingInformation: {
+      firstName: newData.billingInformation?.name?.split(" ")[0] || "",
+      lastName: newData.billingInformation?.name?.split(" ")[1] || "",
+      name: newData.billingInformation?.name,
+      email: newData.billingInformation?.email,
+      phoneNumber: newData.billingInformation?.phoneNumber,
+      streetAddress: newData.billingInformation?.address?.line1,
+      apartment: newData.billingInformation?.address?.line2,
+      city: newData.billingInformation?.address?.city,
+      state: newData.billingInformation?.address?.state,
+      zipCode: newData.billingInformation?.address?.postal_code,
+      country: newData.billingInformation?.address?.country,
+      deliveryInstructions:
+        newData.billingInformation?.deliveryInstructions || "",
+    },
+  };
+
+  return Order.findByIdAndUpdate(orderId, updateData, { new: true });
 };
 
 module.exports = {
