@@ -23,6 +23,7 @@ import { Input } from "@/components/UI/input";
 import { Label } from "@/components/UI/label";
 import { Textarea } from "@/components/UI/textarea";
 import { Select, Input as AntInput, InputNumber } from "antd";
+import { useCreatePaymentRequestMutation } from "@/redux/features/vendors/paymentRequest";
 
 const { Option } = Select;
 
@@ -58,6 +59,7 @@ export default function PaymentRequestForm({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [createPayReq] = useCreatePaymentRequestMutation();
 
   const handleInputChange = (
     field: keyof PaymentRequestData,
@@ -106,12 +108,7 @@ export default function PaymentRequestForm({
     setIsSubmitting(true);
 
     try {
-      // Log all data to console
-      console.log("Payment Request Data:", {
-        vendorId,
-        ...formData,
-        timestamp: new Date().toISOString(),
-      });
+      const res = await createPayReq(formData);
 
       toast.success("Payment request submitted successfully", {
         description: "Your withdrawal request has been processed",

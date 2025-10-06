@@ -1,4 +1,9 @@
-export type PaymentRequestStatus = "pending" | "approved" | "paid" | "rejected";
+export type PaymentRequestStatus =
+  | "pending"
+  | "approved"
+  | "paid"
+  | "rejected"
+  | "all";
 
 export interface PaymentRequestItem {
   orderId: string;

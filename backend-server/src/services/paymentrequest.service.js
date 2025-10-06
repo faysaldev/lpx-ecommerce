@@ -13,7 +13,7 @@ const getpaymentRequest = async ({
   const filter = { seller: userId }; // Only fetch payment requests for the logged-in seller
 
   // Apply status filter if status is provided
-  if (status !== "all") {
+  if (status && status !== "all") {
     filter.status = status;
   }
 
@@ -21,6 +21,7 @@ const getpaymentRequest = async ({
   const searchFilter = search
     ? {
         $or: [
+          { invoiceImage: { $regex: search, $options: "i" } },
           { description: { $regex: search, $options: "i" } },
           { title: { $regex: search, $options: "i" } },
         ],
@@ -33,15 +34,17 @@ const getpaymentRequest = async ({
   // Sorting options
   let sortOption = {};
   if (sort === "latest") {
-    sortOption = { createdAt: -1 }; // Sort by latest
+    sortOption = { createdAt: -1 }; // Sort by latest (createdAt descending)
   } else if (sort === "lowToHigh") {
-    sortOption = { amountRequested: 1 }; // Sort by low to high amountRequested
+    sortOption = { withdrawalAmount: 1 }; // Sort by low to high withdrawalAmount
   } else if (sort === "highToLow") {
-    sortOption = { amountRequested: -1 }; // Sort by high to low amountRequested
+    sortOption = { withdrawalAmount: -1 }; // Sort by high to low withdrawalAmount
   }
 
   // Pagination logic
   const skip = (page - 1) * limit;
+
+  // Fetch the payment requests with filters, pagination, and sorting
   const paymentRequests = await PaymentRequest.find(query)
     .skip(skip)
     .limit(Number(limit))
@@ -60,13 +63,82 @@ const getpaymentRequest = async ({
   // Count the total number of records (for pagination)
   const totalCount = await PaymentRequest.countDocuments(query);
 
+  // Return the paginated and decrypted payment requests
   return {
-    paymentRequests: decryptedPaymentRequests, // Return decrypted payment requests
+    paymentRequests: decryptedPaymentRequests,
     totalCount,
     totalPages: Math.ceil(totalCount / limit),
     currentPage: page,
   };
 };
+
+// const getpaymentRequest = async ({
+//   userId,
+//   page,
+//   limit,
+//   search,
+//   status,
+//   sort,
+// }) => {
+//   const filter = { seller: userId }; // Only fetch payment requests for the logged-in seller
+
+//   // Apply status filter if status is provided
+//   if (status !== "all") {
+//     filter.status = status;
+//   }
+
+//   // Apply search filter if a search string is provided
+//   const searchFilter = search
+//     ? {
+//         $or: [
+//           { description: { $regex: search, $options: "i" } },
+//           { title: { $regex: search, $options: "i" } },
+//         ],
+//       }
+//     : {};
+
+//   // Combine filters
+//   const query = { ...filter, ...searchFilter };
+
+//   // Sorting options
+//   let sortOption = {};
+//   if (sort === "latest") {
+//     sortOption = { createdAt: -1 }; // Sort by latest
+//   } else if (sort === "lowToHigh") {
+//     sortOption = { amountRequested: 1 }; // Sort by low to high amountRequested
+//   } else if (sort === "highToLow") {
+//     sortOption = { amountRequested: -1 }; // Sort by high to low amountRequested
+//   }
+
+//   // Pagination logic
+//   const skip = (page - 1) * limit;
+//   const paymentRequests = await PaymentRequest.find({ seller: userId })
+//     .skip(skip)
+//     .limit(Number(limit))
+//     .sort(sortOption);
+
+//   console.log(paymentRequests, "payment request");
+
+//   // Decrypt bankName and accountNumber for each payment request
+//   const decryptedPaymentRequests = paymentRequests.map((request) => {
+//     const decryptedDetails = request.decryptBankDetails(); // Decrypt bank details
+//     return {
+//       ...request.toObject(), // Convert mongoose document to plain object
+//       bankName: decryptedDetails.bankName, // Add decrypted bankName
+//       accountNumber: decryptedDetails.accountNumber, // Add decrypted accountNumber
+//     };
+//   });
+
+//   // Count the total number of records (for pagination)
+//   const totalCount = await PaymentRequest.countDocuments(query);
+
+//   return {
+//     paymentRequests: decryptedPaymentRequests, // Return decrypted payment requests
+//     totalCount,
+//     totalPages: Math.ceil(totalCount / limit),
+//     currentPage: page,
+//   };
+// };
 
 const getpaymentRequestStatitics = async (userId) => {
   const res = await PaymentRequest.find({ seller: userId });

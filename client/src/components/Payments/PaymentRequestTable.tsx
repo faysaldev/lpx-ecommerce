@@ -12,14 +12,14 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/UI/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/UI/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
