@@ -52,13 +52,6 @@ function VerifyEmailForm() {
     }
   }, [searchParams, router]);
 
-  // Redirect if already signed in
-  //   useEffect(() => {
-  //     if (isSignedIn) {
-  //       router.push("/dashboard");
-  //     }
-  //   }, [isSignedIn, router]);
-
   // Handle resend countdown
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -69,16 +62,6 @@ function VerifyEmailForm() {
     }
     return () => clearInterval(interval);
   }, [resendCountdown]);
-
-  // Check if the email belongs to a demo user
-  const getDemoUserRole = (email: string): string | null => {
-    const demoUsers: { [key: string]: string } = {
-      "test@gmail.com": "customer",
-      "vendor@gmail.com": "vendor",
-      "admin@gmail.com": "admin",
-    };
-    return demoUsers[email.toLowerCase()] || null;
-  };
 
   const handleCodeChange = (value: string, index: number) => {
     // Only allow digits
@@ -143,10 +126,9 @@ function VerifyEmailForm() {
         email: email,
         code: verificationCode,
       };
-      console.log(data, "verfiy code");
 
       const res = await verificationEmailCode(data);
-      if (res) router.replace("/auth/signin");
+      if (!res?.error) router.replace("/auth/signin");
     } catch (_err) {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -156,16 +138,12 @@ function VerifyEmailForm() {
 
   const handleResendEmail = async () => {
     setIsResending(true);
-    setError("");
-
     try {
       // Simulate API call delay
       const response = await resendVerification({ email }).unwrap();
       console.log(response, "resend email code"); // Log the response data
       // Show success message
-      toast.success(
-        "Verification email sent! Check your inbox (this is a demo)."
-      );
+      toast("Verification email sent! Check your inbox");
     } catch (_err) {
       setError("Failed to resend email. Please try again.");
     } finally {
@@ -201,46 +179,46 @@ function VerifyEmailForm() {
     );
   };
 
-  if (success) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background p-4">
-        <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
-            <h1 className="text-2xl font-bold tracking-tight">
-              Email Verified!
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Your email has been successfully verified
-            </p>
-          </div>
+  // if (success) {
+  //   return (
+  //     <div className="flex items-center justify-center min-h-screen bg-background p-4">
+  //       <div className="w-full max-w-md">
+  //         <div className="text-center mb-8">
+  //           <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
+  //           <h1 className="text-2xl font-bold tracking-tight">
+  //             Email Verified!
+  //           </h1>
+  //           <p className="text-muted-foreground mt-2">
+  //             Your email has been successfully verified
+  //           </p>
+  //         </div>
 
-          <Card className="shadow-xl border-0">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-2xl text-center">Success</CardTitle>
-              <CardDescription className="text-center">
-                Redirecting you to your dashboard...
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Alert>
-                <CheckCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Verification Complete:</strong> Your email {email} has
-                  been verified. You will be redirected to your dashboard
-                  shortly.
-                </AlertDescription>
-              </Alert>
+  //         <Card className="shadow-xl border-0">
+  //           <CardHeader className="space-y-1">
+  //             <CardTitle className="text-2xl text-center">Success</CardTitle>
+  //             <CardDescription className="text-center">
+  //               Redirecting you to your dashboard...
+  //             </CardDescription>
+  //           </CardHeader>
+  //           <CardContent className="space-y-4">
+  //             <Alert>
+  //               <CheckCircle className="h-4 w-4" />
+  //               <AlertDescription>
+  //                 <strong>Verification Complete:</strong> Your email {email} has
+  //                 been verified. You will be redirected to your dashboard
+  //                 shortly.
+  //               </AlertDescription>
+  //             </Alert>
 
-              <div className="flex justify-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
+  //             <div className="flex justify-center">
+  //               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+  //             </div>
+  //           </CardContent>
+  //         </Card>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">

@@ -1,6 +1,7 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const Product = require("../models/product.model");
+const { Vendor } = require("../models");
 
 const getMyProducts = async (userId) => {
   if (!userId) {
@@ -15,11 +16,40 @@ const getAllProducts = async () => {
 
 const addNewProducts = async (productsBody) => {
   if (!productsBody) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+    throw new ApiError(httpStatus.BAD_REQUEST, "User is not authenticated");
   }
-  console.log(productsBody);
-  return Product.create(productsBody);
+
+  // 1️⃣ Find the vendor based on authorId (seller)
+  const vendor = await Vendor.findOne({ seller: productsBody.authorId });
+
+  if (!vendor) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "Vendor not found for this author"
+    );
+  }
+
+  // 2️⃣ Create the product with vendor._id
+  const product = await Product.create({
+    ...productsBody,
+    vendor: vendor._id,
+  });
+
+  // 3️⃣ (Optional) Increment vendor’s product count
+  vendor.productsCount += 1;
+  await vendor.save();
+
+  return product;
 };
+
+// const addNewProducts = async (productsBody) => {
+//   if (!productsBody) {
+//     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+//   }
+//   const vendorId = Vendor.findOne({ seller: productsBody?.authorId });
+//   console.log(vendorId);
+//   return Product.create({ ...productsBody, vendor: vendorId?._id });
+// };
 
 const productDetails = async (productsId) => {
   if (!productsId) {
