@@ -4,7 +4,7 @@ const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     searchVendor: builder.mutation({
       query: (vendorInfo) => ({
-        url: `/admin/vendors?status=${vendorInfo.status}&${vendorInfo?.search}`,
+        url: `/admin/vendors?status=${vendorInfo.status}&search=${vendorInfo?.search}&page=${vendorInfo?.page}`,
         method: "GET",
       }),
     }),
