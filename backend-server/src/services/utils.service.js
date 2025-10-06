@@ -1,5 +1,14 @@
 const httpStatus = require("http-status");
-const { User, Product, Order, Rating, Vendor } = require("../models");
+const {
+  User,
+  Product,
+  Order,
+  Rating,
+  Vendor,
+  Cart,
+  Notification,
+  Wishlist,
+} = require("../models");
 const moment = require("moment");
 
 // Get Featured Products based on ratings, sales, and orders
@@ -175,6 +184,32 @@ const hasUserPurchased = async ({ userId, entityId, type }) => {
   return !!order; // Return true if an order is found, otherwise false
 };
 
+// header Statitics
+const headerStatistics = async (userId) => {
+  try {
+    // Fetch all unread notifications for the user (authorId == userId and isRead == false)
+    const unreadNotifications = await Notification.find({
+      authorId: userId,
+      isRead: false,
+    }).lean();
+
+    // Fetch all cart items for the user (customer == userId)
+    const cartItems = await Cart.find({ customer: userId }).lean();
+
+    // Fetch all wishlist items for the user (customer == userId)
+    const wishlistItems = await Wishlist.find({ customer: userId }).lean();
+
+    // Return statistics
+    return {
+      unreadNotificationsCount: unreadNotifications.length,
+      cartItemsCount: cartItems.length,
+      wishlistItemsCount: wishlistItems.length,
+    };
+  } catch (error) {
+    console.error("Error fetching header statistics:", error);
+    throw new Error("Error fetching header statistics");
+  }
+};
 // get customer dashboard details
 const getCustomerDashboard = async (userId) => {
   // Get basic stats
@@ -278,21 +313,72 @@ const vendorDashboardOverview = async (userId) => {
   };
 };
 
-const getVendorRecentOrders = async (vendorId, page = 1, limit = 10) => {
-  if (!vendorId) {
+// const getVendorRecentOrders = async (userId, page = 1, limit = 10) => {
+//   if (!userId) {
+//     throw new ApiError(httpStatus.BAD_REQUEST, "Vendor ID is required");
+//   }
+//   const vendorId = await Vendor.findOne({ seller: userId });
+//   const skip = (page - 1) * limit;
+
+//   const recentOrders = await Order.find({ vendorId })
+//     .skip(skip)
+//     .limit(limit)
+//     .sort({ createdAt: -1 })
+//     .populate("customer", "name image type") // Populate customer details
+//     .lean();
+
+//   const totalOrders = await Order.countDocuments({ vendorId });
+//   const totalPages = Math.ceil(totalOrders / limit);
+
+//   const formattedOrders = recentOrders.map((order) => ({
+//     orderId: order.orderID,
+//     userName: order.customer.name,
+//     userImage: order.customer.image,
+//     userType: order.customer.type,
+//     totalPrice: order.totalAmount,
+//     status: order.status,
+//     orderDate: order.createdAt,
+//     orderMongoId: order._id,
+//   }));
+
+//   return {
+//     orders: formattedOrders,
+//     totalOrders,
+//     totalPages,
+//   };
+// };
+
+const getVendorRecentOrders = async (userId, page = 1, limit = 10) => {
+  if (!userId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Vendor ID is required");
   }
 
+  // Fetch the vendor's ID based on the userId
+  const vendor = await Vendor.findOne({ seller: userId });
+
+  if (!vendor) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
+  }
+
+  const vendorId = vendor._id; // Assuming the vendor ID is in vendor._id
+
   const skip = (page - 1) * limit;
 
-  const recentOrders = await Order.find({ vendorId })
+  // Find orders where the vendorId matches any product's vendorId inside totalItems
+  const recentOrders = await Order.find({
+    "totalItems.vendorId": vendorId, // Match vendorId inside totalItems array
+  })
     .skip(skip)
     .limit(limit)
     .sort({ createdAt: -1 })
     .populate("customer", "name image type") // Populate customer details
     .lean();
 
-  const totalOrders = await Order.countDocuments({ vendorId });
+  console.log(recentOrders);
+
+  const totalOrders = await Order.countDocuments({
+    "totalItems.vendorId": vendorId,
+  }); // Count orders with the vendorId in totalItems
   const totalPages = Math.ceil(totalOrders / limit);
 
   const formattedOrders = recentOrders.map((order) => ({
@@ -314,17 +400,16 @@ const getVendorRecentOrders = async (vendorId, page = 1, limit = 10) => {
 };
 
 const getVendorProducts = async (
-  vendorId,
+  userId,
   { search = "", status = "", sortBy = "newestFirst", page = 1, limit = 10 }
 ) => {
-  if (!vendorId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Vendor ID is required");
-  }
-
   const skip = (page - 1) * limit;
 
+  const vendorId = await Vendor.findOne({ seller: userId });
+
+  console.log(vendorId);
   // Build the search query for products
-  const searchQuery = { vendor: vendorId };
+  const searchQuery = { vendor: vendorId?._id };
 
   // Apply filters for product name, category, and status
   if (search) {
@@ -393,4 +478,5 @@ module.exports = {
   vendorDashboardOverview,
   getVendorRecentOrders,
   getVendorProducts,
+  headerStatistics,
 };

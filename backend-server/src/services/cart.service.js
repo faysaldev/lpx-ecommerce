@@ -2,6 +2,43 @@ const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const Cart = require("../models/cart.model");
 
+// const myCartList = async (userId) => {
+//   if (!userId) {
+//     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticated");
+//   }
+
+//   const cartItems = await Cart.find({ customer: userId })
+//     .populate(
+//       "product",
+//       "productName condition price stockQuantity category images rarity"
+//     )
+//     .populate("vendorId", "storeName")
+//     .lean();
+
+//   return cartItems
+//     .map((item) => {
+//       if (!item.product) {
+//         return null; // Handle missing product gracefully
+//       }
+//       const { product } = item;
+//       return {
+//         cartId: item._id,
+//         productName: product.productName,
+//         // vendorName: item.vendorId.storeName,
+//         condition: product.condition,
+//         price: product.price,
+//         stockQuantity: product.stockQuantity,
+//         productId: product._id,
+//         category: product.category,
+//         firstImage: product.images[0],
+//         rarity: product.rarity,
+//         quantity: item.quantity,
+//         totalPrice: item.price * item.quantity,
+//       };
+//     })
+//     .filter(Boolean); // Filter out null values if any
+// };
+
 const myCartList = async (userId) => {
   if (!userId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticated");
@@ -12,7 +49,7 @@ const myCartList = async (userId) => {
       "product",
       "productName condition price stockQuantity category images rarity"
     )
-    .populate("vendorId", "storeName")
+    .populate("vendorId", "_id") // Populate only the vendor's _id field
     .lean();
 
   return cartItems
@@ -24,7 +61,6 @@ const myCartList = async (userId) => {
       return {
         cartId: item._id,
         productName: product.productName,
-        // vendorName: item.vendorId.storeName,
         condition: product.condition,
         price: product.price,
         stockQuantity: product.stockQuantity,
@@ -34,6 +70,7 @@ const myCartList = async (userId) => {
         rarity: product.rarity,
         quantity: item.quantity,
         totalPrice: item.price * item.quantity,
+        vendorId: item.vendorId._id, // Add vendorId as a field
       };
     })
     .filter(Boolean); // Filter out null values if any

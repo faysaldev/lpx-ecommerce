@@ -108,8 +108,18 @@ const createVendorRequest = catchAsync(async (req, res) => {
 });
 
 const approvedVendorRequest = catchAsync(async (req, res) => {
+  if (req.user.type != "admin") {
+    res.status(httpStatus.CREATED).json(
+      response({
+        message: "Only Admin Can Approval",
+        status: "OK",
+        statusCode: httpStatus.NOT_ACCEPTABLE,
+      })
+    );
+  }
   const approvedVendors = await vendorService.approvedVendorRequest(
-    req.body.vendorId
+    req.body.vendorId,
+    req.body.sellerId
   );
   res.status(httpStatus.CREATED).json(
     response({

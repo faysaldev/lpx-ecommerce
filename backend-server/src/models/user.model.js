@@ -70,15 +70,6 @@ const userSchema = mongoose.Schema(
     isProfileCompleted: { type: Boolean, default: false },
     fcmToken: { type: String, default: null }, // push
     isDeleted: { type: Boolean, default: false },
-
-    totalEarnings: {
-      type: Number,
-      default: 0,
-    },
-    totalWithDrawal: {
-      type: Number,
-      default: 0,
-    },
   },
   {
     timestamps: true,

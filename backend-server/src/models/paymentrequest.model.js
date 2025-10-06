@@ -46,7 +46,6 @@ const PaymentRequestSchema = new Schema(
     },
     withdrawalAmount: {
       type: Number,
-      required: true,
       min: 1,
     },
 

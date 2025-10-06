@@ -4,9 +4,22 @@ const response = require("../config/response");
 const { paymentrequestService } = require("../services");
 
 const getpaymentRequest = catchAsync(async (req, res) => {
-  const paymentRequest = await paymentrequestService.getpaymentRequest(
-    req.user.id
-  );
+  const {
+    page = 1, // Page number, default is 1
+    limit = 10, // Number of records per page, default is 10
+    search = "", // Search query, default is empty string
+    status = "all", // Status filter, default is 'all'
+    sort = "latest", // Sorting option, default is 'latest'
+  } = req.query;
+
+  const paymentRequest = await paymentrequestService.getpaymentRequest({
+    userId: req.user.id,
+    page,
+    limit,
+    search,
+    status,
+    sort,
+  });
   res.status(httpStatus.CREATED).json(
     response({
       message: "All the Paybacks Request",
@@ -17,21 +30,24 @@ const getpaymentRequest = catchAsync(async (req, res) => {
   );
 });
 
-const createNewPaymentRequest = catchAsync(async (req, res) => {
-  if (req.user.type != "seller") {
-    res.status(httpStatus.CREATED).json(
-      response({
-        message: "Only seller can requested",
-        status: "OK",
-        statusCode: httpStatus.CREATED,
-        data: paymentRequest,
-      })
-    );
-  }
+const createNewPayRequest = catchAsync(async (req, res) => {
+  // console.log(req.user.type);
+  // if (req.user.type != "seller") {
+  //   res.status(httpStatus.CREATED).json(
+  //     response({
+  //       message: "Only seller can requested",
+  //       status: "OK",
+  //       statusCode: httpStatus.CREATED,
+  //       data: "You are not authorized",
+  //     })
+  //   );
+  // }
+  console.log(req.body);
   const paymentRequest = await paymentrequestService.createNewPaymentRequest({
     seller: req.user.id,
     ...req.body,
   });
+
   res.status(httpStatus.CREATED).json(
     response({
       message: "Created Paybacks Request",
@@ -69,6 +85,6 @@ const updatePaymentRequest = catchAsync(async (req, res) => {
 
 module.exports = {
   getpaymentRequest,
-  createNewPaymentRequest,
+  createNewPayRequest,
   updatePaymentRequest,
 };

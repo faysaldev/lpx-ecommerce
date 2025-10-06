@@ -42,6 +42,15 @@ const VendorSchema = new Schema(
       shippingPolicy: { type: String },
     },
     productsCount: { type: Number, default: 0 },
+    availableWithdrawl: { type: Number, default: 0 },
+    totalEarnings: {
+      type: Number,
+      default: 0,
+    },
+    totalWithDrawal: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

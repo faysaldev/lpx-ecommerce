@@ -4,6 +4,7 @@ const Vendor = require("../models/vendor.model");
 const Rating = require("../models/rating.model");
 const Order = require("../models/order.model");
 const Product = require("../models/product.model");
+const { User } = require("../models");
 
 const searchSingleOwnerShop = async ({
   vendorId,
@@ -197,14 +198,17 @@ const createVendorRequest = async (vendorBody) => {
   return createNewVendor;
 };
 
-const approvedVendorRequest = async (VendorId) => {
+const approvedVendorRequest = async (VendorId, sellerId) => {
   if (!VendorId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
   }
 
   const approved = await Vendor.findByIdAndUpdate(VendorId, {
     status: "approved",
+    verified: true,
   });
+
+  // await User.findByIdAndUpdate(sellerId, { type: "seller" });
   return approved;
 };
 

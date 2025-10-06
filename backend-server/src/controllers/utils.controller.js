@@ -1,6 +1,7 @@
 const httpStatus = require("http-status");
 const { utilsService } = require("../services");
 const catchAsync = require("../utils/catchAsync");
+const response = require("../config/response");
 
 // Get Featured Products
 const getFeaturedProducts = catchAsync(async (req, res) => {
@@ -39,6 +40,17 @@ const hasUserPurchased = catchAsync(async (req, res) => {
   });
 });
 
+//has showing statitics
+const headerStatistics = catchAsync(async (req, res) => {
+  const statistics = await utilsService.headerStatistics(req.user.id);
+  res.status(httpStatus.OK).json({
+    message: "LPS Header Statistics",
+    status: "OK",
+    statusCode: httpStatus.OK,
+    data: statistics,
+  });
+});
+
 const getCustomerDashboard = catchAsync(async (req, res) => {
   const statistics = await utilsService.getCustomerDashboard(req.user.id);
   res.status(httpStatus.OK).json({
@@ -51,7 +63,7 @@ const getCustomerDashboard = catchAsync(async (req, res) => {
 
 const getRecentOrders = catchAsync(async (req, res) => {
   const { page, limit } = req.query;
-  const recentOrdersData = await utilsService.getRecentOrders(
+  const recentOrdersData = await utilsService.getVendorRecentOrders(
     req.user.id,
     page,
     limit
@@ -108,4 +120,5 @@ module.exports = {
   vendorDashboardOverview,
   getVendorProducts,
   getRecentOrders,
+  headerStatistics,
 };

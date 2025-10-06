@@ -28,7 +28,8 @@ const getAllVendors = async (query) => {
   try {
     const vendors = await Vendor.find(filter)
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit)
+      .sort({ createdAt: -1 });
     const totalCount = await Vendor.countDocuments(filter);
 
     return {
@@ -55,6 +56,8 @@ const updateVendor = async (query) => {
     status: query?.status,
     notes: query?.notes,
   });
+
+  await User.findByIdAndUpdate(query?.seller, { type: "seller" });
 
   // TODO: here i have to update the user type to customer
   // await User.findByIdAndUpdate(query?.userId, {});
