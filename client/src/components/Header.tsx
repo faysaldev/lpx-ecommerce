@@ -119,13 +119,13 @@ export default function Header() {
                     {memoizedCategories.map((category: any) => (
                       <DropdownMenuItem key={category.name}>
                         <Link
-                          href={`/category/${encodeURI(category.name)}`}
+                          href={`/category/${(category.name)}`}
                           className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer w-full"
                         >
                           <div className="text-sm font-medium leading-none">
                             {category.name}
                           </div>
-                          <p className="hidden text-xs md:block line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          <p className="hidden text-xs md:block line-clamp-2 leading-snug text-muted-foreground">
                             Browse our collection of{" "}
                             {category.description.toLowerCase()}
                           </p>
