@@ -158,13 +158,8 @@ export interface Vendor {
   featured?: boolean;
   joinedDate: string;
   storePhoto?: string; // Store photo URL
-  location?:
-    | {
-        city?: string;
-        state?: string;
-        country?: string;
-      }
-    | string; // Support both object and string formats
+  phoneNumber?: string;
+  location?: string; // Support both object and string formats
   contact?: {
     email?: string;
     phone?: string;

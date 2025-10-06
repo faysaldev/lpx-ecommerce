@@ -134,7 +134,7 @@ function DashboardContent() {
                 </p>
               ) : allData?.recentOrders && allData.recentOrders.length > 0 ? (
                 <div className="space-y-4">
-                  {allData.recentOrders.map((order: any, index:number) => (
+                  {allData.recentOrders.map((order: any, index: number) => (
                     <div
                       key={order.orderMongoId}
                       className="flex items-center justify-between p-4 border rounded-lg"
@@ -230,7 +230,7 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <ProtectedRoute allowedTypes={["customer", "admin"]}>
+    <ProtectedRoute allowedTypes={["customer", "admin", "seller"]}>
       <DashboardContent />
     </ProtectedRoute>
   );

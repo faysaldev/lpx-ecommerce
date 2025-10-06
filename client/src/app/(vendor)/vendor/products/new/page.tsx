@@ -30,6 +30,8 @@ import {
 import TagInput from "@/components/Vendors/AddnewProduct/TagInput";
 import ConditionSelector from "@/components/Vendors/AddnewProduct/ConditionSelector";
 import ImageUploadSection from "@/components/Vendors/AddnewProduct/ImageUploadSection";
+import { useAppSelector } from "@/redux/hooks";
+import { selectCategories } from "@/redux/features/Common/CommonSlice";
 
 const productSchema = z.object({
   productName: z
@@ -62,19 +64,6 @@ const productSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-const categories = [
-  "Trading Cards",
-  "Comics",
-  "Sports Cards",
-  "Coins",
-  "Stamps",
-  "Toys",
-  "Action Figures",
-  "Vintage Items",
-  "Memorabilia",
-  "Art & Prints",
-];
-
 const rawConditions = [
   "Mint",
   "Near Mint",
@@ -105,6 +94,7 @@ export default function NewProductPage() {
   const [images, setImages] = useState<File[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const categories = useAppSelector(selectCategories);
 
   const {
     register,
@@ -235,9 +225,9 @@ export default function NewProductPage() {
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
+                    {categories?.map((category) => (
+                      <SelectItem key={category?._id} value={category?.name}>
+                        {category?.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

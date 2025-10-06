@@ -22,6 +22,7 @@ const BrowseCollectibles = baseApi.injectEndpoints({
         url: "/categories/all",
         method: "GET",
       }),
+      providesTags: ["New_Category"],
     }),
 
     addTocart: builder.mutation({

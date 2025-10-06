@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -115,7 +116,7 @@ export default function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-[400px] md:w-[500px]">
                   <div className="grid gap-3 p-4 md:grid-cols-2">
-                    {memoizedCategories.map((category) => (
+                    {memoizedCategories.map((category: any) => (
                       <DropdownMenuItem key={category.name}>
                         <Link
                           href={`/category/${encodeURI(category.name)}`}
@@ -124,9 +125,9 @@ export default function Header() {
                           <div className="text-sm font-medium leading-none">
                             {category.name}
                           </div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          <p className="hidden text-xs md:block line-clamp-2 text-sm leading-snug text-muted-foreground">
                             Browse our collection of{" "}
-                            {category.name.toLowerCase()}
+                            {category.description.toLowerCase()}
                           </p>
                         </Link>
                       </DropdownMenuItem>
@@ -154,49 +155,53 @@ export default function Header() {
               >
                 Vendors
               </Link>
-              {/* Cart */}
-              <IconButton asChild className="relative">
-                <Link href="/cart">
-                  <ShoppingCart className="h-6 w-6" />
-                  {itemCount > 0 && (
-                    <Badge
-                      className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center"
-                      variant="destructive"
-                    >
-                      {itemCount}
-                    </Badge>
-                  )}
-                </Link>
-              </IconButton>
-              {/* Wishlist - Available for all users */}
-              <IconButton asChild className="relative">
-                <Link href="/wishlist">
-                  <Heart className="h-5 w-5" />
-                  {wishlistCount > 0 && (
-                    <Badge
-                      className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center"
-                      variant="destructive"
-                    >
-                      {wishlistCount}
-                    </Badge>
-                  )}
-                </Link>
-              </IconButton>
-              {/* Notifications - Show for all, but only with badge when authenticated */}
-              <IconButton asChild className="relative">
-                <Link href="/notifications">
-                  <Bell className="h-5 w-5" />
-                  {isSignedIn && unreadCount > 0 && (
-                    <Badge
-                      className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center"
-                      variant="destructive"
-                    >
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </Badge>
-                  )}
-                </Link>
-              </IconButton>
-              {/* Show loading placeholder during initial auth check */}
+
+              {user && (
+                <>
+                  <IconButton asChild className="relative">
+                    <Link href="/cart">
+                      <ShoppingCart className="h-6 w-6" />
+                      {itemCount > 0 && (
+                        <Badge
+                          className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center"
+                          variant="destructive"
+                        >
+                          {itemCount}
+                        </Badge>
+                      )}
+                    </Link>
+                  </IconButton>
+
+                  <IconButton asChild className="relative">
+                    <Link href="/wishlist">
+                      <Heart className="h-5 w-5" />
+                      {wishlistCount > 0 && (
+                        <Badge
+                          className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center"
+                          variant="destructive"
+                        >
+                          {wishlistCount}
+                        </Badge>
+                      )}
+                    </Link>
+                  </IconButton>
+
+                  <IconButton asChild className="relative">
+                    <Link href="/notifications">
+                      <Bell className="h-5 w-5" />
+                      {isSignedIn && unreadCount > 0 && (
+                        <Badge
+                          className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center"
+                          variant="destructive"
+                        >
+                          {unreadCount > 9 ? "9+" : unreadCount}
+                        </Badge>
+                      )}
+                    </Link>
+                  </IconButton>
+                </>
+              )}
+
               <div className="auth-button-group">
                 {!isLoaded ? (
                   <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
@@ -236,7 +241,7 @@ export default function Header() {
                           Dashboard
                         </Link>
                       </DropdownMenuItem>
-                      {user?.type === "vendor" && (
+                      {user?.type === "seller" && (
                         <DropdownMenuItem asChild>
                           <Link
                             href="/vendor/dashboard"
@@ -430,7 +435,7 @@ export default function Header() {
                         >
                           Settings
                         </Link>
-                        {user?.type !== "vendor" && (
+                        {user?.type !== "seller" && (
                           <Link
                             href="/sell"
                             className="py-2 hover:text-primary transition"

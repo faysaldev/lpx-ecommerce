@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   DollarSign,
   LayoutDashboard,
+  ListEndIcon,
   Menu,
   Package,
   Settings,
@@ -59,6 +60,11 @@ const adminNavItems = [
     title: "Analytics",
     href: "/admin/analytics",
     icon: BarChart3,
+  },
+  {
+    title: "General",
+    href: "/admin/general",
+    icon: ListEndIcon,
   },
   {
     title: "Settings",

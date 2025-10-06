@@ -478,7 +478,7 @@ export default function VendorPaymentRequestsPage() {
           <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
             <PaymentRequestForm
               vendorId={VENDOR_ID}
-              completedOrders={completedOrders}
+              // completedOrders={completedOrders}
               onSuccess={handleCreateSuccess}
               onCancel={() => setShowCreateForm(false)}
             />

@@ -28,7 +28,7 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import PageLayout from "@/components/layout/PageLayout";
@@ -48,6 +48,10 @@ import {
 } from "@/redux/features/vendors/vendor";
 import VendorPageSkeleton from "@/components/Vendors/SingleVendorView/VendorPageSkeleton";
 import ReviewAndRatingsProduct from "@/components/ReviewAndRatingsProduct/ReviewAndRatingsProduct";
+import VendorTruncateDetails from "@/components/Vendors/SingleVendorView/VendorTruncateDetails";
+import Link from "next/link";
+import { useAppSelector } from "@/redux/hooks";
+import { selectCategories } from "@/redux/features/Common/CommonSlice";
 
 type ViewMode = "grid" | "list";
 
@@ -56,7 +60,7 @@ export default function VendorStorefrontPage() {
   const vendorId = params?.id as string;
   const type = "vendor";
   const id = vendorId;
-  const idtype = {id, type};
+  const idtype = { id, type };
 
   // State for UI controls
   const [isFollowing, setIsFollowing] = useState(false);
@@ -69,6 +73,8 @@ export default function VendorStorefrontPage() {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
     null
   );
+  const router = useRouter();
+  const categories = useAppSelector(selectCategories);
 
   // Sort options
   const sortOptions = [
@@ -257,11 +263,7 @@ export default function VendorStorefrontPage() {
   ];
 
   return (
-    <PageLayout
-      title={vendor.name}
-      description={vendor.description}
-      breadcrumbs={breadcrumbs}
-    >
+    <PageLayout title={vendor.name} breadcrumbs={breadcrumbs}>
       {/* Vendor Header Card */}
       <Card className="mb-8 border-0 shadow-none">
         <CardContent className="p-0 space-y-6">
@@ -307,7 +309,7 @@ export default function VendorStorefrontPage() {
                   {vendor.location && (
                     <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
                       <MapPin className="h-3 w-3" />
-                      {/* {vendor?.location} */}
+                      {vendor?.location}
                     </div>
                   )}
                   <div className="text-xs text-muted-foreground">
@@ -410,11 +412,15 @@ export default function VendorStorefrontPage() {
 
               {/* Actions */}
               <div className="space-y-2">
-                <Button className="w-full" size="sm">
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={() => router.push(`tel:${vendor?.phoneNumber}`)}
+                >
                   <MessageCircle className="h-4 w-4 mr-2" />
                   Contact Seller
                 </Button>
-                <Button
+                {/* <Button
                   variant="outline"
                   onClick={() => setIsFollowing(!isFollowing)}
                   className="w-full"
@@ -427,7 +433,7 @@ export default function VendorStorefrontPage() {
                     )}
                   />
                   {isFollowing ? "Following" : "Follow Shop"}
-                </Button>
+                </Button> */}
               </div>
             </div>
 
@@ -632,8 +638,8 @@ export default function VendorStorefrontPage() {
                             )}
                           >
                             <option value="all">All Categories</option>
-                            {vendorCategories.map((cat) => (
-                              <option key={cat.id} value={cat.slug}>
+                            {categories?.map((cat) => (
+                              <option key={cat._id} value={cat.name}>
                                 {cat.name}
                               </option>
                             ))}
@@ -747,9 +753,10 @@ export default function VendorStorefrontPage() {
         <div className="flex-1 space-y-6">
           <div className="bg-card rounded-lg border p-6">
             <h2 className="text-lg font-semibold mb-4">About {vendor.name}</h2>
-            <p className="text-muted-foreground leading-relaxed">
-              {vendor.description}
-            </p>
+            <VendorTruncateDetails
+              description={vendor.description}
+              truncateLength={200}
+            />
           </div>
 
           {/* Policies Section */}
@@ -763,9 +770,11 @@ export default function VendorStorefrontPage() {
                       <Package className="h-4 w-4" />
                       Shipping Policy
                     </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {vendor.policies.shipping}
-                    </p>
+
+                    <VendorTruncateDetails
+                      description={vendor.policies.shipping}
+                      truncateLength={220}
+                    />
                   </div>
                 )}
                 {vendor.policies.returns && (
@@ -774,9 +783,10 @@ export default function VendorStorefrontPage() {
                       <Shield className="h-4 w-4" />
                       Return Policy
                     </h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed">
-                      {vendor.policies.returns}
-                    </p>
+                    <VendorTruncateDetails
+                      description={vendor.policies.returns}
+                      truncateLength={220}
+                    />
                   </div>
                 )}
               </div>
@@ -793,7 +803,6 @@ export default function VendorStorefrontPage() {
         onAddToCart={handleAddToCart}
         onAddToWishlist={handleAddToWishlist}
       />
-
 
       <ReviewAndRatingsProduct idtype={idtype} />
     </PageLayout>

@@ -38,7 +38,7 @@ const defaultRoutes = [
     route: cartsRoute,
   },
   {
-    path: "/paymentrequest",
+    path: "/payments",
     route: paymentRequestRoute,
   },
   {

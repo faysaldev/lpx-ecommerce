@@ -16,9 +16,6 @@ import { Button } from "@/components/UI/button";
 import { Card } from "@/components/UI/card";
 import type { CartItem as CartItemType, Product } from "@/lib/types";
 
-
-
-
 interface ExtendedProduct extends Omit<Product, "state"> {
   state?: "sealed" | "open";
   grading?: {
@@ -27,18 +24,33 @@ interface ExtendedProduct extends Omit<Product, "state"> {
   };
 }
 
+const getImageUrl = (imgPath: string) => {
+  if (!imgPath) return "";
+
+  // Handle different path formats
+  const cleanPath = imgPath.replace(/\\/g, "/");
+
+  // If it's already a full URL, return as is
+  if (cleanPath.startsWith("http")) {
+    return cleanPath;
+  }
+
+  // If it starts with /, it's already relative to base
+  if (cleanPath.startsWith("/")) {
+    return `${process.env.NEXT_PUBLIC_BASE_URL || ""}${cleanPath}`;
+  }
+
+  // Otherwise, prepend base URL
+  return `${process.env.NEXT_PUBLIC_BASE_URL || ""}/${cleanPath}`;
+};
+
 interface CartItemProps {
   item: CartItemType;
   onUpdateQuantity: (itemId: string, quantity: number) => void;
   onRemove: (itemId: string) => void;
 }
 
-
-const CartItem = ({
-  item,
-  onUpdateQuantity,
-  onRemove,
-}: CartItemProps) =>  {
+const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Use the nested product object if it exists, otherwise use item properties
@@ -48,30 +60,30 @@ const CartItem = ({
     title: item.name,
     price: (item as any).money || item.price,
     images: [
-      (item as any).firstImage 
-        ? (item as any).firstImage.startsWith('public/') 
-          ? `/${(item as any).firstImage.replace('public/', '')}` 
+      (item as any).firstImage
+        ? (item as any).firstImage.startsWith("public/")
+          ? `/${(item as any).firstImage.replace("public/", "")}`
           : (item as any).firstImage
-        : (item.image 
-          ? item.image.startsWith('public/') 
-            ? `/${item.image.replace('public/', '')}` 
-            : item.image
-          : undefined) || "/placeholder.png"
+        : (item.image
+            ? item.image.startsWith("public/")
+              ? `/${item.image.replace("public/", "")}`
+              : item.image
+            : undefined) || "/placeholder.png",
     ],
     stock: (item as any).stockQuantity,
     condition: (item as any).condition,
     rarity: (item as any).rarity,
     totalPrice: (item as any).totalPrice,
-    cartId: (item as any).cartId,  
+    cartId: (item as any).cartId,
   };
 
   const actualPrice = (item as any).money || item.price || 0;
   const actualQuantity = item.quantity;
-  const availableImageRaw = (item as any).firstImage ;
-  const productName = (item as any).productName ;
-  const productStock = (item as any).stockQuantity ; 
+  const availableImageRaw = (item as any).firstImage;
+  const productName = (item as any).productName;
+  const productStock = (item as any).stockQuantity;
   const totalPrice = (item as any).totalPrice;
-  const cartId = (item as any).cartId
+  const cartId = (item as any).cartId;
 
   const handleQuantityChange = async (newQuantity: number) => {
     setIsUpdating(true);
@@ -79,8 +91,7 @@ const CartItem = ({
     setTimeout(() => setIsUpdating(false), 300);
   };
 
-  
-  
+  console.log(item, "immage of the products");
 
   return (
     <Card className="p-4 sm:p-6">
@@ -89,12 +100,14 @@ const CartItem = ({
         <div className="relative w-full sm:w-32 h-32 flex-shrink-0">
           <Link href={`/product/${item.productId}`}>
             <div className="relative w-full h-full rounded-lg overflow-hidden bg-gray-100 cursor-pointer hover:opacity-90 transition">
-              {/* <Image
-                src={availableImage || "/placeholder.png"}
-                alt={productName || 'Product image'}
+              <Image
+                src={
+                  getImageUrl((item as any)?.firstImage) || "/placeholder.png"
+                }
+                alt={productName || "Product image"}
                 fill
                 className="object-cover"
-              /> */}
+              />
               {productStock <= 5 && (
                 <div className="absolute top-2 right-2">
                   <StockBadge stock={productStock} className="text-xs" />
@@ -137,7 +150,9 @@ const CartItem = ({
             {(productData as ExtendedProduct).state === "open" &&
               (productData as ExtendedProduct).grading && (
                 <GradingBadge
-                  company={(productData as ExtendedProduct).grading?.company || ""}
+                  company={
+                    (productData as ExtendedProduct).grading?.company || ""
+                  }
                   grade={(productData as ExtendedProduct).grading?.grade || ""}
                   className="text-xs"
                 />
@@ -172,7 +187,6 @@ const CartItem = ({
               <p className="text-sm text-muted-foreground">
                 ${Number(actualPrice || 0).toFixed(2)} each
               </p>
-              
             </div>
 
             {/* Quantity Controls */}
@@ -234,6 +248,6 @@ const CartItem = ({
       </div>
     </Card>
   );
-}
+};
 
 export default CartItem;
