@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       "example.com",
       "192.168.0.103",
       "images.unsplash.com",
+      "192.168.0.102",
     ],
   },
 };

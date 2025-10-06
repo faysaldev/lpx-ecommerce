@@ -140,7 +140,9 @@ export default function Header() {
                           className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center"
                           variant="destructive"
                         >
-                          {headerStats?.cartItemsCount ?? 0}
+                          {headerStats?.cartItemsCount
+                            ? headerStats?.cartItemsCount
+                            : 0}
                         </Badge>
                       )}
                     </Link>
@@ -154,7 +156,9 @@ export default function Header() {
                           className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center"
                           variant="destructive"
                         >
-                          {headerStats?.wishlistItemsCount ?? 0}
+                          {headerStats?.wishlistItemsCount
+                            ? headerStats?.wishlistItemsCount
+                            : 0}
                         </Badge>
                       )}
                     </Link>
@@ -171,7 +175,9 @@ export default function Header() {
                           >
                             {(headerStats?.unreadNotificationsCount ?? 0) > 9
                               ? "9+"
-                              : headerStats?.unreadNotificationsCount ?? 0}
+                              : headerStats?.unreadNotificationsCount
+                              ? headerStats?.unreadNotificationsCount
+                              : 0}
                           </Badge>
                         )}
                     </Link>

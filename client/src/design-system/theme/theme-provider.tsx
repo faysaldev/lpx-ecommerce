@@ -228,6 +228,9 @@ export function ThemeProvider({
   );
 
   // Always render children to preserve SSR content; theme applies on mount
+    if (!mounted) {
+    return null;
+  }
   return (
     <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
   );
