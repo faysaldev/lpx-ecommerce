@@ -1,62 +1,99 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
-const { orderService } = require(".");
+const { orderService, notificationService } = require(".");
+const { sendNotificationEmail } = require("./email.service");
 
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY); // Use your Stripe Secret Key
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
-const checkOutSession = async (stripeItems, customer_id, orderId) => {
-  // Create the session with the correct line items
-  console.log(JSON.stringify(stripeItems));
-  const session = await stripe.checkout.sessions.create({
-    line_items: stripeItems,
-    mode: "payment",
-    shipping_address_collection: {
-      allowed_countries: ["AE", "US"], // Allowed shipping countries
-    },
-    billing_address_collection: "required", // Collect billing address, including phone number
-    phone_number_collection: {
-      enabled: true, // Collect phone number as part of billing details
-    },
-    success_url: `${process.env.FRONTEND_URL}`,
-    cancel_url: `${process.env.FRONTEND_URL}`,
-    metadata: {
-      customer_id: JSON.stringify(customer_id),
-      order_id: JSON.stringify(orderId),
-    },
-  });
-  return { payment_url: session?.url };
-};
+// Constants
+const ALLOWED_SHIPPING_COUNTRIES = ["AE", "US"];
+const CHECKOUT_MODE = "payment";
 
-const checkoutComplete = async (session_id) => {
+const checkOutSession = async (
+  stripeItems,
+  customerId,
+  orderId,
+  email,
+  purchaseId
+) => {
   try {
-    // Retrieve the checkout session
-    const sessionPromise = stripe.checkout.sessions.retrieve(session_id, {
-      expand: ["payment_intent.payment_method"],
+    if (!stripeItems || !customerId || !orderId || !email || !purchaseId) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Missing required parameters");
+    }
+
+    // FIX: Don't use JSON.stringify - Stripe metadata accepts strings
+    // Convert ObjectId to string using .toString()
+    const session = await stripe.checkout.sessions.create({
+      line_items: stripeItems,
+      mode: CHECKOUT_MODE,
+      shipping_address_collection: {
+        allowed_countries: ALLOWED_SHIPPING_COUNTRIES,
+      },
+      billing_address_collection: "required",
+      phone_number_collection: {
+        enabled: true,
+      },
+      success_url: `${process.env.FRONTEND_URL}`,
+      cancel_url: `${process.env.FRONTEND_URL}`,
+      metadata: {
+        customer_id: customerId.toString(),
+        order_id: orderId.toString(), // FIX: Use .toString() instead of JSON.stringify()
+        customer_email: email,
+        purchase_id: purchaseId,
+      },
     });
 
-    // Retrieve the line items for the session
-    const lineItemsPromise = stripe.checkout.sessions.listLineItems(session_id);
+    return { payment_url: session.url, session_id: session.id };
+  } catch (error) {
+    console.error("Stripe checkout session creation error:", error);
+    throw new ApiError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      `Failed to create checkout session: ${error.message}`
+    );
+  }
+};
 
-    // Wait for both promises to resolve
+const checkoutComplete = async (sessionId) => {
+  try {
+    if (!sessionId) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Session ID is required");
+    }
+
+    // Retrieve both session and line items concurrently
     const [session, lineItems] = await Promise.all([
-      sessionPromise,
-      lineItemsPromise,
+      stripe.checkout.sessions.retrieve(sessionId, {
+        expand: ["payment_intent.payment_method"],
+      }),
+      stripe.checkout.sessions.listLineItems(sessionId),
     ]);
 
     return {
       session,
-      lineItems,
+      lineItems: lineItems.data,
     };
   } catch (error) {
-    console.error("Error retrieving session or line items:", error);
+    console.error("Error retrieving checkout session:", error);
+    throw new ApiError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      `Failed to retrieve checkout session: ${error.message}`
+    );
   }
 };
 
 const webhookPayload = async (event, req) => {
   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+  // Verify webhook signature if secret is configured
   if (endpointSecret) {
     const signature = req.headers["stripe-signature"];
+
+    if (!signature) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        "Missing stripe-signature header"
+      );
+    }
+
     try {
       event = stripe.webhooks.constructEvent(
         req.rawBody,
@@ -64,39 +101,287 @@ const webhookPayload = async (event, req) => {
         endpointSecret
       );
     } catch (err) {
-      return `⚠️ Webhook signature verification failed.`, err.message;
+      console.error("Webhook signature verification failed:", err.message);
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        `Webhook signature verification failed: ${err.message}`
+      );
     }
   }
-  switch (event.type) {
-    case "checkout.session.completed":
-      const checkoutSession = event.data.object;
-      const { order_id, customer_id } = checkoutSession?.metadata;
-      const { address, email, name, phone } = checkoutSession?.customer_details;
-      const { shipping_details } = checkoutSession?.collected_information;
 
-      const updateData = {
-        shippingInformation: {
-          address,
-          email,
-          name: name,
-          phoneNumber: phone,
+  try {
+    switch (event.type) {
+      case "checkout.session.completed":
+        await handleCheckoutCompleted(event.data.object);
+        break;
+
+      case "payment_intent.succeeded":
+        console.log("Payment succeeded:", event.data.object.id);
+        break;
+
+      case "payment_intent.payment_failed":
+        console.log("Payment failed:", event.data.object.id);
+        await handlePaymentFailed(event.data.object);
+        break;
+
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    return { received: true };
+  } catch (error) {
+    console.error("Webhook processing error:", error);
+    throw error;
+  }
+};
+
+// Helper function to handle checkout completion
+const handleCheckoutCompleted = async (checkoutSession) => {
+  try {
+    // FIX: Parse metadata values - they're now plain strings, not JSON
+    const { order_id, customer_id, customer_email, purchase_id } =
+      checkoutSession.metadata;
+
+    const { address, email, name, phone } =
+      checkoutSession.customer_details || {};
+    const shippingDetails = checkoutSession.shipping_details;
+
+    // Validate required data
+    if (!order_id) {
+      throw new Error("Order ID missing from metadata");
+    }
+
+    // Prepare update data
+    const updateData = {
+      status: "processing",
+      shippingInformation: {
+        name: name || "",
+        email: email || customer_email || "",
+        phoneNumber: phone || "",
+        address: {
+          line1: address?.line1 || "",
+          line2: address?.line2 || "",
+          city: address?.city || "",
+          state: address?.state || "",
+          postal_code: address?.postal_code || "",
+          country: address?.country || "",
         },
-        shipping_details,
+      },
+    };
+
+    // Add shipping details if available
+    if (shippingDetails) {
+      updateData.shippingInformation.shippingDetails = shippingDetails;
+    }
+
+    // Update order with shipping information
+    const updatedOrder = await orderService.editeSingleOrder(
+      order_id, // FIX: This is now a clean string without extra quotes
+      updateData
+    );
+
+    if (!updatedOrder) {
+      throw new Error(`Failed to update order: ${order_id}`);
+    }
+
+    // Create notification
+    if (customer_id && purchase_id) {
+      const notificationData = {
+        authorId: customer_id,
+        sendTo: customer_id,
+        transactionId: purchase_id,
+        title: "Order Placed Successfully",
+        description: `Your order ${purchase_id} has been received and is being processed`,
+        type: "order",
       };
 
-      console.log("format Data", updateData);
-      break;
+      await notificationService.addNewNotification(notificationData);
 
-    default:
-      console.log(`Unhandled event type ${event.type}.`);
+      // Send email notification
+      if (customer_email || email) {
+        const emailBody = {
+          username: name || "Customer",
+          title: `Order ${purchase_id} Confirmed`,
+          description: `We have successfully received your order. Our team is now processing your items, and we will begin shipping your products shortly. You will receive another notification once your order has shipped.`,
+          priority: "high",
+          type: "order",
+          transactionId: purchase_id,
+          timestamp: new Date(),
+        };
+
+        await sendNotificationEmail(customer_email || email, emailBody);
+      }
+    }
+
+    console.log(
+      `Order ${order_id} updated successfully after payment completion`
+    );
+  } catch (error) {
+    console.error("Error handling checkout completion:", error);
+    throw error;
   }
+};
 
-  return "WebHook";
+// Helper function to handle payment failures
+const handlePaymentFailed = async (paymentIntent) => {
+  try {
+    const { metadata } = paymentIntent;
+    const { order_id, customer_email } = metadata || {};
+
+    if (order_id) {
+      await orderService.editeSingleOrder(order_id, {
+        status: "unpaid",
+      });
+
+      console.log(`Order ${order_id} marked as unpaid due to payment failure`);
+    }
+  } catch (error) {
+    console.error("Error handling payment failure:", error);
+  }
 };
 
 module.exports = {
   checkOutSession,
   checkoutComplete,
-  // checkoutComplete,
   webhookPayload,
 };
+
+// const httpStatus = require("http-status");
+// const ApiError = require("../utils/ApiError");
+// const { orderService } = require(".");
+// const { sendNotificationEmail } = require("./email.service");
+
+// const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY); // Use your Stripe Secret Key
+
+// const checkOutSession = async (
+//   stripeItems,
+//   customer_id,
+//   orderId,
+//   email,
+//   pursched_id
+// ) => {
+//   // Create the session with the correct line items
+//   console.log(JSON.stringify(stripeItems));
+//   const session = await stripe.checkout.sessions.create({
+//     line_items: stripeItems,
+//     mode: "payment",
+//     shipping_address_collection: {
+//       allowed_countries: ["AE", "US"], // Allowed shipping countries
+//     },
+//     billing_address_collection: "required", // Collect billing address, including phone number
+//     phone_number_collection: {
+//       enabled: true, // Collect phone number as part of billing details
+//     },
+//     success_url: `${process.env.FRONTEND_URL}`,
+//     cancel_url: `${process.env.FRONTEND_URL}`,
+//     metadata: {
+//       customer_id: JSON.stringify(customer_id),
+//       order_id: JSON.stringify(orderId),
+//       customer_email: JSON.stringify(email),
+//       pursched_id: JSON.stringify(pursched_id),
+//     },
+//   });
+//   return { payment_url: session?.url };
+// };
+
+// const checkoutComplete = async (session_id) => {
+//   try {
+//     // Retrieve the checkout session
+//     const sessionPromise = stripe.checkout.sessions.retrieve(session_id, {
+//       expand: ["payment_intent.payment_method"],
+//     });
+
+//     // Retrieve the line items for the session
+//     const lineItemsPromise = stripe.checkout.sessions.listLineItems(session_id);
+
+//     // Wait for both promises to resolve
+//     const [session, lineItems] = await Promise.all([
+//       sessionPromise,
+//       lineItemsPromise,
+//     ]);
+
+//     return {
+//       session,
+//       lineItems,
+//     };
+//   } catch (error) {
+//     console.error("Error retrieving session or line items:", error);
+//   }
+// };
+// const webhookPayload = async (event, req) => {
+//   const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+//   if (endpointSecret) {
+//     const signature = req.headers["stripe-signature"];
+//     try {
+//       event = stripe.webhooks.constructEvent(
+//         req.rawBody,
+//         signature,
+//         endpointSecret
+//       );
+//     } catch (err) {
+//       return `⚠️ Webhook signature verification failed.`, err.message;
+//     }
+//   }
+
+//   switch (event.type) {
+//     case "checkout.session.completed":
+//       const checkoutSession = event.data.object;
+//       const { order_id, customer_id, customer_email, pursched_id } =
+//         checkoutSession?.metadata;
+//       const { address, email, name, phone } = checkoutSession?.customer_details;
+//       const { shipping_details } = checkoutSession?.collected_information;
+
+//       // Directly pass order_id as string
+//       const updateData = {
+//         shippingInformation: {
+//           address,
+//           email,
+//           name: name,
+//           phoneNumber: phone,
+//         },
+//         shipping_details,
+//       };
+
+//       // Pass the order_id as a string
+//       await orderService.editeSingleOrder(order_id, updateData); // No need to convert to ObjectId
+
+//       const newNotification = {
+//         authorId: customer_id,
+//         sendTo: pursched_id, // User ID to send the notification to
+//         transactionId: pursched_id || null, // Optional field
+//         title: "Order Placed", // Title of the notification
+//         description: `Your Order ${pursched_id} Has Been Received`,
+//         type: "order", // Defaults to 'order'
+//       };
+
+//       await notificationService.addNewNotification(newNotification);
+
+//       const notificationBody = {
+//         username: name,
+//         title: `Your Order ${pursched_id} Has Been Received`,
+//         description:
+//           "We have successfully received your order. Our team is now processing your items, and we will begin shipping your products shortly. You will receive another notification once your order has shipped.",
+//         priority: "high",
+//         type: "order",
+//         transactionId: pursched_id,
+//         timestamp: new Date(),
+//       };
+
+//       // Send notification
+//       await sendNotificationEmail(customer_email, notificationBody);
+//       break;
+
+//     default:
+//       console.log(`Unhandled event type ${event.type}.`);
+//   }
+
+//   return "WebHook";
+// };
+
+// module.exports = {
+//   checkOutSession,
+//   checkoutComplete,
+//   // checkoutComplete,
+//   webhookPayload,
+// };
