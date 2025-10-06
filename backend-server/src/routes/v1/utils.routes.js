@@ -10,6 +10,11 @@ router
   .route("/has-user-purchased")
   .get(auth("common"), utilsController.hasUserPurchased);
 
+// header statics
+router
+  .route("/header-statitics")
+  .get(auth("common"), utilsController.headerStatistics);
+
 // get customer dashboard details
 router
   .route("/customer-dashboard")

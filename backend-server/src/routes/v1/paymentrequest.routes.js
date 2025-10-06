@@ -9,8 +9,8 @@ router
   .get(auth("common"), paymentRequestController.getpaymentRequest);
 
 router
-  .route("/create-pay-request")
-  .post(auth("common"), paymentRequestController.createNewPaymentRequest);
+  .route("/create-pay")
+  .post(auth("common"), paymentRequestController.createNewPayRequest);
 
 router
   .route("/update-pay-request-status/:id")
