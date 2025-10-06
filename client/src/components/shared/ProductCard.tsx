@@ -126,8 +126,13 @@ const ProductCard = ({
 
   const [addtoCartProduct] = useAddTocartMutation();
 
-  const addToCart = ({ productId, vendorId }: any) => {
-    addtoCartProduct({ productId, vendorId, quantity: 1, price });
+  const addToCart = async ({ productId, vendorId }: any) => {
+    await addtoCartProduct({
+      product: productId,
+      vendorId,
+      quantity: 1,
+      price,
+    });
   };
 
   // Use the correct ID (support both _id and id)
@@ -218,9 +223,11 @@ const ProductCard = ({
             <div className="flex-1 p-4">
               <div className="flex justify-between items-start">
                 <div className="flex-1 pr-4">
-                  <h3 className="font-semibold text-lg hover:text-primary transition-colors line-clamp-1">
-                    {finalProductName}
-                  </h3>
+                  <Link href={`/product/${productId}`}>
+                    <h3 className="font-semibold text-lg hover:text-primary transition-colors line-clamp-1 cursor-pointer">
+                      {finalProductName}
+                    </h3>
+                  </Link>
 
                   <div className="flex items-center gap-1 mt-1">
                     <Store className="h-4 w-4 text-muted-foreground" />
@@ -260,8 +267,8 @@ const ProductCard = ({
                   size="sm"
                   onClick={() =>
                     addToCart({
-                      productId: product.id,
-                      vendorId: product.vendorId,
+                      productId: product._id,
+                      vendorId: product.vendor,
                     })
                   }
                   disabled={finalStockQuantity === 0}
@@ -431,9 +438,11 @@ const ProductCard = ({
           </p>
         </div>
 
-        <h3 className="font-semibold hover:text-primary transition-colors line-clamp-2 h-12">
-          {finalProductName}
-        </h3>
+        <Link href={`/product/${productId}`}>
+          <h3 className="font-semibold hover:text-primary transition-colors line-clamp-2 h-12">
+            {finalProductName}
+          </h3>
+        </Link>
 
         {getVendorLink() ? (
           <Link
@@ -471,9 +480,8 @@ const ProductCard = ({
               size="sm"
               onClick={() =>
                 addToCart({
-                  productId: product.id,
-                  vendorId: product.vendorId,
-                  price: product.price,
+                  productId: product._id,
+                  vendorId: product.vendor,
                 })
               }
               disabled={finalStockQuantity === 0}

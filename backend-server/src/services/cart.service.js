@@ -24,7 +24,7 @@ const myCartList = async (userId) => {
       return {
         cartId: item._id,
         productName: product.productName,
-        vendorName: item.vendorId.storeName,
+        // vendorName: item.vendorId.storeName,
         condition: product.condition,
         price: product.price,
         stockQuantity: product.stockQuantity,

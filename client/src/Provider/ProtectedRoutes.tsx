@@ -21,7 +21,7 @@ const ProtectedRoute = ({ children, allowedTypes }: ProtectedRouteProps) => {
   }, []);
   useEffect(() => {
     if (isClient && (!user || !allowedTypes.includes(user.type))) {
-      router.push("/auth/signin");
+      router.push("/");
     }
   }, [user, allowedTypes, router, isClient]);
 

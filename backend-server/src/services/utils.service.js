@@ -3,8 +3,9 @@ const { User, Product, Order, Rating, Vendor } = require("../models");
 const moment = require("moment");
 
 // Get Featured Products based on ratings, sales, and orders
+
 const getFeturedProducts = async () => {
-  // Fetch products sorted by rating and total sales (number of orders)
+  // Step 1: Try to fetch featured products (by rating + order count)
   const featuredProducts = await Product.aggregate([
     {
       $lookup: {
@@ -23,6 +24,18 @@ const getFeturedProducts = async () => {
       },
     },
     {
+      $addFields: {
+        averageRating: { $avg: "$ratings.rating" },
+        totalOrders: { $size: "$orders" },
+      },
+    },
+    {
+      $sort: { totalOrders: -1, averageRating: -1, createdAt: -1 },
+    },
+    {
+      $limit: 4,
+    },
+    {
       $project: {
         productName: 1,
         price: 1,
@@ -31,29 +44,52 @@ const getFeturedProducts = async () => {
         images: 1,
         category: 1,
         vendor: 1,
-        rating: { $avg: "$ratings.rating" }, // Average rating
-        totalOrders: { $size: "$orders" }, // Total number of orders
+        averageRating: 1,
+        totalOrders: 1,
       },
     },
-    { $sort: { rating: -1, totalOrders: -1 } }, // Sort by rating and orders
-    { $limit: 6 }, // Fetch top 6 products
   ]);
 
-  // If there are fewer than 4 featured products, add new products
-  if (featuredProducts.length < 4) {
-    const remainingProducts = await Product.find({})
-      .skip(0) // You can adjust this based on your logic
-      .limit(4 - featuredProducts.length)
+  // Step 2: If no products with ratings or orders, fallback to latest products
+  if (featuredProducts.length === 0) {
+    const newProducts = await Product.find({})
+      .sort({ createdAt: -1 })
+      .limit(4)
       .select(
         "productName price stockQuantity condition images category vendor"
       )
       .lean();
 
-    // Add the remaining products to the featured products list
-    return [...featuredProducts, ...remainingProducts];
+    return newProducts;
   }
 
-  return featuredProducts;
+  // Step 3: Ensure no duplicate products (edge safety)
+  const uniqueProducts = [];
+  const seen = new Set();
+
+  for (const product of featuredProducts) {
+    if (!seen.has(product._id.toString())) {
+      seen.add(product._id.toString());
+      uniqueProducts.push(product);
+    }
+  }
+
+  // Step 4: If fewer than 4 featured products, fill with newest products
+  if (uniqueProducts.length < 4) {
+    const remaining = await Product.find({
+      _id: { $nin: Array.from(seen) },
+    })
+      .sort({ createdAt: -1 })
+      .limit(4 - uniqueProducts.length)
+      .select(
+        "productName price stockQuantity condition images category vendor"
+      )
+      .lean();
+
+    uniqueProducts.push(...remaining);
+  }
+
+  return uniqueProducts;
 };
 
 const getLpsStatistics = async () => {
