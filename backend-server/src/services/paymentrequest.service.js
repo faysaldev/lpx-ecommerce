@@ -1,14 +1,21 @@
 const httpStatus = require("http-status");
-const { Vendor } = require("../models");
+const { PaymentRequest } = require("../models");
 const ApiError = require("../utils/ApiError");
 
 const getpaymentRequest = async (userId) => {
-  if (!userId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
-  }
-  return Vendor.find({ seller: userId });
+  return PaymentRequest.find({ seller: userId });
+};
+
+const createNewPaymentRequest = async (paymentBody) => {
+  return PaymentRequest.create({ paymentBody });
+};
+
+const updatePaymentRequestStatus = async (id, paymentBody) => {
+  return PaymentRequest.findByIdAndUpdate(id, { paymentBody });
 };
 
 module.exports = {
   getpaymentRequest,
+  createNewPaymentRequest,
+  updatePaymentRequestStatus,
 };
