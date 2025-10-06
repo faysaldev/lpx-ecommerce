@@ -1,7 +1,7 @@
 const httpStatus = require("http-status");
 const catchAsync = require("../utils/catchAsync");
 const response = require("../config/response");
-const { paymentrequestService } = require("../services");
+const { paymentrequestService, vendorService } = require("../services");
 
 const getpaymentRequest = catchAsync(async (req, res) => {
   const {
@@ -42,7 +42,8 @@ const createNewPayRequest = catchAsync(async (req, res) => {
   //     })
   //   );
   // }
-  console.log(req.body);
+  // console.log(req.body);
+  // const vendorId = await vendorService.getVendorByUserId(req.user.id);
   const paymentRequest = await paymentrequestService.createNewPaymentRequest({
     seller: req.user.id,
     ...req.body,

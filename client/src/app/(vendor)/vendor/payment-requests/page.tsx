@@ -47,6 +47,8 @@ import type {
   PaymentRequest,
   PaymentRequestStatus,
 } from "@/lib/payment-request";
+import ProtectedRoute from "@/Provider/ProtectedRoutes";
+import PaymentRequestDialog from "@/components/Vendors/PaymentRequest/PaymentRequestDialog";
 
 const VENDOR_ID = "vendor-1"; // In a real app, this would come from auth context
 
@@ -153,7 +155,6 @@ export default function VendorPaymentRequestsPage() {
 
   if (isLoading) {
     return (
-      // <ProtectedRoute>
       <PageLayout
         title="Payment Requests"
         description="Manage your payment requests and track payment status"
@@ -180,312 +181,305 @@ export default function VendorPaymentRequestsPage() {
           </Card>
         </div>
       </PageLayout>
-      // </ProtectedRoute>
     );
   }
 
   return (
-    // <ProtectedRoute>
-    <PageLayout
-      title="Payment Requests"
-      description="Manage your payment requests and track payment status"
-      breadcrumbs={[
-        { label: "Vendor", href: "/vendor/dashboard" },
-        { label: "Payment Requests" },
-      ]}
-    >
-      <div className="space-y-6">
-        {/* Action Buttons */}
-        <div className="flex justify-between items-center">
-          <div />
-          <Button
-            onClick={() => setShowCreateForm(true)}
-            disabled={completedOrders.length === 0}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New Payment Request
-          </Button>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, _index) => (
-            <Card key={stat.title}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      {stat.title}
-                    </p>
-                    <p className="text-2xl font-bold">{stat.value}</p>
-                  </div>
-                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Main Content */}
-        <Tabs defaultValue="requests" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="requests">Payment Requests</TabsTrigger>
-            <TabsTrigger value="summary">Summary</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="requests" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>
-                    Payment Requests ({filteredAndSortedRequests.length})
-                  </CardTitle>
-                  <div className="flex items-center gap-2">
-                    {/* Search */}
-                    <div className="relative">
-                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Search requests..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-8 w-[200px]"
-                      />
-                    </div>
-
-                    {/* Status Filter */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Filter className="h-4 w-4 mr-2" />
-                          {statusFilter === "all" ? "All Status" : statusFilter}
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => setStatusFilter("all")}
-                        >
-                          All Status
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setStatusFilter("pending")}
-                        >
-                          Pending
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setStatusFilter("approved")}
-                        >
-                          Approved
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setStatusFilter("paid")}
-                        >
-                          Paid
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => setStatusFilter("rejected")}
-                        >
-                          Rejected
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-
-                    {/* Sort */}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <ArrowUpDown className="h-4 w-4 mr-2" />
-                          Sort
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Sort by</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => handleToggleSort("date")}
-                        >
-                          Date {sortBy === "date" && `(${sortOrder})`}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleToggleSort("amount")}
-                        >
-                          Amount {sortBy === "amount" && `(${sortOrder})`}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleToggleSort("status")}
-                        >
-                          Status {sortBy === "status" && `(${sortOrder})`}
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <PaymentRequestTable
-                  paymentRequests={filteredAndSortedRequests}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="summary" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Payment Status Overview</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Pending Requests
-                      </span>
-                      <span className="font-medium">
-                        {summary.statusCounts.pending}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Approved Requests
-                      </span>
-                      <span className="font-medium text-green-600">
-                        {summary.statusCounts.approved}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Paid Requests
-                      </span>
-                      <span className="font-medium text-blue-600">
-                        {summary.statusCounts.paid}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Rejected Requests
-                      </span>
-                      <span className="font-medium text-red-600">
-                        {summary.statusCounts.rejected}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Financial Summary</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Total Requested
-                      </span>
-                      <span className="font-medium">
-                        {formatCurrency(summary.totalAmount)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Net Amount</span>
-                      <span className="font-medium text-green-600">
-                        {formatCurrency(summary.totalNetAmount)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Average Request
-                      </span>
-                      <span className="font-medium">
-                        {formatCurrency(summary.averageAmount)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Available to Request
-                      </span>
-                      <span className="font-medium text-blue-600">
-                        {formatCurrency(
-                          completedOrders.reduce(
-                            (sum, order) => sum + order.total,
-                            0
-                          )
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Activity */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {paymentRequests.slice(0, 5).map((request) => (
-                    <div
-                      key={request.id}
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium">{request.id}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {request.items.length} orders •{" "}
-                          {formatCurrency(request.totalAmount)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(request.requestDate).toLocaleDateString()}
-                        </p>
-                        <p
-                          className={`text-sm font-medium ${
-                            request.status === "paid"
-                              ? "text-green-600"
-                              : request.status === "approved"
-                              ? "text-blue-600"
-                              : request.status === "rejected"
-                              ? "text-red-600"
-                              : "text-yellow-600"
-                          }`}
-                        >
-                          {request.status}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-
-      {/* Create Payment Request Dialog */}
-      <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle>Create Payment Request</DialogTitle>
-            <DialogDescription>
-              Select completed orders to include in your payment request
-            </DialogDescription>
-          </DialogHeader>
-          <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
-            <PaymentRequestForm
-              vendorId={VENDOR_ID}
-              // completedOrders={completedOrders}
-              onSuccess={handleCreateSuccess}
-              onCancel={() => setShowCreateForm(false)}
-            />
+    <ProtectedRoute allowedTypes={["seller"]}>
+      <PageLayout
+        title="Payment Requests"
+        description="Manage your payment requests and track payment status"
+        breadcrumbs={[
+          { label: "Vendor", href: "/vendor/dashboard" },
+          { label: "Payment Requests" },
+        ]}
+      >
+        <div className="space-y-6">
+          {/* Action Buttons */}
+          <div className="flex justify-between items-center">
+            <div />
+            <Button
+              onClick={() => setShowCreateForm(true)}
+              disabled={completedOrders.length === 0}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Payment Request
+            </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-    </PageLayout>
-    // </ProtectedRoute>
+
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {stats.map((stat, _index) => (
+              <Card key={stat.title}>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </p>
+                      <p className="text-2xl font-bold">{stat.value}</p>
+                    </div>
+                    <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* Main Content */}
+          <Tabs defaultValue="requests" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="requests">Payment Requests</TabsTrigger>
+              <TabsTrigger value="summary">Summary</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="requests" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle>
+                      Payment Requests ({filteredAndSortedRequests.length})
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      {/* Search */}
+                      <div className="relative">
+                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Search requests..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-8 w-[200px]"
+                        />
+                      </div>
+
+                      {/* Status Filter */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <Filter className="h-4 w-4 mr-2" />
+                            {statusFilter === "all"
+                              ? "All Status"
+                              : statusFilter}
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>
+                            Filter by Status
+                          </DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => setStatusFilter("all")}
+                          >
+                            All Status
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setStatusFilter("pending")}
+                          >
+                            Pending
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setStatusFilter("approved")}
+                          >
+                            Approved
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setStatusFilter("paid")}
+                          >
+                            Paid
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => setStatusFilter("rejected")}
+                          >
+                            Rejected
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      {/* Sort */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <ArrowUpDown className="h-4 w-4 mr-2" />
+                            Sort
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuLabel>Sort by</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => handleToggleSort("date")}
+                          >
+                            Date {sortBy === "date" && `(${sortOrder})`}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleToggleSort("amount")}
+                          >
+                            Amount {sortBy === "amount" && `(${sortOrder})`}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleToggleSort("status")}
+                          >
+                            Status {sortBy === "status" && `(${sortOrder})`}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <PaymentRequestTable
+                    paymentRequests={filteredAndSortedRequests}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="summary" className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Payment Status Overview</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Pending Requests
+                        </span>
+                        <span className="font-medium">
+                          {summary.statusCounts.pending}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Approved Requests
+                        </span>
+                        <span className="font-medium text-green-600">
+                          {summary.statusCounts.approved}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Paid Requests
+                        </span>
+                        <span className="font-medium text-blue-600">
+                          {summary.statusCounts.paid}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Rejected Requests
+                        </span>
+                        <span className="font-medium text-red-600">
+                          {summary.statusCounts.rejected}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Financial Summary</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Total Requested
+                        </span>
+                        <span className="font-medium">
+                          {formatCurrency(summary.totalAmount)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Net Amount
+                        </span>
+                        <span className="font-medium text-green-600">
+                          {formatCurrency(summary.totalNetAmount)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Average Request
+                        </span>
+                        <span className="font-medium">
+                          {formatCurrency(summary.averageAmount)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">
+                          Available to Request
+                        </span>
+                        <span className="font-medium text-blue-600">
+                          {formatCurrency(
+                            completedOrders.reduce(
+                              (sum, order) => sum + order.total,
+                              0
+                            )
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Recent Activity */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Activity</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {paymentRequests.slice(0, 5).map((request) => (
+                      <div
+                        key={request.id}
+                        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                      >
+                        <div>
+                          <p className="font-medium">{request.id}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {request.items.length} orders •{" "}
+                            {formatCurrency(request.totalAmount)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(request.requestDate).toLocaleDateString()}
+                          </p>
+                          <p
+                            className={`text-sm font-medium ${
+                              request.status === "paid"
+                                ? "text-green-600"
+                                : request.status === "approved"
+                                ? "text-blue-600"
+                                : request.status === "rejected"
+                                ? "text-red-600"
+                                : "text-yellow-600"
+                            }`}
+                          >
+                            {request.status}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Create Payment Request Dialog */}
+        <PaymentRequestDialog
+          VENDOR_ID={VENDOR_ID}
+          handleCreateSuccess={handleCreateSuccess}
+          setShowCreateForm={setShowCreateForm}
+          showCreateForm={showCreateForm}
+        />
+      </PageLayout>
+    </ProtectedRoute>
   );
 }

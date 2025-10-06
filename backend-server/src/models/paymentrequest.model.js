@@ -38,15 +38,10 @@ const PaymentRequestSchema = new Schema(
       trim: true,
     },
 
-    // Payment Details
-    amountRequested: {
-      type: Number,
-      required: true,
-      min: 1,
-    },
     withdrawalAmount: {
       type: Number,
       min: 1,
+      required: true,
     },
 
     requestDate: {

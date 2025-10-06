@@ -212,7 +212,12 @@ const approvedVendorRequest = async (VendorId, sellerId) => {
   return approved;
 };
 
+const getVendorByUserId = async (id) => {
+  return Vendor.findOne({ seller: id }).populate("_id");
+};
+
 module.exports = {
+  getVendorByUserId,
   getVendors,
   createVendorRequest,
   approvedVendorRequest,
