@@ -20,7 +20,19 @@ const ShoppingCart = baseApi.injectEndpoints({
         method: "DELETE",
       }),
     }),
+    updateCartQuantity: builder.mutation({
+      query: ({ id, quantity }) => ({
+        url: `/carts/update-quantity/${id}`,
+        method: "PATCH",
+        body: { quantity },
+      }),
+    }),
   }),
 });
 
-export const { useAllShoppingCartQuery, useDeleteSingleCartMutation, useAllDeleteCartMutation  } = ShoppingCart;
+export const { 
+  useAllShoppingCartQuery, 
+  useDeleteSingleCartMutation, 
+  useAllDeleteCartMutation,
+  useUpdateCartQuantityMutation
+} = ShoppingCart;

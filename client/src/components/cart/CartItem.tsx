@@ -1,16 +1,16 @@
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { Heart, Minus, Package, Plus, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ConditionBadge,
   GradingBadge,
   RarityBadge,
   SealedBadge,
-  StockBadge,
 } from "@/components/UI/badge.variants";
 import { Button } from "@/components/UI/button";
 import { Card } from "@/components/UI/card";
@@ -46,12 +46,14 @@ const getImageUrl = (imgPath: string) => {
 
 interface CartItemProps {
   item: CartItemType;
-  onUpdateQuantity: (itemId: string, quantity: number) => void;
+  onUpdateQuantity: (itemId: string, quantity: number, calculatedTotalPrice:number) => void;
   onRemove: (itemId: string) => void;
 }
 
 const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
+  // Local state to track quantity for immediate UI update
+  const [localQuantity, setLocalQuantity] = useState(item.quantity);
 
   // Use the nested product object if it exists, otherwise use item properties
   // Since the API response may have additional properties not in the base CartItem interface
@@ -78,20 +80,38 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) => {
   };
 
   const actualPrice = (item as any).money || item.price || 0;
-  const actualQuantity = item.quantity;
+  const actualQuantity = localQuantity;
   const availableImageRaw = (item as any).firstImage;
   const productName = (item as any).productName;
   const productStock = (item as any).stockQuantity;
   const totalPrice = (item as any).totalPrice;
   const cartId = (item as any).cartId;
 
+  // Calculate total price: actualPrice × actualQuantity
+  const calculatedTotalPrice = actualPrice * actualQuantity;
+  // console.log(calculatedTotalPrice, "calculated total price");
+  // Sync local quantity with item.quantity when it changes from parent
+  useEffect(() => {
+    setLocalQuantity(item.quantity);
+  }, [item.quantity]);
+
+  // console.log(productStock, "stock of the product");
+
   const handleQuantityChange = async (newQuantity: number) => {
+    // Validate quantity: minimum 1, maximum productStock
+    const validQuantity = Math.max(1, Math.min(newQuantity, productStock));
+    
+    // Update local state immediately for instant UI feedback
+    setLocalQuantity(validQuantity);
     setIsUpdating(true);
-    onUpdateQuantity(item.productId, newQuantity);
+    
+    // Call parent function to update cart in backend
+    onUpdateQuantity(item.productId, validQuantity, calculatedTotalPrice);
+    
     setTimeout(() => setIsUpdating(false), 300);
   };
 
-  console.log(item, "immage of the products");
+  // console.log(item, "immage of the products");
 
   return (
     <Card className="p-4 sm:p-6">
@@ -108,13 +128,11 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) => {
                 fill
                 className="object-cover"
               />
-              {productStock <= 5 && (
-                <div className="absolute top-2 right-2">
-                  <StockBadge stock={productStock} className="text-xs" />
-                </div>
-              )}
             </div>
           </Link>
+          <div className="pl-2 mt-6 font-semibold text-sm">
+            In Stock ({productStock})
+          </div>
         </div>
 
         {/* Product Details */}
@@ -176,16 +194,11 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }: CartItemProps) => {
             <div className="space-y-1">
               <div className="flex items-baseline gap-2">
                 <span className="text-lg font-semibold">
-                  ${Number(totalPrice || 0).toFixed(2)}
+                  ${Number(actualPrice || 0).toFixed(2)}
                 </span>
-                {/* {savings > 0 && (
-                  <span className="text-sm text-muted-foreground line-through">
-                    ${((productData.compareAtPrice ?? 0) * actualQuantity).toFixed(2)}
-                  </span>
-                )} */}
               </div>
               <p className="text-sm text-muted-foreground">
-                ${Number(actualPrice || 0).toFixed(2)} each
+                ${Number(calculatedTotalPrice).toFixed(2)} each × {actualQuantity}
               </p>
             </div>
 

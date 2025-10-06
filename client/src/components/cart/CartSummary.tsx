@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -25,6 +26,7 @@ interface CartSummaryProps {
   discount: number;
   itemCount: number;
   couponCode?: string | null;
+  items: any;
 }
 
 export default function CartSummary({
@@ -35,9 +37,12 @@ export default function CartSummary({
   discount,
   itemCount,
   couponCode,
+  items,
 }: CartSummaryProps) {
   const router = useRouter();
   const user  = useAppSelector(selectCurrentUser);
+
+  console.log("Cart items:",  total);
 
   const FREE_SHIPPING_THRESHOLD = 100;
   const remainingForFreeShipping = Math.max(
