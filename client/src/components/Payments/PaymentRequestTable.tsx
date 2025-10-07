@@ -36,25 +36,103 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/UI/table";
-import {
-  formatCurrency,
-  formatDate,
-  getStatusBadgeVariant,
-  getStatusDisplayText,
-  getTimeSinceRequest,
-} from "@/lib/utils/helpers";
-import type { PaymentRequest } from "@/lib/payment-request";
+import SinglePlaymentDetailsDialogBox from "./SinglePaymentDetailsDialogBox";
+
+interface PaymentRequest {
+  _id: string;
+  seller: string;
+  bankName: string;
+  accountNumber: string;
+  accountType: string;
+  phoneNumber: string;
+  withdrawalAmount: number;
+  status: string;
+  requestDate: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
 
 interface PaymentRequestTableProps {
   paymentRequests: PaymentRequest[];
   onViewDetails?: (request: PaymentRequest) => void;
   showVendorColumn?: boolean;
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+    onPageChange: (page: number) => void;
+  };
 }
+
+// Helper functions
+const formatCurrency = (amount: number) => {
+  return `AED ${amount?.toFixed(2) || "0.00"}`;
+};
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+const getTimeSinceRequest = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now.getTime() - date.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 1) return "1 day ago";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+  return `${Math.ceil(diffDays / 30)} months ago`;
+};
+
+const getStatusBadgeVariant = (status: string) => {
+  switch (status) {
+    case "paid":
+    case "approved":
+      return {
+        variant: "default" as const,
+        className: "bg-green-100 text-green-800",
+      };
+    case "pending":
+      return {
+        variant: "secondary" as const,
+        className: "bg-yellow-100 text-yellow-800",
+      };
+    case "rejected":
+      return {
+        variant: "destructive" as const,
+        className: "bg-red-100 text-red-800",
+      };
+    default:
+      return { variant: "outline" as const, className: "" };
+  }
+};
+
+const getStatusDisplayText = (status: string) => {
+  switch (status) {
+    case "pending":
+      return "Pending";
+    case "approved":
+      return "Approved";
+    case "paid":
+      return "Paid";
+    case "rejected":
+      return "Rejected";
+    default:
+      return status.charAt(0).toUpperCase() + status.slice(1);
+  }
+};
 
 export default function PaymentRequestTable({
   paymentRequests,
   onViewDetails,
   showVendorColumn = false,
+  pagination,
 }: PaymentRequestTableProps) {
   const [selectedRequest, setSelectedRequest] = useState<PaymentRequest | null>(
     null
@@ -71,20 +149,20 @@ export default function PaymentRequestTable({
   };
 
   const handleDownloadInvoice = (request: PaymentRequest) => {
-    if (request.invoiceUrl) {
-      // In a real app, this would trigger a download
-      window.open(request.invoiceUrl, "_blank");
-    }
+    // In a real app, this would trigger a download
+    console.log("Download invoice for:", request._id);
+    // window.open(request.invoiceUrl, "_blank");
   };
 
   const handleDownloadPaymentProof = (request: PaymentRequest) => {
-    if (request.paymentProofUrl) {
-      // In a real app, this would trigger a download
-      window.open(request.paymentProofUrl, "_blank");
-    }
+    // In a real app, this would trigger a download
+    console.log("Download payment proof for:", request._id);
+    // window.open(request.paymentProofUrl, "_blank");
   };
 
-  if (paymentRequests.length === 0) {
+  console.log("Payment Requests:", paymentRequests);
+
+  if (!paymentRequests || paymentRequests.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="mx-auto bg-muted rounded-full flex items-center justify-center mb-6 w-24 h-24">
@@ -110,11 +188,11 @@ export default function PaymentRequestTable({
             <TableRow>
               <TableHead>Request ID</TableHead>
               {showVendorColumn && <TableHead>Vendor</TableHead>}
+              <TableHead>Bank Details</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead>Net Amount</TableHead>
-              <TableHead>Orders</TableHead>
+              <TableHead>Account Type</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Submitted</TableHead>
+              <TableHead>Request Date</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -125,10 +203,10 @@ export default function PaymentRequestTable({
               );
 
               return (
-                <TableRow key={request.id}>
+                <TableRow key={request._id}>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{request.id}</p>
+                      <p className="font-medium">{request._id}</p>
                       <p className="text-sm text-muted-foreground">
                         {getTimeSinceRequest(request.requestDate)}
                       </p>
@@ -138,9 +216,9 @@ export default function PaymentRequestTable({
                   {showVendorColumn && (
                     <TableCell>
                       <div>
-                        <p className="font-medium">{request.vendorName}</p>
+                        <p className="font-medium">Vendor ID</p>
                         <p className="text-sm text-muted-foreground">
-                          {request.vendorEmail}
+                          {request.seller}
                         </p>
                       </div>
                     </TableCell>
@@ -148,32 +226,23 @@ export default function PaymentRequestTable({
 
                   <TableCell>
                     <div>
-                      <p className="font-medium">
-                        {formatCurrency(request.totalAmount)}
-                      </p>
+                      <p className="font-medium">{request.bankName}</p>
                       <p className="text-sm text-muted-foreground">
-                        Fee: {formatCurrency(request.commission)}
+                        {request.accountNumber}
                       </p>
                     </div>
                   </TableCell>
 
                   <TableCell>
                     <p className="font-medium text-green-600">
-                      {formatCurrency(request.netAmount)}
+                      {formatCurrency(request.withdrawalAmount)}
                     </p>
                   </TableCell>
 
                   <TableCell>
-                    <div>
-                      <p className="font-medium">
-                        {request.items.length} order(s)
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {request.items[0]?.orderNumber}
-                        {request.items.length > 1 &&
-                          ` +${request.items.length - 1} more`}
-                      </p>
-                    </div>
+                    <p className="font-medium capitalize">
+                      {request.accountType}
+                    </p>
                   </TableCell>
 
                   <TableCell>
@@ -184,44 +253,10 @@ export default function PaymentRequestTable({
 
                   <TableCell>
                     <div className="text-sm">
-                      <p>
-                        {formatDate(request.requestDate, {
-                          hour: undefined,
-                          minute: undefined,
-                        })}
+                      <p>{formatDate(request.requestDate)}</p>
+                      <p className="text-muted-foreground">
+                        {getTimeSinceRequest(request.requestDate)}
                       </p>
-                      {request.status === "approved" &&
-                        request.approvedDate && (
-                          <p className="text-green-600">
-                            Approved{" "}
-                            {formatDate(request.approvedDate, {
-                              year: undefined,
-                              hour: undefined,
-                              minute: undefined,
-                            })}
-                          </p>
-                        )}
-                      {request.status === "paid" && request.paidDate && (
-                        <p className="text-blue-600">
-                          Paid{" "}
-                          {formatDate(request.paidDate, {
-                            year: undefined,
-                            hour: undefined,
-                            minute: undefined,
-                          })}
-                        </p>
-                      )}
-                      {request.status === "rejected" &&
-                        request.rejectedDate && (
-                          <p className="text-red-600">
-                            Rejected{" "}
-                            {formatDate(request.rejectedDate, {
-                              year: undefined,
-                              hour: undefined,
-                              minute: undefined,
-                            })}
-                          </p>
-                        )}
                     </div>
                   </TableCell>
 
@@ -241,22 +276,18 @@ export default function PaymentRequestTable({
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
                         </DropdownMenuItem>
-                        {request.invoiceUrl && (
-                          <DropdownMenuItem
-                            onClick={() => handleDownloadInvoice(request)}
-                          >
-                            <Download className="mr-2 h-4 w-4" />
-                            Download Invoice
-                          </DropdownMenuItem>
-                        )}
-                        {request.paymentProofUrl && (
-                          <DropdownMenuItem
-                            onClick={() => handleDownloadPaymentProof(request)}
-                          >
-                            <Download className="mr-2 h-4 w-4" />
-                            Download Payment Proof
-                          </DropdownMenuItem>
-                        )}
+                        <DropdownMenuItem
+                          onClick={() => handleDownloadInvoice(request)}
+                        >
+                          <Download className="mr-2 h-4 w-4" />
+                          Download Invoice
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDownloadPaymentProof(request)}
+                        >
+                          <Download className="mr-2 h-4 w-4" />
+                          Download Payment Proof
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -266,264 +297,11 @@ export default function PaymentRequestTable({
           </TableBody>
         </Table>
       </div>
-
-      {/* Details Dialog */}
-      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Payment Request Details</DialogTitle>
-            <DialogDescription>
-              Request ID: {selectedRequest?.id}
-            </DialogDescription>
-          </DialogHeader>
-
-          {selectedRequest && (
-            <div className="space-y-6">
-              {/* Status and Basic Info */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Status
-                    </p>
-                    <Badge
-                      variant={
-                        getStatusBadgeVariant(selectedRequest.status).variant
-                      }
-                      className={
-                        getStatusBadgeVariant(selectedRequest.status).className
-                      }
-                    >
-                      {getStatusDisplayText(selectedRequest.status)}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Requested
-                    </p>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>{formatDate(selectedRequest.requestDate)}</span>
-                    </div>
-                  </div>
-                  {showVendorColumn && (
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Vendor
-                      </p>
-                      <div className="flex items-center gap-1">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <span>{selectedRequest.vendorName}</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Total Amount
-                    </p>
-                    <p className="text-lg font-bold">
-                      {formatCurrency(selectedRequest.totalAmount)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Platform Fee
-                    </p>
-                    <p className="text-lg font-semibold text-red-600">
-                      -{formatCurrency(selectedRequest.commission)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Net Amount
-                    </p>
-                    <p className="text-lg font-bold text-green-600">
-                      {formatCurrency(selectedRequest.netAmount)}
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Timeline */}
-              <div>
-                <h4 className="font-semibold mb-3">Timeline</h4>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span>
-                      Submitted on {formatDate(selectedRequest.requestDate)}
-                    </span>
-                  </div>
-                  {selectedRequest.approvedDate && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Clock className="h-4 w-4 text-green-600" />
-                      <span>
-                        Approved on {formatDate(selectedRequest.approvedDate)}
-                      </span>
-                      {selectedRequest.approvedBy && (
-                        <span className="text-muted-foreground">
-                          by {selectedRequest.approvedBy}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  {selectedRequest.paidDate && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Clock className="h-4 w-4 text-blue-600" />
-                      <span>
-                        Paid on {formatDate(selectedRequest.paidDate)}
-                      </span>
-                    </div>
-                  )}
-                  {selectedRequest.rejectedDate && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Clock className="h-4 w-4 text-red-600" />
-                      <span>
-                        Rejected on {formatDate(selectedRequest.rejectedDate)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Orders */}
-              <div>
-                <h4 className="font-semibold mb-3">
-                  Included Orders ({selectedRequest.items.length})
-                </h4>
-                <div className="border rounded-lg">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Order Number</TableHead>
-                        <TableHead>Customer</TableHead>
-                        <TableHead>Products</TableHead>
-                        <TableHead>Order Date</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {selectedRequest.items.map((item) => (
-                        <TableRow key={item.orderId}>
-                          <TableCell className="font-medium">
-                            {item.orderNumber}
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">
-                                {item.customer.name}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {item.customer.email}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">
-                                {item.products.length} item(s)
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {item.products[0]?.name}
-                                {item.products.length > 1 &&
-                                  ` +${item.products.length - 1} more`}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {formatDate(item.orderDate, {
-                              hour: undefined,
-                              minute: undefined,
-                            })}
-                          </TableCell>
-                          <TableCell className="text-right font-medium">
-                            {formatCurrency(item.amount)}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-
-              {/* Notes */}
-              {(selectedRequest.notes ||
-                selectedRequest.adminNotes ||
-                selectedRequest.rejectedReason) && (
-                <div className="space-y-3">
-                  {selectedRequest.notes && (
-                    <div>
-                      <h4 className="font-semibold mb-2">Vendor Notes</h4>
-                      <p className="text-sm bg-muted p-3 rounded-lg">
-                        {selectedRequest.notes}
-                      </p>
-                    </div>
-                  )}
-                  {selectedRequest.adminNotes && (
-                    <div>
-                      <h4 className="font-semibold mb-2">Admin Notes</h4>
-                      <p className="text-sm bg-blue-50 border border-blue-200 p-3 rounded-lg">
-                        {selectedRequest.adminNotes}
-                      </p>
-                    </div>
-                  )}
-                  {selectedRequest.rejectedReason && (
-                    <div>
-                      <h4 className="font-semibold mb-2">Rejection Reason</h4>
-                      <p className="text-sm bg-red-50 border border-red-200 p-3 rounded-lg">
-                        {selectedRequest.rejectedReason}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Files */}
-              {(selectedRequest.invoiceUrl ||
-                selectedRequest.paymentProofUrl) && (
-                <div>
-                  <h4 className="font-semibold mb-3">Attachments</h4>
-                  <div className="space-y-2">
-                    {selectedRequest.invoiceUrl && (
-                      <div className="flex items-center gap-2 p-2 bg-muted rounded">
-                        <FileText className="h-4 w-4" />
-                        <span className="text-sm flex-1">Invoice</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDownloadInvoice(selectedRequest)}
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          Download
-                        </Button>
-                      </div>
-                    )}
-                    {selectedRequest.paymentProofUrl && (
-                      <div className="flex items-center gap-2 p-2 bg-muted rounded">
-                        <FileText className="h-4 w-4" />
-                        <span className="text-sm flex-1">Payment Proof</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            handleDownloadPaymentProof(selectedRequest)
-                          }
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          Download
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <SinglePlaymentDetailsDialogBox
+        setShowDetailsDialog={setShowDetailsDialog}
+        showDetailsDialog={showDetailsDialog}
+        requestId={selectedRequest?._id}
+      />
     </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, DollarSign } from "lucide-react";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/UI/button";
@@ -19,16 +19,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/UI/dialog";
-import { Input } from "@/components/UI/input";
 import { Label } from "@/components/UI/label";
 import { Textarea } from "@/components/UI/textarea";
 import { Select, Input as AntInput, InputNumber } from "antd";
-import { useCreatePaymentRequestMutation } from "@/redux/features/vendors/paymentRequest";
+import {
+  useCreatePaymentRequestMutation,
+  useGetPaymentWithDrawlElgbleQuery,
+} from "@/redux/features/vendors/paymentRequest";
 
 const { Option } = Select;
 
 interface PaymentRequestFormProps {
-  vendorId: string;
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -45,10 +46,19 @@ interface PaymentRequestData {
 }
 
 export default function PaymentRequestForm({
-  vendorId,
   onSuccess,
   onCancel,
 }: PaymentRequestFormProps) {
+  const { data: eligableWithDrawl, isLoading: withdrawlLoading } =
+    useGetPaymentWithDrawlElgbleQuery({});
+
+  console.log(eligableWithDrawl, "eligable withdrawl");
+
+  // Extract available withdrawal amount
+  const availableAmount =
+    eligableWithDrawl?.data?.attributes?.availableWithdrawl || 0;
+  const isEligible = availableAmount >= 100;
+
   const [formData, setFormData] = useState<PaymentRequestData>({
     bankName: "",
     accountNumber: "",
@@ -74,6 +84,13 @@ export default function PaymentRequestForm({
   const validateForm = (): boolean => {
     const errors: string[] = [];
 
+    // Check eligibility first
+    if (!isEligible) {
+      errors.push("You need at least AED 100 available to make a withdrawal");
+      errors.forEach((error) => toast.error(error));
+      return false;
+    }
+
     if (!formData.bankName.trim()) {
       errors.push("Bank name is required");
     }
@@ -90,6 +107,10 @@ export default function PaymentRequestForm({
 
     if (!formData.withdrawalAmount || formData.withdrawalAmount <= 0) {
       errors.push("Withdrawal amount must be greater than 0");
+    } else if (formData.withdrawalAmount > availableAmount) {
+      toast(
+        `Withdrawal amount cannot exceed AED ${availableAmount.toFixed(2)}`
+      );
     }
 
     if (errors.length > 0) {
@@ -134,6 +155,62 @@ export default function PaymentRequestForm({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Eligibility Status Card */}
+          {withdrawlLoading ? (
+            <div className="flex items-center justify-center p-4 bg-gray-50 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                Loading balance...
+              </p>
+            </div>
+          ) : (
+            <div
+              className={`flex items-start gap-3 p-4 rounded-lg border ${
+                isEligible
+                  ? "bg-green-50 border-green-200"
+                  : "bg-red-50 border-red-200"
+              }`}
+            >
+              {isEligible ? (
+                <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+              ) : (
+                <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+              )}
+              <div className="flex-1">
+                <p
+                  className={`font-semibold ${
+                    isEligible ? "text-green-800" : "text-red-800"
+                  }`}
+                >
+                  {isEligible
+                    ? "Eligible for Withdrawal"
+                    : "Not Eligible for Withdrawal"}
+                </p>
+                <div className="mt-2 space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span
+                      className={isEligible ? "text-green-700" : "text-red-700"}
+                    >
+                      Available Balance:
+                    </span>
+                    <span
+                      className={`font-bold ${
+                        isEligible ? "text-green-800" : "text-red-800"
+                      }`}
+                    >
+                      AED {availableAmount.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+                {!isEligible && (
+                  <p className="text-red-700 mt-2 text-sm">
+                    You need at least AED 100.00 available to make a withdrawal
+                    request.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Bank Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Bank Name */}
@@ -147,6 +224,7 @@ export default function PaymentRequestForm({
                 value={formData.bankName}
                 onChange={(e) => handleInputChange("bankName", e.target.value)}
                 size="large"
+                disabled={!isEligible}
               />
             </div>
 
@@ -167,6 +245,7 @@ export default function PaymentRequestForm({
                 }
                 size="large"
                 maxLength={20}
+                disabled={!isEligible}
               />
             </div>
 
@@ -182,6 +261,7 @@ export default function PaymentRequestForm({
                 }
                 size="large"
                 style={{ width: "100%" }}
+                disabled={!isEligible}
               >
                 <Option value="savings">Savings</Option>
                 <Option value="current">Current</Option>
@@ -203,6 +283,7 @@ export default function PaymentRequestForm({
                   handleInputChange("phoneNumber", e.target.value)
                 }
                 size="large"
+                disabled={!isEligible}
               />
             </div>
           </div>
@@ -225,8 +306,31 @@ export default function PaymentRequestForm({
               style={{ width: "100%" }}
               size="large"
               min={0}
+              max={availableAmount}
               step={0.01}
+              disabled={!isEligible}
             />
+            <div className="flex items-center justify-between text-sm mt-1">
+              <p className="text-muted-foreground">
+                Maximum withdrawal:{" "}
+                <span className="font-semibold text-foreground">
+                  AED {availableAmount.toFixed(2)}
+                </span>
+              </p>
+              {formData.withdrawalAmount > 0 && (
+                <p
+                  className={`font-medium ${
+                    formData.withdrawalAmount <= availableAmount
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {formData.withdrawalAmount <= availableAmount
+                    ? "✓ Valid amount"
+                    : "✗ Exceeds available balance"}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Notes */}
@@ -241,6 +345,7 @@ export default function PaymentRequestForm({
               onChange={(e) => handleInputChange("notes", e.target.value)}
               className="mt-2"
               maxLength={500}
+              disabled={!isEligible}
             />
             <p className="text-sm text-muted-foreground mt-1">
               {formData.notes.length}/500 characters
@@ -271,7 +376,7 @@ export default function PaymentRequestForm({
             </Button>
             <Button
               onClick={() => setShowPreview(true)}
-              disabled={isSubmitting}
+              disabled={isSubmitting || !isEligible}
               className="flex-1"
             >
               Review & Submit
@@ -323,7 +428,10 @@ export default function PaymentRequestForm({
                 Withdrawal Amount
               </h4>
               <p className="text-2xl font-bold text-green-600">
-                ${formData.withdrawalAmount.toFixed(2)}
+                AED {formData.withdrawalAmount.toFixed(2)}
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Available Balance: AED {availableAmount.toFixed(2)}
               </p>
             </div>
 

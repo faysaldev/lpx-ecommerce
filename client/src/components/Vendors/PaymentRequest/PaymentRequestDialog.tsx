@@ -10,12 +10,10 @@ import {
 import React from "react";
 
 function PaymentRequestDialog({
-  VENDOR_ID,
   showCreateForm,
   handleCreateSuccess,
   setShowCreateForm,
 }: {
-  VENDOR_ID: any;
   showCreateForm: any;
   handleCreateSuccess: any;
   setShowCreateForm: any;
@@ -31,7 +29,6 @@ function PaymentRequestDialog({
         </DialogHeader>
         <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
           <PaymentRequestForm
-            vendorId={VENDOR_ID}
             // completedOrders={completedOrders}
             onSuccess={handleCreateSuccess}
             onCancel={() => setShowCreateForm(false)}

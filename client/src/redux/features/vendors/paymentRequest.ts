@@ -9,14 +9,40 @@ const paymentRequest = baseApi.injectEndpoints({
         body: paymentRequestBody,
       }),
     }),
+
     myPaymentRequest: builder.query({
       query: ({ page, search, sort }) => ({
         url: `/payments/my-pay-request?page=${page}&limit=10&search=${search}&status=${status}&sort=${sort}`,
         method: "GET",
       }),
     }),
+
+    getPaymeRequestStats: builder.query({
+      query: () => ({
+        url: `/payments/payment-request-stats`,
+        method: "GET",
+      }),
+    }),
+
+    getPaymentWithDrawlElgble: builder.query({
+      query: () => ({
+        url: `/payments/my-eligable-withdrawl`,
+        method: "GET",
+      }),
+    }),
+    getSinglePaymentdetails: builder.query({
+      query: (id) => ({
+        url: `/payments/details/${id}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useCreatePaymentRequestMutation, useMyPaymentRequestQuery } =
-  paymentRequest;
+export const {
+  useCreatePaymentRequestMutation,
+  useMyPaymentRequestQuery,
+  useGetPaymeRequestStatsQuery,
+  useGetPaymentWithDrawlElgbleQuery,
+  useGetSinglePaymentdetailsQuery,
+} = paymentRequest;

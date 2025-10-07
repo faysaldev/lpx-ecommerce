@@ -13,11 +13,6 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import {
-  ConditionBadge,
-  GradingBadge,
-  SealedBadge,
-} from "@/components/UI/badge.variants";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
 import { Skeleton } from "@/components/UI/skeleton";
@@ -27,11 +22,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/UI/tooltip";
-import { designTokens } from "@/design-system/compat";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import ConditionBadgeComponent from "../Vendors/SingleVendorView/ConditionBadgeComponent";
 import { useAddTocartMutation } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
+import { getImageUrl } from "@/lib/getImageURL";
 
 export function ProductCardSkeleton({
   viewMode = "grid",
@@ -165,35 +160,10 @@ const ProductCard = ({
     }
   };
 
-  const getImageUrl = (imgPath: string) => {
-    if (!imgPath) return "";
-
-    // Handle different path formats
-    const cleanPath = imgPath.replace(/\\/g, "/");
-
-    // If it's already a full URL, return as is
-    if (cleanPath.startsWith("http")) {
-      return cleanPath;
-    }
-
-    // If it starts with /, it's already relative to base
-    if (cleanPath.startsWith("/")) {
-      return `${process.env.NEXT_PUBLIC_BASE_URL || ""}${cleanPath}`;
-    }
-
-    // Otherwise, prepend base URL
-    return `${process.env.NEXT_PUBLIC_BASE_URL || ""}/${cleanPath}`;
-  };
-
   // Format price with commas
   const formattedPrice = new Intl.NumberFormat("en-US").format(price);
 
   const optionData = new Intl.NumberFormat("en-US").format(optionalPrice);
-
-  console.log(
-    " Lorem ipsum dolor sit amet consectetur adipisicing",
-    optionData
-  );
 
   // List View Layout
   if (viewMode === "list") {
@@ -472,20 +442,20 @@ const ProductCard = ({
           <div className="flex items-center justify-between space-y-2 mb-3">
             <div>
               <div className="flex items-baseline space-x-2">
-                                  <span className="text-md font-semibold">
-                                    AED {formattedPrice}
-                                  </span>
-                                  {product.discountPercentage > 0 && (
-                                    <>
-                                      <span className="text-sm text-muted-foreground line-through">
-                                        {optionData}
-                                      </span>
-                                      <span className="text-sm font-semibold text-green-600">
-                                        {product.discountPercentage}% OFF
-                                      </span>
-                                    </>
-                                  )}
-                                </div>
+                <span className="text-md font-semibold">
+                  AED {formattedPrice}
+                </span>
+                {product.discountPercentage > 0 && (
+                  <>
+                    <span className="text-sm text-muted-foreground line-through">
+                      {optionData}
+                    </span>
+                    <span className="text-sm font-semibold text-green-600">
+                      {product.discountPercentage}% OFF
+                    </span>
+                  </>
+                )}
+              </div>
               <div className="h-4 mt-1">
                 {finalStockQuantity === 0 ? (
                   <p className="text-xs text-red-600">Out of Stock</p>
