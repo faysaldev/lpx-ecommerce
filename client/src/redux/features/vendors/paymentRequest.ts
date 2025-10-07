@@ -16,8 +16,26 @@ const paymentRequest = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+
+    getPaymeRequestStats: builder.query({
+      query: () => ({
+        url: `/payments/payment-request-stats`,
+        method: "GET",
+      }),
+    }),
+
+    getPaymentWithDrawlElgble: builder.query({
+      query: () => ({
+        url: `/payments/my-eligable-withdrawl`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useCreatePaymentRequestMutation, useMyPaymentRequestQuery } =
-  paymentRequest;
+export const {
+  useCreatePaymentRequestMutation,
+  useMyPaymentRequestQuery,
+  useGetPaymeRequestStatsQuery,
+  useGetPaymentWithDrawlElgbleQuery,
+} = paymentRequest;

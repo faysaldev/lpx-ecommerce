@@ -25,7 +25,7 @@ import { Textarea } from "@/components/UI/textarea";
 import { Select, Input as AntInput, InputNumber } from "antd";
 import {
   useCreatePaymentRequestMutation,
-  useMyeligableRequestQuery,
+  useGetPaymentWithDrawlElgbleQuery,
 } from "@/redux/features/vendors/paymentRequest";
 
 const { Option } = Select;
@@ -53,7 +53,7 @@ export default function PaymentRequestForm({
   onCancel,
 }: PaymentRequestFormProps) {
   const { data: eligableWithDrawl, isLoading: withdrawlLoading } =
-    useMyeligableRequestQuery({});
+    useGetPaymentWithDrawlElgbleQuery({});
 
   const [formData, setFormData] = useState<PaymentRequestData>({
     bankName: "",
