@@ -16,4 +16,12 @@ router
   .route("/update-pay-request-status/:id")
   .patch(auth("common"), paymentRequestController.updatePaymentRequest);
 
+router
+  .route("/my-eligable-withdrawl")
+  .get(auth("common"), paymentRequestController.getEligleWithDrawl);
+
+router
+  .route("/payment-request-stats")
+  .get(auth("common"), paymentRequestController.getWithDrawlPaymentlStats);
+
 module.exports = router;

@@ -84,8 +84,58 @@ const updatePaymentRequest = catchAsync(async (req, res) => {
   );
 });
 
+const getEligleWithDrawl = catchAsync(async (req, res) => {
+  if (req.user.type != "seller") {
+    res.status(httpStatus.CREATED).json(
+      response({
+        message: "Only seller can requested",
+        status: "OK",
+        statusCode: httpStatus.CREATED,
+        data: paymentRequest,
+      })
+    );
+  }
+  const paymentRequest = await paymentrequestService.getEligleWithDrawl(
+    req.user.id
+  );
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Your Available WithDrawl",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: paymentRequest,
+    })
+  );
+});
+
+const getWithDrawlPaymentlStats = catchAsync(async (req, res) => {
+  if (req.user.type != "seller") {
+    res.status(httpStatus.CREATED).json(
+      response({
+        message: "Only seller can requested",
+        status: "OK",
+        statusCode: httpStatus.CREATED,
+        data: paymentRequest,
+      })
+    );
+  }
+  const paymentRequest = await paymentrequestService.getWithDrawlPaymentlStats(
+    req.user.id
+  );
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: " WithDrawl Stats",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: paymentRequest,
+    })
+  );
+});
+
 module.exports = {
   getpaymentRequest,
   createNewPayRequest,
   updatePaymentRequest,
+  getEligleWithDrawl,
+  getWithDrawlPaymentlStats,
 };
