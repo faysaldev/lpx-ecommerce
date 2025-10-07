@@ -213,7 +213,10 @@ const headerStatistics = async (userId) => {
 // get customer dashboard details
 const getCustomerDashboard = async (userId) => {
   // Get basic stats
-  const totalOrders = await Order.countDocuments({ customer: userId });
+  const totalOrders = await Order.countDocuments({
+    customer: userId,
+    status: { $ne: "unpaid" },
+  });
   const totalWishlistItems = await Product.countDocuments({ wishlist: userId }); // Assuming Product model has a `wishlist` array of userIds
   const totalReviews = await Rating.countDocuments({ author: userId });
 
@@ -224,7 +227,10 @@ const getCustomerDashboard = async (userId) => {
   }
 
   // Get recent 4-5 orders
-  const recentOrders = await Order.find({ customer: userId })
+  const recentOrders = await Order.find({
+    customer: userId,
+    status: { $ne: "unpaid" },
+  })
     .sort({ createdAt: -1 })
     .limit(5)
     .select("orderID totalAmount status createdAt")
@@ -251,25 +257,92 @@ const getCustomerDashboard = async (userId) => {
 };
 
 // VendorDashboardOverView
+// const vendorDashboardOverview = async (userId) => {
+//   if (!userId) {
+//     throw new ApiError(httpStatus.BAD_REQUEST, "User ID is required");
+//   }
+
+//   // Get vendor details
+//   const vendor = await Vendor.findOne({ seller: userId });
+//   if (!vendor) {
+//     throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
+//   }
+
+//   // Total Sales (Sum of totalAmount from orders)
+//   const totalSales = await Order.aggregate([
+//     { $match: { vendorId: vendor._id, status: "delivered" } },
+//     { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
+//   ]);
+
+//   // Total Orders
+//   const totalOrders = await Order.countDocuments({ vendorId: vendor._id });
+
+//   // Active Products (products with stock > 0)
+//   const activeProducts = await Product.countDocuments({
+//     vendor: vendor._id,
+//     stockQuantity: { $gt: 0 },
+//   });
+
+//   // Total Customers (number of distinct customers who have purchased from this vendor)
+//   const customers = await Order.distinct("customer", { vendorId: vendor._id });
+
+//   // Recent Orders
+//   const recentOrders = await Order.find({ vendorId: vendor._id })
+//     .sort({ createdAt: -1 })
+//     .limit(5)
+//     .populate({
+//       path: "customer",
+//       select: "name image", // Get user details
+//     })
+//     .lean();
+
+//   // Format recent orders
+//   const formattedRecentOrders = recentOrders.map((order) => ({
+//     orderId: order.orderID,
+//     orderMongoId: order._id,
+//     userName: order.customer.name,
+//     userImage: order.customer.image,
+//     price: order.totalAmount,
+//     status: order.status,
+//     orderDate: order.createdAt,
+//   }));
+
+//   return {
+//     stats: {
+//       totalSales: totalSales[0]?.totalSales || 0,
+//       totalOrders,
+//       activeProducts,
+//       totalCustomers: customers.length,
+//       storeStatus: vendor.status,
+//     },
+//     recentOrders: formattedRecentOrders,
+//   };
+// };
+
 const vendorDashboardOverview = async (userId) => {
   if (!userId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User ID is required");
+    return httpStatus.BAD_REQUEST, "User ID is required";
   }
 
   // Get vendor details
   const vendor = await Vendor.findOne({ seller: userId });
   if (!vendor) {
-    throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
+    return httpStatus.NOT_FOUND, "Vendor not found";
   }
 
-  // Total Sales (Sum of totalAmount from orders)
+  // Total Sales (Sum of totalAmount from orders, excluding 'unpaid' status)
   const totalSales = await Order.aggregate([
-    { $match: { vendorId: vendor._id, status: "delivered" } },
+    {
+      $match: { "totalItems.vendorId": vendor._id, status: { $ne: "unpaid" } },
+    }, // Exclude "unpaid"
     { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
   ]);
 
-  // Total Orders
-  const totalOrders = await Order.countDocuments({ vendorId: vendor._id });
+  // Total Orders (Excluding "unpaid" status)
+  const totalOrders = await Order.countDocuments({
+    "totalItems.vendorId": vendor._id,
+    status: { $ne: "unpaid" }, // Exclude "unpaid"
+  });
 
   // Active Products (products with stock > 0)
   const activeProducts = await Product.countDocuments({
@@ -278,12 +351,18 @@ const vendorDashboardOverview = async (userId) => {
   });
 
   // Total Customers (number of distinct customers who have purchased from this vendor)
-  const customers = await Order.distinct("customer", { vendorId: vendor._id });
+  const customers = await Order.distinct("customer", {
+    "totalItems.vendorId": vendor._id,
+    status: { $ne: "unpaid" }, // Exclude "unpaid"
+  });
 
-  // Recent Orders
-  const recentOrders = await Order.find({ vendorId: vendor._id })
+  // Recent Orders (excluding "unpaid" orders, limit to 4)
+  const recentOrders = await Order.find({
+    "totalItems.vendorId": vendor._id,
+    status: { $ne: "unpaid" }, // Exclude "unpaid"
+  })
     .sort({ createdAt: -1 })
-    .limit(5)
+    .limit(4)
     .populate({
       path: "customer",
       select: "name image", // Get user details
@@ -313,41 +392,6 @@ const vendorDashboardOverview = async (userId) => {
   };
 };
 
-// const getVendorRecentOrders = async (userId, page = 1, limit = 10) => {
-//   if (!userId) {
-//     throw new ApiError(httpStatus.BAD_REQUEST, "Vendor ID is required");
-//   }
-//   const vendorId = await Vendor.findOne({ seller: userId });
-//   const skip = (page - 1) * limit;
-
-//   const recentOrders = await Order.find({ vendorId })
-//     .skip(skip)
-//     .limit(limit)
-//     .sort({ createdAt: -1 })
-//     .populate("customer", "name image type") // Populate customer details
-//     .lean();
-
-//   const totalOrders = await Order.countDocuments({ vendorId });
-//   const totalPages = Math.ceil(totalOrders / limit);
-
-//   const formattedOrders = recentOrders.map((order) => ({
-//     orderId: order.orderID,
-//     userName: order.customer.name,
-//     userImage: order.customer.image,
-//     userType: order.customer.type,
-//     totalPrice: order.totalAmount,
-//     status: order.status,
-//     orderDate: order.createdAt,
-//     orderMongoId: order._id,
-//   }));
-
-//   return {
-//     orders: formattedOrders,
-//     totalOrders,
-//     totalPages,
-//   };
-// };
-
 const getVendorRecentOrders = async (userId, page = 1, limit = 10) => {
   if (!userId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Vendor ID is required");
@@ -366,7 +410,8 @@ const getVendorRecentOrders = async (userId, page = 1, limit = 10) => {
 
   // Find orders where the vendorId matches any product's vendorId inside totalItems
   const recentOrders = await Order.find({
-    "totalItems.vendorId": vendorId, // Match vendorId inside totalItems array
+    "totalItems.vendorId": vendorId,
+    status: { $ne: "unpaid" },
   })
     .skip(skip)
     .limit(limit)
@@ -374,10 +419,9 @@ const getVendorRecentOrders = async (userId, page = 1, limit = 10) => {
     .populate("customer", "name image type") // Populate customer details
     .lean();
 
-  console.log(recentOrders);
-
   const totalOrders = await Order.countDocuments({
     "totalItems.vendorId": vendorId,
+    status: { $ne: "unpaid" },
   }); // Count orders with the vendorId in totalItems
   const totalPages = Math.ceil(totalOrders / limit);
 
