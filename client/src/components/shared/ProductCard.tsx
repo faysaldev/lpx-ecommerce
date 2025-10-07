@@ -165,11 +165,6 @@ const ProductCard = ({
 
   const optionData = new Intl.NumberFormat("en-US").format(optionalPrice);
 
-  console.log(
-    " Lorem ipsum dolor sit amet consectetur adipisicing",
-    optionData
-  );
-
   // List View Layout
   if (viewMode === "list") {
     return (
