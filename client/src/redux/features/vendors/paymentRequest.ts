@@ -30,6 +30,12 @@ const paymentRequest = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getSinglePaymentdetails: builder.query({
+      query: (id) => ({
+        url: `/payments/details/${id}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -38,4 +44,5 @@ export const {
   useMyPaymentRequestQuery,
   useGetPaymeRequestStatsQuery,
   useGetPaymentWithDrawlElgbleQuery,
+  useGetSinglePaymentdetailsQuery,
 } = paymentRequest;

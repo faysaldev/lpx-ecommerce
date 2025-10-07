@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, DollarSign, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/UI/button";
@@ -19,7 +19,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/UI/dialog";
-import { Input } from "@/components/UI/input";
 import { Label } from "@/components/UI/label";
 import { Textarea } from "@/components/UI/textarea";
 import { Select, Input as AntInput, InputNumber } from "antd";
@@ -31,7 +30,6 @@ import {
 const { Option } = Select;
 
 interface PaymentRequestFormProps {
-  vendorId: string;
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -48,7 +46,6 @@ interface PaymentRequestData {
 }
 
 export default function PaymentRequestForm({
-  vendorId,
   onSuccess,
   onCancel,
 }: PaymentRequestFormProps) {

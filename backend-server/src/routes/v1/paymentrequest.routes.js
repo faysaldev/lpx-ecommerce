@@ -24,4 +24,8 @@ router
   .route("/payment-request-stats")
   .get(auth("common"), paymentRequestController.getWithDrawlPaymentlStats);
 
+router
+  .route("/details/:id")
+  .get(auth("common"), paymentRequestController.getSinglePaymentRequestDetails);
+
 module.exports = router;

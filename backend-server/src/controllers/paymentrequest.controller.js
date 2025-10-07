@@ -132,10 +132,35 @@ const getWithDrawlPaymentlStats = catchAsync(async (req, res) => {
   );
 });
 
+const getSinglePaymentRequestDetails = catchAsync(async (req, res) => {
+  if (req.user.type != "seller") {
+    res.status(httpStatus.CREATED).json(
+      response({
+        message: "Only seller can requested",
+        status: "OK",
+        statusCode: httpStatus.CREATED,
+        data: paymentRequest,
+      })
+    );
+  }
+  const paymentRequest =
+    await paymentrequestService.getSinglePaymentRequestDetails(req.params.id);
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: " Request",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: paymentRequest,
+    })
+  );
+});
+
 module.exports = {
   getpaymentRequest,
   createNewPayRequest,
   updatePaymentRequest,
   getEligleWithDrawl,
+
   getWithDrawlPaymentlStats,
+  getSinglePaymentRequestDetails,
 };

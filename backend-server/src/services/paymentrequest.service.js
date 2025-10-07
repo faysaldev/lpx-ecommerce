@@ -132,10 +132,45 @@ const getWithDrawlPaymentlStats = async (userId) => {
   };
 };
 
+const getSinglePaymentRequestDetails = async (paymentDetailsId) => {
+  // Fetch the payment request without .lean() so Mongoose methods are available
+  const paymentRequest = await PaymentRequest.findById(
+    paymentDetailsId
+  ).populate("seller", "name image email"); // Populate seller details: name, image, email
+
+  // If payment request not found, throw an error
+  if (!paymentRequest) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Payment Request not found");
+  }
+
+  // Decrypt bank details using the model method
+  const decryptedDetails = paymentRequest.decryptBankDetails();
+
+  // Return payment request with decrypted bank details and seller info
+  return {
+    paymentRequestId: paymentRequest._id,
+    seller: {
+      name: paymentRequest.seller.name,
+      image: paymentRequest.seller.image,
+      email: paymentRequest.seller.email,
+    },
+    bankName: decryptedDetails.bankName, // Decrypted bankName
+    accountNumber: decryptedDetails.accountNumber, // Decrypted accountNumber
+    accountType: paymentRequest.accountType,
+    phoneNumber: paymentRequest.phoneNumber,
+    withdrawalAmount: paymentRequest.withdrawalAmount,
+    requestDate: paymentRequest.requestDate,
+    status: paymentRequest.status,
+    invoiceImage: paymentRequest.invoiceImage,
+    paidDate: paymentRequest.paidDate,
+  };
+};
+
 module.exports = {
   getpaymentRequest,
   createNewPaymentRequest,
   updatePaymentRequestStatus,
   getEligleWithDrawl,
   getWithDrawlPaymentlStats,
+  getSinglePaymentRequestDetails,
 };
