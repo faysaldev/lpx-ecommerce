@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import {
   BarChart3,
   DollarSign,
@@ -9,7 +8,6 @@ import {
   Plus,
   ShoppingCart,
   TrendingUp,
-  X,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -52,7 +50,7 @@ const initialDashboardData = {
 
 type ProductStatus = "all" | "active" | "draft" | "sold" | "out_of_stock";
 
-export default function VendorDashboardPage() {
+const VendorDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("products");
   const [products, setProducts] = useState(mockVendorProducts);
   const [searchQuery, setSearchQuery] = useState("");
@@ -121,10 +119,12 @@ export default function VendorDashboardPage() {
     }
   }, [products, statusFilter, searchQuery, sortOption]);
 
-  const { data: VendorDashboardStats, isLoading: overViewLoading } =
-    useVendorDashboardOverviewQuery({});
+  const { data:VendorDashboardStats,  } =useVendorDashboardOverviewQuery({});
+  
+  const AllStats = VendorDashboardStats?.data?.stats;
+  const AllRecentOrders = VendorDashboardStats?.data?.recentOrders;
 
-  console.log(VendorDashboardStats, "vendor");
+  console.log( "vendor data get all ", AllStats);
 
   return (
     // <ProtectedRoute>
@@ -176,11 +176,11 @@ export default function VendorDashboardPage() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          <StatsOverview dashboard={dashboard} />
+          <StatsOverview AllStats={AllStats} />
 
           {/* Quick Actions */}
           <QuickActionOverview
-            dashboard={dashboard}
+            AllStats={AllStats}
             setActiveTab={setActiveTab}
           />
           {/* Recent Orders Full Width */}
@@ -210,3 +210,5 @@ export default function VendorDashboardPage() {
     // </ProtectedRoute>
   );
 }
+
+export default VendorDashboardPage ; 

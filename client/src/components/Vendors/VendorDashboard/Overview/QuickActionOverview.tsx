@@ -25,13 +25,11 @@ interface Order {
   createdAt: string;
 }
 
-function QuickActionOverview({
-  dashboard,
-  setActiveTab,
-}: {
+function QuickActionOverview({ AllStats, setActiveTab, }: {
   setActiveTab: any;
-  dashboard: any;
+  AllStats: any;
 }) {
+  console.log("all data get quic Action overivew ",AllStats)
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card>
@@ -78,15 +76,15 @@ function QuickActionOverview({
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Store Status</span>
-              <Badge variant="outline">Inactive</Badge>
+              <Badge variant="outline">{AllStats?.storeStatus}</Badge>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Products</span>
-              <span>{dashboard.analytics.products.active} active</span>
+              <span>{AllStats.activeProducts} active</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Orders</span>
-              <span>{dashboard.analytics.orders.total} total</span>
+              <span>{AllStats.totalOrders} total</span>
             </div>
           </div>
         </CardContent>
@@ -98,14 +96,14 @@ function QuickActionOverview({
           <CardDescription>Latest customer orders</CardDescription>
         </CardHeader>
         <CardContent>
-          {dashboard.recentOrders.length === 0 ? (
+          {/* {AllStats.totalOrders.length === 0 ? (
             <div className="text-center py-8">
               <ShoppingCart className="h-8 w-8 mx-auto mb-4 text-muted-foreground/50" />
               <p className="text-sm text-muted-foreground">No recent orders</p>
             </div>
           ) : (
             <div className="space-y-3">
-              {dashboard.recentOrders.slice(0, 3).map((order: Order) => (
+              {AllStats.totalOrders.recentOrders.slice(0, 3).map((order: Order) => (
                 <div
                   key={order.id}
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
@@ -153,7 +151,7 @@ function QuickActionOverview({
                 View All Orders
               </Button>
             </div>
-          )}
+          )} */}
         </CardContent>
       </Card>
     </div>
