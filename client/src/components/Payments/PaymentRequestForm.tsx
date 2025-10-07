@@ -111,7 +111,7 @@ export default function PaymentRequestForm({
     if (!formData.withdrawalAmount || formData.withdrawalAmount <= 0) {
       errors.push("Withdrawal amount must be greater than 0");
     } else if (formData.withdrawalAmount > availableAmount) {
-      errors.push(
+      toast(
         `Withdrawal amount cannot exceed AED ${availableAmount.toFixed(2)}`
       );
     }
