@@ -256,69 +256,6 @@ const getCustomerDashboard = async (userId) => {
   };
 };
 
-// VendorDashboardOverView
-// const vendorDashboardOverview = async (userId) => {
-//   if (!userId) {
-//     throw new ApiError(httpStatus.BAD_REQUEST, "User ID is required");
-//   }
-
-//   // Get vendor details
-//   const vendor = await Vendor.findOne({ seller: userId });
-//   if (!vendor) {
-//     throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
-//   }
-
-//   // Total Sales (Sum of totalAmount from orders)
-//   const totalSales = await Order.aggregate([
-//     { $match: { vendorId: vendor._id, status: "delivered" } },
-//     { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
-//   ]);
-
-//   // Total Orders
-//   const totalOrders = await Order.countDocuments({ vendorId: vendor._id });
-
-//   // Active Products (products with stock > 0)
-//   const activeProducts = await Product.countDocuments({
-//     vendor: vendor._id,
-//     stockQuantity: { $gt: 0 },
-//   });
-
-//   // Total Customers (number of distinct customers who have purchased from this vendor)
-//   const customers = await Order.distinct("customer", { vendorId: vendor._id });
-
-//   // Recent Orders
-//   const recentOrders = await Order.find({ vendorId: vendor._id })
-//     .sort({ createdAt: -1 })
-//     .limit(5)
-//     .populate({
-//       path: "customer",
-//       select: "name image", // Get user details
-//     })
-//     .lean();
-
-//   // Format recent orders
-//   const formattedRecentOrders = recentOrders.map((order) => ({
-//     orderId: order.orderID,
-//     orderMongoId: order._id,
-//     userName: order.customer.name,
-//     userImage: order.customer.image,
-//     price: order.totalAmount,
-//     status: order.status,
-//     orderDate: order.createdAt,
-//   }));
-
-//   return {
-//     stats: {
-//       totalSales: totalSales[0]?.totalSales || 0,
-//       totalOrders,
-//       activeProducts,
-//       totalCustomers: customers.length,
-//       storeStatus: vendor.status,
-//     },
-//     recentOrders: formattedRecentOrders,
-//   };
-// };
-
 const vendorDashboardOverview = async (userId) => {
   if (!userId) {
     return httpStatus.BAD_REQUEST, "User ID is required";
@@ -368,6 +305,8 @@ const vendorDashboardOverview = async (userId) => {
       select: "name image", // Get user details
     })
     .lean();
+
+  console.log(recentOrders);
 
   // Format recent orders
   const formattedRecentOrders = recentOrders.map((order) => ({
@@ -514,6 +453,83 @@ const getVendorProducts = async (
   }
 };
 
+const getVendorDashbordAnalytics = async (userId) => {
+  // 1. Fetch the vendor associated with the userId
+  const vendor = await Vendor.findOne({ seller: userId }).lean();
+  if (!vendor) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
+  }
+
+  const vendorId = vendor._id;
+
+  // 2. Calculate the date for one month ago
+  const oneMonthAgo = moment().subtract(1, "months").toDate();
+
+  // ========================
+  // Performance Metrics Data
+  // ========================
+  // Number of completed orders (delivered orders)
+  const completedOrdersCount = await Order.countDocuments({
+    "totalItems.vendorId": vendorId,
+    status: "delivered",
+    createdAt: { $gte: oneMonthAgo },
+  });
+
+  // Number of ratings for the vendor
+  const vendorRatingsCount = await Rating.countDocuments({
+    ratingType: "vendor",
+    referenceId: vendorId,
+    createdAt: { $gte: oneMonthAgo },
+  });
+
+  // Number of ratings for products of this vendor
+  const productRatingsCount = await Rating.countDocuments({
+    ratingType: "product",
+    referenceId: { $in: vendor.products }, // Assuming vendor.products is an array of product IDs
+    createdAt: { $gte: oneMonthAgo },
+  });
+
+  // ========================
+  // Revenue Trends Data (daily/weekly data for the last month)
+  // ========================
+  const revenueTrends = await Order.aggregate([
+    {
+      $match: {
+        "totalItems.vendorId": vendorId,
+        status: "delivered",
+        createdAt: { $gte: oneMonthAgo },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }, // Group by day (or use week if needed)
+        },
+        totalRevenue: { $sum: "$totalAmount" },
+      },
+    },
+    { $sort: { _id: 1 } }, // Sort by date
+  ]);
+
+  // Format the revenue trends data for the line chart
+  const revenueData = revenueTrends.map((trend) => ({
+    date: trend._id,
+    revenue: trend.totalRevenue,
+  }));
+
+  // ========================
+  // Response Data
+  // ========================
+  return {
+    performanceMetrics: {
+      completedOrdersCount,
+      vendorRatingsCount,
+      productRatingsCount,
+    },
+    revenueTrends: revenueData,
+  };
+};
+
 module.exports = {
   getFeturedProducts,
   getLpsStatistics,
@@ -523,4 +539,5 @@ module.exports = {
   getVendorRecentOrders,
   getVendorProducts,
   headerStatistics,
+  getVendorDashbordAnalytics,
 };

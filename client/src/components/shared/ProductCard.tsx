@@ -27,6 +27,8 @@ import { cn } from "@/lib/utils";
 import ConditionBadgeComponent from "../Vendors/SingleVendorView/ConditionBadgeComponent";
 import { useAddTocartMutation } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 import { getImageUrl } from "@/lib/getImageURL";
+import { useRouter } from "next/navigation";
+import { useAddNewToWishListMutation } from "@/redux/features/GetWishList/GetWishList";
 
 export function ProductCardSkeleton({
   viewMode = "grid",
@@ -93,10 +95,8 @@ const ProductCard = ({
   product,
   viewMode = "grid",
   onQuickView,
-  onAddToCart,
   onAddToWishlist,
   onRemoveFromWishlist,
-  onBuyNow,
   onShare,
   className,
   showQuickView = true,
@@ -121,6 +121,8 @@ const ProductCard = ({
   } = product;
 
   const [addtoCartProduct] = useAddTocartMutation();
+  const [addtoWithlist] = useAddNewToWishListMutation();
+  const router = useRouter();
 
   const addToCart = async ({ productId, vendorId }: any) => {
     await addtoCartProduct({
@@ -129,6 +131,7 @@ const ProductCard = ({
       quantity: 1,
       price,
     });
+    router.push("/cart");
   };
 
   // Use the correct ID (support both _id and id)
@@ -158,6 +161,14 @@ const ProductCard = ({
     if (finalVendorId) {
       return `/vendor/${finalVendorId}`;
     }
+  };
+
+  const addNewWishList = async () => {
+    await addtoWithlist({
+      products: product?._id,
+      vendorId: product?.vendor?._id,
+    });
+    router.push("/wishlist");
   };
 
   // Format price with commas
@@ -260,39 +271,13 @@ const ProductCard = ({
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onBuyNow?.(product);
-                  }}
+                  onClick={() => router.push(`/product/${product?._id}`)}
                   disabled={finalStockQuantity === 0}
                 >
                   <Zap className="h-4 w-4 mr-2" />
                   Buy Now
                 </Button>
-
-                {showQuickView && (
-                  <Button
-                    size="icon"
-                    variant="outline"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      onQuickView?.(product);
-                    }}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                )}
-
-                <Button
-                  size="icon"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    isWishlistItem
-                      ? onRemoveFromWishlist?.(product)
-                      : onAddToWishlist?.(product);
-                  }}
-                >
+                <Button size="icon" variant="outline" onClick={addNewWishList}>
                   <Heart className="h-4 w-4" />
                 </Button>
               </div>
@@ -353,10 +338,7 @@ const ProductCard = ({
                       size="icon"
                       variant="secondary"
                       className="h-8 w-8"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        onQuickView?.(product);
-                      }}
+                      onClick={addNewWishList}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
@@ -369,12 +351,7 @@ const ProductCard = ({
                     <Button
                       size="icon"
                       variant="secondary"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        isWishlistItem
-                          ? onRemoveFromWishlist?.(product)
-                          : onAddToWishlist?.(product);
-                      }}
+                      onClick={addNewWishList}
                       className="h-8 w-8"
                     >
                       <Heart className="h-4 w-4" />
@@ -488,10 +465,7 @@ const ProductCard = ({
             <Button
               size="sm"
               variant="outline"
-              onClick={(e) => {
-                e.preventDefault();
-                onBuyNow?.(product);
-              }}
+              onClick={() => router.push(`/product/${product?._id}`)}
               disabled={finalStockQuantity === 0}
               className="text-xs w-full"
             >

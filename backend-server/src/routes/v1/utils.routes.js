@@ -35,4 +35,9 @@ router
   .route("/vendor/products")
   .get(auth("common"), utilsController.getVendorProducts);
 
+// get vendor analytics
+router
+  .route("/vendor/analytics")
+  .get(auth("common"), utilsController.getVendorDashbordAnalytics);
+
 module.exports = router;

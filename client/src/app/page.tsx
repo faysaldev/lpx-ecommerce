@@ -42,38 +42,15 @@ export default function Home() {
   const { data: fetchStatistics, isLoading: isStatsLoading } =
     useLandingpageStatiticsQuery({});
 
-  console.log(fetchFeaturedProducts?.data, "featured products");
-  console.log(fetchStatistics?.data, "statistics");
-
-  useEffect(() => {
-    async function fetchFeaturedProducts() {
-      try {
-        // const api = getProductAPI();
-        // const response = await api.getFeaturedProducts(12);
-        // if (response.success) {
-        //   setFeaturedProducts(response.data);
-        // }
-      } catch (error) {
-        if (process.env.NODE_ENV !== "production")
-          console.error("Failed to fetch featured products:", error);
-      }
-    }
-    fetchFeaturedProducts();
-  }, []);
-  // const { addToWishlist } = useWishlist();
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
     null
   );
 
   const handleAddToCart = (product: Product) => {
-    // const domainProduct = toDomainProduct(product);
-    // addToCart(domainProduct, 1);
     toast.success(`${product.name} added to cart`);
   };
 
   const handleAddToWishlist = (product: Product) => {
-    // const domainProduct = toDomainProduct(product);
-    // addToWishlist(domainProduct);
     toast.success(`${product.name} added to wishlist`);
   };
 

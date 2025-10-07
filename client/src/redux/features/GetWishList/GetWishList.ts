@@ -14,7 +14,20 @@ const GetWishList = baseApi.injectEndpoints({
         method: "DELETE",
       }),
     }),
+
+    addNewToWishList: builder.mutation({
+      query: (withlistBody) => ({
+        url: "/wishlists/add",
+        method: "POST",
+        body: withlistBody,
+      }),
+      invalidatesTags: ["New_Category"],
+    }),
   }),
 });
 
-export const {useAllGetWishListQuery, useAllDeleteWishListMutation} = GetWishList;
+export const {
+  useAllGetWishListQuery,
+  useAllDeleteWishListMutation,
+  useAddNewToWishListMutation,
+} = GetWishList;

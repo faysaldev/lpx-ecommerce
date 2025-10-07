@@ -112,6 +112,21 @@ const getVendorProducts = catchAsync(async (req, res) => {
   );
 });
 
+const getVendorDashbordAnalytics = catchAsync(async (req, res) => {
+  const productsData = await utilsService.getVendorDashbordAnalytics(
+    req.user.id
+  );
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Vendor Products",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: productsData,
+    })
+  );
+});
+
 module.exports = {
   getFeaturedProducts,
   getLpsStatistics,
@@ -121,4 +136,5 @@ module.exports = {
   getVendorProducts,
   getRecentOrders,
   headerStatistics,
+  getVendorDashbordAnalytics,
 };
