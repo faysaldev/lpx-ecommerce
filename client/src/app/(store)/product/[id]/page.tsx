@@ -29,19 +29,19 @@ import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant"
 
 const ProductDetailsPage = () => {
   const type = "product";
-  const { id } = useParams();
- 
-  const idtype = {id, type};
+  const { id }: any = useParams();
+
+  const idtype = { id, type };
 
   const { data, isLoading, isError } = useGetSingleProductQuery(id);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  
+
   const [payment] = useBuyNowMutation();
 
   const allData = data?.data?.attributes;
-  
+
   // Map API data to component format
   const product = data?.data
     ? {
@@ -112,35 +112,31 @@ const ProductDetailsPage = () => {
     : null;
 
   const totalPrice = product?.price * quantity || 0;
-  const  byNowHandler = async() => {
-    const data = { 
-          totalItems: [
-              {
-                productId: product?.id,
-                quantity: quantity,
-                price: totalPrice,
-                vendorId: product?.vendorId,
-                images: [
-                     `${process.env.NEXT_PUBLIC_BASE_URL}${product?.image}` 
-                    ]
-              },
-            ],
-          total: totalPrice,
-          shipping: 20,
-          tax: 30,
-          orderNotes: "Please deliver before 5 PM" 
-        }
-        console.log("pyment data show ", data)
-    try{
-
-    const res = await payment(data);
-    if(res?.data?.code === 200){
-      // console.log()
-      window.location.href = res?.data?.data?.
-attributes?.payment_url || "/";
-    }
-    }catch(error){
-      console.log("error showld", error)
+  const byNowHandler = async () => {
+    const data = {
+      totalItems: [
+        {
+          productId: product?.id,
+          quantity: quantity,
+          price: totalPrice,
+          vendorId: product?.vendorId,
+          images: [`${process.env.NEXT_PUBLIC_BASE_URL}${product?.image}`],
+        },
+      ],
+      total: totalPrice,
+      shipping: 20,
+      tax: 30,
+      orderNotes: "Please deliver before 5 PM",
+    };
+    console.log("pyment data show ", data);
+    try {
+      const res = await payment(data);
+      if (res?.data?.code === 200) {
+        // console.log()
+        window.location.href = res?.data?.data?.attributes?.payment_url || "/";
+      }
+    } catch (error) {
+      console.log("error showld", error);
     }
   };
 
@@ -413,10 +409,10 @@ attributes?.payment_url || "/";
                       variant="outline"
                       className="min-w-[120px]"
                       disabled={!product.inStock || product.stock === 0}
-                     onClick={() => byNowHandler()}
+                      onClick={() => byNowHandler()}
                     >
                       <Zap className="h-4 w-4 mr-2" />
-                      Buy Now 
+                      Buy Now
                     </Button>
                     <Button variant="outline" size="lg">
                       <Heart className="h-4 w-4" />
@@ -481,16 +477,20 @@ attributes?.payment_url || "/";
             )}
         </div>
         <br />
-        {
-          product?.StorePolicies ?  <div>
+        {product?.StorePolicies ? (
+          <div>
             <h1 className="text-xl font-semibold">Shipping Policy</h1>
-            <p className="text-gray-300 mt-1 text-sm">{ product?.StorePolicies?.shippingPolicy}</p>
+            <p className="text-gray-300 mt-1 text-sm">
+              {product?.StorePolicies?.shippingPolicy}
+            </p>
             <br />
             <h1 className="text-xl font-semibold">Return Policy</h1>
-            <p className="text-gray-300 mt-1 text-sm">{ product?.StorePolicies?.returnPolicy}</p>
-          </div> : null
-        }
-        
+            <p className="text-gray-300 mt-1 text-sm">
+              {product?.StorePolicies?.returnPolicy}
+            </p>
+          </div>
+        ) : null}
+
         <ReviewAndRatingsProduct idtype={idtype} />
       </section>
     </PageLayout>

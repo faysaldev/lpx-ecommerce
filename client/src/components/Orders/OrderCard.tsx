@@ -42,7 +42,7 @@ function OrderCard({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const status = statusConfig[order.status as OrderStatus];
-  const StatusIcon = status.icon;
+  const StatusIcon = status?.icon;
 
   return (
     <Card className="overflow-hidden">

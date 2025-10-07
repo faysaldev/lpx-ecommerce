@@ -213,7 +213,10 @@ const headerStatistics = async (userId) => {
 // get customer dashboard details
 const getCustomerDashboard = async (userId) => {
   // Get basic stats
-  const totalOrders = await Order.countDocuments({ customer: userId });
+  const totalOrders = await Order.countDocuments({
+    customer: userId,
+    status: { $ne: "unpaid" },
+  });
   const totalWishlistItems = await Product.countDocuments({ wishlist: userId }); // Assuming Product model has a `wishlist` array of userIds
   const totalReviews = await Rating.countDocuments({ author: userId });
 
@@ -224,7 +227,10 @@ const getCustomerDashboard = async (userId) => {
   }
 
   // Get recent 4-5 orders
-  const recentOrders = await Order.find({ customer: userId })
+  const recentOrders = await Order.find({
+    customer: userId,
+    status: { $ne: "unpaid" },
+  })
     .sort({ createdAt: -1 })
     .limit(5)
     .select("orderID totalAmount status createdAt")
