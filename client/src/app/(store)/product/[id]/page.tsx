@@ -444,12 +444,7 @@ attributes?.payment_url || "/";
                     </div>
                   </div>
                 )}
-                <h3 className={cn(designTokens.typography.h4, "mb-3")}>
-                  Description
-                </h3>
-                <p className="text-muted-foreground leading-relaxed mb-6 whitespace-pre-line">
-                  {product.description}
-                </p>
+                
               </div>
             </div>
           </div>
@@ -480,6 +475,13 @@ attributes?.payment_url || "/";
               </div>
             )}
         </div>
+        <br />
+        <h3 className={cn(designTokens.typography.h4, "mb-3")}>
+                  Description
+                </h3>
+                <p className="text-muted-foreground leading-relaxed mb-6 whitespace-pre-line">
+                  {product.description}
+                </p>
         <br />
         {
           product?.StorePolicies ?  <div>

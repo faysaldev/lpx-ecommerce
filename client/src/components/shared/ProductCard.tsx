@@ -122,6 +122,7 @@ const ProductCard = ({
     price = 0,
     images = [],
     image,
+    optionalPrice,
   } = product;
 
   const [addtoCartProduct] = useAddTocartMutation();
@@ -187,6 +188,13 @@ const ProductCard = ({
   // Format price with commas
   const formattedPrice = new Intl.NumberFormat("en-US").format(price);
 
+  const optionData = new Intl.NumberFormat("en-US").format(optionalPrice);
+
+  console.log(
+    " Lorem ipsum dolor sit amet consectetur adipisicing",
+    optionData
+  );
+
   // List View Layout
   if (viewMode === "list") {
     return (
@@ -250,6 +258,8 @@ const ProductCard = ({
                 </div>
 
                 <div className="text-right space-y-2.5">
+                  <h1 className="text-sm pt-3 font-bold">{optionData}</h1>
+
                   <p className="text-sm pt-3 font-bold">AED {formattedPrice}</p>
                   {finalStockQuantity === 0 ? (
                     <p className="text-sm text-red-600">Out of Stock</p>
@@ -461,7 +471,21 @@ const ProductCard = ({
         <div className="mt-auto">
           <div className="flex items-center justify-between space-y-2 mb-3">
             <div>
-              <p className="text-sm pt-3 font-bold">AED {formattedPrice}</p>
+              <div className="flex items-baseline space-x-2">
+                                  <span className="text-md font-semibold">
+                                    AED {formattedPrice}
+                                  </span>
+                                  {product.discountPercentage > 0 && (
+                                    <>
+                                      <span className="text-sm text-muted-foreground line-through">
+                                        {optionData}
+                                      </span>
+                                      <span className="text-sm font-semibold text-green-600">
+                                        {product.discountPercentage}% OFF
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
               <div className="h-4 mt-1">
                 {finalStockQuantity === 0 ? (
                   <p className="text-xs text-red-600">Out of Stock</p>
@@ -512,4 +536,3 @@ const ProductCard = ({
 };
 
 export default ProductCard;
-
