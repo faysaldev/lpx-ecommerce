@@ -321,13 +321,13 @@ const getCustomerDashboard = async (userId) => {
 
 const vendorDashboardOverview = async (userId) => {
   if (!userId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User ID is required");
+    return httpStatus.BAD_REQUEST, "User ID is required";
   }
 
   // Get vendor details
   const vendor = await Vendor.findOne({ seller: userId });
   if (!vendor) {
-    throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
+    return httpStatus.NOT_FOUND, "Vendor not found";
   }
 
   // Total Sales (Sum of totalAmount from orders, excluding 'unpaid' status)

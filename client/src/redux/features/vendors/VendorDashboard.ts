@@ -10,7 +10,7 @@ const authApi = baseApi.injectEndpoints({
     }),
     vendorDashboardOverview: builder.query({
       query: () => ({
-        url: `/lpx/vendor/overview`,
+        url: "/lpx/vendor/overview",
         method: "GET",
       }),
     }),
