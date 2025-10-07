@@ -1,10 +1,10 @@
 const httpStatus = require("http-status");
 const catchAsync = require("../utils/catchAsync");
 const response = require("../config/response");
-const { categoriesService } = require("../services");
+const { generalsService } = require("../services");
 
 const getCategories = catchAsync(async (req, res) => {
-  const categories = await categoriesService.getCategories();
+  const categories = await generalsService.getCategories();
   res.status(httpStatus.CREATED).json(
     response({
       message: "All categories",
@@ -17,7 +17,7 @@ const getCategories = catchAsync(async (req, res) => {
 
 const postCategories = catchAsync(async (req, res) => {
   if (req.user.type !== "admin") return;
-  const categories = await categoriesService.postCategories(req.body);
+  const categories = await generalsService.addCategory(req.body);
   res.status(httpStatus.CREATED).json(
     response({
       message: "All categories",
@@ -30,7 +30,7 @@ const postCategories = catchAsync(async (req, res) => {
 
 const categoriesDelete = catchAsync(async (req, res) => {
   if (req.user.type !== "admin") return;
-  const categories = await categoriesService.singleDelete(req.params.id);
+  const categories = await generalsService.deleteCategory(req.params.id);
   res.status(httpStatus.CREATED).json(
     response({
       message: "Category Deleted",
