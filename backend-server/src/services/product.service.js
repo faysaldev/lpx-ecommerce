@@ -156,7 +156,7 @@ const searchProducts = async ({
   const products = await Product.find(searchQuery)
     .populate("vendor", "storeName") // Populate the vendor's store name
     .select(
-      "productName category description price stockQuantity condition images tags"
+      "productName category description price stockQuantity condition images tags optionalPrice discountPercentage"
     ) // Select specific fields
     .skip(skip) // Pagination: skip to the appropriate page
     .limit(Number(limit)) // Limit the number of results
