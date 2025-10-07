@@ -34,7 +34,7 @@ const checkOutSession = async (
         enabled: true,
       },
       success_url: `${process.env.FRONTEND_URL}`,
-      cancel_url: `${process.env.FRONTEND_URL}`,
+      cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`,
       metadata: {
         customer_id: customerId.toString(),
         order_id: orderId.toString(), // FIX: Use .toString() instead of JSON.stringify()
