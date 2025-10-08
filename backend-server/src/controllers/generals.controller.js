@@ -3,46 +3,203 @@ const catchAsync = require("../utils/catchAsync");
 const response = require("../config/response");
 const { generalsService } = require("../services");
 
+/**
+ * 📦 Categories
+ */
 const getCategories = catchAsync(async (req, res) => {
   const categories = await generalsService.getCategories();
-  res.status(httpStatus.CREATED).json(
+  res.status(httpStatus.OK).json(
     response({
       message: "All categories",
       status: "OK",
-      statusCode: httpStatus.CREATED,
+      statusCode: httpStatus.OK,
       data: categories,
     })
   );
 });
 
 const postCategories = catchAsync(async (req, res) => {
-  if (req.user.type !== "admin") return;
-  const categories = await generalsService.addCategory(req.body);
+  if (req.user.type !== "admin") throw new Error("Unauthorized");
+  const result = await generalsService.addCategory(req.body);
   res.status(httpStatus.CREATED).json(
     response({
-      message: "All categories",
+      message: "Category added successfully",
       status: "OK",
       statusCode: httpStatus.CREATED,
-      data: categories,
+      data: result,
     })
   );
 });
 
 const categoriesDelete = catchAsync(async (req, res) => {
-  if (req.user.type !== "admin") return;
-  const categories = await generalsService.deleteCategory(req.params.id);
+  if (req.user.type !== "admin") throw new Error("Unauthorized");
+  const result = await generalsService.deleteCategory(req.params.id);
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Category deleted successfully",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: result,
+    })
+  );
+});
+
+/**
+ * 🎟 Coupons
+ */
+const getCoupons = catchAsync(async (req, res) => {
+  const coupons = await generalsService.getCoupons();
+  res.status(httpStatus.OK).json(
+    response({
+      message: "All coupons",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: coupons,
+    })
+  );
+});
+
+const postCoupon = catchAsync(async (req, res) => {
+  if (req.user.type !== "admin") throw new Error("Unauthorized");
+  const result = await generalsService.addCoupon(req.body);
   res.status(httpStatus.CREATED).json(
     response({
-      message: "Category Deleted",
+      message: "Coupon added successfully",
       status: "OK",
       statusCode: httpStatus.CREATED,
-      data: categories,
+      data: result,
+    })
+  );
+});
+
+const couponDelete = catchAsync(async (req, res) => {
+  if (req.user.type !== "admin") throw new Error("Unauthorized");
+  const result = await generalsService.deleteCoupon(req.params.id);
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Coupon deleted successfully",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: result,
+    })
+  );
+});
+
+/**
+ * ⚙️ General Settings
+ */
+const getGeneral = catchAsync(async (req, res) => {
+  const general = await generalsService.getGeneral();
+  res.status(httpStatus.OK).json(
+    response({
+      message: "General settings",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: general,
+    })
+  );
+});
+
+const updateGeneral = catchAsync(async (req, res) => {
+  if (req.user.type !== "admin") throw new Error("Unauthorized");
+  const updated = await generalsService.postGeneral(req.body);
+  res.status(httpStatus.OK).json(
+    response({
+      message: "General settings updated successfully",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: updated,
+    })
+  );
+});
+
+/**
+ * 📋 Conditions
+ */
+const addCondition = catchAsync(async (req, res) => {
+  if (req.user.type !== "admin") throw new Error("Unauthorized");
+  const result = await generalsService.addCondition(req.body.condition);
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Condition added successfully",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: result,
+    })
+  );
+});
+
+const removeCondition = catchAsync(async (req, res) => {
+  if (req.user.type !== "admin") throw new Error("Unauthorized");
+  const result = await generalsService.removeCondition(req.params.index);
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Condition removed successfully",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: result,
     })
   );
 });
 
 module.exports = {
   getCategories,
-  categoriesDelete,
   postCategories,
+  categoriesDelete,
+  getCoupons,
+  postCoupon,
+  couponDelete,
+  getGeneral,
+  updateGeneral,
+  addCondition,
+  removeCondition,
 };
+
+// const httpStatus = require("http-status");
+// const catchAsync = require("../utils/catchAsync");
+// const response = require("../config/response");
+// const { generalsService } = require("../services");
+
+// const getCategories = catchAsync(async (req, res) => {
+//   const categories = await generalsService.getCategories();
+//   res.status(httpStatus.CREATED).json(
+//     response({
+//       message: "All categories",
+//       status: "OK",
+//       statusCode: httpStatus.CREATED,
+//       data: categories,
+//     })
+//   );
+// });
+
+// const postCategories = catchAsync(async (req, res) => {
+//   if (req.user.type !== "admin") return;
+//   const categories = await generalsService.addCategory(req.body);
+//   res.status(httpStatus.CREATED).json(
+//     response({
+//       message: "All categories",
+//       status: "OK",
+//       statusCode: httpStatus.CREATED,
+//       data: categories,
+//     })
+//   );
+// });
+
+// const categoriesDelete = catchAsync(async (req, res) => {
+//   if (req.user.type !== "admin") return;
+//   const categories = await generalsService.deleteCategory(req.params.id);
+//   res.status(httpStatus.CREATED).json(
+//     response({
+//       message: "Category Deleted",
+//       status: "OK",
+//       statusCode: httpStatus.CREATED,
+//       data: categories,
+//     })
+//   );
+// });
+
+// module.exports = {
+//   getCategories,
+//   categoriesDelete,
+//   postCategories,
+// };
