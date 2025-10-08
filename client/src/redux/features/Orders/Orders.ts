@@ -41,15 +41,22 @@ const BrowseCollectibles = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Ratings"],
     }),
+    singleInvoiceDownload: builder.mutation({
+      query: (orderId) => ({
+        url: `/orders/invoice/${orderId}`,
+        method: "GET",
+        body: "",
+      }),
+    }),
   }),
 });
 
-export const { 
-  useAllUserOrdersQuery, 
-  useSingleOrderDetailsQuery, 
+export const {
+  useAllUserOrdersQuery,
+  useSingleOrderDetailsQuery,
   useDashBoardStatiticsQuery,
   useGetHasUserPurschedQuery,
   useGetProductsOrVendorRatingQuery,
   useAddNewratingsMutation,
-} =
-  BrowseCollectibles;
+  useSingleInvoiceDownloadMutation,
+} = BrowseCollectibles;

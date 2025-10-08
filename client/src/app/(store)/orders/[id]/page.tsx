@@ -20,7 +20,10 @@ import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Separator } from "@/components/UI/separator";
 import type { OrderStatus } from "@/lib/checkout";
-import { useSingleOrderDetailsQuery } from "@/redux/features/Orders/Orders";
+import {
+  useSingleInvoiceDownloadMutation,
+  useSingleOrderDetailsQuery,
+} from "@/redux/features/Orders/Orders";
 import OrderTimeline from "@/components/Orders/SingleOrderDetails/OrderTimeline";
 import OrderDetailsSkeleton from "@/components/Orders/SingleOrderDetails/OrderDetailsSkeleton";
 import OrderHeader from "@/components/Orders/SingleOrderDetails/OrderHeader";
@@ -62,6 +65,7 @@ export default function OrderDetailsPage() {
   const params = useParams();
   const orderId = params?.id as string;
   const [copied, setCopied] = useState(false);
+  const [downloadInvoices] = useSingleInvoiceDownloadMutation();
 
   const {
     data: orderDetails,
@@ -82,20 +86,10 @@ export default function OrderDetailsPage() {
     }
   };
 
-  const copyTrackingNumber = () => {
-    toast.success("Tracking number copied!");
-  };
-
   const handleReorder = () => {
     if (!order) return;
     toast.success("Reorder functionality coming soon!");
   };
-
-  const handleCancelOrder = () => {
-    if (!order) return;
-    toast.success("Order cancellation request submitted");
-  };
-
   if (isLoading) {
     return (
       <PageLayout title="Order Details" description="Loading order details...">
@@ -135,9 +129,9 @@ export default function OrderDetailsPage() {
   const estimatedDelivery = new Date(order.createdAt);
   estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
 
-  const downloadInvoice = () => {
-    const doc = new jsPDF();
-    // coming in future
+  const downloadInvoice = async () => {
+    const res = await downloadInvoices(orderId);
+    console.log(res);
     toast.info("Invoice download feature coming soon!");
   };
 
