@@ -19,7 +19,7 @@ const BrowseCollectibles = baseApi.injectEndpoints({
     }),
     AllCategories: builder.query({
       query: () => ({
-        url: "/categories/all",
+        url: "/generals/category-all",
         method: "GET",
       }),
       providesTags: ["New_Category"],

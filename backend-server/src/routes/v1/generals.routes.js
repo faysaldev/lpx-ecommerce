@@ -4,10 +4,12 @@ const auth = require("../../middlewares/auth");
 
 const router = express.Router();
 
-router.route("/all").get(generalsController.getCategories);
-router.route("/add").post(auth("common"), generalsController.postCategories);
+router.route("/category-all").get(generalsController.getCategories);
 router
-  .route("/remove/:id")
+  .route("/categories/add")
+  .post(auth("common"), generalsController.postCategories);
+router
+  .route("/categories/remove/:id")
   .delete(auth("common"), generalsController.categoriesDelete);
 
 module.exports = router;

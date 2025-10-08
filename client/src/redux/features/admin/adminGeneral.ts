@@ -4,7 +4,7 @@ const generalApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     addNewcategory: builder.mutation({
       query: (categoryBody) => ({
-        url: `/categories/add`,
+        url: `/generals/categories/add`,
         method: "POST",
         body: categoryBody,
       }),
@@ -13,7 +13,7 @@ const generalApi = baseApi.injectEndpoints({
 
     removeSingleCategory: builder.mutation({
       query: (id: string) => ({
-        url: `/categories/remove/${id}`,
+        url: `/generals/categories/remove/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["New_Category"],

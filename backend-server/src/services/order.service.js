@@ -74,6 +74,8 @@ const myOrders = async (
   // Building the query filter based on status
   const searchQuery = { customer: userId };
 
+  searchQuery.status = { $ne: "unpaid" };
+
   if (status) {
     searchQuery.status = status; // Filter by status if provided
   }

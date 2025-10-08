@@ -18,7 +18,7 @@ const OrderSchema = new Schema(
       enum: [
         "unpaid",
         "pending",
-        "processing",
+        "conformed",
         "shipped",
         "delivered",
         "cancelled",

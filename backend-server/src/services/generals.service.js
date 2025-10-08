@@ -1,7 +1,6 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
-const { General } = require("../models");
-
+const General = require("../models/generals.model");
 // ✅ Get only categories list
 const getCategories = async () => {
   const general = await General.findOne();
