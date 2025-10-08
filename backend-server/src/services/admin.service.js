@@ -6,8 +6,10 @@ const {
   Order,
   Category,
   PaymentRequest,
+  Rating,
 } = require("../models");
 const ApiError = require("../utils/ApiError");
+const moment = require("moment");
 
 const getAllUsers = async (userId) => {
   if (!userId) {
@@ -748,6 +750,445 @@ const approvedAdminPayment = async ({ paymentId, data }) => {
   }
 };
 
+// admin analytics file code
+
+const calculateChange = (current, previous) => {
+  if (!previous || previous === 0) return { count: current, percentage: 0 };
+  const change = ((current - previous) / previous) * 100;
+  return { count: current, percentage: change };
+};
+
+const getAdminAnalyticsDashboardStats = async () => {
+  const lastMonth = new Date();
+  const currentMonthStart = new Date(
+    lastMonth.getFullYear(),
+    lastMonth.getMonth(),
+    1
+  );
+  const lastMonthStart = new Date(
+    lastMonth.getFullYear(),
+    lastMonth.getMonth() - 1,
+    1
+  );
+  const lastMonthEnd = new Date(currentMonthStart);
+  lastMonthEnd.setDate(lastMonthStart.getDate() + 31); // Assuming a max of 31 days in a month
+
+  // Helper function to get total revenue for a time period
+  const getTotalRevenue = async (startDate, endDate) => {
+    const result = await Order.aggregate([
+      {
+        $match: {
+          status: "delivered",
+          createdAt: { $gte: startDate, $lt: endDate },
+        },
+      },
+      { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
+    ]);
+    return result[0]?.totalRevenue || 0;
+  };
+
+  // Get total revenue for current and previous month
+  const totalRevenueCurrentMonth = await getTotalRevenue(
+    currentMonthStart,
+    lastMonthEnd
+  );
+  const totalRevenuePreviousMonth = await getTotalRevenue(
+    lastMonthStart,
+    currentMonthStart
+  );
+
+  // Calculate revenue change
+  const revenueChange = calculateChange(
+    totalRevenueCurrentMonth,
+    totalRevenuePreviousMonth
+  );
+
+  // Get total sales (orders) for current and previous month
+  const totalSalesCurrentMonth = await Order.countDocuments({
+    status: "delivered",
+    createdAt: { $gte: currentMonthStart, $lt: lastMonthEnd },
+  });
+
+  const totalSalesPreviousMonth = await Order.countDocuments({
+    status: "delivered",
+    createdAt: { $gte: lastMonthStart, $lt: currentMonthStart },
+  });
+
+  // Calculate sales change
+  const salesChange = calculateChange(
+    totalSalesCurrentMonth,
+    totalSalesPreviousMonth
+  );
+
+  // Get total active users in the current and previous month
+  const getActiveUsersCount = async (startDate, endDate) => {
+    const users = await Order.distinct("customer", {
+      createdAt: { $gte: startDate, $lt: endDate },
+      status: "delivered",
+    });
+    return await User.countDocuments({ _id: { $in: users } });
+  };
+
+  const activeUsersCurrentMonth = await getActiveUsersCount(
+    currentMonthStart,
+    lastMonthEnd
+  );
+  const activeUsersPreviousMonth = await getActiveUsersCount(
+    lastMonthStart,
+    currentMonthStart
+  );
+
+  // Calculate active users change
+  const activeUsersChange = calculateChange(
+    activeUsersCurrentMonth,
+    activeUsersPreviousMonth
+  );
+
+  // Get total products listed in the current and previous month
+  const totalProductsListedCurrentMonth = await Product.countDocuments({
+    createdAt: { $gte: currentMonthStart, $lt: lastMonthEnd },
+  });
+
+  const totalProductsListedPreviousMonth = await Product.countDocuments({
+    createdAt: { $gte: lastMonthStart, $lt: currentMonthStart },
+  });
+
+  // Calculate products listed change
+  const productsListedChange = calculateChange(
+    totalProductsListedCurrentMonth,
+    totalProductsListedPreviousMonth
+  );
+
+  return {
+    totalRevenue: {
+      count: totalRevenueCurrentMonth,
+      percentage: revenueChange.percentage,
+    },
+    totalSales: {
+      count: totalSalesCurrentMonth,
+      percentage: salesChange.percentage,
+    },
+    activeUsers: {
+      count: activeUsersCurrentMonth,
+      percentage: activeUsersChange.percentage,
+    },
+    totalProductsListed: {
+      count: totalProductsListedCurrentMonth,
+      percentage: productsListedChange.percentage,
+    },
+  };
+};
+
+const getAdminTopCategoriesBySales = async () => {
+  // Aggregating the sales by category based on orders
+  const topCategories = await Order.aggregate([
+    { $unwind: "$totalItems" }, // Flatten the totalItems array
+    {
+      $lookup: {
+        from: "products",
+        localField: "totalItems.productId",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    { $unwind: "$product" }, // Unwind the product data
+    {
+      $group: {
+        _id: "$product.category", // Group by category
+        totalSales: { $sum: 1 }, // Count the total sales per category
+      },
+    },
+    { $sort: { totalSales: -1 } }, // Sort by the highest sales count
+    {
+      $project: {
+        category: "$_id", // Rename the field to 'category'
+        totalSales: 1,
+        _id: 0, // Exclude the internal _id field
+      },
+    },
+  ]);
+
+  return topCategories;
+};
+
+const getAdminRecentAnalyticsTrends = async () => {
+  const last30Days = new Date();
+  last30Days.setDate(last30Days.getDate() - 30); // Last 30 days for trends
+
+  // Most Active User Trends (Users with most orders)
+  const activeUsers = await Order.aggregate([
+    { $match: { createdAt: { $gte: last30Days } } },
+    {
+      $group: {
+        _id: "$customer", // Group by customer
+        totalOrders: { $sum: 1 },
+      },
+    },
+    { $sort: { totalOrders: -1 } },
+    { $limit: 5 }, // Top 5 active users
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" }, // Unwind to get user details
+    {
+      $project: {
+        userId: "$_id",
+        userName: "$user.name",
+        totalOrders: 1,
+        _id: 0,
+      },
+    },
+  ]);
+
+  // Cart Percentage
+  const cartCount = await Cart.countDocuments({
+    createdAt: { $gte: last30Days },
+  });
+  const purchaseCount = await Order.countDocuments({
+    createdAt: { $gte: last30Days },
+    status: "delivered",
+  });
+  const cartPercentage = (cartCount / purchaseCount) * 100;
+
+  // Average Order Value (AOV)
+  const totalOrderValue = await Order.aggregate([
+    { $match: { createdAt: { $gte: last30Days }, status: "delivered" } },
+    {
+      $group: {
+        _id: null,
+        totalValue: { $sum: "$totalAmount" },
+        totalOrders: { $sum: 1 },
+      },
+    },
+  ]);
+  const averageOrderValue =
+    totalOrderValue[0]?.totalValue / totalOrderValue[0]?.totalOrders;
+
+  // Customer Satisfaction (Average Rating for Vendor)
+  const vendorRatings = await Rating.aggregate([
+    { $match: { ratingType: "vendor", createdAt: { $gte: last30Days } } },
+    {
+      $group: {
+        _id: "$referenceId", // Group by vendor
+        averageRating: { $avg: "$rating" },
+      },
+    },
+    { $sort: { averageRating: -1 } },
+    { $limit: 5 }, // Top 5 vendors based on customer satisfaction
+    {
+      $lookup: {
+        from: "vendors",
+        localField: "_id",
+        foreignField: "_id",
+        as: "vendor",
+      },
+    },
+    { $unwind: "$vendor" }, // Unwind to get vendor details
+    {
+      $project: {
+        vendorId: "$_id",
+        vendorName: "$vendor.storeName",
+        averageRating: 1,
+        _id: 0,
+      },
+    },
+  ]);
+
+  return {
+    activeUsers,
+    cartPercentage,
+    averageOrderValue,
+    vendorRatings,
+  };
+};
+
+// TODO: total revinue trends
+const getAnalyticsTotalReviewTrends = async () => {
+  const startOfMonth = moment().startOf("month").toDate();
+  const endOfMonth = moment().endOf("month").toDate();
+
+  // Aggregating reviews by day and status (based on rating type)
+  const reviewTrends = await Rating.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          day: { $dayOfMonth: "$createdAt" },
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+          status: "$ratingType",
+        },
+        totalReviews: { $sum: 1 },
+      },
+    },
+    {
+      $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 },
+    },
+    {
+      $project: {
+        day: "$_id.day",
+        status: "$_id.status",
+        totalReviews: 1,
+        _id: 0,
+      },
+    },
+  ]);
+
+  // Format data to fit the Recharts format
+  const formattedData = reviewTrends.map((trend) => ({
+    date: `${trend.year}-${trend.month}-${trend.day}`,
+    status: trend.status,
+    totalReviews: trend.totalReviews,
+  }));
+
+  return formattedData;
+};
+
+const getAnalyticsTotalSalesTrends = async () => {
+  const startOfMonth = moment().startOf("month").toDate();
+  const endOfMonth = moment().endOf("month").toDate();
+
+  // Aggregating sales by day and status
+  const salesTrends = await Order.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          day: { $dayOfMonth: "$createdAt" },
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+          status: "$status",
+        },
+        totalSales: { $sum: "$totalAmount" },
+      },
+    },
+    {
+      $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 },
+    },
+    {
+      $project: {
+        day: "$_id.day",
+        status: "$_id.status",
+        totalSales: 1,
+        _id: 0,
+      },
+    },
+  ]);
+
+  // Format data to fit the Recharts format
+  const formattedData = salesTrends.map((trend) => ({
+    date: `${trend.year}-${trend.month}-${trend.day}`,
+    status: trend.status,
+    totalSales: trend.totalSales,
+  }));
+
+  return formattedData;
+};
+
+const getAnalyticsTotalUsersTrends = async () => {
+  const startOfMonth = moment().startOf("month").toDate();
+  const endOfMonth = moment().endOf("month").toDate();
+
+  // Aggregating user trends by day based on orders
+  const userTrends = await Order.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+      },
+    },
+    {
+      $group: {
+        _id: {
+          day: { $dayOfMonth: "$createdAt" },
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+        },
+        uniqueUsers: { $addToSet: "$customer" }, // Get unique users
+      },
+    },
+    {
+      $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 },
+    },
+    {
+      $project: {
+        day: "$_id.day",
+        uniqueUsers: { $size: "$uniqueUsers" }, // Count unique users
+        _id: 0,
+      },
+    },
+  ]);
+
+  // Format data to fit the Recharts format
+  const formattedData = userTrends.map((trend) => ({
+    date: `${trend.year}-${trend.month}-${trend.day}`,
+    totalUsers: trend.uniqueUsers,
+  }));
+
+  return formattedData;
+};
+
+const getAnalyticsProductsTrends = async () => {
+  const startOfMonth = moment().startOf("month").toDate();
+  const endOfMonth = moment().endOf("month").toDate();
+
+  // Aggregating product trends by day (count of products sold)
+  const productSalesTrends = await Order.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+        status: "delivered", // Only consider completed sales
+      },
+    },
+    {
+      $unwind: "$totalItems",
+    },
+    {
+      $group: {
+        _id: {
+          day: { $dayOfMonth: "$createdAt" },
+          month: { $month: "$createdAt" },
+          year: { $year: "$createdAt" },
+          productId: "$totalItems.productId",
+        },
+        totalSales: { $sum: "$totalItems.quantity" },
+      },
+    },
+    {
+      $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 },
+    },
+    {
+      $project: {
+        day: "$_id.day",
+        productId: "$_id.productId",
+        totalSales: 1,
+        _id: 0,
+      },
+    },
+  ]);
+
+  // Format data to fit the Recharts format
+  const formattedData = productSalesTrends.map((trend) => ({
+    date: `${trend.year}-${trend.month}-${trend.day}`,
+    productId: trend.productId,
+    totalSales: trend.totalSales,
+  }));
+
+  return formattedData;
+};
+
 module.exports = {
   getAllUsers,
   getAllVendors,
@@ -762,4 +1203,129 @@ module.exports = {
   getAdminVendorSummary,
   getAdminFinancialOverview,
   approvedAdminPayment,
+  getAdminAnalyticsDashboardStats,
+  getAdminTopCategoriesBySales,
+  getAdminRecentAnalyticsTrends,
+  getAnalyticsProductsTrends,
+  getAnalyticsTotalUsersTrends,
+  getAnalyticsTotalSalesTrends,
+  getAnalyticsTotalReviewTrends,
 };
+
+// const getAdminAnalyticsDashboardStats = async () => {
+//   const lastMonth = new Date();
+//   const currentMonthStart = new Date(
+//     lastMonth.getFullYear(),
+//     lastMonth.getMonth(),
+//     1
+//   );
+//   const lastMonthStart = new Date(
+//     lastMonth.getFullYear(),
+//     lastMonth.getMonth() - 1,
+//     1
+//   );
+
+//   const lastMonthEnd = new Date(currentMonthStart);
+//   lastMonthEnd.setDate(lastMonthStart.getDate() + 31); // Assuming a max of 31 days in a month
+
+//   // Get total revenue in the last month
+//   const totalRevenueCurrentMonth = await Order.aggregate([
+//     {
+//       $match: {
+//         status: "delivered",
+//         createdAt: { $gte: currentMonthStart, $lt: lastMonthEnd },
+//       },
+//     },
+//     { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
+//   ]);
+
+//   // Get total revenue from the previous month
+//   const totalRevenuePreviousMonth = await Order.aggregate([
+//     {
+//       $match: {
+//         status: "delivered",
+//         createdAt: { $gte: lastMonthStart, $lt: currentMonthStart },
+//       },
+//     },
+//     { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
+//   ]);
+
+//   // Calculate percentage change for total revenue
+//   const revenueChange = totalRevenueCurrentMonth[0]?.totalRevenue
+//     ? ((totalRevenueCurrentMonth[0].totalRevenue -
+//         (totalRevenuePreviousMonth[0]?.totalRevenue || 0)) /
+//         (totalRevenuePreviousMonth[0]?.totalRevenue || 1)) *
+//       100
+//     : 0;
+
+//   // Get total sales (number of orders) for current and previous month
+//   const totalSalesCurrentMonth = await Order.countDocuments({
+//     status: "delivered",
+//     createdAt: { $gte: currentMonthStart, $lt: lastMonthEnd },
+//   });
+
+//   const totalSalesPreviousMonth = await Order.countDocuments({
+//     status: "delivered",
+//     createdAt: { $gte: lastMonthStart, $lt: currentMonthStart },
+//   });
+
+//   // Calculate percentage change for sales
+//   const salesChange = totalSalesCurrentMonth
+//     ? ((totalSalesCurrentMonth - totalSalesPreviousMonth) /
+//         totalSalesPreviousMonth) *
+//       100
+//     : 0;
+
+//   // Get total active users in the current month (users who made orders)
+//   const activeUsersCurrentMonth = await User.countDocuments({
+//     _id: {
+//       $in: await Order.distinct("customer", {
+//         createdAt: { $gte: currentMonthStart, $lt: lastMonthEnd },
+//         status: "delivered",
+//       }),
+//     },
+//   });
+
+//   const activeUsersPreviousMonth = await User.countDocuments({
+//     _id: {
+//       $in: await Order.distinct("customer", {
+//         createdAt: { $gte: lastMonthStart, $lt: currentMonthStart },
+//         status: "delivered",
+//       }),
+//     },
+//   });
+
+//   // Calculate percentage change for active users
+//   const activeUsersChange = activeUsersCurrentMonth
+//     ? ((activeUsersCurrentMonth - activeUsersPreviousMonth) /
+//         activeUsersPreviousMonth) *
+//       100
+//     : 0;
+
+//   // Get total products listed in the last month
+//   const totalProductsListedCurrentMonth = await Product.countDocuments({
+//     createdAt: { $gte: currentMonthStart, $lt: lastMonthEnd },
+//   });
+
+//   const totalProductsListedPreviousMonth = await Product.countDocuments({
+//     createdAt: { $gte: lastMonthStart, $lt: currentMonthStart },
+//   });
+
+//   // Calculate percentage change for products listed
+//   const productsListedChange = totalProductsListedCurrentMonth
+//     ? ((totalProductsListedCurrentMonth - totalProductsListedPreviousMonth) /
+//         totalProductsListedPreviousMonth) *
+//       100
+//     : 0;
+
+//   return {
+//     totalRevenueCurrentMonth: totalRevenueCurrentMonth[0]?.totalRevenue || 0,
+//     revenueChange,
+//     totalSalesCurrentMonth,
+//     salesChange,
+//     activeUsersCurrentMonth,
+//     activeUsersChange,
+//     totalProductsListedCurrentMonth,
+//     productsListedChange,
+//   };
+// };

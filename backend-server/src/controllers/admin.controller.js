@@ -286,6 +286,26 @@ const approvedAdminPayment = catchAsync(async (req, res) => {
   );
 });
 
+// TODO: admin analytics seciton
+const getAdminAnalyticsDashboardStats = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+
+  const adminApprovedPayment =
+    await adminService.getAdminAnalyticsDashboardStats();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "FinalCial Statitics",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: adminApprovedPayment,
+    })
+  );
+});
+
 module.exports = {
   getAllUsers,
   getAllVendors,
@@ -300,4 +320,5 @@ module.exports = {
   getAdminVendorSummary,
   getAdminFinancialOverview,
   approvedAdminPayment,
+  getAdminAnalyticsDashboardStats,
 };

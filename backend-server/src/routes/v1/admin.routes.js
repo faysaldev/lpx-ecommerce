@@ -61,4 +61,10 @@ router
     convertHeicToPngMiddleware(UPLOADS_FOLDER_INVOICES),
     adminController.approvedAdminPayment
   );
+
+// todo: analytics overview seciton
+router
+  .route("/analytics-stats")
+  .get(auth("common"), adminController.getAdminAnalyticsDashboardStats);
+
 module.exports = router;
