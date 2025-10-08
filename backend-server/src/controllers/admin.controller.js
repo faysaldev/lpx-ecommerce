@@ -178,6 +178,51 @@ const getAllOrders = catchAsync(async (req, res) => {
     })
   );
 });
+
+// get all the payment request with filterization
+
+const getAdminAllPaymentRequests = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+  const { search, status, sortBy, page, limit } = req.query;
+  const dashboardOrdersStats = await adminService.getAdminAllPaymentRequests({
+    search,
+    status,
+    sortBy,
+    page: Number(page) || 1,
+    limit: Number(limit) || 10,
+  });
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Admin Dashboard data fetched successfully",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: dashboardOrdersStats,
+    })
+  );
+});
+
+const getAdminPaymentRequestStats = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+  const dashboardPaymentRequestStats =
+    await adminService.getAdminPaymentRequestStats();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Admin Dashboard data fetched successfully",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: dashboardPaymentRequestStats,
+    })
+  );
+});
+
 module.exports = {
   getAllUsers,
   getAllVendors,
@@ -187,4 +232,6 @@ module.exports = {
   getAllProductsAdmin,
   getAdminOrderStats,
   getAllOrders,
+  getAdminAllPaymentRequests,
+  getAdminPaymentRequestStats,
 };

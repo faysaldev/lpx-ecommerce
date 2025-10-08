@@ -1,5 +1,12 @@
 const httpStatus = require("http-status");
-const { User, Vendor, Product, Order, Category } = require("../models");
+const {
+  User,
+  Vendor,
+  Product,
+  Order,
+  Category,
+  PaymentRequest,
+} = require("../models");
 const ApiError = require("../utils/ApiError");
 
 const getAllUsers = async (userId) => {
@@ -384,6 +391,121 @@ const getAllOrders = async ({ query, page, limit }) => {
   return orders;
 };
 
+// get all the payment request
+const getAdminAllPaymentRequests = async ({
+  search,
+  status,
+  sortBy = "newestFirst",
+  page = 1,
+  limit = 10,
+}) => {
+  const skip = (page - 1) * limit;
+  const query = {};
+
+  // Search functionality for vendor name and bank name
+  if (search) {
+    // Search by vendor name
+    const vendorSearch = await User.find({
+      storeName: { $regex: search, $options: "i" },
+      type: "seller",
+    });
+
+    const vendorIds = vendorSearch.map((vendor) => vendor._id);
+
+    // If vendor search is found, filter by vendor ID
+    if (vendorIds.length > 0) {
+      query.seller = { $in: vendorIds }; // Filter by vendors found in search
+    }
+
+    // Search by bank name
+    query.$or = [
+      { bankName: { $regex: search, $options: "i" } }, // Case-insensitive search for bankName
+    ];
+  }
+
+  // Filter by payment request status
+  if (status) {
+    query.status = status;
+  }
+
+  // Sorting logic
+  let sortOption = {};
+  switch (sortBy) {
+    case "newestFirst":
+      sortOption = { requestDate: -1 };
+      break;
+    case "oldestFirst":
+      sortOption = { requestDate: 1 };
+      break;
+    case "highToLow":
+      sortOption = { withdrawalAmount: -1 };
+      break;
+    case "lowToHigh":
+      sortOption = { withdrawalAmount: 1 };
+      break;
+    default:
+      sortOption = { requestDate: -1 };
+  }
+
+  // Fetching payment requests based on the filters and sorting
+  const paymentRequests = await PaymentRequest.find(query)
+    .skip(skip)
+    .limit(Number(limit))
+    .sort(sortOption);
+
+  // Decrypt bankName and accountNumber for each payment request
+  const decryptedPaymentRequests = paymentRequests.map((request) => {
+    const decryptedDetails = request.decryptBankDetails(); // Decrypt bank details
+    return {
+      ...request.toObject(), // Convert mongoose document to plain object
+      bankName: decryptedDetails.bankName, // Add decrypted bankName
+      accountNumber: decryptedDetails.accountNumber, // Add decrypted accountNumber
+    };
+  });
+
+  // Get total number of records matching the query (for total pages calculation)
+  const totalRecords = await PaymentRequest.countDocuments(query);
+
+  // Calculate total pages based on total records and limit
+  const totalPages = Math.ceil(totalRecords / limit);
+
+  return {
+    paymentRequests: decryptedPaymentRequests,
+    currentPage: page,
+    totalPages: totalPages,
+    totalRecords: totalRecords,
+  };
+};
+
+// getadminpaymentrequestStats
+
+const getAdminPaymentRequestStats = async () => {
+  const stats = await PaymentRequest.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalRequests: { $sum: 1 }, // Count of all requests
+        pendingRequests: {
+          $sum: { $cond: [{ $eq: ["$status", "pending"] }, 1, 0] },
+        }, // Count of pending requests
+        approvedRequests: {
+          $sum: { $cond: [{ $eq: ["$status", "paid"] }, 1, 0] },
+        }, // Count of approved requests
+        totalAmount: { $sum: "$withdrawalAmount" }, // Sum of all withdrawal amounts
+      },
+    },
+  ]);
+
+  return stats.length > 0
+    ? stats[0]
+    : {
+        totalRequests: 0,
+        pendingRequests: 0,
+        approvedRequests: 0,
+        totalAmount: 0,
+      };
+};
+
 module.exports = {
   getAllUsers,
   getAllVendors,
@@ -393,4 +515,6 @@ module.exports = {
   getAdminProductStats,
   getAdminOrderStats,
   getAllOrders,
+  getAdminAllPaymentRequests,
+  getAdminPaymentRequestStats,
 };

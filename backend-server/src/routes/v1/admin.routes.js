@@ -27,5 +27,14 @@ router
   .get(auth("common"), adminController.getAdminOrderStats);
 
 router.route("/all-orders").get(auth("common"), adminController.getAllOrders);
+// all the payment request with statitics
+
+router
+  .route("/all-payment-requests")
+  .get(auth("common"), adminController.getAdminAllPaymentRequests);
+
+router
+  .route("/all-payment-stats")
+  .get(auth("common"), adminController.getAdminPaymentRequestStats);
 
 module.exports = router;
