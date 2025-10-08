@@ -506,6 +506,248 @@ const getAdminPaymentRequestStats = async () => {
       };
 };
 
+// getPayment Vendor summeries
+const getAdminVendorSummary = async ({ page = 1, limit = 10 }) => {
+  const skip = (page - 1) * limit;
+
+  // Get vendors with pagination
+  const vendors = await Vendor.find().skip(skip).limit(Number(limit));
+
+  const totalVendors = await Vendor.countDocuments(); // Total count of vendors
+
+  const vendorSummaries = [];
+
+  // For each vendor, calculate the required metrics
+  for (const vendor of vendors) {
+    const vendorId = vendor._id;
+
+    // Total earnings and total withdrawal amount
+    const totalEarnings = vendor.totalEarnings;
+    const totalWithdrawal = vendor.totalWithDrawal;
+
+    // Get total paid and pending amounts from PaymentRequests
+    const paidPayments = await PaymentRequest.aggregate([
+      { $match: { seller: vendorId, status: "paid" } },
+      { $group: { _id: null, totalPaid: { $sum: "$withdrawalAmount" } } },
+    ]);
+    const pendingPayments = await PaymentRequest.aggregate([
+      { $match: { seller: vendorId, status: "pending" } },
+      { $group: { _id: null, totalPending: { $sum: "$withdrawalAmount" } } },
+    ]);
+
+    const totalPaidAmount = paidPayments.length ? paidPayments[0].totalPaid : 0;
+    const totalPendingAmount = pendingPayments.length
+      ? pendingPayments[0].totalPending
+      : 0;
+
+    // Get total orders for the vendor
+    const totalOrders = await Order.countDocuments({
+      "totalItems.vendorId": vendorId,
+      status: { $ne: "unpaid" }, // Exclude orders with status "unpaid"
+    });
+
+    // Calculate the average order value
+    const totalOrderValue = await Order.aggregate([
+      { $match: { "totalItems.vendorId": vendorId } },
+      { $group: { _id: null, totalOrderValue: { $sum: "$totalAmount" } } },
+    ]);
+    const avgOrderValue = totalOrders
+      ? totalOrderValue[0]?.totalOrderValue / totalOrders
+      : 0;
+
+    // Get the last payment date
+    const lastPayment = await PaymentRequest.findOne({ seller: vendorId })
+      .sort({ requestDate: -1 })
+      .limit(1);
+
+    vendorSummaries.push({
+      vendorId,
+      storeName: vendor.storeName,
+      totalEarnings,
+      totalWithdrawal,
+      totalPaidAmount,
+      totalPendingAmount,
+      totalOrders,
+      avgOrderValue,
+      lastPayment: lastPayment ? lastPayment.requestDate : null,
+    });
+  }
+
+  const totalPages = Math.ceil(totalVendors / limit);
+
+  return {
+    vendorSummaries,
+    currentPage: page,
+    totalPages,
+    totalVendors,
+  };
+};
+
+// payment Distrubution details
+const getAdminFinancialOverview = async () => {
+  // Define the last 20 days
+  const last20Days = new Date();
+  last20Days.setDate(last20Days.getDate() - 20);
+
+  // Payment Status Distribution (Count by status in last 20 days)
+  const paymentStatusDistribution = await PaymentRequest.aggregate([
+    { $match: { requestDate: { $gte: last20Days } } },
+    { $group: { _id: "$status", count: { $sum: 1 } } },
+  ]);
+
+  // Financial Overview (Pie chart format)
+  const financialOverview = await PaymentRequest.aggregate([
+    { $match: { requestDate: { $gte: last20Days } } },
+    {
+      $group: {
+        _id: null,
+        totalPaid: {
+          $sum: {
+            $cond: [{ $eq: ["$status", "paid"] }, "$withdrawalAmount", 0],
+          },
+        },
+        totalPending: {
+          $sum: {
+            $cond: [{ $eq: ["$status", "pending"] }, "$withdrawalAmount", 0],
+          },
+        },
+        totalRejected: {
+          $sum: {
+            $cond: [{ $eq: ["$status", "rejected"] }, "$withdrawalAmount", 0],
+          },
+        },
+      },
+    },
+  ]);
+
+  // Prepare pie chart data
+  const pieChartData = {
+    paid: financialOverview[0]?.totalPaid || 0,
+    pending: financialOverview[0]?.totalPending || 0,
+    rejected: financialOverview[0]?.totalRejected || 0,
+  };
+
+  // Recent Payment Activity (Recent 20 days data)
+  const recentPaymentActivity = await PaymentRequest.find({
+    requestDate: { $gte: last20Days },
+  })
+    .sort({ requestDate: -1 })
+    .limit(5); // Get the last 5 payment activities
+
+  // Decrypt bank information for each recent payment activity
+  const decryptedRecentPaymentActivity = recentPaymentActivity.map(
+    (request) => {
+      const decryptedDetails = request.decryptBankDetails(); // Decrypt bank details
+      return {
+        ...request.toObject(), // Convert mongoose document to plain object
+        bankName: decryptedDetails.bankName, // Add decrypted bankName
+        accountNumber: decryptedDetails.accountNumber, // Add decrypted accountNumber
+      };
+    }
+  );
+
+  return {
+    paymentStatusDistribution, // Distribution of payment statuses
+    financialOverview: pieChartData, // Pie chart data
+    recentPaymentActivity: decryptedRecentPaymentActivity, // Decrypted recent payment activities
+  };
+};
+
+// TODO: approve payment request with invoices
+// const approvedAdminPayment = async ({ paymentId, data }) => {
+//   try {
+//     const { note, invoiceImage, status } = data;
+
+//     // Ensure that the status is either "paid" or "rejected"
+//     if (status !== "paid" && status !== "rejected") {
+//       return "Invalid status provided";
+//     }
+
+//     // Prepare the update data object
+//     const updateData = {};
+
+//     // If the status is "paid", we expect an invoiceImage to be present, as it's required for paid status
+//     if (status === "paid" && !invoiceImage) {
+//       return "Invoice image is required when the status is 'paid'";
+//     }
+
+//     // Update the relevant fields
+//     updateData.status = status; // Set the status to "paid" or "rejected"
+//     updateData.paidDate = status === "paid" ? new Date() : null; // Set the paidDate only if status is "paid"
+
+//     if (note) {
+//       updateData.note = note; // Note is optional for both statuses
+//     }
+
+//     if (status === "paid" && invoiceImage) {
+//       updateData.invoiceImage = invoiceImage; // Invoice image is optional but required when status is "paid"
+//     }
+
+//     // Find the payment request by paymentId and update the fields
+//     const updatedPaymentRequest = await PaymentRequest.findOneAndUpdate(
+//       { _id: paymentId }, // Find the payment request by paymentId
+//       { $set: updateData }, // Update only the fields that are provided
+//       { new: true } // Return the updated document
+//     );
+
+//     if (!updatedPaymentRequest) {
+//       return "Payment request not found";
+//     }
+
+//     return updatedPaymentRequest;
+//   } catch (error) {
+//     console.error("Error updating payment request:", error);
+//     return "Error updating payment request";
+//   }
+// };
+
+const approvedAdminPayment = async ({ paymentId, data }) => {
+  try {
+    const { note, invoiceImage, status } = data;
+
+    // Ensure that the status is either "paid" or "rejected"
+    if (status !== "paid" && status !== "rejected") {
+      return "Invalid status provided";
+    }
+
+    // Prepare the update data object
+    const updateData = {};
+
+    // If the status is "paid", we expect an invoiceImage to be present, as it's required for paid status
+    if (status === "paid" && !invoiceImage) {
+      return "Invoice image is required when the status is 'paid'";
+    }
+
+    // Update the relevant fields
+    updateData.status = status; // Set the status to "paid" or "rejected"
+    updateData.paidDate = status === "paid" ? new Date() : null; // Set the paidDate only if status is "paid"
+
+    if (note) {
+      updateData.note = note; // Note is optional for both statuses
+    }
+
+    if (status === "paid" && invoiceImage) {
+      updateData.invoiceImage = invoiceImage; // Invoice image is optional but required when status is "paid"
+    }
+
+    // Find the payment request by paymentId and update the fields
+    const updatedPaymentRequest = await PaymentRequest.findOneAndUpdate(
+      { _id: paymentId }, // Find the payment request by paymentId
+      { $set: updateData }, // Update only the fields that are provided
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedPaymentRequest) {
+      return "Payment request not found";
+    }
+
+    return updatedPaymentRequest;
+  } catch (error) {
+    console.error("Error updating payment request:", error);
+    return "Error updating payment request";
+  }
+};
+
 module.exports = {
   getAllUsers,
   getAllVendors,
@@ -517,4 +759,7 @@ module.exports = {
   getAllOrders,
   getAdminAllPaymentRequests,
   getAdminPaymentRequestStats,
+  getAdminVendorSummary,
+  getAdminFinancialOverview,
+  approvedAdminPayment,
 };

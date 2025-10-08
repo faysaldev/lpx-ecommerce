@@ -132,7 +132,6 @@ export default function PaymentRequestTable({
   paymentRequests,
   onViewDetails,
   showVendorColumn = false,
-  pagination,
 }: PaymentRequestTableProps) {
   const [selectedRequest, setSelectedRequest] = useState<PaymentRequest | null>(
     null
@@ -146,18 +145,6 @@ export default function PaymentRequestTable({
       setSelectedRequest(request);
       setShowDetailsDialog(true);
     }
-  };
-
-  const handleDownloadInvoice = (request: PaymentRequest) => {
-    // In a real app, this would trigger a download
-    console.log("Download invoice for:", request._id);
-    // window.open(request.invoiceUrl, "_blank");
-  };
-
-  const handleDownloadPaymentProof = (request: PaymentRequest) => {
-    // In a real app, this would trigger a download
-    console.log("Download payment proof for:", request._id);
-    // window.open(request.paymentProofUrl, "_blank");
   };
 
   console.log("Payment Requests:", paymentRequests);
@@ -268,25 +255,12 @@ export default function PaymentRequestTable({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => handleViewDetails(request)}
                         >
                           <Eye className="mr-2 h-4 w-4" />
                           View Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDownloadInvoice(request)}
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          Download Invoice
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => handleDownloadPaymentProof(request)}
-                        >
-                          <Download className="mr-2 h-4 w-4" />
-                          Download Payment Proof
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>

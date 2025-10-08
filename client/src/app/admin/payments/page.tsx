@@ -22,19 +22,17 @@ import AdminPaymentAnalytics from "@/components/Admin/Payments/AdminPaymentAnaly
 import PaymentVendorAnalysis from "@/components/Admin/Payments/PaymentVendorAnalysis";
 import AdminPaymentRequest from "@/components/Admin/Payments/AdminPaymentRequest";
 import AdminPaymentLoader from "@/components/Admin/Payments/AdminPaymentLoader";
+import { useAdminPaymentStatsQuery } from "@/redux/features/admin/adminPaymentrequest";
 
 export default function AdminPaymentManagementPage() {
-  const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([]);
-  const [vendorSummaries, setVendorSummaries] = useState<
-    VendorPaymentSummary[]
-  >([]);
-  const [stats, setStats] = useState<PaymentRequestStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
   const [selectedRequest, setSelectedRequest] = useState<PaymentRequest | null>(
     null
   );
   const [showApprovalDialog, setShowApprovalDialog] = useState(false);
+
+  const { data: paymentManageMentStats, isLoading } = useAdminPaymentStatsQuery(
+    {}
+  );
 
   const handleViewRequest = (request: PaymentRequest) => {
     setSelectedRequest(request);
@@ -52,34 +50,35 @@ export default function AdminPaymentManagementPage() {
     });
   };
 
-  const dashboardStats = stats
+  // Dynamically set stats from the paymentManageMentStats data
+  const dashboardStats = paymentManageMentStats?.data
     ? [
         {
           title: "Total Requests",
-          value: stats.totalRequests,
+          value: paymentManageMentStats.data.attributes.totalRequests,
           icon: CreditCard,
           color: "text-blue-600",
         },
         {
-          title: "Pending Review",
-          value: stats.pendingRequests,
+          title: "Pending Requests",
+          value: paymentManageMentStats.data.attributes.pendingRequests,
           icon: Clock,
           color: "text-yellow-600",
         },
         {
-          title: "Approved",
-          value: stats.approvedRequests,
+          title: "Approved Requests",
+          value: paymentManageMentStats.data.attributes.approvedRequests,
           icon: CheckCircle,
           color: "text-green-600",
         },
         {
           title: "Total Amount",
-          value: formatCurrency(stats.totalAmount),
+          value: paymentManageMentStats.data.attributes.totalAmount,
           icon: DollarSign,
           color: "text-purple-600",
         },
       ]
-    : [];
+    : []; // In case the data is not yet available, default to an empty array
 
   if (isLoading) {
     return <AdminPaymentLoader />;
@@ -133,12 +132,9 @@ export default function AdminPaymentManagementPage() {
         <AdminPaymentRequest handleViewRequest={handleViewRequest} />
 
         {/* vendor request analysis */}
-        <PaymentVendorAnalysis vendorSummaries={vendorSummaries} />
+        <PaymentVendorAnalysis />
 
-        <AdminPaymentAnalytics
-          paymentRequests={paymentRequests}
-          stats={stats}
-        />
+        <AdminPaymentAnalytics />
       </Tabs>
 
       {/* Payment Approval Dialog */}

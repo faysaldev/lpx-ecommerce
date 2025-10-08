@@ -62,6 +62,7 @@ const PaymentRequestSchema = new Schema(
     paidDate: {
       type: Date,
     },
+    note: { type: String },
   },
   { timestamps: true }
 );

@@ -223,6 +223,69 @@ const getAdminPaymentRequestStats = catchAsync(async (req, res) => {
   );
 });
 
+const getAdminVendorSummary = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+  const { limit, page } = req.query;
+  const adminPayVendorSumemries = await adminService.getAdminVendorSummary({
+    page,
+    limit,
+  });
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Admin Dashboard data fetched successfully",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: adminPayVendorSumemries,
+    })
+  );
+});
+
+const getAdminFinancialOverview = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+  const adminPayVendorSumemries =
+    await adminService.getAdminFinancialOverview();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "FinalCial Statitics",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: adminPayVendorSumemries,
+    })
+  );
+});
+
+// TODO: admin approving money
+const approvedAdminPayment = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+  if (req.file) {
+    req.body.invoiceImage = `/uploads/invoices/${req.file.filename}`;
+  }
+  const adminApprovedPayment = await adminService.approvedAdminPayment({
+    paymentId: req.params.id,
+    data: req.body,
+  });
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "FinalCial Statitics",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: adminApprovedPayment,
+    })
+  );
+});
+
 module.exports = {
   getAllUsers,
   getAllVendors,
@@ -234,4 +297,7 @@ module.exports = {
   getAllOrders,
   getAdminAllPaymentRequests,
   getAdminPaymentRequestStats,
+  getAdminVendorSummary,
+  getAdminFinancialOverview,
+  approvedAdminPayment,
 };

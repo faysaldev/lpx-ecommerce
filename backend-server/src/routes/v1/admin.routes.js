@@ -1,6 +1,12 @@
 const express = require("express");
 const auth = require("../../middlewares/auth");
 const { adminController } = require("../../controllers");
+const userFileUploadMiddleware = require("../../middlewares/fileUpload");
+const convertHeicToPngMiddleware = require("../../middlewares/converter");
+
+const UPLOADS_FOLDER_INVOICES = "./public/uploads/invoices";
+
+const uploadInVoices = userFileUploadMiddleware(UPLOADS_FOLDER_INVOICES);
 
 const router = express.Router();
 
@@ -37,4 +43,22 @@ router
   .route("/all-payment-stats")
   .get(auth("common"), adminController.getAdminPaymentRequestStats);
 
+// get vendor pay summeries
+router
+  .route("/pay-vendor-summaries")
+  .get(auth("common"), adminController.getAdminVendorSummary);
+
+router
+  .route("/pay-financial-overview")
+  .get(auth("common"), adminController.getAdminFinancialOverview);
+
+// approving the payment and uploading invoice
+router
+  .route("/payment-completed/:id")
+  .patch(
+    auth("common"),
+    [uploadInVoices.single("image")],
+    convertHeicToPngMiddleware(UPLOADS_FOLDER_INVOICES),
+    adminController.approvedAdminPayment
+  );
 module.exports = router;
