@@ -4,6 +4,7 @@ const response = require("../config/response");
 const { orderService } = require("../services");
 const { sendNotificationEmail } = require("../services/email.service");
 const { addNewNotification } = require("./notification.controller");
+const { Order } = require("../models");
 
 const myOrders = catchAsync(async (req, res) => {
   const {
@@ -73,8 +74,29 @@ const getOrderSingleDetails = catchAsync(async (req, res) => {
   );
 });
 
+// gotInvoice
+
+// Function to generate PDF
+
+// Controller to fetch order and generate PDF
+const getOrderSingleDetailsInvoice = catchAsync(async (req, res) => {
+  const orderId = req.params.id;
+
+  if (!orderId) {
+    return res.status(httpStatus.BAD_REQUEST).json({
+      message: "Order ID is required",
+    });
+  }
+  const invoice = await orderService.getOrderSingleDetailsInvoice(orderId);
+  // Send the generated PDF as a download
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename=invoice-LPX.pdf`);
+  res.send(invoice);
+});
+
 module.exports = {
   myOrders,
   createOrder,
   getOrderSingleDetails,
+  getOrderSingleDetailsInvoice,
 };

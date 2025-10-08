@@ -114,15 +114,12 @@ export default function OrdersPage() {
         onValueChange={setFilterStatus}
         className="mb-6"
       >
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-6">
+        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
           <TabsTrigger value="all">
             All Orders ({getOrderCountByStatus("all")})
           </TabsTrigger>
-          <TabsTrigger value="pending">
-            Pending ({getOrderCountByStatus("pending")})
-          </TabsTrigger>
-          <TabsTrigger value="processing">
-            Processing ({getOrderCountByStatus("processing")})
+          <TabsTrigger value="conformed">
+            Conformed ({getOrderCountByStatus("conformed")})
           </TabsTrigger>
           <TabsTrigger value="shipped">
             Shipped ({getOrderCountByStatus("shipped")})

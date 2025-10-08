@@ -39,12 +39,7 @@ export interface CheckoutData {
   couponCode?: string;
 }
 
-export type OrderStatus =
-  | "pending"
-  | "processing"
-  | "shipped"
-  | "delivered"
-  | "cancelled";
+export type OrderStatus = "conformed" | "shipped" | "delivered" | "cancelled";
 
 export interface Order {
   id: string;

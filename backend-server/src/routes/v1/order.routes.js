@@ -10,4 +10,8 @@ router
   .route("/order-details/:id")
   .get(auth("common"), orderController.getOrderSingleDetails);
 
+router
+  .route("/invoice/:id")
+  .get(auth("common"), orderController.getOrderSingleDetailsInvoice);
+
 module.exports = router;

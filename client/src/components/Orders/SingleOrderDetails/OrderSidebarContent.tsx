@@ -1,173 +1,199 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { format } from "date-fns";
-import {
-  Calendar,
-  CreditCard,
-  MapPin,
-  MessageCircle,
-  Truck,
-} from "lucide-react";
-
-import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
-import { Separator } from "@/components/UI/separator";
+import { MapPin, Truck, Package, CreditCard } from "lucide-react";
+import { format } from "date-fns";
+import { useEffect, useState } from "react";
 
-function OrderSidebarContent({
+interface OrderSidebarContentProps {
+  order: any;
+  estimatedDelivery: Date;
+}
+
+export default function OrderSidebarContent({
   order,
   estimatedDelivery,
-}: {
-  estimatedDelivery: any;
-  order: any;
-}) {
+}: OrderSidebarContentProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   return (
     <div className="space-y-6">
       {/* Delivery Information */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base">
             <Truck className="h-5 w-5" />
             Delivery Information
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           <div>
-            <p className="text-sm text-muted-foreground mb-1">
-              Estimated Delivery
+            <p className="text-sm font-medium mb-1">Estimated Delivery</p>
+            <p className="text-sm text-muted-foreground">
+              {mounted ? (
+                format(estimatedDelivery, "MMMM d, yyyy")
+              ) : (
+                <span className="invisible">Loading...</span>
+              )}
             </p>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <p className="font-medium">
-                {format(estimatedDelivery, "EEEE, MMMM d, yyyy")}
+          </div>
+          {order.trackingNumber && (
+            <div>
+              <p className="text-sm font-medium mb-1">Tracking Number</p>
+              <p className="text-sm text-muted-foreground font-mono">
+                {order.trackingNumber}
               </p>
             </div>
-          </div>
-
-          <Separator />
-
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">
-              Shipping Address
-            </p>
-            <div className="flex items-start gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground mt-0.5" />
-              <div className="text-sm">
-                <p className="font-medium">
-                  {order.shippingInformation.firstName}{" "}
-                  {order.shippingInformation.lastName}
-                </p>
-                <p>{order.shippingInformation.streetAddress}</p>
-                {order.shippingInformation.apartment && (
-                  <p>{order.shippingInformation.apartment}</p>
-                )}
-                <p>
-                  {order.shippingInformation.city},{" "}
-                  {order.shippingInformation.state}{" "}
-                  {order.shippingInformation.zipCode}
-                </p>
-                <p>{order.shippingInformation.country}</p>
-                <p className="mt-1">{order.shippingInformation.email}</p>
-                <p>{order.shippingInformation.phoneNumber}</p>
-                {order.shippingInformation.deliveryInstructions && (
-                  <div className="mt-2 p-2 bg-muted/50 rounded">
-                    <p className="font-medium text-xs">
-                      Delivery Instructions:
-                    </p>
-                    <p className="text-xs">
-                      {order.shippingInformation.deliveryInstructions}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Payment Information */}
+      {/* Shipping Address */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CreditCard className="h-5 w-5" />
-            Payment Information
+          <CardTitle className="flex items-center gap-2 text-base">
+            <MapPin className="h-5 w-5" />
+            Shipping Address
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">Payment Method</p>
+        <CardContent>
+          <div className="text-sm space-y-1">
             <p className="font-medium">
-              {order.paymentCardId ? (
-                <>
-                  Card ending in {order.paymentCardId.cardNumber?.slice(-4)}
-                  <br />
-                  <span className="text-sm text-muted-foreground">
-                    {order.paymentCardId.cardHolderName}
-                  </span>
-                </>
-              ) : (
-                "Credit Card"
-              )}
+              {order.shippingInformation.firstName}{" "}
+              {order.shippingInformation.lastName}
             </p>
-          </div>
-
-          <Separator />
-
-          <div>
-            <p className="text-sm text-muted-foreground mb-1">
-              Billing Address
+            <p className="text-muted-foreground">
+              {order.shippingInformation.email}
             </p>
-            <div className="text-sm">
-              <p className="font-medium">
-                {order.shippingInformation.firstName}{" "}
-                {order.shippingInformation.lastName}
+            <p className="text-muted-foreground">
+              {order.shippingInformation.phoneNumber}
+            </p>
+            <p className="text-muted-foreground mt-2">
+              {order.shippingInformation.streetAddress}
+            </p>
+            {order.shippingInformation.apartment && (
+              <p className="text-muted-foreground">
+                {order.shippingInformation.apartment}
               </p>
-              <p>{order.shippingInformation.streetAddress}</p>
-              {order.shippingInformation.apartment && (
-                <p>{order.shippingInformation.apartment}</p>
-              )}
-              <p>
-                {order.shippingInformation.city},{" "}
-                {order.shippingInformation.state}{" "}
-                {order.shippingInformation.zipCode}
-              </p>
-              <p>{order.shippingInformation.country}</p>
-            </div>
+            )}
+            <p className="text-muted-foreground">
+              {order.shippingInformation.city &&
+                `${order.shippingInformation.city}, `}
+              {order.shippingInformation.state}
+              {order.shippingInformation.zipCode &&
+                ` ${order.shippingInformation.zipCode}`}
+            </p>
+            <p className="text-muted-foreground">
+              {order.shippingInformation.country}
+            </p>
+            {order.shippingInformation.deliveryInstructions && (
+              <div className="mt-3 p-2 bg-muted/50 rounded">
+                <p className="text-xs font-medium mb-1">
+                  Delivery Instructions:
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {order.shippingInformation.deliveryInstructions}
+                </p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      {/* Order Notes */}
-      {order.orderNotes && (
+      {/* Billing Information */}
+      {order.billingInformation && (
         <Card>
           <CardHeader>
-            <CardTitle>Order Notes</CardTitle>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <CreditCard className="h-5 w-5" />
+              Billing Information
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground bg-muted/50 p-3 rounded-lg">
-              {order.orderNotes}
-            </p>
+            <div className="text-sm space-y-1">
+              {order.billingInformation.firstName &&
+              order.billingInformation.lastName ? (
+                <>
+                  <p className="font-medium">
+                    {order.billingInformation.firstName}{" "}
+                    {order.billingInformation.lastName}
+                  </p>
+                  {order.billingInformation.deliveryInstructions && (
+                    <p className="text-muted-foreground mt-2">
+                      {order.billingInformation.deliveryInstructions}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="text-muted-foreground">
+                  Same as shipping address
+                </p>
+              )}
+            </div>
           </CardContent>
         </Card>
       )}
 
-      {/* Support */}
+      {/* Order Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Need Help?</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Package className="h-5 w-5" />
+            Order Summary
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Have questions about your order? Our support team is here to help.
-          </p>
-          <Button variant="outline" className="w-full">
-            <MessageCircle className="h-4 w-4 mr-2" />
-            Contact Support
-          </Button>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Items</span>
+              <span className="font-medium">{order.totalItems.length}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="font-medium">
+                ${Number(order.total || 0).toFixed(2)}
+              </span>
+            </div>
+            {order.shipping !== undefined && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Shipping</span>
+                <span className="font-medium">
+                  {order.shipping === 0 ? (
+                    <span className="text-green-600">FREE</span>
+                  ) : (
+                    `$${Number(order.shipping).toFixed(2)}`
+                  )}
+                </span>
+              </div>
+            )}
+            {order.tax !== undefined && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Tax</span>
+                <span className="font-medium">
+                  ${Number(order.tax).toFixed(2)}
+                </span>
+              </div>
+            )}
+            {order.coupon?.isValid && order.coupon?.discountAmount && (
+              <div className="flex justify-between text-green-600">
+                <span>Discount</span>
+                <span className="font-medium">
+                  -${Number(order.coupon.discountAmount).toFixed(2)}
+                </span>
+              </div>
+            )}
+            <div className="flex justify-between font-bold pt-2 border-t">
+              <span>Total</span>
+              <span>${Number(order.totalAmount || 0).toFixed(2)}</span>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
   );
 }
-
-export default OrderSidebarContent;

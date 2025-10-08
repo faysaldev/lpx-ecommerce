@@ -21,6 +21,8 @@ import { Card, CardContent, CardHeader } from "@/components/UI/card";
 import { cn } from "@/lib/utils";
 import type { OrderStatus } from "@/lib/checkout";
 import { useState, useEffect } from "react";
+import Image from "next/image";
+import { getImageUrl } from "@/lib/getImageURL";
 
 const statusConfig: Record<
   OrderStatus,
@@ -156,26 +158,21 @@ function OrderCard({
                     className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg"
                   >
                     <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center">
-                      {item.image ? (
-                        <img
-                          src={item.image}
-                          alt="Product"
-                          className="w-16 h-16 object-cover rounded-md"
-                        />
-                      ) : (
-                        <Package className="h-8 w-8 text-muted-foreground" />
-                      )}
+                      <img
+                        src={`${process.env.NEXT_PUBLIC_BASE_URL}${item?.productId?.images[0]})`}
+                        className="h-8 w-8"
+                      />
                     </div>
                     <div className="flex-1">
                       <p className="font-medium">
-                        Product ID: {item.productId}
+                        {item.productId?.productName || "Product"}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         Quantity: {item.quantity} × $
                         {Number(item.price || 0).toFixed(2)}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        Vendor: {item.vendorId}
+                        Vendor: {item.vendorId?.storeName || "N/A"}
                       </p>
                     </div>
                     <p className="font-semibold">
@@ -203,11 +200,23 @@ function OrderCard({
                   {order.shippingInformation.apartment && (
                     <p>{order.shippingInformation.apartment}</p>
                   )}
-                  <p>
-                    {order.shippingInformation.city},{" "}
-                    {order.shippingInformation.state}{" "}
-                    {order.shippingInformation.zipCode}
-                  </p>
+                  {order.shippingInformation.city && (
+                    <p>
+                      {order.shippingInformation.city}
+                      {order.shippingInformation.state &&
+                        `, ${order.shippingInformation.state}`}
+                      {order.shippingInformation.zipCode &&
+                        ` ${order.shippingInformation.zipCode}`}
+                    </p>
+                  )}
+                  {!order.shippingInformation.city &&
+                    order.shippingInformation.state && (
+                      <p>
+                        {order.shippingInformation.state}
+                        {order.shippingInformation.zipCode &&
+                          ` ${order.shippingInformation.zipCode}`}
+                      </p>
+                    )}
                   <p>{order.shippingInformation.country}</p>
                   {order.shippingInformation.deliveryInstructions && (
                     <p className="mt-2">
@@ -223,20 +232,24 @@ function OrderCard({
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Items Total</span>
-                    <span>${Number(order.total || 0).toFixed(2)}</span>
+                    <span>${Number(order.totalAmount || 0).toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Shipping</span>
-                    <span>
-                      {order.shipping === 0
-                        ? "FREE"
-                        : `$${Number(order.shipping || 0).toFixed(2)}`}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Tax</span>
-                    <span>${Number(order.tax || 0).toFixed(2)}</span>
-                  </div>
+                  {order.shipping !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Shipping</span>
+                      <span>
+                        {order.shipping === 0
+                          ? "FREE"
+                          : `${Number(order.shipping).toFixed(2)}`}
+                      </span>
+                    </div>
+                  )}
+                  {order.tax !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Tax</span>
+                      <span>${Number(order.tax).toFixed(2)}</span>
+                    </div>
+                  )}
                   {order.coupon?.isValid && (
                     <div className="flex justify-between text-green-600">
                       <span>Coupon Discount</span>
@@ -292,7 +305,7 @@ export default OrderCard;
 // import { Card, CardContent, CardHeader } from "@/components/UI/card";
 // import { cn } from "@/lib/utils";
 // import type { OrderStatus } from "@/lib/checkout";
-// import { useState } from "react";
+// import { useState, useEffect } from "react";
 
 // const statusConfig: Record<
 //   OrderStatus,
@@ -313,8 +326,16 @@ export default OrderCard;
 //   onReorder: (order: any) => void;
 // }) {
 //   const [isExpanded, setIsExpanded] = useState(false);
+//   const [mounted, setMounted] = useState(false);
 //   const status = statusConfig[order.status as OrderStatus];
 //   const StatusIcon = status?.icon;
+
+//   // Fix hydration by only rendering date on client
+//   useEffect(() => {
+//     setMounted(true);
+//   }, []);
+
+//   console.log(order);
 
 //   return (
 //     <Card className="overflow-hidden">
@@ -340,8 +361,18 @@ export default OrderCard;
 //                 </Badge>
 //               </div>
 //               <p className="text-sm text-muted-foreground">
-//                 Placed on{" "}
-//                 {format(new Date(order.createdAt), "MMM d, yyyy 'at' h:mm a")}
+//                 {mounted ? (
+//                   <>
+//                     Placed on{" "}
+//                     {format(
+//                       new Date(order.createdAt),
+//                       "MMM d, yyyy 'at' h:mm a"
+//                     )}
+//                   </>
+//                 ) : (
+//                   // Placeholder during SSR
+//                   <span className="invisible">Loading date...</span>
+//                 )}
 //               </p>
 //             </div>
 //           </div>
