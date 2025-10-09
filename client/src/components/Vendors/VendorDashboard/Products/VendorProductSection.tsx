@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
 import React, { useState } from "react";
 import { ProductTable } from "./ProductTable";
 import { useRouter } from "next/navigation";
-import { mockVendorProducts } from "@/lib/mockdata";
 import { toast } from "sonner";
 import {
   Card,
@@ -23,48 +23,61 @@ import {
 } from "@/components/UI/dropdown-menu";
 import { Button } from "@/components/UI/button";
 import { Badge } from "@/components/UI/badge";
-import { SORT_OPTIONS, type SortOption } from "@/lib/browse-utils";
 import { TabsContent } from "@/components/UI/tabs";
 import Link from "next/link";
+import { useSearchVendorDashboardProductsQuery } from "@/redux/features/vendors/VendorDashboard";
+import { Pagination } from "antd";
 
-type ProductStatus = "all" | "active" | "draft" | "sold" | "out_of_stock";
+// ✅ Types
+type ProductStatus = "all" | "active" | "draft" | "out_of_stock" | "sold";
+type SortOption = {
+  label: string;
+  value: string;
+};
 
-function VendorProductSection({}: any) {
+const SORT_OPTIONS: SortOption[] = [
+  { label: "Newest First", value: "newestFirst" },
+  { label: "Price: High to Low", value: "highToLow" },
+  { label: "Price: Low to High", value: "lowToHigh" },
+];
+
+const VendorProductSection = () => {
   const router = useRouter();
-  const [products, setProducts] = useState(mockVendorProducts);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ProductStatus>("all");
-  const [sortOption, setSortOption] = useState<SortOption>("newest");
 
-  const handleEdit = (productId: string) => {
-    router.push(`/vendor/products/${productId}/edit`);
-  };
+  // Filters
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<ProductStatus>("all");
+  const [sortBy, setSortBy] = useState<string>("");
 
-  const handleView = (productId: string) => {
-    router.push(`/product/${productId}`);
-  };
+  // Pagination
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(5);
 
-  const handleDuplicate = (productId: string) => {
-    const product = products.find((p: any) => p.id === productId);
-    if (product) {
-      const duplicated = {
-        ...product,
-        id: `${productId}-copy-${Date.now()}`,
-        name: `${product.name} (Copy)`,
-        status: "draft" as const,
-        views: 0,
-        wishlistCount: 0,
-        dateCreated: new Date().toISOString().split("T")[0],
-        lastUpdated: new Date().toISOString().split("T")[0],
-      };
-      setProducts([duplicated, ...products]);
-      toast.success("Product duplicated successfully");
-    }
-  };
+  // API Call
+  const { data } = useSearchVendorDashboardProductsQuery({
+    search,
+    status,
+    sortBy,
+    page,
+    limit,
+  });
+  
+  const products = data?.data?.attributes?.products;
+  // console.log("data?.data?.attributes?.products",products)
+  const total = data?.data?.total || 0;
 
-  const handleDelete = (productId: string) => {
-    setProducts(products.filter((p: any) => p.id !== productId));
-    toast.success("Product deleted successfully");
+  // Event Handlers
+  const handleEdit = (productId: string) => router.push(`/vendor/products/${productId}/edit`);
+  const handleView = (productId: string) => router.push(`/product/${productId}`);
+  const handleDuplicate = () => toast.success("Product duplicated successfully");
+  const handleDelete = () => toast.success("Product deleted successfully");
+
+  // Clear filters
+  const clearFilters = () => {
+    setSearch("");
+    setStatus("all");
+    setSortBy("");
+    setPage(1);
   };
 
   return (
@@ -84,70 +97,66 @@ function VendorProductSection({}: any) {
             </Button>
           </div>
         </CardHeader>
+
         <CardContent className="space-y-4">
-          {/* Search and Filters */}
+          {/* Search + Filter */}
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
             {/* Search */}
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
                 placeholder="Search products..."
                 className="pl-10"
               />
             </div>
 
-            {/* Sort and Status Filter */}
+            {/* Status + Sort */}
             <div className="flex items-center gap-3">
               {/* Status Filter */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="min-w-[120px] justify-start"
-                  >
-                    {statusFilter === "all"
+                  <Button variant="outline" className="min-w-[120px] justify-start">
+                    {status === "all"
                       ? "All Products"
-                      : statusFilter === "out_of_stock"
+                      : status === "out_of_stock"
                       ? "Out of Stock"
-                      : statusFilter.charAt(0).toUpperCase() +
-                        statusFilter.slice(1)}
+                      : status.charAt(0).toUpperCase() + status.slice(1)}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setStatusFilter("all")}>
-                    All Products
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setStatusFilter("active")}>
-                    Active
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setStatusFilter("draft")}>
-                    Draft
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setStatusFilter("sold")}>
-                    Sold
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => setStatusFilter("out_of_stock")}
-                  >
-                    Out of Stock
-                  </DropdownMenuItem>
+                  {["all", "active", "draft", "sold", "out_of_stock"].map((s) => (
+                    <DropdownMenuItem
+                      key={s}
+                      onClick={() => {
+                        setStatus(s as ProductStatus);
+                        setPage(1);
+                      }}
+                    >
+                      {s === "out_of_stock"
+                        ? "Out of Stock"
+                        : s === "all"
+                        ? "All Products"
+                        : s.charAt(0).toUpperCase() + s.slice(1)}
+                    </DropdownMenuItem>
+                  ))}
                 </DropdownMenuContent>
               </DropdownMenu>
 
-              {/* Sort */}
+              {/* Sort Filter */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="min-w-[140px] justify-start"
-                  >
+                  <Button variant="outline" className="min-w-[140px] justify-start">
                     <ArrowUpDown className="mr-2 h-4 w-4" />
-                    {SORT_OPTIONS.find((o) => o.value === sortOption)?.label}
+                    {SORT_OPTIONS.find((o) => o.value === sortBy)?.label ||
+                      "Sort Options"}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -156,7 +165,10 @@ function VendorProductSection({}: any) {
                   {SORT_OPTIONS.map((option) => (
                     <DropdownMenuItem
                       key={option.value}
-                      onClick={() => setSortOption(option.value as SortOption)}
+                      onClick={() => {
+                        setSortBy(option.value);
+                        setPage(1);
+                      }}
                     >
                       {option.label}
                     </DropdownMenuItem>
@@ -167,36 +179,47 @@ function VendorProductSection({}: any) {
           </div>
 
           {/* Active Filters */}
-          {(searchQuery || statusFilter !== "all") && (
-            <div className="flex items-center gap-2">
+          {(search || status !== "all") && (
+            <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm text-muted-foreground">Filters:</span>
-              {searchQuery && (
+
+              {search && (
                 <Badge variant="secondary" className="flex items-center gap-1">
-                  Search: {searchQuery}
+                  Search: {search}
                   <button
                     type="button"
-                    onClick={() => setSearchQuery("")}
+                    onClick={() => setSearch("")}
                     className="hover:text-red-500 transition-colors ml-1"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
-              {statusFilter !== "all" && (
+
+              {status !== "all" && (
                 <Badge variant="secondary" className="flex items-center gap-1">
                   Status:{" "}
-                  {statusFilter === "out_of_stock"
+                  {status === "out_of_stock"
                     ? "Out of Stock"
-                    : statusFilter}
+                    : status.charAt(0).toUpperCase() + status.slice(1)}
                   <button
                     type="button"
-                    onClick={() => setStatusFilter("all")}
+                    onClick={() => setStatus("all")}
                     className="hover:text-red-500 transition-colors ml-1"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
+
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={clearFilters}
+                className="text-muted-foreground"
+              >
+                Clear All
+              </Button>
             </div>
           )}
 
@@ -208,10 +231,23 @@ function VendorProductSection({}: any) {
             onDuplicate={handleDuplicate}
             onDelete={handleDelete}
           />
+
+          {/* Pagination */}
+          <div className="flex justify-end mt-6">
+            <Pagination
+              current={page}
+              pageSize={limit}
+              onChange={(p, size) => {
+                setPage(p);
+                setLimit(size || 5);
+              }}
+              className="bg-white rounded-2xl "
+            />
+          </div>
         </CardContent>
       </Card>
     </TabsContent>
   );
-}
+};
 
 export default VendorProductSection;

@@ -34,7 +34,7 @@ import { OrdersTable } from "@/components/Vendors/VendorDashboard/Order/OrdersTa
 import AnalysisSection from "@/components/Vendors/VendorDashboard/Analysis/AnalysisSection";
 import VendorProductSection from "@/components/Vendors/VendorDashboard/Products/VendorProductSection";
 import { SortOption } from "@/lib/browse-utils";
-import { useVendorDashboardOverviewQuery } from "@/redux/features/vendors/VendorDashboard";
+import { useVendorDashboardOverviewQuery, useVendorToSellingQuery } from "@/redux/features/vendors/VendorDashboard";
 
 const initialDashboardData = {
   analytics: mockVendorAnalytics,
@@ -55,7 +55,7 @@ const VendorDashboardPage = () => {
   const [products, setProducts] = useState(mockVendorProducts);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<ProductStatus>("all");
-  const [sortOption, setSortOption] = useState<SortOption>("newest");
+  const [sortOption, setSortOption] = useState<SortOption>("");
   const dashboard = initialDashboardData;
 
   // Calculate stats from products (already provided by mockVendorAnalytics)
@@ -123,8 +123,10 @@ const VendorDashboardPage = () => {
   
   const AllStats = VendorDashboardStats?.data?.stats;
   const AllRecentOrders = VendorDashboardStats?.data?.recentOrders;
-
-  console.log( "vendor data get all ", AllStats);
+  
+  const {data:vendorTopSelling} = useVendorToSellingQuery({});
+  const allTopSelling = vendorTopSelling?.data?.attributes;
+  console.log('top selling page data show', allTopSelling);
 
   return (
     // <ProtectedRoute>
@@ -181,10 +183,11 @@ const VendorDashboardPage = () => {
           {/* Quick Actions */}
           <QuickActionOverview
             AllStats={AllStats}
+            AllRecentOrders={AllRecentOrders}
             setActiveTab={setActiveTab}
           />
           {/* Recent Orders Full Width */}
-          <RecentOrderOverview dashboard={dashboard} />
+          <RecentOrderOverview allTopSelling={allTopSelling} />
         </TabsContent>
 
         <TabsContent value="orders" className="space-y-6">
@@ -194,7 +197,7 @@ const VendorDashboardPage = () => {
               <CardDescription>Latest customer orders</CardDescription>
             </CardHeader>
             <CardContent>
-              <OrdersTable orders={dashboard.recentOrders} />
+              <OrdersTable  />
             </CardContent>
           </Card>
         </TabsContent>

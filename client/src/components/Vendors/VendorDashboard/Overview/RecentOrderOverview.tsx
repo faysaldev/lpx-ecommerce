@@ -9,7 +9,9 @@ import {
 import { Package } from "lucide-react";
 import React from "react";
 
-function RecentOrderOverview({ dashboard }: { dashboard: any }) {
+function RecentOrderOverview({ allTopSelling }: { allTopSelling: any[] }) {
+  console.log(allTopSelling);
+
   return (
     <Card>
       <CardHeader>
@@ -19,16 +21,16 @@ function RecentOrderOverview({ dashboard }: { dashboard: any }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {dashboard.topProducts.length === 0 ? (
+        {(!allTopSelling || allTopSelling.length === 0) ? (
           <div className="text-center py-8">
             <Package className="h-8 w-8 mx-auto mb-4 text-muted-foreground/50" />
             <p className="text-sm text-muted-foreground">No sales data yet</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {dashboard.topProducts.map((product: any, index: number) => (
+            {allTopSelling.map((product: any, index: number) => (
               <div
-                key={product.id}
+                key={index}
                 className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
               >
                 <div className="flex items-center gap-3">
@@ -38,14 +40,18 @@ function RecentOrderOverview({ dashboard }: { dashboard: any }) {
                     </span>
                   </div>
                   <div>
-                    <p className="font-medium text-sm">{product.name}</p>
+                    <p className="font-medium text-sm">
+                      {product.productName}
+                    </p>
                     <p className="text-xs text-muted-foreground">
-                      {product.sales} sales
+                      {product.category} • {product.totalSales} sales
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium text-sm">AED {product.revenue}</p>
+                  <p className="font-medium text-sm">
+                    AED {product.totalSales * 10 /* Example revenue */}
+                  </p>
                 </div>
               </div>
             ))}

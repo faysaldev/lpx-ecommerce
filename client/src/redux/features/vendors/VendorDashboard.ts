@@ -1,3 +1,4 @@
+
 import { baseApi } from "@/redux/baseApi/baseApi";
 
 const authApi = baseApi.injectEndpoints({
@@ -14,11 +15,16 @@ const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
-
     vendorDashboarRecentOrder: builder.query({
       query: ({ page, limit }) => ({
         url: `/lpx/vendor/recent-order?page=${page}&limit=${limit}`,
         method: "GET",
+      }),
+    }),
+    vendorToSelling: builder.query({
+      query: () => ({
+        url: "/lpx/vendor/top-selling",
+        method: "GET"
       }),
     }),
   }),
@@ -27,4 +33,6 @@ const authApi = baseApi.injectEndpoints({
 export const {
   useSearchVendorDashboardProductsQuery,
   useVendorDashboardOverviewQuery,
+  useVendorDashboarRecentOrderQuery,
+  useVendorToSellingQuery,
 } = authApi;

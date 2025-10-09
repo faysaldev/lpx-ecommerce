@@ -1,18 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-// Types for dashboard data
-
-interface Product {
-  id: string;
-  name: string;
-  status: string;
-  price: number;
-  images?: string[];
-  quantity?: number;
-  sales: number;
-}
-
 import {
   Copy,
   Edit2,
@@ -41,6 +29,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/UI/table";
+import Image from "next/image";
 
 export function ProductTable({
   products,
@@ -49,28 +38,24 @@ export function ProductTable({
   onDuplicate,
   onDelete,
 }: {
-  products: Product[];
+  products: any[];
   onEdit: (id: string) => void;
   onView: (id: string) => void;
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "active":
-        return <Badge className="bg-green-100 text-green-800">Active</Badge>;
-      case "draft":
-        return <Badge variant="secondary">Draft</Badge>;
-      case "sold":
-        return <Badge className="bg-blue-100 text-blue-800">Sold</Badge>;
-      case "out_of_stock":
-        return <Badge variant="destructive">Out of Stock</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
+
+  const getStatusBadge = (isDraft: boolean, inStock: boolean) => {
+    if (isDraft) {
+      return <Badge variant="secondary">Draft</Badge>;
     }
+    if (!inStock) {
+      return <Badge variant="destructive">Out of Stock</Badge>;
+    }
+    return <Badge className="bg-green-100 text-green-800">Active</Badge>;
   };
 
-  if (products.length === 0) {
+  if (!products || products.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="mx-auto bg-muted rounded-full flex items-center justify-center mb-6 w-24 h-24">
@@ -78,7 +63,7 @@ export function ProductTable({
         </div>
         <h3 className="font-semibold mb-2 text-xl">No products found</h3>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-          You haven{`'`}t created any products yet. Start by adding your first
+          You haven&apos;t created any products yet. Start by adding your first
           product to your store.
         </p>
         <Button asChild>
@@ -102,35 +87,49 @@ export function ProductTable({
             <TableHead>Price</TableHead>
             <TableHead>Stock</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Views</TableHead>
+            <TableHead>Vendor</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
+
         <TableBody>
           {products.map((product) => (
-            <TableRow key={product.id}>
+            <TableRow key={product._id}>
               <TableCell>
-                <img
-                  src={product.images?.[0] || "/placeholder.jpg"}
-                  alt={product.name}
+                <Image
+                  src={
+                    product.images?.[0]
+                      ? `${process.env.NEXT_PUBLIC_BASE_URL}/${product.images[0]}`
+                      : "/placeholder.jpg"
+                  }
+                  alt={product.productName}
                   width={64}
                   height={64}
-                  className="w-16 h-16 object-cover rounded-md"
+                  className="w-16 h-16 object-cover rounded-md border"
                 />
               </TableCell>
+
               <TableCell>
                 <div>
-                  <p className="font-medium">{product.name}</p>
+                  <p className="font-medium">{product.productName}</p>
                   <p className="text-sm text-muted-foreground truncate max-w-[200px]">
-                    ID: {product.id}
+                    ID: {product._id}
                   </p>
                 </div>
               </TableCell>
-              <TableCell>N/A</TableCell>
+
+              <TableCell>{product.category || "N/A"}</TableCell>
+
               <TableCell className="font-medium">${product.price}</TableCell>
-              <TableCell>0</TableCell>
-              <TableCell>{getStatusBadge("open")}</TableCell>
-              <TableCell>0</TableCell>
+
+              <TableCell>{product.stockQuantity}</TableCell>
+
+              <TableCell>
+                {getStatusBadge(product.isDraft, product.inStock)}
+              </TableCell>
+
+              <TableCell>{product.vendor?.storeName || "N/A"}</TableCell>
+
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -138,23 +137,29 @@ export function ProductTable({
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
+
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => onView(product.id)}>
+
+                    <DropdownMenuItem onClick={() => onView(product._id)}>
                       <Eye className="mr-2 h-4 w-4" />
                       View
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onEdit(product.id)}>
+
+                    <DropdownMenuItem onClick={() => onEdit(product._id)}>
                       <Edit2 className="mr-2 h-4 w-4" />
                       Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onDuplicate(product.id)}>
+
+                    <DropdownMenuItem onClick={() => onDuplicate(product._id)}>
                       <Copy className="mr-2 h-4 w-4" />
                       Duplicate
                     </DropdownMenuItem>
+
                     <DropdownMenuSeparator />
+
                     <DropdownMenuItem
-                      onClick={() => onDelete(product.id)}
+                      onClick={() => onDelete(product._id)}
                       className="text-destructive"
                     >
                       <Trash2 className="mr-2 h-4 w-4" />

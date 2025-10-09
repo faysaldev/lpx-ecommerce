@@ -30,6 +30,8 @@ function DashboardContent() {
   const { data, isLoading } = useDashBoardStatiticsQuery({});
   const allData = data?.data;
 
+  console.log('get all data ', allData)
+
   // Use backend data if available, otherwise show loading state
   const stats = [
     {

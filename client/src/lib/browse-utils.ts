@@ -2,7 +2,7 @@ import type { Product } from "@/lib/types";
 
 export type ViewMode = "grid" | "list";
 export type SortOption =
-  | "newest"
+  | ""
   | "price-asc"
   | "price-desc"
   | "name-asc"

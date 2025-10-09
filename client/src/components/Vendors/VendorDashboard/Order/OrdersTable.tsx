@@ -1,26 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-// Types for dashboard data
-interface Customer {
-  name: string;
-  avatar: string;
-}
-
-interface Order {
-  id: string;
-  customer: Customer;
-  total: number;
-  status: string;
-  createdAt: string;
-}
-
+import { useState } from "react";
+import moment from "moment";
 import { Edit2, Eye, MoreVertical, ShoppingCart } from "lucide-react";
 import Image from "next/image";
-
 import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +14,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/UI/dropdown-menu";
-import { Input } from "@/components/UI/input";
 import {
   Table,
   TableBody,
@@ -37,8 +22,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/UI/table";
+import { Pagination } from "antd"; // ✅ Ant Design Pagination
+import { useVendorDashboarRecentOrderQuery } from "@/redux/features/vendors/VendorDashboard";
 
-export function OrdersTable({ orders }: { orders: Order[] }) {
+export function OrdersTable() {
+  // 🔹 Pagination States
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+
+  const { data, isLoading } = useVendorDashboarRecentOrderQuery({ page, limit });
+  const allOrders = data?.data?.attributes?.orders || [];
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "pending":
@@ -48,9 +42,10 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
       case "shipped":
         return <Badge className="bg-purple-100 text-purple-800">Shipped</Badge>;
       case "completed":
-        return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
+      case "conformed":
+        return <Badge className="bg-green-100 text-green-800 capitalize">{status}</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge variant="outline" className="capitalize">{status}</Badge>;
     }
   };
 
@@ -58,22 +53,19 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
       currency: "AED",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      minimumFractionDigits: 2,
     }).format(amount);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-AE", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return moment(dateString).format("MMM DD, YYYY - hh:mm A");
   };
 
-  if (orders.length === 0) {
+  if (isLoading) {
+    return <p className="text-center py-8">Loading orders...</p>;
+  }
+
+  if (allOrders.length === 0) {
     return (
       <div className="text-center py-12">
         <div className="mx-auto bg-muted rounded-full flex items-center justify-center mb-6 w-24 h-24">
@@ -81,8 +73,7 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
         </div>
         <h3 className="font-semibold mb-2 text-xl">No orders found</h3>
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-          Your orders will appear here once customers start purchasing from your
-          store.
+          Your orders will appear here once customers start purchasing.
         </p>
       </div>
     );
@@ -93,9 +84,9 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Order</TableHead>
+            <TableHead>Order ID</TableHead>
             <TableHead>Customer</TableHead>
-            <TableHead>Products</TableHead>
+            <TableHead>User Type</TableHead>
             <TableHead>Total</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Date</TableHead>
@@ -103,46 +94,31 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {orders.map((order) => (
-            <TableRow key={order.id}>
+          {allOrders.map((order: any) => (
+            <TableRow key={order.orderMongoId}>
               <TableCell>
-                <div>
-                  <p className="font-medium">{order.id}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Order #{order.id}
-                  </p>
-                </div>
+                <div className="font-medium">{order.orderId}</div>
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Image
-                    src={order.customer.avatar}
-                    alt={order.customer.name}
+                    src={order.userImage ? `${process.env.NEXT_PUBLIC_BASE_URL}${order.userImage}` : ''}
+                    alt={order.userName}
                     width={32}
                     height={32}
                     className="w-8 h-8 rounded-full"
                   />
                   <div>
-                    <p className="font-medium">{order.customer.name}</p>
-                    <p className="text-sm text-muted-foreground">Customer</p>
+                    <p className="font-medium">{order.userName}</p>
                   </div>
                 </div>
               </TableCell>
-              <TableCell>
-                <div>
-                  <p className="font-medium">Order Items</p>
-                  <p className="text-sm text-muted-foreground truncate max-w-[200px]">
-                    Order Details
-                  </p>
-                </div>
-              </TableCell>
+              <TableCell className="capitalize">{order.userType}</TableCell>
               <TableCell className="font-medium">
-                {formatCurrency(order.total)}
+                {formatCurrency(order.totalPrice)}
               </TableCell>
               <TableCell>{getStatusBadge(order.status)}</TableCell>
-              <TableCell className="text-sm">
-                {formatDate(order.createdAt)}
-              </TableCell>
+              <TableCell className="text-sm">{formatDate(order.orderDate)}</TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -167,6 +143,21 @@ export function OrdersTable({ orders }: { orders: Order[] }) {
           ))}
         </TableBody>
       </Table>
+
+      {/* ✅ Ant Design Pagination */}
+      <div className="flex  justify-end items-center px-4 py-3">
+        <Pagination
+          
+          current={page}
+          pageSize={limit}
+          // showSizeChanger
+          onChange={(newPage, newLimit) => {
+            setPage(newPage);
+            setLimit(newLimit);
+          }}
+          className="bg-white rounded-2xl "
+        />
+      </div>
     </div>
   );
 }
