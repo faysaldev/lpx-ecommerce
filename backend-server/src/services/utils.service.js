@@ -384,13 +384,12 @@ const getVendorRecentOrders = async (userId, page = 1, limit = 10) => {
 
 const getVendorProducts = async (
   userId,
-  { search = "", status = "", sortBy = "newestFirst", page = 1, limit = 10 }
+  { search = "", status = "all", sortBy = "newestFirst", page = 1, limit = 10 }
 ) => {
   const skip = (page - 1) * limit;
 
   const vendorId = await Vendor.findOne({ seller: userId });
 
-  console.log(vendorId);
   // Build the search query for products
   const searchQuery = { vendor: vendorId?._id };
 
@@ -402,9 +401,16 @@ const getVendorProducts = async (
     ];
   }
 
-  if (status) {
-    searchQuery.status = status; // Filter by product status (active, draft, out of stock)
+  // Apply status filter
+  if (status === "active") {
+    searchQuery.isDraft = false; // Only active products (not draft)
+    searchQuery.inStock = true; // Only products that are in stock
+  } else if (status === "draft") {
+    searchQuery.isDraft = true; // Only draft products
+  } else if (status === "out_of_stock") {
+    searchQuery.inStock = false; // Only out of stock products
   }
+  // If status is 'all', we don't apply any specific status filters
 
   // Sorting logic based on the `sortBy` parameter
   let sortOrder = {};
@@ -427,7 +433,7 @@ const getVendorProducts = async (
     const products = await Product.find(searchQuery)
       .skip(skip)
       .limit(limit)
-      .select("productName images category price stockQuantity status")
+      .select("productName images category price stockQuantity isDraft inStock")
       .populate({
         path: "vendor",
         select: "storeName", // Optionally populate vendor's store name

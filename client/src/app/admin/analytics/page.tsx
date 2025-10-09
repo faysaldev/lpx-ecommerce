@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import {
@@ -9,8 +10,68 @@ import {
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/UI/tabs";
+import {
+  useGetAnalyticsStatsQuery,
+  useGetRecentTrendsQuery,
+  useGetTopSellingCategoriesQuery,
+  useGetTotalProductsQuery,
+  useGetTotalRevenueQuery,
+  useGetTotalSalesQuery,
+  useGetTotalUsersQuery,
+} from "@/redux/features/admin/adminAnalysis";
+import RevenueTrendsChart from "@/components/Admin/Analytics/RevenueTrendsChart ";
+import SalesTrendsChart from "@/components/Admin/Analytics/SalesTrendsChart ";
+import UsersTrendsChart from "@/components/Admin/Analytics/UsersTrendsChart ";
+import ProductsTrendsChart from "@/components/Admin/Analytics/ProductsTrendsChart ";
 
 export default function AnalyticsDashboard() {
+  const { data: analyticsStats, isLoading: isLoadingAnalyticsStats } =
+    useGetAnalyticsStatsQuery({});
+  const { data: totalSales, isLoading: isLoadingTotalSales } =
+    useGetTotalSalesQuery({});
+  const { data: totalUsers, isLoading: isLoadingTotalUsers } =
+    useGetTotalUsersQuery({});
+  const { data: totalProducts, isLoading: isLoadingTotalProducts } =
+    useGetTotalProductsQuery({});
+  const { data: totalRevenue, isLoading: isLoadingTotalRevenue } =
+    useGetTotalRevenueQuery({});
+  const {
+    data: topSellingCategories,
+    isLoading: isLoadingTopSellingCategories,
+  } = useGetTopSellingCategoriesQuery({});
+  const { data: recentTrends, isLoading: isLoadingRecentTrends } =
+    useGetRecentTrendsQuery({});
+
+  // Process data for charts
+  const revenueData = totalRevenue?.data?.attributes || [];
+  const salesData = totalSales?.data?.attributes || [];
+  const usersData = totalUsers?.data?.attributes || [];
+  const productsData = totalProducts?.data?.attributes || [];
+
+  // Calculate product count by date for the products chart
+  const productCountByDate = productsData.reduce((acc: any, product: any) => {
+    const date = product.date;
+    if (!acc[date]) {
+      acc[date] = { date, productCount: 0, totalSales: 0 };
+    }
+    acc[date].productCount += 1;
+    acc[date].totalSales += product.totalSales;
+    return acc;
+  }, {});
+
+  const productsChartData = Object.values(productCountByDate);
+
+  if (
+    isLoadingTotalSales ||
+    isLoadingTotalUsers ||
+    isLoadingTotalProducts ||
+    isLoadingTotalRevenue ||
+    isLoadingTopSellingCategories ||
+    isLoadingRecentTrends
+  ) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -29,9 +90,15 @@ export default function AnalyticsDashboard() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$45,678.90</div>
+            <div className="text-2xl font-bold">
+              $
+              {analyticsStats?.data?.attributes?.totalRevenue?.count?.toFixed(
+                2
+              ) || "0.00"}
+            </div>
             <p className="text-xs text-muted-foreground">
-              +18% from last month
+              {analyticsStats?.data?.attributes?.totalRevenue?.percentage || 0}%
+              from last month
             </p>
           </CardContent>
         </Card>
@@ -41,9 +108,12 @@ export default function AnalyticsDashboard() {
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+573</div>
+            <div className="text-2xl font-bold">
+              +{analyticsStats?.data?.attributes?.totalSales?.count || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
-              +25% from last month
+              {analyticsStats?.data?.attributes?.totalSales?.percentage || 0}%
+              from last month
             </p>
           </CardContent>
         </Card>
@@ -53,9 +123,12 @@ export default function AnalyticsDashboard() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+2,350</div>
+            <div className="text-2xl font-bold">
+              +{analyticsStats?.data?.attributes?.activeUsers?.count || 0}
+            </div>
             <p className="text-xs text-muted-foreground">
-              +12% from last month
+              {analyticsStats?.data?.attributes?.activeUsers?.percentage || 0}%
+              from last month
             </p>
           </CardContent>
         </Card>
@@ -67,8 +140,16 @@ export default function AnalyticsDashboard() {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">+125</div>
-            <p className="text-xs text-muted-foreground">+8% from last month</p>
+            <div className="text-2xl font-bold">
+              +
+              {analyticsStats?.data?.attributes?.totalProductsListed?.count ||
+                0}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {analyticsStats?.data?.attributes?.totalProductsListed
+                ?.percentage || 0}
+              % from last month
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -87,9 +168,7 @@ export default function AnalyticsDashboard() {
               <CardTitle>Revenue Overview</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                Chart placeholder - Revenue trends over time
-              </div>
+              <RevenueTrendsChart data={revenueData} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -100,9 +179,7 @@ export default function AnalyticsDashboard() {
               <CardTitle>Sales Performance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                Chart placeholder - Sales metrics and trends
-              </div>
+              <SalesTrendsChart data={salesData} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -113,9 +190,7 @@ export default function AnalyticsDashboard() {
               <CardTitle>User Growth</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                Chart placeholder - User acquisition and retention
-              </div>
+              <UsersTrendsChart data={usersData} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -126,9 +201,7 @@ export default function AnalyticsDashboard() {
               <CardTitle>Product Analytics</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                Chart placeholder - Product performance metrics
-              </div>
+              <ProductsTrendsChart data={productsChartData} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -141,27 +214,21 @@ export default function AnalyticsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                { name: "Pokemon Cards", sales: 234, revenue: 45678 },
-                { name: "Comics", sales: 189, revenue: 34567 },
-                { name: "Sports Cards", sales: 156, revenue: 28901 },
-                { name: "Video Games", sales: 134, revenue: 23456 },
-              ].map((category, _index) => (
-                <div
-                  key={category.name}
-                  className="flex items-center justify-between"
-                >
-                  <div>
-                    <p className="font-medium">{category.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {category.sales} sales
-                    </p>
+              {(topSellingCategories?.data?.attributes || []).map(
+                (category: any, index: number) => (
+                  <div
+                    key={category.category}
+                    className="flex items-center justify-between"
+                  >
+                    <div>
+                      <p className="font-medium">{category.category}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {category.totalSales} sales
+                      </p>
+                    </div>
                   </div>
-                  <p className="font-bold">
-                    ${category.revenue.toLocaleString()}
-                  </p>
-                </div>
-              ))}
+                )
+              )}
             </div>
           </CardContent>
         </Card>
@@ -172,36 +239,39 @@ export default function AnalyticsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {[
-                {
-                  trend: "Mobile traffic up 25%",
-                  icon: TrendingUp,
-                  color: "text-green-600",
-                },
-                {
-                  trend: "Cart abandonment down 12%",
-                  icon: TrendingUp,
-                  color: "text-green-600",
-                },
-                {
-                  trend: "Average order value $125",
-                  icon: DollarSign,
-                  color: "text-blue-600",
-                },
-                {
-                  trend: "Customer satisfaction 4.8/5",
-                  icon: Users,
-                  color: "text-yellow-600",
-                },
-              ].map((item, _index) => {
-                const Icon = item.icon;
-                return (
-                  <div key={item.trend} className="flex items-center gap-3">
-                    <Icon className={`h-4 w-4 ${item.color}`} />
-                    <p className="text-sm">{item.trend}</p>
-                  </div>
-                );
-              })}
+              {(recentTrends?.data?.attributes || []).map(
+                (trend: any, index: number) => {
+                  const getIconAndColor = (name: string) => {
+                    if (name.includes("Active Users"))
+                      return { icon: Users, color: "text-green-600" };
+                    if (name.includes("Popular Products"))
+                      return { icon: TrendingUp, color: "text-blue-600" };
+                    if (name.includes("Cart"))
+                      return { icon: ShoppingCart, color: "text-yellow-600" };
+                    if (name.includes("Wishlist"))
+                      return { icon: Package, color: "text-purple-600" };
+                    return { icon: TrendingUp, color: "text-gray-600" };
+                  };
+
+                  const { icon: Icon, color } = getIconAndColor(trend.name);
+
+                  return (
+                    <div
+                      key={`${trend.name}-${index}`}
+                      className="flex items-center gap-3"
+                    >
+                      <Icon className={`h-4 w-4 ${color}`} />
+                      <div>
+                        <p className="text-sm font-medium">{trend.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Count: {trend.count} •{" "}
+                          {new Date(trend.eventDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                }
+              )}
             </div>
           </CardContent>
         </Card>
