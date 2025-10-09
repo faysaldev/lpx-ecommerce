@@ -67,13 +67,16 @@ const VendorProductSection = () => {
   // console.log("data?.data?.attributes?.products",products)
   const total = data?.data?.total || 0;
 
+  // Mutation Hook
+  const [removeProduct] = useRemoveSingleProductsMutation();
+
   // Event Handlers
   const handleEdit = (productId: string) =>
     router.push(`/vendor/products/${productId}/edite`);
   const handleView = (productId: string) =>
     router.push(`/product/${productId}`);
   const handleDelete = async (productId: string) => {
-    // await useRemoveSingleProductsMutation(productId);
+    await removeProduct(productId);
     toast.success("Product deleted successfully");
   };
 
