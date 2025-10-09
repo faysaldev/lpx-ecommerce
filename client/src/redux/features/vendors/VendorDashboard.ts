@@ -24,6 +24,12 @@ const authApi = baseApi.injectEndpoints({
     vendorToSelling: builder.query({
       query: () => ({
         url: "/lpx/vendor/top-selling",
+        method: "GET",
+      }),
+    }),
+    vendorAnalytics: builder.query({
+      query: () => ({
+        url:"/lpx/vendor/analytics",
         method: "GET"
       }),
     }),
@@ -35,4 +41,5 @@ export const {
   useVendorDashboardOverviewQuery,
   useVendorDashboarRecentOrderQuery,
   useVendorToSellingQuery,
+  useVendorAnalyticsQuery,
 } = authApi;
