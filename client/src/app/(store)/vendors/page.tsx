@@ -43,7 +43,6 @@ import { VendorStyleFilterBar } from "@/components/Browse/VendorStyleFilterBar";
 import { useSearchVendorCollectionQuery } from "@/redux/features/vendors/vendor";
 import VendorCard from "@/components/Vendors/VendorFront/VendrodCard";
 import VendorPagination from "@/components/Vendors/VendorFront/VendorPagination";
-import { useAllCategoriesQuery } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 import { useAppSelector } from "@/redux/hooks";
 import { selectCategories } from "@/redux/features/Common/CommonSlice";
 

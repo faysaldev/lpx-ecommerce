@@ -1,5 +1,5 @@
 const httpStatus = require("http-status");
-const { User } = require("../models");
+const { User, Vendor } = require("../models");
 const ApiError = require("../utils/ApiError");
 const { sendEmailVerification } = require("./email.service");
 const unlinkImages = require("../common/unlinkImage");
@@ -45,8 +45,53 @@ const queryUsers = async (filter, options) => {
   return users;
 };
 
-const getUserById = async (id) => {
-  return User.findById(id);
+const getUserById = async (id, userType) => {
+  try {
+    // Fetch the user based on ID
+    const user = await User.findById(id).select(
+      "name email image role type address phoneNumber createdAt _id"
+    );
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Initialize the response object
+    const response = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      image: user.image,
+      role: user.role,
+      type: user.type,
+      address: user.address,
+      phoneNumber: user.phoneNumber,
+      createdAt: user.createdAt,
+    };
+
+    // If the user is a seller, check if they have an active vendor
+    if (userType === "seller") {
+      const vendor = await Vendor.findOne({
+        seller: id,
+        status: "approved",
+      }).select("storeName storePhoto totalEarnings totalWithDrawal");
+
+      if (vendor) {
+        response.vendorDetails = {
+          storeName: vendor.storeName,
+          storePhoto: vendor.storePhoto,
+          totalEarnings: vendor.totalEarnings,
+          totalWithDrawal: vendor.totalWithDrawal,
+        };
+      } else {
+        response.vendorDetails = null; // No active vendor
+      }
+    }
+
+    return response;
+  } catch (error) {
+    throw new Error(`Error retrieving user details: ${error.message}`);
+  }
 };
 
 const getUserByEmail = async (email) => {
@@ -55,6 +100,8 @@ const getUserByEmail = async (email) => {
 
 const updateUserById = async (userId, updateBody, files) => {
   const user = await getUserById(userId);
+  console.log(user);
+  console.log(updateBody);
 
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
@@ -70,9 +117,9 @@ const updateUserById = async (userId, updateBody, files) => {
     delete updateBody.photo; // remove the photo property from the updateBody if no new photo is provided
   }
 
-  Object.assign(user, updateBody);
-  await user.save();
-  return user;
+  // Object.assign(user, updateBody);
+  // await user.save();
+  return await User.findByIdAndUpdate(userId, updateBody, { new: true });
 };
 
 const deleteUserById = async (userId) => {

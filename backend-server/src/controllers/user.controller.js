@@ -33,7 +33,7 @@ const getUsers = catchAsync(async (req, res) => {
 });
 
 const getProfile = catchAsync(async (req, res) => {
-  const user = await userService.getUserById(req.user.id);
+  const user = await userService.getUserById(req.user.id, req.user.type);
 
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
@@ -91,6 +91,8 @@ const updateUser = catchAsync(async (req, res) => {
     req.body.image = image;
   }
 
+  console.log(req.body, "controler");
+
   const user = await userService.updateUserById(req.params.userId, req.body);
 
   res.status(httpStatus.OK).json(
@@ -108,10 +110,7 @@ const updateProfile = catchAsync(async (req, res) => {
     req.body.image = `/uploads/users/${req.file.filename}`;
   }
 
-  // Set fullName if firstName or lastName is provided
-  if (!req.body.fullName && (req.body.firstName || req.body.lastName)) {
-    req.body.fullName = `${req.body.firstName || ''} ${req.body.lastName || ''}`.trim();
-  }
+  console.log(req.body, "controler");
 
   const user = await userService.updateUserById(req.user.id, req.body);
 
