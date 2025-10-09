@@ -62,9 +62,34 @@ router
     adminController.approvedAdminPayment
   );
 
+// recent activites, and recent
+
+router
+  .route("/analytics-recent-trends")
+  .get(auth("common"), adminController.getAdminRecentAnalyticsTrends);
+
+router
+  .route("/analytics-top-selling-categories")
+  .get(auth("common"), adminController.getAdminTopCategoriesBySales);
+
 // todo: analytics overview seciton
 router
   .route("/analytics-stats")
   .get(auth("common"), adminController.getAdminAnalyticsDashboardStats);
+router
+  .route("/analytics-total-sales")
+  .get(auth("common"), adminController.getAdminAnalyticsTotalSales);
+
+router
+  .route("/analytics-total-users")
+  .get(auth("common"), adminController.getAdminAnalyticsTotalUserTrends);
+
+router
+  .route("/analytics-total-products")
+  .get(auth("common"), adminController.getAdminAnalyticsTotalProductTrends);
+
+router
+  .route("/analytics-total-revinue")
+  .get(auth("common"), adminController.getAdminAnalyticsTotalRevinueTrends);
 
 module.exports = router;

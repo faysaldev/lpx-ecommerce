@@ -453,6 +453,53 @@ const getVendorProducts = async (
   }
 };
 
+//todo: vendor top selling products
+const getVendorTopSellingProducts = async (userId) => {
+  // Step 1: Find the vendor based on userId (seller)
+  const vendor = await Vendor.findOne({ seller: userId });
+
+  if (!vendor) {
+    return { message: "Vendor not found" };
+  }
+
+  // Step 2: Build the search query for products associated with the vendor
+  const searchQuery = { vendor: vendor._id };
+
+  // Step 3: Aggregate the sales data from orders for the top-selling products
+  const topSellingProducts = await Order.aggregate([
+    { $match: { "totalItems.vendorId": vendor._id, status: "delivered" } }, // Match orders delivered by the vendor
+    { $unwind: "$totalItems" }, // Unwind the totalItems array
+    { $match: { "totalItems.vendorId": vendor._id } }, // Filter items belonging to the vendor
+    {
+      $group: {
+        _id: "$totalItems.productId", // Group by productId
+        totalSales: { $sum: "$totalItems.quantity" }, // Sum the quantities sold for each product
+      },
+    },
+    { $sort: { totalSales: -1 } }, // Sort by total sales in descending order
+    { $limit: 4 }, // Limit the results to the top 4 products
+    {
+      $lookup: {
+        from: "products", // Join with the products collection
+        localField: "_id", // Match productId from totalItems
+        foreignField: "_id", // Match the _id of products
+        as: "productDetails", // Alias the resulting product data
+      },
+    },
+    { $unwind: "$productDetails" }, // Unwind the product details array
+    {
+      $project: {
+        productName: "$productDetails.productName", // Include the product name
+        category: "$productDetails.category", // Include the category
+        totalSales: 1, // Include the total sales count
+        _id: 0,
+      },
+    },
+  ]);
+
+  return topSellingProducts;
+};
+
 const getVendorDashbordAnalytics = async (userId) => {
   // 1. Fetch the vendor associated with the userId
   const vendor = await Vendor.findOne({ seller: userId }).lean();
@@ -540,4 +587,5 @@ module.exports = {
   getVendorProducts,
   headerStatistics,
   getVendorDashbordAnalytics,
+  getVendorTopSellingProducts,
 };

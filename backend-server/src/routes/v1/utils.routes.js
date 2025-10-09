@@ -35,6 +35,12 @@ router
   .route("/vendor/products")
   .get(auth("common"), utilsController.getVendorProducts);
 
+// get vendor top selling Products
+
+router
+  .route("/vendor/top-selling")
+  .get(auth("common"), utilsController.getVendorTopSellingProducts);
+
 // get vendor analytics
 router
   .route("/vendor/analytics")

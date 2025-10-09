@@ -127,6 +127,21 @@ const getVendorDashbordAnalytics = catchAsync(async (req, res) => {
   );
 });
 
+const getVendorTopSellingProducts = catchAsync(async (req, res) => {
+  const productsData = await utilsService.getVendorTopSellingProducts(
+    req.user.id
+  );
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Vendor Top sellings Products",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: productsData,
+    })
+  );
+});
+
 module.exports = {
   getFeaturedProducts,
   getLpsStatistics,
@@ -137,4 +152,5 @@ module.exports = {
   getRecentOrders,
   headerStatistics,
   getVendorDashbordAnalytics,
+  getVendorTopSellingProducts,
 };

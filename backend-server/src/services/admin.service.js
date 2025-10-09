@@ -4,7 +4,7 @@ const {
   Vendor,
   Product,
   Order,
-  Category,
+  Cart,
   PaymentRequest,
   Rating,
 } = require("../models");
@@ -879,6 +879,7 @@ const getAdminAnalyticsDashboardStats = async () => {
   };
 };
 
+// remaing api start
 const getAdminTopCategoriesBySales = async () => {
   // Aggregating the sales by category based on orders
   const topCategories = await Order.aggregate([
@@ -912,12 +913,12 @@ const getAdminTopCategoriesBySales = async () => {
 };
 
 const getAdminRecentAnalyticsTrends = async () => {
-  const last30Days = new Date();
-  last30Days.setDate(last30Days.getDate() - 30); // Last 30 days for trends
+  const last5Days = new Date();
+  last5Days.setDate(last5Days.getDate() - 5); // Last 5 days for trends
 
-  // Most Active User Trends (Users with most orders)
+  // 1. Most Active Users (Users with most orders in the last 5 days)
   const activeUsers = await Order.aggregate([
-    { $match: { createdAt: { $gte: last30Days } } },
+    { $match: { createdAt: { $gte: last5Days } } },
     {
       $group: {
         _id: "$customer", // Group by customer
@@ -937,87 +938,165 @@ const getAdminRecentAnalyticsTrends = async () => {
     { $unwind: "$user" }, // Unwind to get user details
     {
       $project: {
-        userId: "$_id",
-        userName: "$user.name",
-        totalOrders: 1,
+        name: "Most Active Users",
+        eventDate: new Date().toISOString().split("T")[0], // Date format
+        count: "$totalOrders", // Event count (total orders for user)
         _id: 0,
       },
     },
   ]);
 
-  // Cart Percentage
-  const cartCount = await Cart.countDocuments({
-    createdAt: { $gte: last30Days },
-  });
-  const purchaseCount = await Order.countDocuments({
-    createdAt: { $gte: last30Days },
-    status: "delivered",
-  });
-  const cartPercentage = (cartCount / purchaseCount) * 100;
-
-  // Average Order Value (AOV)
-  const totalOrderValue = await Order.aggregate([
-    { $match: { createdAt: { $gte: last30Days }, status: "delivered" } },
+  // 2. Most Popular Products (Sold products in the last 5 days)
+  const popularProducts = await Order.aggregate([
+    { $match: { createdAt: { $gte: last5Days }, status: "delivered" } },
+    { $unwind: "$totalItems" },
     {
       $group: {
-        _id: null,
-        totalValue: { $sum: "$totalAmount" },
-        totalOrders: { $sum: 1 },
+        _id: "$totalItems.productId",
+        totalSales: { $sum: "$totalItems.quantity" },
       },
     },
-  ]);
-  const averageOrderValue =
-    totalOrderValue[0]?.totalValue / totalOrderValue[0]?.totalOrders;
-
-  // Customer Satisfaction (Average Rating for Vendor)
-  const vendorRatings = await Rating.aggregate([
-    { $match: { ratingType: "vendor", createdAt: { $gte: last30Days } } },
-    {
-      $group: {
-        _id: "$referenceId", // Group by vendor
-        averageRating: { $avg: "$rating" },
-      },
-    },
-    { $sort: { averageRating: -1 } },
-    { $limit: 5 }, // Top 5 vendors based on customer satisfaction
+    { $sort: { totalSales: -1 } },
+    { $limit: 5 },
     {
       $lookup: {
-        from: "vendors",
+        from: "products",
         localField: "_id",
         foreignField: "_id",
-        as: "vendor",
+        as: "product",
       },
     },
-    { $unwind: "$vendor" }, // Unwind to get vendor details
+    { $unwind: "$product" },
     {
       $project: {
-        vendorId: "$_id",
-        vendorName: "$vendor.storeName",
-        averageRating: 1,
+        name: "Most Popular Products",
+        eventDate: new Date().toISOString().split("T")[0],
+        count: "$totalSales", // Event count (sales)
         _id: 0,
       },
     },
   ]);
 
-  return {
-    activeUsers,
-    cartPercentage,
-    averageOrderValue,
-    vendorRatings,
-  };
+  // 3. Users Saving Products to Cart (In the last 5 days)
+  const cartActivities = await Cart.aggregate([
+    { $match: { createdAt: { $gte: last5Days } } },
+    {
+      $group: {
+        _id: "$customer",
+        totalSaved: { $sum: 1 },
+      },
+    },
+    { $sort: { totalSaved: -1 } },
+    { $limit: 5 },
+    {
+      $lookup: {
+        from: "users",
+        localField: "_id",
+        foreignField: "_id",
+        as: "user",
+      },
+    },
+    { $unwind: "$user" },
+    {
+      $project: {
+        name: "Users Saving Products to Cart",
+        eventDate: new Date().toISOString().split("T")[0],
+        count: "$totalSaved", // Event count (products saved to cart)
+        _id: 0,
+      },
+    },
+  ]);
+
+  // 4. User Login Trends (Based on user logins in the last 5 days)
+  const userLogins = await User.aggregate([
+    { $match: { lastLogin: { $gte: last5Days } } }, // Assuming `lastLogin` is a field in `User`
+    {
+      $group: {
+        _id: "$_id",
+        loginCount: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        name: "User Logins",
+        eventDate: new Date().toISOString().split("T")[0],
+        count: "$loginCount", // Event count (total logins)
+        _id: 0,
+      },
+    },
+  ]);
+
+  // 5. Users Adding to Wishlist (Assume there's a wishlist feature in last 5 days)
+  const wishlistActivities = await Product.aggregate([
+    { $match: { createdAt: { $gte: last5Days } } }, // Assuming products added to wishlist are tracked
+    {
+      $group: {
+        _id: "$vendor", // Group by vendor for wishlist activities
+        wishlistCount: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        name: "Users Adding to Wishlist",
+        eventDate: new Date().toISOString().split("T")[0],
+        count: "$wishlistCount", // Event count (products added to wishlist)
+        _id: 0,
+      },
+    },
+  ]);
+
+  // Combine all the trends into a single array
+  let allTrends = [
+    ...activeUsers,
+    ...popularProducts,
+    ...cartActivities,
+    ...userLogins,
+    ...wishlistActivities,
+  ];
+
+  // Remove duplicates based on name and eventDate (to avoid multiple entries for the same event)
+  allTrends = allTrends.reduce((acc, current) => {
+    const x = acc.find(
+      (item) =>
+        item.name === current.name && item.eventDate === current.eventDate
+    );
+    if (!x) {
+      return acc.concat([current]);
+    }
+    return acc;
+  }, []);
+
+  // Limit the result to top 5 trends
+  return allTrends.slice(0, 5);
 };
+// remaing api start
 
 // TODO: total revinue trends
 const getAnalyticsTotalReviewTrends = async () => {
   const startOfMonth = moment().startOf("month").toDate();
   const endOfMonth = moment().endOf("month").toDate();
 
-  // Aggregating reviews by day and status (based on rating type)
-  const reviewTrends = await Rating.aggregate([
+  // Aggregating total revenue by day and category (grouped by product category)
+  const revenueTrends = await Order.aggregate([
     {
       $match: {
         createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+        status: "delivered", // Only consider completed sales
       },
+    },
+    {
+      $unwind: "$totalItems", // Unwind the totalItems array to access each product
+    },
+    {
+      $lookup: {
+        from: "products", // Lookup products collection
+        localField: "totalItems.productId", // Match productId from totalItems
+        foreignField: "_id", // Match with _id in products collection
+        as: "productDetails", // Alias for the resulting product data
+      },
+    },
+    {
+      $unwind: "$productDetails", // Unwind the productDetails array to access product fields
     },
     {
       $group: {
@@ -1025,9 +1104,11 @@ const getAnalyticsTotalReviewTrends = async () => {
           day: { $dayOfMonth: "$createdAt" },
           month: { $month: "$createdAt" },
           year: { $year: "$createdAt" },
-          status: "$ratingType",
+          category: "$productDetails.category", // Group by product category
         },
-        totalReviews: { $sum: 1 },
+        totalRevenue: {
+          $sum: { $multiply: ["$totalItems.quantity", "$totalItems.price"] },
+        }, // Sum of the total sales (quantity * price)
       },
     },
     {
@@ -1035,19 +1116,27 @@ const getAnalyticsTotalReviewTrends = async () => {
     },
     {
       $project: {
-        day: "$_id.day",
-        status: "$_id.status",
-        totalReviews: 1,
+        date: {
+          $concat: [
+            { $toString: "$_id.year" }, // Year
+            "-",
+            { $toString: "$_id.month" }, // Month
+            "-",
+            { $toString: "$_id.day" }, // Day
+          ], // Format date as YYYY-MM-DD
+        },
+        category: "$_id.category", // Include the category
+        totalRevenue: 1, // Include total revenue
         _id: 0,
       },
     },
   ]);
 
   // Format data to fit the Recharts format
-  const formattedData = reviewTrends.map((trend) => ({
-    date: `${trend.year}-${trend.month}-${trend.day}`,
-    status: trend.status,
-    totalReviews: trend.totalReviews,
+  const formattedData = revenueTrends.map((trend) => ({
+    date: trend.date,
+    category: trend.category,
+    totalRevenue: trend.totalRevenue,
   }));
 
   return formattedData;
@@ -1057,11 +1146,12 @@ const getAnalyticsTotalSalesTrends = async () => {
   const startOfMonth = moment().startOf("month").toDate();
   const endOfMonth = moment().endOf("month").toDate();
 
-  // Aggregating sales by day and status
+  // Aggregating sales by day and status (excluding "unpaid" status)
   const salesTrends = await Order.aggregate([
     {
       $match: {
         createdAt: { $gte: startOfMonth, $lt: endOfMonth },
+        status: { $ne: "unpaid" }, // Exclude "unpaid" status
       },
     },
     {
@@ -1070,9 +1160,25 @@ const getAnalyticsTotalSalesTrends = async () => {
           day: { $dayOfMonth: "$createdAt" },
           month: { $month: "$createdAt" },
           year: { $year: "$createdAt" },
-          status: "$status",
         },
-        totalSales: { $sum: "$totalAmount" },
+        conformSales: {
+          $sum: {
+            $cond: [{ $eq: ["$status", "conformed"] }, "$totalAmount", 0],
+          },
+        },
+        deliveredSales: {
+          $sum: {
+            $cond: [{ $eq: ["$status", "delivered"] }, "$totalAmount", 0],
+          },
+        },
+        cancelledSales: {
+          $sum: {
+            $cond: [{ $eq: ["$status", "cancelled"] }, "$totalAmount", 0],
+          },
+        },
+        shippedSales: {
+          $sum: { $cond: [{ $eq: ["$status", "shipped"] }, "$totalAmount", 0] },
+        },
       },
     },
     {
@@ -1080,19 +1186,31 @@ const getAnalyticsTotalSalesTrends = async () => {
     },
     {
       $project: {
-        day: "$_id.day",
-        status: "$_id.status",
-        totalSales: 1,
+        date: {
+          $concat: [
+            { $toString: "$_id.year" },
+            "-",
+            { $toString: "$_id.month" },
+            "-",
+            { $toString: "$_id.day" },
+          ],
+        },
+        conformSales: 1,
+        deliveredSales: 1,
+        cancelledSales: 1,
+        shippedSales: 1,
         _id: 0,
       },
     },
   ]);
 
-  // Format data to fit the Recharts format
+  // Format the result to fit the Recharts chart format
   const formattedData = salesTrends.map((trend) => ({
-    date: `${trend.year}-${trend.month}-${trend.day}`,
-    status: trend.status,
-    totalSales: trend.totalSales,
+    date: trend.date,
+    conformSales: trend.conformSales,
+    deliveredSales: trend.deliveredSales,
+    cancelledSales: trend.cancelledSales,
+    shippedSales: trend.shippedSales,
   }));
 
   return formattedData;
@@ -1120,21 +1238,29 @@ const getAnalyticsTotalUsersTrends = async () => {
       },
     },
     {
-      $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 },
+      $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 }, // Sort by date
     },
     {
       $project: {
-        day: "$_id.day",
+        date: {
+          $concat: [
+            { $toString: "$_id.year" }, // Year
+            "-",
+            { $toString: "$_id.month" }, // Month
+            "-",
+            { $toString: "$_id.day" }, // Day
+          ],
+        },
         uniqueUsers: { $size: "$uniqueUsers" }, // Count unique users
         _id: 0,
       },
     },
   ]);
 
-  // Format data to fit the Recharts format
+  // Format the result to fit the Recharts format
   const formattedData = userTrends.map((trend) => ({
-    date: `${trend.year}-${trend.month}-${trend.day}`,
-    totalUsers: trend.uniqueUsers,
+    date: trend.date, // Date in YYYY-MM-DD format
+    totalUsers: trend.uniqueUsers, // Unique users count for that day
   }));
 
   return formattedData;
@@ -1153,7 +1279,18 @@ const getAnalyticsProductsTrends = async () => {
       },
     },
     {
-      $unwind: "$totalItems",
+      $unwind: "$totalItems", // Unwind totalItems to separate each item
+    },
+    {
+      $lookup: {
+        from: "products", // Lookup products collection
+        localField: "totalItems.productId", // Match productId from totalItems
+        foreignField: "_id", // Match with the _id field in products
+        as: "productDetails", // Alias for the resulting product data
+      },
+    },
+    {
+      $unwind: "$productDetails", // Unwind the productDetails array to access fields
     },
     {
       $group: {
@@ -1164,6 +1301,8 @@ const getAnalyticsProductsTrends = async () => {
           productId: "$totalItems.productId",
         },
         totalSales: { $sum: "$totalItems.quantity" },
+        productName: { $first: "$productDetails.productName" }, // Get the product name
+        category: { $first: "$productDetails.category" }, // Get the product category
       },
     },
     {
@@ -1171,9 +1310,18 @@ const getAnalyticsProductsTrends = async () => {
     },
     {
       $project: {
-        day: "$_id.day",
-        productId: "$_id.productId",
-        totalSales: 1,
+        date: {
+          $concat: [
+            { $toString: "$_id.year" },
+            "-",
+            { $toString: "$_id.month" },
+            "-",
+            { $toString: "$_id.day" },
+          ], // Format date as YYYY-MM-DD
+        },
+        productName: 1, // Include the product name
+        category: 1, // Include the category
+        totalSales: 1, // Include the total sales count
         _id: 0,
       },
     },
@@ -1181,8 +1329,9 @@ const getAnalyticsProductsTrends = async () => {
 
   // Format data to fit the Recharts format
   const formattedData = productSalesTrends.map((trend) => ({
-    date: `${trend.year}-${trend.month}-${trend.day}`,
-    productId: trend.productId,
+    date: trend.date,
+    productName: trend.productName,
+    category: trend.category,
     totalSales: trend.totalSales,
   }));
 

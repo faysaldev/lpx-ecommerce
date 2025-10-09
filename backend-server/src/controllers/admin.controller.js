@@ -291,7 +291,7 @@ const getAdminAnalyticsDashboardStats = catchAsync(async (req, res) => {
   // Fetch data for the admin dashboard
   // if (req.user.type !== "admin") return;
 
-  const adminApprovedPayment =
+  const adminAnalyticsStats =
     await adminService.getAdminAnalyticsDashboardStats();
 
   // Return the data
@@ -301,7 +301,119 @@ const getAdminAnalyticsDashboardStats = catchAsync(async (req, res) => {
       message: "FinalCial Statitics",
       status: "OK",
       statusCode: httpStatus.Ok,
-      data: adminApprovedPayment,
+      data: adminAnalyticsStats,
+    })
+  );
+});
+
+// TODO: treanding top categories
+
+const getAdminTopCategoriesBySales = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+
+  const topSellingCategories =
+    await adminService.getAdminTopCategoriesBySales();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Top Categories Statitics",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: topSellingCategories,
+    })
+  );
+});
+
+const getAdminRecentAnalyticsTrends = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+
+  const adminRecentAnalytics =
+    await adminService.getAdminRecentAnalyticsTrends();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Recent Overview",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: adminRecentAnalytics,
+    })
+  );
+});
+
+const getAdminAnalyticsTotalSales = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+
+  const adminTotalSales = await adminService.getAnalyticsTotalSalesTrends();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "FinalCial Statitics",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: adminTotalSales,
+    })
+  );
+});
+
+const getAdminAnalyticsTotalUserTrends = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+
+  const adminTotalUser = await adminService.getAnalyticsTotalUsersTrends();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "FinalCial Statitics",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: adminTotalUser,
+    })
+  );
+});
+
+const getAdminAnalyticsTotalProductTrends = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+
+  const adminTotalProducts = await adminService.getAnalyticsProductsTrends();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "FinalCial Statitics",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: adminTotalProducts,
+    })
+  );
+});
+
+const getAdminAnalyticsTotalRevinueTrends = catchAsync(async (req, res) => {
+  // Fetch data for the admin dashboard
+  // if (req.user.type !== "admin") return;
+
+  const adminTotalRevinue = await adminService.getAnalyticsTotalReviewTrends();
+
+  // Return the data
+
+  res.status(httpStatus.OK).json(
+    response({
+      message: "FinalCial Statitics",
+      status: "OK",
+      statusCode: httpStatus.Ok,
+      data: adminTotalRevinue,
     })
   );
 });
@@ -320,5 +432,15 @@ module.exports = {
   getAdminVendorSummary,
   getAdminFinancialOverview,
   approvedAdminPayment,
+  // analytics
+
   getAdminAnalyticsDashboardStats,
+  getAdminAnalyticsTotalSales,
+  getAdminAnalyticsTotalUserTrends,
+  getAdminAnalyticsTotalProductTrends,
+  getAdminAnalyticsTotalRevinueTrends,
+
+  // admin recent activites
+  getAdminTopCategoriesBySales,
+  getAdminRecentAnalyticsTrends,
 };
