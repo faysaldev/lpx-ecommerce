@@ -35,16 +35,13 @@ export function ProductTable({
   products,
   onEdit,
   onView,
-  onDuplicate,
   onDelete,
 }: {
   products: any[];
   onEdit: (id: string) => void;
   onView: (id: string) => void;
-  onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
-
   const getStatusBadge = (isDraft: boolean, inStock: boolean) => {
     if (isDraft) {
       return <Badge variant="secondary">Draft</Badge>;
@@ -149,11 +146,6 @@ export function ProductTable({
                     <DropdownMenuItem onClick={() => onEdit(product._id)}>
                       <Edit2 className="mr-2 h-4 w-4" />
                       Edit
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem onClick={() => onDuplicate(product._id)}>
-                      <Copy className="mr-2 h-4 w-4" />
-                      Duplicate
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator />

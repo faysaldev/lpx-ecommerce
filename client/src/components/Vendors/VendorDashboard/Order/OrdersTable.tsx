@@ -30,7 +30,10 @@ export function OrdersTable() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
 
-  const { data, isLoading } = useVendorDashboarRecentOrderQuery({ page, limit });
+  const { data, isLoading } = useVendorDashboarRecentOrderQuery({
+    page,
+    limit,
+  });
   const allOrders = data?.data?.attributes?.orders || [];
 
   const getStatusBadge = (status: string) => {
@@ -43,9 +46,17 @@ export function OrdersTable() {
         return <Badge className="bg-purple-100 text-purple-800">Shipped</Badge>;
       case "completed":
       case "conformed":
-        return <Badge className="bg-green-100 text-green-800 capitalize">{status}</Badge>;
+        return (
+          <Badge className="bg-green-100 text-green-800 capitalize">
+            {status}
+          </Badge>
+        );
       default:
-        return <Badge variant="outline" className="capitalize">{status}</Badge>;
+        return (
+          <Badge variant="outline" className="capitalize">
+            {status}
+          </Badge>
+        );
     }
   };
 
@@ -102,7 +113,11 @@ export function OrdersTable() {
               <TableCell>
                 <div className="flex items-center gap-3">
                   <Image
-                    src={order.userImage ? `${process.env.NEXT_PUBLIC_BASE_URL}${order.userImage}` : ''}
+                    src={
+                      order.userImage
+                        ? `${process.env.NEXT_PUBLIC_BASE_URL}${order.userImage}`
+                        : ""
+                    }
                     alt={order.userName}
                     width={32}
                     height={32}
@@ -118,7 +133,9 @@ export function OrdersTable() {
                 {formatCurrency(order.totalPrice)}
               </TableCell>
               <TableCell>{getStatusBadge(order.status)}</TableCell>
-              <TableCell className="text-sm">{formatDate(order.orderDate)}</TableCell>
+              <TableCell className="text-sm">
+                {formatDate(order.orderDate)}
+              </TableCell>
               <TableCell className="text-right">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -147,7 +164,6 @@ export function OrdersTable() {
       {/* ✅ Ant Design Pagination */}
       <div className="flex  justify-end items-center px-4 py-3">
         <Pagination
-          
           current={page}
           pageSize={limit}
           // showSizeChanger

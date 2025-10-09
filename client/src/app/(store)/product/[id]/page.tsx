@@ -27,6 +27,7 @@ import { useGetSingleProductQuery } from "@/redux/features/products/product";
 import ReviewAndRatingsProduct from "@/components/ReviewAndRatingsProduct/ReviewAndRatingsProduct";
 import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant";
 import VendorTruncateDetails from "@/components/Vendors/SingleVendorView/VendorTruncateDetails";
+import { getImageUrl } from "@/lib/getImageURL";
 
 const ProductDetailsPage = () => {
   const type = "product";
@@ -225,11 +226,7 @@ const ProductDetailsPage = () => {
                       )}
                     >
                       <Image
-                        src={
-                          image
-                            ? `${process.env.NEXT_PUBLIC_BASE_URL}/${image}`
-                            : ""
-                        }
+                        src={image ? getImageUrl(image) : ""}
                         alt={`${product.name} view ${index + 1}`}
                         fill
                         className="object-cover"

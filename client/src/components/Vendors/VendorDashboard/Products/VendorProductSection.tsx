@@ -27,6 +27,7 @@ import { TabsContent } from "@/components/UI/tabs";
 import Link from "next/link";
 import { useSearchVendorDashboardProductsQuery } from "@/redux/features/vendors/VendorDashboard";
 import { Pagination } from "antd";
+import { useRemoveSingleProductsMutation } from "@/redux/features/products/product";
 
 // ✅ Types
 type ProductStatus = "all" | "active" | "draft" | "out_of_stock" | "sold";
@@ -61,16 +62,20 @@ const VendorProductSection = () => {
     page,
     limit,
   });
-  
+
   const products = data?.data?.attributes?.products;
   // console.log("data?.data?.attributes?.products",products)
   const total = data?.data?.total || 0;
 
   // Event Handlers
-  const handleEdit = (productId: string) => router.push(`/vendor/products/${productId}/edit`);
-  const handleView = (productId: string) => router.push(`/product/${productId}`);
-  const handleDuplicate = () => toast.success("Product duplicated successfully");
-  const handleDelete = () => toast.success("Product deleted successfully");
+  const handleEdit = (productId: string) =>
+    router.push(`/vendor/products/${productId}/edite`);
+  const handleView = (productId: string) =>
+    router.push(`/product/${productId}`);
+  const handleDelete = async (productId: string) => {
+    // await useRemoveSingleProductsMutation(productId);
+    toast.success("Product deleted successfully");
+  };
 
   // Clear filters
   const clearFilters = () => {
@@ -121,7 +126,10 @@ const VendorProductSection = () => {
               {/* Status Filter */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="min-w-[120px] justify-start">
+                  <Button
+                    variant="outline"
+                    className="min-w-[120px] justify-start"
+                  >
                     {status === "all"
                       ? "All Products"
                       : status === "out_of_stock"
@@ -132,28 +140,33 @@ const VendorProductSection = () => {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  {["all", "active", "draft", "sold", "out_of_stock"].map((s) => (
-                    <DropdownMenuItem
-                      key={s}
-                      onClick={() => {
-                        setStatus(s as ProductStatus);
-                        setPage(1);
-                      }}
-                    >
-                      {s === "out_of_stock"
-                        ? "Out of Stock"
-                        : s === "all"
-                        ? "All Products"
-                        : s.charAt(0).toUpperCase() + s.slice(1)}
-                    </DropdownMenuItem>
-                  ))}
+                  {["all", "active", "draft", "sold", "out_of_stock"].map(
+                    (s) => (
+                      <DropdownMenuItem
+                        key={s}
+                        onClick={() => {
+                          setStatus(s as ProductStatus);
+                          setPage(1);
+                        }}
+                      >
+                        {s === "out_of_stock"
+                          ? "Out of Stock"
+                          : s === "all"
+                          ? "All Products"
+                          : s.charAt(0).toUpperCase() + s.slice(1)}
+                      </DropdownMenuItem>
+                    )
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
 
               {/* Sort Filter */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="min-w-[140px] justify-start">
+                  <Button
+                    variant="outline"
+                    className="min-w-[140px] justify-start"
+                  >
                     <ArrowUpDown className="mr-2 h-4 w-4" />
                     {SORT_OPTIONS.find((o) => o.value === sortBy)?.label ||
                       "Sort Options"}
@@ -228,7 +241,6 @@ const VendorProductSection = () => {
             products={products}
             onEdit={handleEdit}
             onView={handleView}
-            onDuplicate={handleDuplicate}
             onDelete={handleDelete}
           />
 
