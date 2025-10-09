@@ -305,13 +305,13 @@ const ProductDetailsPage = () => {
                 {/* Price */}
                 <div className="space-y-2">
                   <div className="flex items-baseline space-x-2">
-                    <span className={cn(designTokens.typography.h2)}>
-                      ${product.price.toLocaleString()}
+                    <span className={cn(designTokens.typography.h3)}>
+                      AED{product.price.toLocaleString()}
                     </span>
                     {product.discountPercentage > 0 && (
                       <>
-                        <span className="text-lg text-muted-foreground line-through">
-                          ${product.optionalPrice.toLocaleString()}
+                        <span className="text-base text-muted-foreground line-through">
+                          AED{product.optionalPrice.toLocaleString()}
                         </span>
                         <span className="text-sm font-semibold text-green-600">
                           {product.discountPercentage}% OFF
@@ -441,7 +441,6 @@ const ProductDetailsPage = () => {
                     </div>
                   </div>
                 )}
-                
               </div>
             </div>
           </div>
@@ -477,20 +476,27 @@ const ProductDetailsPage = () => {
         {product?.StorePolicies ? (
           <div>
             <h1 className="text-xl font-semibold">Description</h1>
-          <VendorTruncateDetails description={product?.description} truncateLength={300} />
+            <VendorTruncateDetails
+              description={product?.description}
+              truncateLength={300}
+            />
             <br />
           </div>
         ) : null}
 
-
         {product?.StorePolicies ? (
           <div>
             <h1 className="text-xl font-semibold">Shipping Policy</h1>
-                      <VendorTruncateDetails description={product?.StorePolicies?.shippingPolicy} truncateLength={250} />
+            <VendorTruncateDetails
+              description={product?.StorePolicies?.shippingPolicy}
+              truncateLength={250}
+            />
             <br />
             <h1 className="text-xl font-semibold">Return Policy</h1>
-<VendorTruncateDetails description={product?.StorePolicies?.returnPolicy} truncateLength={250} />
-
+            <VendorTruncateDetails
+              description={product?.StorePolicies?.returnPolicy}
+              truncateLength={250}
+            />
           </div>
         ) : null}
 

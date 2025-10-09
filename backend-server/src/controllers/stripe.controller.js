@@ -31,7 +31,8 @@ const checkOutSession = async (req, res) => {
       req.user.id,
       orderCreate._id,
       req.user.email,
-      orderCreate.orderID
+      orderCreate.orderID,
+      orderData?.shipping
     );
 
     res.status(httpStatus.OK).json(

@@ -1,9 +1,9 @@
 export const forMatStripeLineItems = (data) => {
   return data.totalItems.map((item) => ({
     price_data: {
-      currency: "usd", // Currency, can be dynamic
+      currency: "aed", // Currency, can be dynamic
       product_data: {
-        name: `Product ${item.productId}`, // Assuming you want to pass product name dynamically
+        name: `Product ${item.productId}`,
         description: "Description of the product", // You can adjust to pass the actual description
         images: item.images, // Array of image URLs
       },

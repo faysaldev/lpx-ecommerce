@@ -14,7 +14,8 @@ const checkOutSession = async (
   customerId,
   orderId,
   email,
-  purchaseId
+  purchaseId,
+  shippingCost
 ) => {
   try {
     if (!stripeItems || !customerId || !orderId || !email || !purchaseId) {
@@ -23,6 +24,7 @@ const checkOutSession = async (
 
     // FIX: Don't use JSON.stringify - Stripe metadata accepts strings
     // Convert ObjectId to string using .toString()
+
     const session = await stripe.checkout.sessions.create({
       line_items: stripeItems,
       mode: CHECKOUT_MODE,
@@ -41,7 +43,21 @@ const checkOutSession = async (
         customer_email: email,
         purchase_id: purchaseId,
       },
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: "fixed_amount",
+            fixed_amount: {
+              amount: shippingCost * 100, // Amount in cents (Stripe expects cents)
+              currency: "aed", // Use the appropriate currency
+            },
+            display_name: "Shipping Cost",
+          },
+        },
+      ],
     });
+
+    console.log(session);
 
     return { payment_url: session.url, session_id: session.id };
   } catch (error) {
