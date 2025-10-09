@@ -28,6 +28,9 @@ export const baseApi = createApi({
     "settings",
     "New_Category",
     "Ratings",
+    "General_Settings",
+    "Condition",
+    "Coupon",
   ],
   endpoints: () => ({}),
 });

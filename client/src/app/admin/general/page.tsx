@@ -2,7 +2,7 @@
 "use client";
 
 import {
-  useAddNewcategoryMutation,
+  useAddNewCategoryMutation,
   useRemoveSingleCategoryMutation,
 } from "@/redux/features/admin/adminGeneral";
 import { useAllCategoriesQuery } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
@@ -43,7 +43,7 @@ export function formatTimeAgo(dateString: string): string {
 function Page() {
   const { data: categoriesData, isLoading: categoriesLoading } =
     useAllCategoriesQuery({});
-  const [createNewCategory] = useAddNewcategoryMutation({});
+  const [createNewCategory] = useAddNewCategoryMutation({});
   const [removeSingleCategory] = useRemoveSingleCategoryMutation();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

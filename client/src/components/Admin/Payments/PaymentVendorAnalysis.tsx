@@ -113,7 +113,7 @@ function PaymentVendorAnalysis() {
                               hour: undefined,
                               minute: undefined,
                             })
-                          : "No payments yet"}
+                          : "N/A"}
                       </TableCell>
                     </TableRow>
                   ))
