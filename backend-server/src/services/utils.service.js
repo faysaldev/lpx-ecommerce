@@ -18,31 +18,42 @@ const getFeturedProducts = async () => {
   const featuredProducts = await Product.aggregate([
     {
       $lookup: {
-        from: "ratings",
-        localField: "_id",
-        foreignField: "referenceId",
+        from: "ratings", // Name of the collection for ratings
+        localField: "_id", // Reference field from Product collection
+        foreignField: "referenceId", // Reference field from Rating collection
         as: "ratings",
       },
     },
     {
       $lookup: {
-        from: "orders",
-        localField: "_id",
-        foreignField: "totalItems.productId",
+        from: "orders", // Name of the collection for orders
+        localField: "_id", // Reference field from Product collection
+        foreignField: "totalItems.productId", // Reference field from Order collection
         as: "orders",
       },
     },
     {
       $addFields: {
-        averageRating: { $avg: "$ratings.rating" },
-        totalOrders: { $size: "$orders" },
+        averageRating: { $avg: "$ratings.rating" }, // Calculate average rating
+        totalOrders: { $size: "$orders" }, // Calculate total number of orders
       },
     },
     {
-      $sort: { totalOrders: -1, averageRating: -1, createdAt: -1 },
+      $sort: { totalOrders: -1, averageRating: -1, createdAt: -1 }, // Sort by orders, ratings, and creation date
     },
     {
-      $limit: 4,
+      $limit: 4, // Limit to top 4 products
+    },
+    {
+      $lookup: {
+        from: "vendors", // Vendor collection
+        localField: "vendor", // Reference field in Product
+        foreignField: "_id", // Reference field in Vendor
+        as: "vendorDetails", // Store result in vendorDetails array
+      },
+    },
+    {
+      $unwind: "$vendorDetails", // Unwind the vendorDetails array to get vendor data as an object
     },
     {
       $project: {
@@ -52,9 +63,12 @@ const getFeturedProducts = async () => {
         condition: 1,
         images: 1,
         category: 1,
-        vendor: 1,
         averageRating: 1,
         totalOrders: 1,
+        tags: 1,
+        optionalPrice: 1,
+        discountPercentage: 1,
+        vendorName: "$vendorDetails.storeName", // Add storeName from vendorDetails
       },
     },
   ]);
@@ -64,8 +78,9 @@ const getFeturedProducts = async () => {
     const newProducts = await Product.find({})
       .sort({ createdAt: -1 })
       .limit(4)
+      .populate("vendor", "storeName") // Populate the vendor's store name
       .select(
-        "productName price stockQuantity condition images category vendor"
+        "productName price stockQuantity condition images category vendor tags optionalPrice discountPercentage"
       )
       .lean();
 
@@ -90,8 +105,9 @@ const getFeturedProducts = async () => {
     })
       .sort({ createdAt: -1 })
       .limit(4 - uniqueProducts.length)
+      .populate("vendor", "storeName") // Populate the vendor's store name
       .select(
-        "productName price stockQuantity condition images category vendor"
+        "productName price stockQuantity condition images category vendor tags optionalPrice discountPercentage"
       )
       .lean();
 
@@ -146,7 +162,7 @@ const getLpsStatistics = async () => {
     ratingsResult.length > 0 ? ratingsResult[0].averageRating : 0;
 
   return {
-    monthlyVolume: `$${monthlyVolume.toLocaleString()}`,
+    monthlyVolume: `AED ${monthlyVolume.toLocaleString()}`,
     listedItems: `${listedItems.toLocaleString()}`,
     activeUsers: `${activeUsers.toLocaleString()}`,
     satisfaction: `${satisfaction.toFixed(1)}%`,
