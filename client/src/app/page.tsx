@@ -366,7 +366,7 @@ export default function Home() {
                       <TrendingUp className="h-6 w-6 text-green-500" />
                     </div>
                     <p className="text-3xl font-bold mb-2 bg-gradient-to-r from-green-600 to-green-400 bg-clip-text text-transparent">
-                      {fetchStatistics?.data?.monthlyVolume || "$1M"} +
+                      {fetchStatistics?.data?.monthlyVolume || "AED 1M"} +
                     </p>
                     <p className="text-sm text-muted-foreground">
                       Monthly Volume

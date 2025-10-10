@@ -71,8 +71,8 @@ export interface AdminOrder {
 
 interface OrdersStats {
   totalOrders: number;
-  pendingOrders: number;
-  completedOrders: number;
+  conformedOrders: number;
+  deliveredOrders: number;
   totalSales: number;
 }
 
@@ -82,8 +82,8 @@ export default function OrdersManagement() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [stats, setStats] = useState<OrdersStats>({
     totalOrders: 0,
-    pendingOrders: 0,
-    completedOrders: 0,
+    conformedOrders: 0,
+    deliveredOrders: 0,
     totalSales: 0,
   });
 
@@ -268,12 +268,12 @@ export default function OrdersManagement() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
-              Pending Orders
+              Conform Orders
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-600">
-              {stats.pendingOrders}
+              {stats.conformedOrders}
             </div>
             <p className="text-xs text-muted-foreground">Require attention</p>
           </CardContent>
@@ -284,7 +284,7 @@ export default function OrdersManagement() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">
-              {stats.completedOrders}
+              {stats.deliveredOrders}
             </div>
             <p className="text-xs text-muted-foreground">
               Successfully delivered
@@ -296,8 +296,8 @@ export default function OrdersManagement() {
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              ${stats.totalSales.toLocaleString()}
+            <div className="text-xl font-bold">
+              AED {stats.totalSales.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">Platform revenue</p>
           </CardContent>
@@ -392,8 +392,8 @@ export default function OrdersManagement() {
                         item
                         {order.itemsCount !== 1 ? "s" : ""}
                       </TableCell>
-                      <TableCell className="font-medium">
-                        ${order.totalAmount.toLocaleString()}
+                      <TableCell className="font-medium text-xs">
+                        AED {order.totalAmount.toLocaleString()}
                       </TableCell>
                       <TableCell>{getStatusBadge(order.status)}</TableCell>
                       <TableCell className="text-right">
