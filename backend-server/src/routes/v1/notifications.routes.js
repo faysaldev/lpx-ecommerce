@@ -22,6 +22,6 @@ router
 
 router
   .route("/remove/:id")
-  .patch(auth("common"), notificationController.removeNotification);
+  .delete(auth("common"), notificationController.removeNotification);
 
 module.exports = router;

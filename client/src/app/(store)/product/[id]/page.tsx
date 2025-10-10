@@ -28,6 +28,7 @@ import ReviewAndRatingsProduct from "@/components/ReviewAndRatingsProduct/Review
 import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant";
 import VendorTruncateDetails from "@/components/Vendors/SingleVendorView/VendorTruncateDetails";
 import { getImageUrl } from "@/lib/getImageURL";
+import { useAddNewToWishListMutation } from "@/redux/features/GetWishList/GetWishList";
 
 const ProductDetailsPage = () => {
   const type = "product";
@@ -41,6 +42,7 @@ const ProductDetailsPage = () => {
   const [quantity, setQuantity] = useState(1);
 
   const [payment] = useBuyNowMutation();
+  const [addtoWithlist] = useAddNewToWishListMutation();
 
   const allData = data?.data?.attributes;
 
@@ -133,6 +135,13 @@ const ProductDetailsPage = () => {
     } catch (error) {
       console.log("error showld", error);
     }
+  };
+
+  const saveTowishList = async () => {
+    await addtoWithlist({
+      products: product?.id,
+      vendorId: product?.vendor?._id,
+    });
   };
 
   if (isLoading) {
@@ -405,12 +414,17 @@ const ProductDetailsPage = () => {
                       <Zap className="h-4 w-4 mr-2" />
                       Buy Now
                     </Button>
-                    <Button variant="outline" size="lg">
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      onClick={() => saveTowishList()}
+                    >
                       <Heart className="h-4 w-4" />
                     </Button>
-                    <Button variant="outline" size="lg">
+                    {/* TODO: shere button */}
+                    {/* <Button variant="outline" size="lg">
                       <Share2 className="h-4 w-4" />
-                    </Button>
+                    </Button> */}
                   </div>
                 </div>
 

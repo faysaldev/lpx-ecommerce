@@ -94,9 +94,6 @@ interface ProductCardProps {
 const ProductCard = ({
   product,
   viewMode = "grid",
-  onQuickView,
-  onAddToWishlist,
-  onRemoveFromWishlist,
   onShare,
   className,
   showQuickView = true,
@@ -108,7 +105,7 @@ const ProductCard = ({
     id,
     vendor,
     vendorName,
-    stock,
+    stockQuantity,
     name,
     productName,
     condition = "",
@@ -141,7 +138,7 @@ const ProductCard = ({
   const finalProductName = name || productName || "Unnamed Product";
 
   // Use the correct stock quantity
-  const finalStockQuantity = stock;
+  const finalStockQuantity = stockQuantity;
 
   // Use the correct vendor name
   const finalVendorName =

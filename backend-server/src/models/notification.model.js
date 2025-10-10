@@ -33,7 +33,7 @@ const notificationSchema = new Schema(
     },
     type: {
       type: String,
-      enum: ["order", "system", "promotion", "vendor", "price price_alert"],
+      enum: ["orders", "system", "promotion", "vendor", "price_alert"],
       required: true,
     },
     priority: {

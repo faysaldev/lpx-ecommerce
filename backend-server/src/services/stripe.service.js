@@ -218,7 +218,7 @@ const handleCheckoutCompleted = async (checkoutSession) => {
           title: `Order ${purchase_id} Confirmed`,
           description: `We have successfully received your order. Our team is now processing your items, and we will begin shipping your products shortly. You will receive another notification once your order has shipped.`,
           priority: "high",
-          type: "order",
+          type: "orders",
           transactionId: purchase_id,
           timestamp: new Date(),
         };

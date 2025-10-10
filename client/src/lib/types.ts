@@ -321,7 +321,7 @@ export interface IAPIFactory {
 }
 
 export type NotificationType =
-  | "order"
+  | "orders"
   | "system"
   | "promotion"
   | "vendor"
