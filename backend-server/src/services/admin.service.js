@@ -330,27 +330,33 @@ const getAllProductsAdmin = async ({
 };
 
 const getAdminOrderStats = async () => {
-  // Total Orders
-  const totalOrders = await Order.countDocuments();
-
-  // Orders in Pending or Processing status
-  const pendingOrders = await Order.countDocuments({
-    status: { $in: ["pending", "processing"] },
+  // Total Orders (excluding unpaid)
+  const totalOrders = await Order.countDocuments({
+    status: { $ne: "unpaid" }, // Exclude orders with "unpaid" status
   });
 
-  // Completed Orders
-  const completedOrders = await Order.countDocuments({ status: "completed" });
+  // Orders in Conformed status (excluding unpaid)
+  const conformedOrders = await Order.countDocuments({
+    status: "conformed",
+    status: { $ne: "unpaid" }, // Exclude orders with "unpaid" status
+  });
 
-  // Total Sales (from completed orders)
+  // Orders in Delivered status (excluding unpaid)
+  const deliveredOrders = await Order.countDocuments({
+    status: "delivered",
+    status: { $ne: "unpaid" }, // Exclude orders with "unpaid" status
+  });
+
+  // Total Sales (from completed orders, excluding unpaid)
   const totalSales = await Order.aggregate([
-    { $match: { status: "completed" } },
+    { $match: { status: "delivered", status: { $ne: "unpaid" } } }, // Exclude "unpaid"
     { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
   ]);
 
   return {
     totalOrders,
-    pendingOrders,
-    completedOrders,
+    conformedOrders,
+    deliveredOrders,
     totalSales: totalSales[0]?.totalSales || 0,
   };
 };
@@ -360,7 +366,9 @@ const getAllOrders = async ({ query, page, limit }) => {
   const skip = (page - 1) * limit;
 
   // Constructing the filter query
-  const searchQuery = {};
+  const searchQuery = {
+    status: { $ne: "unpaid" }, // Exclude orders with 'unpaid' status
+  };
 
   // If a 'query' parameter is passed, filter by order ID or customer name
   if (query) {
