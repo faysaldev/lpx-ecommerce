@@ -30,7 +30,7 @@ function DashboardContent() {
   const { data, isLoading } = useDashBoardStatiticsQuery({});
   const allData = data?.data;
 
-  console.log('get all data ', allData)
+  console.log("get all data ", allData);
 
   // Use backend data if available, otherwise show loading state
   const stats = [
@@ -200,26 +200,6 @@ function DashboardContent() {
                 <Link href="/wishlist">
                   <Heart className="mr-2 h-4 w-4" />
                   My Wishlist
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="w-full justify-start"
-              >
-                <Link href="/payment-methods">
-                  <CreditCard className="mr-2 h-4 w-4" />
-                  Payment Methods
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="w-full justify-start"
-              >
-                <Link href="/settings?tab=addresses">
-                  <Truck className="mr-2 h-4 w-4" />
-                  Shipping Addresses
                 </Link>
               </Button>
             </CardContent>

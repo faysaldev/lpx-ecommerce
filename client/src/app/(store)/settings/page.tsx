@@ -211,10 +211,7 @@ export default function UserSettingsProfile() {
     <PageLayout
       title="Profile Settings"
       description="Manage Your User Profile Settings"
-      breadcrumbs={[
-        { label: "Home", href: "/" },
-        { label: "Profile", href: "/profile" },
-      ]}
+      breadcrumbs={[{ label: "Profile", href: "/profile" }]}
     >
       <div className="space-y-6">
         <div className="grid lg:grid-cols-5 gap-6">
