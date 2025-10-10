@@ -44,7 +44,7 @@ const removeToCartlist = catchAsync(async (req, res) => {
 });
 
 const removeAllCartList = catchAsync(async (req, res) => {
-  const removeCart = await cartService.removeAllCartList(req.params.id);
+  const removeCart = await cartService.removeAllCartList(req.user.id);
   res.status(httpStatus.CREATED).json(
     response({
       message: "Remove Cart to Cart List",

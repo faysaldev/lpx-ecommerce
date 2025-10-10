@@ -2,6 +2,7 @@ const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const { orderService, notificationService } = require(".");
 const { sendNotificationEmail } = require("./email.service");
+const { Product, Vendor } = require("../models");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
@@ -56,9 +57,6 @@ const checkOutSession = async (
         },
       ],
     });
-
-    console.log(session);
-
     return { payment_url: session.url, session_id: session.id };
   } catch (error) {
     console.error("Stripe checkout session creation error:", error);
@@ -256,8 +254,72 @@ const handlePaymentFailed = async (paymentIntent) => {
   }
 };
 
+// cehcking product availablity
+const checkProductAvailability = async (data) => {
+  const results = [];
+
+  // Loop through each item in the data array
+  for (let item of data) {
+    const { productId, vendorId, quantity } = item;
+
+    try {
+      // Check if the product exists
+      const product = await Product.findById(productId).populate({
+        path: "vendor",
+        select: "storeName", // Populate vendor name
+      });
+
+      if (!product) {
+        results.push({
+          productId,
+          vendorId,
+          available: false,
+          message: "Product not found",
+        });
+        continue;
+      }
+
+      // Check if the quantity is available
+      if (product.stockQuantity < quantity) {
+        results.push({
+          productId,
+          vendorId,
+          available: false,
+          message: `Not enough stock for ${product.productName}. Only ${product.stockQuantity} available.`,
+        });
+        continue;
+      }
+
+      // If product exists and quantity is available, push the product details
+      results.push({
+        productId,
+        vendorId,
+        available: true,
+        quantity: quantity,
+        price: product.price,
+        image: product.images[0], // Assuming first image is used
+        productName: product.productName,
+        vendorName: product.vendor
+          ? product.vendor.storeName
+          : "Unknown Vendor",
+      });
+    } catch (error) {
+      console.error("Error checking product availability:", error);
+      results.push({
+        productId,
+        vendorId,
+        available: false,
+        message: "Error retrieving product details",
+      });
+    }
+  }
+
+  return results;
+};
+
 module.exports = {
   checkOutSession,
   checkoutComplete,
   webhookPayload,
+  checkProductAvailability,
 };

@@ -9,13 +9,20 @@ const ApiError = require("../utils/ApiError");
 
 const checkOutSession = async (req, res) => {
   try {
-    const data = {
-      customer: req.user.id,
-      ...req.body,
-    };
+    const data = req.body;
+    const productDetails = await stripeService.checkProductAvailability(
+      req.body
+    );
 
-    const orderData = forMatOrderData(data);
-    const stripeItems = forMatStripeLineItems(data);
+    const orderData = forMatOrderData({
+      productDetails,
+      customer: req.user.id,
+      shippingCost: 20,
+      taxCost: 0,
+      orderNotes: "",
+      cupon: {},
+    });
+    const stripeItems = forMatStripeLineItems(productDetails);
 
     const orderCreate = await orderService.createOrder(orderData);
 
@@ -29,10 +36,10 @@ const checkOutSession = async (req, res) => {
     const checkoutData = await stripeService.checkOutSession(
       stripeItems,
       req.user.id,
-      orderCreate._id,
+      orderCreate.id,
       req.user.email,
       orderCreate.orderID,
-      orderData?.shipping
+      orderCreate?.shipping
     );
 
     res.status(httpStatus.OK).json(

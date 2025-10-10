@@ -1,34 +1,55 @@
 export const forMatStripeLineItems = (data) => {
-  return data.totalItems.map((item) => ({
+  console.log(
+    `image Url ${process.env.BACKEND_ONLINE_URL}/${data[0]?.image}, format for stripe`
+  );
+  return data.map((item) => ({
     price_data: {
       currency: "aed", // Currency, can be dynamic
       product_data: {
-        name: `Product ${item.productId}`,
-        description: "Description of the product", // You can adjust to pass the actual description
-        images: item.images, // Array of image URLs
+        name: item.productName, // Product name
+        description: "Product description here", // You can replace with actual description if available
+        // images: [`${process.env.BACKEND_ONLINE_URL}/${item.image}`], // Image URL
+        images: [
+          `https://i.ibb.co.com/wNP7ty76/beardo-mariner-perfume-edp-50ml.png`,
+        ], // Image URL
       },
-      unit_amount: item.price * 100, // Price in cents
+      unit_amount: item.price * 100, // Price in cents (multiplied by 100 to convert to cents)
     },
-    quantity: item.quantity, // The quantity of the product
+    quantity: item.quantity, // Quantity of the product
   }));
 };
 
-export const forMatOrderData = (req) => {
+export const forMatOrderData = ({
+  productDetails,
+  customer,
+  cupon,
+  taxCost,
+  orderNotes,
+  shippingCost,
+}) => {
+  // Calculate the total amount of the order by summing the price of all items
+  const totalAmount = productDetails.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0
+  );
+
+  // Build the order data object
   const orderData = {
-    customer: req.customer, // Get customer from authenticated user
+    customer: customer, // Assuming customer is an object with _id
     status: "unpaid", // Default status
-    totalAmount: req.total, // The total amount of the order
-    totalItems: req.totalItems.map((item) => ({
+    totalAmount: totalAmount, // The total amount of the order
+    totalItems: productDetails.map((item) => ({
       productId: item.productId,
       quantity: item.quantity,
       price: item.price,
+      image: item.image,
       vendorId: item.vendorId,
     })),
-    total: req.total, // Total price
-    shipping: req.shipping, // Shipping cost
-    tax: req.tax, // Tax cost
-    orderNotes: req.orderNotes || "",
-    coupon: req.coupon || {},
+    total: totalAmount, // Total price
+    shipping: shippingCost, // Shipping cost
+    tax: taxCost, // Tax cost
+    orderNotes: orderNotes || "", // Optional notes
+    coupon: cupon || {}, // Optional coupon data
   };
 
   return orderData;

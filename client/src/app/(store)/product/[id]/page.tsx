@@ -115,21 +115,14 @@ const ProductDetailsPage = () => {
 
   const totalPrice = product?.price * quantity || 0;
   const byNowHandler = async () => {
-    const data = {
-      totalItems: [
-        {
-          productId: product?.id,
-          quantity: quantity,
-          price: totalPrice,
-          vendorId: product?.vendorId,
-          images: [`${process.env.NEXT_PUBLIC_BASE_URL}${product?.image}`],
-        },
-      ],
-      total: totalPrice,
-      shipping: 20,
-      tax: 30,
-      orderNotes: "Please deliver before 5 PM",
-    };
+    const data = [
+      {
+        productId: product?.id,
+        quantity: quantity,
+        price: totalPrice,
+        vendorId: product?.vendorId,
+      },
+    ];
     console.log("pyment data show ", data);
     try {
       const res = await payment(data);
@@ -302,15 +295,15 @@ const ProductDetailsPage = () => {
                 {/* Price */}
                 <div className="space-y-2">
                   <div className="flex items-baseline space-x-2">
-                    <span className={cn(designTokens.typography.h3)}>
-                      AED{product.price.toLocaleString()}
+                    <span className={cn(designTokens.typography.h4)}>
+                      AED {product.price.toLocaleString()}
                     </span>
                     {product.discountPercentage > 0 && (
                       <>
-                        <span className="text-base text-muted-foreground line-through">
-                          AED{product.optionalPrice.toLocaleString()}
+                        <span className="text-sm text-muted-foreground line-through">
+                          AED {product.optionalPrice.toLocaleString()}
                         </span>
-                        <span className="text-sm font-semibold text-green-600">
+                        <span className="text-xs font-semibold text-green-600">
                           {product.discountPercentage}% OFF
                         </span>
                       </>
