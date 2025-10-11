@@ -3,15 +3,14 @@ import type { Product } from "@/lib/types";
 export type ViewMode = "grid" | "list";
 export type SortOption =
   | "newest"
-  | ""
   | "price-asc"
   | "price-desc"
   | "name-asc"
   | "name-desc"
   | "highToLow"
   | "lowToHigh"
-  | "A-Z"
-  | "Z-A";
+  | "productsCount"
+  | "byRatings";
 
 export interface PriceRange {
   min: number;
@@ -72,6 +71,12 @@ export const SORT_OPTIONS = [
   { value: "newest", label: "Newest First", icon: "clock" },
   { value: "lowToHigh", label: "Price: Low to High", icon: "arrow-up" },
   { value: "highToLow", label: "Price: High to Low", icon: "arrow-down" },
+  { value: "byRatings", label: "Rating: By Ratings", icon: "arrow-down" },
+  {
+    value: "productsCount",
+    label: "Product: Products Count",
+    icon: "arrow-down",
+  },
 ];
 
 export function filterProducts(

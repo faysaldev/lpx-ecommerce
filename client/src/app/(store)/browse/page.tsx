@@ -312,6 +312,7 @@ function BrowsePageContent() {
       {/* Search and Controls */}
       <div className="mb-6">
         <VendorStyleFilterBar
+        isVendorPage={false}
           search={filters.search}
           onSearchChange={(value: any) => updateFilter("search", value)}
           sortOption={sortOption}
