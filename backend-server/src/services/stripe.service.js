@@ -304,9 +304,6 @@ const handleCheckoutCompleted = async (checkoutSession) => {
       order_id,
       updateData
     );
-
-    console.log(updatedOrder, "updated OrderData");
-
     // Loop through each vendor and update earnings
     const vendorUpdatePromises = updatedOrder.map(async (orderItem) => {
       const { vendorId, productPrice, sellerId, quantity, productId } =
@@ -379,7 +376,7 @@ const handleCheckoutCompleted = async (checkoutSession) => {
 
     // Ensure vendor email is fetched if `updatedOrder.totalItems` is valid and has items
     const vendorEmail =
-      updatedOrder.length > 0 ? updatedOrder[0]?.vendorId?.email : null;
+      updatedOrder.length > 0 ? updatedOrder[0]?.vendorEmail : null;
 
     if (vendorEmail) {
       await sendNotificationEmail(vendorEmail, emailBodySeller);

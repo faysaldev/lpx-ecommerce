@@ -152,19 +152,19 @@ const editeSingleOrder = async (orderId, newData) => {
     },
   };
 
-  // Find the order by its ID and populate vendor details
+  // Find the order by its ID and populate vendor details (including ownerName and email)
   const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, {
     new: true,
   }).populate({
     path: "totalItems.vendorId",
-    select: "email seller",
+    select: "email seller ownerName", // Populate email, seller, and ownerName
   });
 
   if (!updatedOrder) {
     throw new ApiError(httpStatus.NOT_FOUND, "Order not found");
   }
 
-  // Extract the vendor details and calculate price for each product, include productId and quantity
+  // Extract the vendor details and calculate price for each product, including productId, quantity, ownerName, and email
   const vendorDetails = updatedOrder.totalItems.map((item) => {
     // Calculate price for each item by multiplying the quantity with the price
     const totalPrice = item.price * item.quantity;
@@ -176,6 +176,8 @@ const editeSingleOrder = async (orderId, newData) => {
       email: item.vendorId.email, // Vendor email
       sellerId: item.vendorId.seller, // Seller's user ID
       productPrice: totalPrice, // Calculated price (price * quantity)
+      ownerName: item.vendorId.ownerName, // Vendor owner name
+      vendorEmail: item.vendorId.email, // Vendor email (again here for clarity)
     };
   });
 
