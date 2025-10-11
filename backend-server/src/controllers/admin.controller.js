@@ -113,6 +113,7 @@ const getAllProductsAdmin = catchAsync(async (req, res) => {
     sortBy = "newestFirst", // Default sort: newestFirst
     page = 1, // Default page: 1
     limit = 20, // Default limit: 20
+    category,
   } = req.query;
   const addProductsFromAdmin = await adminService.getAllProductsAdmin({
     query,
@@ -122,6 +123,7 @@ const getAllProductsAdmin = catchAsync(async (req, res) => {
     sortBy,
     page,
     limit,
+    category,
   });
 
   // Return the data

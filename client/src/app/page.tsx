@@ -96,7 +96,7 @@ export default function Home() {
                   <br />
                   Collectibles
                 </h1>
-                <p className="text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-8">
+                <p className="text-sm sm:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-8">
                   The premier marketplace for serious collectors. Find verified
                   treasures, connect with trusted vendors, and build your dream
                   collection.
@@ -301,10 +301,10 @@ export default function Home() {
                 </span>
               </div>
 
-              <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              <h2 className="text-2xl sm:text-4xl md:text-5xl font-bold mb-6">
                 Start Your Collection Journey Today
               </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
+              <p className="text-sm sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
                 Connect with passionate collectors, discover rare treasures, and
                 build your dream collection with confidence.
               </p>
@@ -330,7 +330,7 @@ export default function Home() {
                 </Button>
               </div>
 
-              <div className="mt-12 flex items-center justify-center gap-8 text-sm text-muted-foreground">
+              <div className="mt-12 flex items-center justify-center gap-8 text-[10px] sm:text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <CheckCircle className="h-5 w-5 text-green-500" />
                   <span>Free to join</span>
@@ -359,7 +359,7 @@ export default function Home() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
                 <Card className="text-center p-6 hover:shadow-lg transition-all">
                   <CardContent className="p-0">
                     <div className="w-12 h-12 bg-gradient-to-br from-green-500/20 to-green-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">

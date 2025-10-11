@@ -255,6 +255,7 @@ const getAllProductsAdmin = async ({
   sortBy,
   page,
   limit,
+  category,
 }) => {
   const searchQuery = {};
 
@@ -274,6 +275,9 @@ const getAllProductsAdmin = async ({
 
   // Condition filter
   if (condition) searchQuery.condition = condition;
+
+  // Category filter (added here)
+  if (category) searchQuery.category = category;
 
   // Pagination logic
   const skip = (page - 1) * limit;

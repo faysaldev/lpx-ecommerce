@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Bell, Heart, Package, ShoppingCart } from "lucide-react";
+import { Bell, Heart, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/components/UI/badge";
