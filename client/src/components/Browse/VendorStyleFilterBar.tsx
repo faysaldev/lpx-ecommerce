@@ -19,7 +19,6 @@ import {
 } from "@/components/UI/popover";
 import { productStyles } from "@/components/UI/product.variants";
 import {
-  SORT_OPTIONS,
   type SortOption,
   type ViewMode,
 } from "@/lib/browse-utils";
@@ -48,6 +47,7 @@ interface VendorStyleFilterBarProps {
   filterContent?: React.ReactNode;
   advancedFilterContent?: React.ReactNode;
   onOpenFilters?: () => void;
+  isVendorPage?:boolean;
 }
 
 export function VendorStyleFilterBar({
@@ -69,6 +69,18 @@ export function VendorStyleFilterBar({
 VendorStyleFilterBarProps) {
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
   const [isSortOpen, setIsSortOpen] = useState(false);
+
+  const SORT_OPTIONS = [
+  { value: "newest", label: "Newest First", icon: "clock" },
+  { value: "lowToHigh", label: "Price: Low to High", icon: "arrow-up" },
+  { value: "highToLow", label: "Price: High to Low", icon: "arrow-down" },
+  { value: "byRatings", label: "Rating: By Ratings", icon: "arrow-down" },
+  {
+    value: "productsCount",
+    label: "Product: Products Count",
+    icon: "arrow-down",
+  },
+];
 
   const sortOptions = SORT_OPTIONS;
 

@@ -493,10 +493,10 @@ export default function VendorsPage() {
         return "price-desc";
       case "lowToHigh":
         return "price-asc";
-      case "A-Z":
-        return "name-asc";
-      case "Z-A":
-        return "name-desc";
+      case "productsCount":
+        return "products-count";
+      case "byRatings":
+        return "by-ratings";
       default:
         return "newest";
     }
@@ -640,6 +640,7 @@ export default function VendorsPage() {
       {/* Search and Controls */}
       <div className="mb-6">
         <VendorStyleFilterBar
+        isVendorPage={true}
           search={filters.search}
           onSearchChange={(value) => updateFilter("search", value)}
           sortOption={sortBy}
