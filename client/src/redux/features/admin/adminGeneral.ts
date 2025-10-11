@@ -66,7 +66,7 @@ const generalApi = baseApi.injectEndpoints({
     updateGeneralSettings: builder.mutation({
       query: (data) => ({
         url: `/generals/update`,
-        method: "PUT",
+        method: "PATCH",
         body: data,
       }),
       invalidatesTags: ["General_Settings"],
