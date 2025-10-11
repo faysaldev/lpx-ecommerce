@@ -55,19 +55,21 @@ export default function Header() {
       {/* Main Header */}
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <Package className="h-8 w-8 text-primary" />
-            <span className="hidden lg:inline-flex text-xl font-bold">
-              LPX Collect
-            </span>
-          </Link>
-
-          {/* Professional Tagline */}
-          <div className="hidden lg:flex items-center">
-            <span className="text-sm text-muted-foreground">
-              Your Trusted Marketplace for Rare Collectibles
-            </span>
+          <div className="flex items-center space-x-2">
+            {/* Logo */}
+            <Link href="/" className="flex items-center gap-2">
+              <img
+                src={"./lpx_logo.svg"}
+                className="h-8"
+                style={{ filter: "invert(1) grayscale(100%)" }} // This inverts the image to white
+              />
+            </Link>
+            {/* Professional Tagline */}
+            <div className="hidden lg:flex items-center">
+              <span className="text-sm text-muted-foreground">
+                Your Trusted Marketplace for Rare Collectibles
+              </span>
+            </div>
           </div>
 
           {/* Navigation and Icons */}

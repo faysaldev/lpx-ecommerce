@@ -43,6 +43,7 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
   likes?: number;
+  stockQuantity: number;
 }
 
 export interface Category {

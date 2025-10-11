@@ -1,14 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import {
-  Heart,
-  Minus,
-  Plus,
-  Share2,
-  ShoppingCart,
-  Star,
-  Zap,
-} from "lucide-react";
+import { Heart, Minus, Plus, ShoppingCart, Star, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -24,7 +16,8 @@ import { designTokens } from "@/design-system/compat";
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { useGetSingleProductQuery } from "@/redux/features/products/product";
-import ReviewAndRatingsProduct from "@/components/ReviewAndRatingsProduct/ReviewAndRatingsProduct";
+// TODO: product ratings import
+// import ReviewAndRatingsProduct from "@/components/ReviewAndRatingsProduct/ReviewAndRatingsProduct";
 import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant";
 import VendorTruncateDetails from "@/components/Vendors/SingleVendorView/VendorTruncateDetails";
 import { getImageUrl } from "@/lib/getImageURL";
@@ -503,8 +496,8 @@ const ProductDetailsPage = () => {
             />
           </div>
         ) : null}
-
-        <ReviewAndRatingsProduct idtype={idtype} />
+        {/* TODO: products ratings code hide for now */}
+        {/* <ReviewAndRatingsProduct idtype={idtype} /> */}
       </section>
     </PageLayout>
   );

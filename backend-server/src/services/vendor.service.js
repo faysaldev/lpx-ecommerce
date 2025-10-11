@@ -68,9 +68,36 @@ const searchSingleOwnerShop = async ({
 
 const getSingleVendors = async (vendorId) => {
   if (!vendorId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+    throw new ApiError(httpStatus.BAD_REQUEST, "Vendor ID is required");
   }
-  return Vendor.findById(vendorId);
+
+  // Fetch the vendor
+  const vendor = await Vendor.findById(vendorId).lean();
+  if (!vendor) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
+  }
+
+  // Calculate average rating from the Rating collection
+  const ratingAggregation = await Rating.aggregate([
+    { $match: { ratingType: "vendor", referenceId: vendor._id } },
+    {
+      $group: {
+        _id: "$referenceId",
+        averageRating: { $avg: "$rating" },
+        totalRatings: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const avgRating = ratingAggregation[0]?.averageRating || 0;
+  const totalRatings = ratingAggregation[0]?.totalRatings || 0;
+
+  // Add average rating to the vendor object
+  return {
+    ...vendor,
+    averageRating: avgRating,
+    totalRatings: totalRatings,
+  };
 };
 
 // TODO: searching vendor

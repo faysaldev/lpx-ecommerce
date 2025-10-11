@@ -10,8 +10,13 @@ export default function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <Package className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">LPX Collect</span>
+              <Link href="/" className="flex items-center gap-2">
+                <img
+                  src={"./lpx_logo.svg"}
+                  className="h-8"
+                  style={{ filter: "invert(1) grayscale(100%)" }} // This inverts the image to white
+                />
+              </Link>
             </div>
             <p className="text-muted-foreground mb-4">
               Your trusted marketplace for authentic collectibles. Connect with

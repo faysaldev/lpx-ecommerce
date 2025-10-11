@@ -11,7 +11,6 @@ import {
   Facebook,
   Globe,
   Grid3x3,
-  Heart,
   Instagram,
   LayoutList,
   Linkedin,
@@ -49,7 +48,6 @@ import {
 import VendorPageSkeleton from "@/components/Vendors/SingleVendorView/VendorPageSkeleton";
 import ReviewAndRatingsProduct from "@/components/ReviewAndRatingsProduct/ReviewAndRatingsProduct";
 import VendorTruncateDetails from "@/components/Vendors/SingleVendorView/VendorTruncateDetails";
-import Link from "next/link";
 import { useAppSelector } from "@/redux/hooks";
 import { selectCategories } from "@/redux/features/Common/CommonSlice";
 
@@ -63,7 +61,6 @@ export default function VendorStorefrontPage() {
   const idtype = { id, type };
 
   // State for UI controls
-  const [isFollowing, setIsFollowing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -168,7 +165,7 @@ export default function VendorStorefrontPage() {
             "uncategorized",
           vendor: product.vendor?.storeName || vendor?.name || "Unknown Vendor",
           vendorId: product.vendor?._id || vendorId,
-          stock: product.stockQuantity || 0,
+          stockQuantity: product.stockQuantity || 0,
           condition: product.condition || "new",
           rating: 0, // You might want to add ratings to your product schema
           reviewCount: 0,
@@ -302,16 +299,6 @@ export default function VendorStorefrontPage() {
                     {vendor.totalSales?.toLocaleString() || 0} sales •{" "}
                     {vendor.totalProducts || 0} items
                   </div>
-                  <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    Responds {vendor.responseTime || "quickly"}
-                  </div>
-                  {vendor.location && (
-                    <div className="text-xs text-muted-foreground flex items-center justify-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {vendor?.location}
-                    </div>
-                  )}
                   <div className="text-xs text-muted-foreground">
                     Member since{" "}
                     {new Date(vendor.joinedDate).toLocaleDateString("en-US", {
@@ -411,30 +398,6 @@ export default function VendorStorefrontPage() {
               )}
 
               {/* Actions */}
-              <div className="space-y-2">
-                <Button
-                  size="sm"
-                  className="w-full"
-                  onClick={() => router.push(`tel:${vendor?.phoneNumber}`)}
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Contact Seller
-                </Button>
-                {/* <Button
-                  variant="outline"
-                  onClick={() => setIsFollowing(!isFollowing)}
-                  className="w-full"
-                  size="sm"
-                >
-                  <Heart
-                    className={cn(
-                      "h-4 w-4 mr-2",
-                      isFollowing ? "fill-current text-red-500" : ""
-                    )}
-                  />
-                  {isFollowing ? "Following" : "Follow Shop"}
-                </Button> */}
-              </div>
             </div>
 
             {/* Main Content Area - Products */}
