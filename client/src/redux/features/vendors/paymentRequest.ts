@@ -23,6 +23,12 @@ const paymentRequest = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getPaymentRequestSummary: builder.query({
+      query: () => ({
+        url: `/payments/payment-request-summary`,
+        method: "GET",
+      }),
+    }),
 
     getPaymentWithDrawlElgble: builder.query({
       query: () => ({
@@ -45,4 +51,5 @@ export const {
   useGetPaymeRequestStatsQuery,
   useGetPaymentWithDrawlElgbleQuery,
   useGetSinglePaymentdetailsQuery,
+  useGetPaymentRequestSummaryQuery,
 } = paymentRequest;

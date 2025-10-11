@@ -43,9 +43,10 @@ const createNewPayRequest = catchAsync(async (req, res) => {
   //   );
   // }
   // console.log(req.body);
-  // const vendorId = await vendorService.getVendorByUserId(req.user.id);
+  const { id: vendorId } = await vendorService.getVendorByUserId(req.user.id);
   const paymentRequest = await paymentrequestService.createNewPaymentRequest({
     seller: req.user.id,
+    vendor: vendorId,
     ...req.body,
   });
 
@@ -132,6 +133,30 @@ const getWithDrawlPaymentlStats = catchAsync(async (req, res) => {
   );
 });
 
+const getpaymentRequestSummery = catchAsync(async (req, res) => {
+  if (req.user.type != "seller") {
+    res.status(httpStatus.CREATED).json(
+      response({
+        message: "Only seller can requested",
+        status: "OK",
+        statusCode: httpStatus.CREATED,
+        data: paymentRequest,
+      })
+    );
+  }
+  const paymentRequest = await paymentrequestService.getpaymentRequestSummery(
+    req.user.id
+  );
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: " WithDrawl Stats",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: paymentRequest,
+    })
+  );
+});
+
 const getSinglePaymentRequestDetails = catchAsync(async (req, res) => {
   if (req.user.type != "seller") {
     res.status(httpStatus.CREATED).json(
@@ -162,5 +187,6 @@ module.exports = {
   getEligleWithDrawl,
 
   getWithDrawlPaymentlStats,
+  getpaymentRequestSummery,
   getSinglePaymentRequestDetails,
 };

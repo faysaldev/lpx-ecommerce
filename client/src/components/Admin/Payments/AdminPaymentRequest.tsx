@@ -144,12 +144,12 @@ function AdminPaymentRequest({
                     <Clock className="mr-2 h-4 w-4" />
                     Pending Review
                   </DropdownMenuItem>
-                  <DropdownMenuItem
+                  {/* <DropdownMenuItem
                     onClick={() => handleStatusFilter("approved")}
                   >
                     <CheckCircle className="mr-2 h-4 w-4" />
                     Approved
-                  </DropdownMenuItem>
+                  </DropdownMenuItem> */}
                   <DropdownMenuItem onClick={() => handleStatusFilter("paid")}>
                     <DollarSign className="mr-2 h-4 w-4" />
                     Paid

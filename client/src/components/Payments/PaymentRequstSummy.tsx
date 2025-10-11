@@ -2,125 +2,151 @@
 import React from "react";
 import { TabsContent } from "../UI/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "../UI/card";
+// If you don't have a Skeleton component, create one at ../UI/skeleton.tsx:
+// import { cn } from "@/lib/utils";
+//
+// function Skeleton({
+//   className,
+//   ...props
+// }: React.HTMLAttributes<HTMLDivElement>) {
+//   return (
+//     <div
+//       className={cn("animate-pulse rounded-md bg-muted", className)}
+//       {...props}
+//     />
+//   );
+// }
+//
+// export { Skeleton };
+
+import { Skeleton } from "../UI/skeleton";
 import { formatCurrency } from "@/lib/utils/helpers";
+import { useGetPaymentRequestSummaryQuery } from "@/redux/features/vendors/paymentRequest";
 
-function PaymentRequstSummy() {
-  const completedOrders = [
-    { total: 100 },
-    { total: 200 },
-    { total: 300 },
-    { total: 400 },
-  ]; // Example static completedOrders data
+function PaymentRequestSummary({
+  paymentRequestStats,
+}: {
+  paymentRequestStats: any;
+}) {
+  const { data: summaryData, isLoading: isSummaryLoading } =
+    useGetPaymentRequestSummaryQuery({});
 
-  const summary = {
-    statusCounts: {
-      pending: 23,
-      approved: 234,
-      paid: 4334,
-      rejected: 23423,
-    },
-    totalAmount: 1000000,
-    totalNetAmount: 900000,
-    averageAmount: 5000,
-  };
+  // Extract data from both sources
+  const stats = paymentRequestStats?.attributes || {};
+  const summary = summaryData?.data?.attributes || {};
 
-  const paymentRequests = [
-    {
-      id: 1,
-      items: [{}, {}],
-      totalAmount: 1500,
-      requestDate: "2025-10-01",
-      status: "paid",
-    },
-    {
-      id: 2,
-      items: [{}, {}],
-      totalAmount: 2000,
-      requestDate: "2025-10-02",
-      status: "approved",
-    },
-    {
-      id: 3,
-      items: [{}, {}],
-      totalAmount: 1000,
-      requestDate: "2025-10-03",
-      status: "rejected",
-    },
-    // More mock data here
-  ];
+  // Loading state
+  if (isSummaryLoading) {
+    return (
+      <TabsContent value="summary" className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[1, 2].map((i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-48" />
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[1, 2, 3, 4].map((j) => (
+                    <div key={j} className="flex justify-between">
+                      <Skeleton className="h-5 w-32" />
+                      <Skeleton className="h-5 w-20" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </TabsContent>
+    );
+  }
 
   return (
     <TabsContent value="summary" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Payment Status Overview Card */}
         <Card>
           <CardHeader>
             <CardTitle>Payment Status Overview</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Pending Requests</span>
-                <span className="font-medium">
-                  {summary.statusCounts.pending}
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Total Requests</span>
+                <span className="font-semibold text-lg">
+                  {summary.totalRequests ?? stats.totalRequests ?? 0}
                 </span>
               </div>
-              <div className="flex justify-between">
+
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Pending Requests</span>
+                <span className="font-medium text-yellow-600">
+                  {stats.pendingRequests ?? 0}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Approved Requests</span>
                 <span className="font-medium text-green-600">
-                  {summary.statusCounts.approved}
+                  {stats.approvedRequests ?? 0}
                 </span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Paid Requests</span>
+
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">
+                  Completed Payments
+                </span>
                 <span className="font-medium text-blue-600">
-                  {summary.statusCounts.paid}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Rejected Requests</span>
-                <span className="font-medium text-red-600">
-                  {summary.statusCounts.rejected}
+                  {(stats.totalRequests ?? 0) -
+                    (stats.pendingRequests ?? 0) -
+                    (stats.approvedRequests ?? 0)}
                 </span>
               </div>
             </div>
           </CardContent>
         </Card>
 
+        {/* Financial Summary Card */}
         <Card>
           <CardHeader>
             <CardTitle>Financial Summary</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Requested</span>
-                <span className="font-medium">
-                  {formatCurrency(summary.totalAmount)}
-                </span>
-              </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Net Amount</span>
-                <span className="font-medium text-green-600">
-                  {formatCurrency(summary.totalNetAmount)}
+                <span className="font-semibold text-lg">
+                  {formatCurrency(summary.netAmount ?? 0)}
                 </span>
               </div>
-              <div className="flex justify-between">
+
+              <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">Average Request</span>
-                <span className="font-medium">
-                  {formatCurrency(summary.averageAmount)}
+                <span className="font-medium text-purple-600">
+                  {formatCurrency(
+                    parseFloat(summary.averageRequestAmount ?? "0")
+                  )}
                 </span>
               </div>
-              <div className="flex justify-between">
+
+              <div className="flex justify-between items-center">
                 <span className="text-muted-foreground">
                   Available to Request
                 </span>
-                <span className="font-medium text-blue-600">
+                <span className="font-medium text-green-600">
                   {formatCurrency(
-                    completedOrders.reduce(
-                      (sum: number, order: any) => sum + order.total,
-                      0
-                    )
+                    summary.availableToRequest ?? stats.availableWithdrawl ?? 0
                   )}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center pt-2 border-t">
+                <span className="text-muted-foreground font-medium">
+                  Available Withdrawal
+                </span>
+                <span className="font-semibold text-lg text-blue-600">
+                  {formatCurrency(stats.availableWithdrawl ?? 0)}
                 </span>
               </div>
             </div>
@@ -128,45 +154,51 @@ function PaymentRequstSummy() {
         </Card>
       </div>
 
-      {/* Recent Activity */}
+      {/* Additional Info Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <CardTitle>Request Statistics</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {paymentRequests.slice(0, 5).map((request: any) => (
-              <div
-                key={request.id}
-                className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-              >
-                <div>
-                  <p className="font-medium">{request.id}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {request.items.length} orders •{" "}
-                    {formatCurrency(request.totalAmount)}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(request.requestDate).toLocaleDateString()}
-                  </p>
-                  <p
-                    className={`text-sm font-medium ${
-                      request.status === "paid"
-                        ? "text-green-600"
-                        : request.status === "approved"
-                        ? "text-blue-600"
-                        : request.status === "rejected"
-                        ? "text-red-600"
-                        : "text-yellow-600"
-                    }`}
-                  >
-                    {request.status}
-                  </p>
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">Success Rate</p>
+              <p className="text-2xl font-bold">
+                {stats.totalRequests > 0
+                  ? Math.round(
+                      ((stats.approvedRequests ?? 0) / stats.totalRequests) *
+                        100
+                    )
+                  : 0}
+                %
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">Pending Rate</p>
+              <p className="text-2xl font-bold text-yellow-600">
+                {stats.totalRequests > 0
+                  ? Math.round(
+                      ((stats.pendingRequests ?? 0) / stats.totalRequests) * 100
+                    )
+                  : 0}
+                %
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">Total Processed</p>
+              <p className="text-2xl font-bold text-blue-600">
+                {summary.totalRequests ?? 0}
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">Available Balance</p>
+              <p className="text-2xl font-bold text-green-600">
+                {formatCurrency(stats.availableWithdrawl ?? 0)}
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -174,150 +206,4 @@ function PaymentRequstSummy() {
   );
 }
 
-export default PaymentRequstSummy;
-
-// /* eslint-disable @typescript-eslint/no-explicit-any */
-// import React from "react";
-// import { TabsContent } from "../UI/tabs";
-// import { Card, CardContent, CardHeader, CardTitle } from "../UI/card";
-// import { formatCurrency } from "@/lib/utils/helpers";
-
-// function PaymentRequstSummy({
-//   paymentRequests,
-//   summary,
-//   completedOrders,
-// }: {
-//   paymentRequests: any;
-//   summary: any;
-//   completedOrders: any;
-// }) {
-//   return (
-//     <TabsContent value="summary" className="space-y-6">
-//       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-//         <Card>
-//           <CardHeader>
-//             <CardTitle>Payment Status Overview</CardTitle>
-//           </CardHeader>
-//           <CardContent>
-//             <div className="space-y-4">
-//               <div className="flex justify-between">
-//                 <span className="text-muted-foreground">Pending Requests</span>
-//                 <span className="font-medium">
-//                   {/* {summary.statusCounts.pending} */}
-//                   23
-//                 </span>
-//               </div>
-//               <div className="flex justify-between">
-//                 <span className="text-muted-foreground">Approved Requests</span>
-//                 <span className="font-medium text-green-600">
-//                   {/* {summary.statusCounts.approved} */}
-//                   234
-//                 </span>
-//               </div>
-//               <div className="flex justify-between">
-//                 <span className="text-muted-foreground">Paid Requests</span>
-//                 <span className="font-medium text-blue-600">
-//                   {/* {summary.statusCounts.paid} */}
-//                   4334
-//                 </span>
-//               </div>
-//               <div className="flex justify-between">
-//                 <span className="text-muted-foreground">Rejected Requests</span>
-//                 <span className="font-medium text-red-600">
-//                   {/* {summary.statusCounts.rejected} */}
-//                   23423
-//                 </span>
-//               </div>
-//             </div>
-//           </CardContent>
-//         </Card>
-
-//         <Card>
-//           <CardHeader>
-//             <CardTitle>Financial Summary</CardTitle>
-//           </CardHeader>
-//           <CardContent>
-//             <div className="space-y-4">
-//               <div className="flex justify-between">
-//                 <span className="text-muted-foreground">Total Requested</span>
-//                 <span className="font-medium">
-//                   {formatCurrency(summary.totalAmount)}
-//                 </span>
-//               </div>
-//               <div className="flex justify-between">
-//                 <span className="text-muted-foreground">Net Amount</span>
-//                 <span className="font-medium text-green-600">
-//                   {formatCurrency(summary.totalNetAmount)}
-//                 </span>
-//               </div>
-//               <div className="flex justify-between">
-//                 <span className="text-muted-foreground">Average Request</span>
-//                 <span className="font-medium">
-//                   {formatCurrency(summary.averageAmount)}
-//                 </span>
-//               </div>
-//               <div className="flex justify-between">
-//                 <span className="text-muted-foreground">
-//                   Available to Request
-//                 </span>
-//                 <span className="font-medium text-blue-600">
-//                   {formatCurrency(
-//                     completedOrders.reduce(
-//                       (sum: any, order: any) => sum + order.total,
-//                       0
-//                     )
-//                   )}
-//                 </span>
-//               </div>
-//             </div>
-//           </CardContent>
-//         </Card>
-//       </div>
-
-//       {/* Recent Activity */}
-//       <Card>
-//         <CardHeader>
-//           <CardTitle>Recent Activity</CardTitle>
-//         </CardHeader>
-//         <CardContent>
-//           <div className="space-y-3">
-//             {paymentRequests.slice(0, 5).map((request: any) => (
-//               <div
-//                 key={request.id}
-//                 className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-//               >
-//                 <div>
-//                   <p className="font-medium">{request.id}</p>
-//                   <p className="text-sm text-muted-foreground">
-//                     {request.items.length} orders •{" "}
-//                     {formatCurrency(request.totalAmount)}
-//                   </p>
-//                 </div>
-//                 <div className="text-right">
-//                   <p className="text-sm text-muted-foreground">
-//                     {new Date(request.requestDate).toLocaleDateString()}
-//                   </p>
-//                   <p
-//                     className={`text-sm font-medium ${
-//                       request.status === "paid"
-//                         ? "text-green-600"
-//                         : request.status === "approved"
-//                         ? "text-blue-600"
-//                         : request.status === "rejected"
-//                         ? "text-red-600"
-//                         : "text-yellow-600"
-//                     }`}
-//                   >
-//                     {request.status}
-//                   </p>
-//                 </div>
-//               </div>
-//             ))}
-//           </div>
-//         </CardContent>
-//       </Card>
-//     </TabsContent>
-//   );
-// }
-
-// export default PaymentRequstSummy;
+export default PaymentRequestSummary;

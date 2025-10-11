@@ -193,7 +193,12 @@ export default function PaymentRequestTable({
                 <TableRow key={request._id}>
                   <TableCell>
                     <div>
-                      <p className="font-medium">{request._id}</p>
+                      <p
+                        className="font-medium truncate w-24 overflow-hidden
+                      whitespace-nowrap"
+                      >
+                        {request._id}
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         {getTimeSinceRequest(request.requestDate)}
                       </p>
@@ -203,7 +208,7 @@ export default function PaymentRequestTable({
                   {showVendorColumn && (
                     <TableCell>
                       <div>
-                        <p className="font-medium">Vendor ID</p>
+                        <p className="font-medium">Vendor</p>
                         <p className="text-sm text-muted-foreground">
                           {request.seller}
                         </p>
@@ -213,7 +218,12 @@ export default function PaymentRequestTable({
 
                   <TableCell>
                     <div>
-                      <p className="font-medium">{request.bankName}</p>
+                      <p
+                        className="font-medium truncate w-24 overflow-hidden
+                      whitespace-nowrap"
+                      >
+                        {request.bankName}
+                      </p>
                       <p className="text-sm text-muted-foreground">
                         {request.accountNumber}
                       </p>

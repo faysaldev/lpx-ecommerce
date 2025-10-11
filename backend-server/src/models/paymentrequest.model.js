@@ -13,6 +13,11 @@ const PaymentRequestSchema = new Schema(
       ref: "User",
       required: true,
     },
+    vendor: {
+      type: Schema.Types.ObjectId,
+      ref: "Vendor",
+      required: true,
+    },
 
     // Encrypted Bank Information
     bankName: {

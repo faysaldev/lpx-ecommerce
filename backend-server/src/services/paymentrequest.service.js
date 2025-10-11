@@ -165,6 +165,48 @@ const getSinglePaymentRequestDetails = async (paymentDetailsId) => {
     paidDate: paymentRequest.paidDate,
   };
 };
+const getpaymentRequestSummery = async (userId) => {
+  // Step 1: Get the vendor details for available withdrawable amount
+  const withdrawalStats = await getWithDrawlPaymentlStats(userId);
+
+  if (!withdrawalStats) {
+    throw new ApiError(
+      httpStatus.NOT_FOUND,
+      "Vendor not found or no withdrawal data."
+    );
+  }
+
+  // Step 2: Aggregate payment request details
+  const paymentSummary = await PaymentRequest.aggregate([
+    { $match: { seller: userId } }, // Filter by vendor
+    {
+      $group: {
+        _id: null, // Grouping by null to get a single summary
+        totalRequests: { $sum: 1 }, // Count total requests
+        netAmount: { $sum: "$withdrawalAmount" }, // Sum of all withdrawal amounts
+        averageRequestAmount: { $avg: "$withdrawalAmount" }, // Average withdrawal amount
+      },
+    },
+  ]);
+
+  // If no payment requests are found, return default data
+  const summary =
+    paymentSummary.length > 0
+      ? paymentSummary[0]
+      : {
+          totalRequests: 0,
+          netAmount: 0,
+          averageRequestAmount: 0,
+        };
+
+  // Step 3: Return the summary and available withdrawal amount
+  return {
+    totalRequests: summary.totalRequests,
+    netAmount: summary.netAmount,
+    averageRequestAmount: summary.averageRequestAmount.toFixed(2), // Round to 2 decimal places
+    availableToRequest: withdrawalStats.availableWithdrawl, // Available withdrawal from vendor
+  };
+};
 
 module.exports = {
   getpaymentRequest,
@@ -173,4 +215,5 @@ module.exports = {
   getEligleWithDrawl,
   getWithDrawlPaymentlStats,
   getSinglePaymentRequestDetails,
+  getpaymentRequestSummery,
 };

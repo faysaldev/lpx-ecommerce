@@ -96,10 +96,10 @@ export default function AdminPaymentManagementPage() {
             Manage vendor payment requests and process payments
           </p>
         </div>
-        <Button variant="outline" onClick={handleExportData}>
+        {/* <Button variant="outline" onClick={handleExportData}>
           <Download className="mr-2 h-4 w-4" />
           Export Data
-        </Button>
+        </Button> */}
       </div>
 
       {/* Stats Grid */}

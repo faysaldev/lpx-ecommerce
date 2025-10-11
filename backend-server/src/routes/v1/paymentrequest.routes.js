@@ -25,6 +25,10 @@ router
   .get(auth("common"), paymentRequestController.getWithDrawlPaymentlStats);
 
 router
+  .route("/payment-request-summary")
+  .get(auth("common"), paymentRequestController.getpaymentRequestSummery);
+
+router
   .route("/details/:id")
   .get(auth("common"), paymentRequestController.getSinglePaymentRequestDetails);
 
