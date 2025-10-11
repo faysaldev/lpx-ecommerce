@@ -20,16 +20,16 @@ import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Separator } from "@/components/UI/separator";
 import type { OrderStatus } from "@/lib/checkout";
-import {
-  useSingleInvoiceDownloadMutation,
-  useSingleOrderDetailsQuery,
-} from "@/redux/features/Orders/Orders";
+import { useSingleOrderDetailsQuery } from "@/redux/features/Orders/Orders";
 import OrderTimeline from "@/components/Orders/SingleOrderDetails/OrderTimeline";
 import OrderDetailsSkeleton from "@/components/Orders/SingleOrderDetails/OrderDetailsSkeleton";
 import OrderHeader from "@/components/Orders/SingleOrderDetails/OrderHeader";
 import OrderSidebarContent from "@/components/Orders/SingleOrderDetails/OrderSidebarContent";
 import SingleOrderProductCard from "@/components/Orders/SingleOrderDetails/SingleOrderProductCard";
 import OrderSummerySingle from "@/components/Orders/SingleOrderDetails/OrderSummerySingle";
+import { useAppSelector } from "@/redux/hooks";
+import { selectToken } from "@/redux/features/auth/authSlice";
+import { downloadInvoiceHealper } from "@/lib/utils/downloadInvoice";
 
 const statusConfig: Record<
   OrderStatus,
@@ -65,7 +65,7 @@ export default function OrderDetailsPage() {
   const params = useParams();
   const orderId = params?.id as string;
   const [copied, setCopied] = useState(false);
-  const [downloadInvoices] = useSingleInvoiceDownloadMutation();
+  const token = useAppSelector(selectToken);
 
   const {
     data: orderDetails,
@@ -130,9 +130,7 @@ export default function OrderDetailsPage() {
   estimatedDelivery.setDate(estimatedDelivery.getDate() + 5);
 
   const downloadInvoice = async () => {
-    const res = await downloadInvoices(orderId);
-    console.log(res);
-    toast.info("Invoice download feature coming soon!");
+    await downloadInvoiceHealper({ token: token ?? "", orderId });
   };
 
   return (

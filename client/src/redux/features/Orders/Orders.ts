@@ -41,11 +41,11 @@ const BrowseCollectibles = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Ratings"],
     }),
-    singleInvoiceDownload: builder.mutation({
+    singleInvoiceDownload: builder.query({
       query: (orderId) => ({
         url: `/orders/invoice/${orderId}`,
         method: "GET",
-        body: "",
+        responseHandler: (response) => response.blob(), // Handle the response as a Blob
       }),
     }),
   }),
@@ -58,5 +58,5 @@ export const {
   useGetHasUserPurschedQuery,
   useGetProductsOrVendorRatingQuery,
   useAddNewratingsMutation,
-  useSingleInvoiceDownloadMutation,
+  useSingleInvoiceDownloadQuery,
 } = BrowseCollectibles;

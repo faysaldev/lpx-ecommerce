@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { getImageUrl } from "@/lib/getImageURL";
 import { Package } from "lucide-react";
 import Image from "next/image";
 
@@ -18,7 +19,7 @@ export default function SingleOrderProductCard({
       <div className="w-20 h-20 bg-muted rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
         {hasImage ? (
           <Image
-            src={`/${productImage.replace(/\\/g, "/")}`}
+            src={getImageUrl(productImage)}
             alt={item.productId?.productName || "Product"}
             width={80}
             height={80}
@@ -43,7 +44,7 @@ export default function SingleOrderProductCard({
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <span>Quantity: {item.quantity}</span>
-          <span>Price: ${Number(item.price || 0).toFixed(2)}</span>
+          <span>Price: AED {Number(item.price || 0).toFixed(2)}</span>
           {item.vendorId?.storeName && (
             <span>Vendor: {item.vendorId.storeName}</span>
           )}
@@ -53,7 +54,7 @@ export default function SingleOrderProductCard({
       {/* Total Price */}
       <div className="text-right flex-shrink-0">
         <p className="font-semibold text-lg">
-          ${Number((item.quantity || 0) * (item.price || 0)).toFixed(2)}
+          AED {Number((item.quantity || 0) * (item.price || 0)).toFixed(2)}
         </p>
         <p className="text-xs text-muted-foreground">Total</p>
       </div>

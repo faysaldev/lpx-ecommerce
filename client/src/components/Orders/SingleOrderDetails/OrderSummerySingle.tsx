@@ -14,7 +14,9 @@ export default function OrderSummerySingle({
       {/* Subtotal */}
       <div className="flex justify-between text-sm">
         <span className="text-muted-foreground">Subtotal</span>
-        <span className="font-medium">${Number(subtotal || 0).toFixed(2)}</span>
+        <span className="font-medium">
+          AED {Number(subtotal || 0).toFixed(2)}
+        </span>
       </div>
 
       {/* Shipping */}
@@ -25,17 +27,9 @@ export default function OrderSummerySingle({
             {order.shipping === 0 ? (
               <span className="text-green-600">FREE</span>
             ) : (
-              `$${Number(order.shipping).toFixed(2)}`
+              `AED ${Number(order.shipping).toFixed(2)}`
             )}
           </span>
-        </div>
-      )}
-
-      {/* Tax */}
-      {order.tax !== undefined && (
-        <div className="flex justify-between text-sm">
-          <span className="text-muted-foreground">Tax</span>
-          <span className="font-medium">${Number(order.tax).toFixed(2)}</span>
         </div>
       )}
 
@@ -44,7 +38,7 @@ export default function OrderSummerySingle({
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Coupon Discount</span>
           <span className="font-medium text-green-600">
-            -${Number(order.coupon.discountAmount).toFixed(2)}
+            -AED {Number(order.coupon.discountAmount).toFixed(2)}
           </span>
         </div>
       )}
@@ -52,7 +46,7 @@ export default function OrderSummerySingle({
       {/* Total */}
       <div className="flex justify-between text-base font-bold pt-2 border-t">
         <span>Total</span>
-        <span>${Number(order.totalAmount || 0).toFixed(2)}</span>
+        <span>AED {Number(order.totalAmount || 0).toFixed(2)}</span>
       </div>
 
       {/* Order Notes */}

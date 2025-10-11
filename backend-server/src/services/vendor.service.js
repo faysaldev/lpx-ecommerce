@@ -73,6 +73,8 @@ const getSingleVendors = async (vendorId) => {
   return Vendor.findById(vendorId);
 };
 
+// TODO: searching vendor
+
 const allVendors = async ({
   page = 1,
   limit = 10,
@@ -122,62 +124,69 @@ const allVendors = async ({
     case "Z-A":
       sortOrder = { storeName: -1 }; // Z-A store names
       break;
+    case "by-ratings":
+      sortOrder = { averageRating: -1 }; // Sort by average rating (high to low)
+      break;
+    case "by-products-count":
+      sortOrder = { productsCount: -1 }; // Sort by product count (high to low)
+      break;
     default:
       sortOrder = { createdAt: -1 }; // Default: Newest first
   }
 
   try {
-    const vendors = await Vendor.find(searchQuery)
-      .skip((page - 1) * limit) // Pagination
-      .limit(limit) // Limit the number of results
-      .sort(sortOrder); // Sorting based on the sortBy parameter
+    const vendors = await Vendor.aggregate([
+      { $match: searchQuery }, // Matching vendors by the search query
+
+      // Add product count and rating calculations
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "vendor",
+          as: "products",
+        },
+      },
+      {
+        $addFields: {
+          productsCount: { $size: "$products" }, // Add product count field
+        },
+      },
+
+      {
+        $lookup: {
+          from: "ratings",
+          localField: "_id",
+          foreignField: "referenceId",
+          as: "ratings",
+        },
+      },
+      {
+        $addFields: {
+          averageRating: { $avg: "$ratings.rating" }, // Add average rating field
+        },
+      },
+
+      { $sort: sortOrder }, // Apply sorting based on the sortBy parameter
+
+      { $skip: (page - 1) * limit }, // Pagination
+      { $limit: limit }, // Limit results
+    ]);
 
     // Get the total number of vendors for pagination
     const totalVendors = await Vendor.countDocuments(searchQuery);
 
-    // Add extra fields like total sales, ratings, etc.
-    const vendorsWithDetails = await Promise.all(
-      vendors.map(async (vendor) => {
-        // Get total sales from the Order model
-        const totalSales = await Order.aggregate([
-          { $match: { vendorId: vendor._id, status: "completed" } },
-          { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
-        ]);
-
-        // Get the average rating and number of reviews
-        const vendorRatings = await Rating.aggregate([
-          { $match: { referenceId: vendor._id, ratingType: "vendor" } },
-          {
-            $group: {
-              _id: null,
-              averageRating: { $avg: "$rating" },
-              reviewCount: { $sum: 1 },
-            },
-          },
-        ]);
-
-        // Add sales, average rating, and review count to the vendor object
-        vendor.totalSales =
-          totalSales.length > 0 ? totalSales[0].totalSales : 0;
-        vendor.averageRating =
-          vendorRatings.length > 0 ? vendorRatings[0].averageRating : 0;
-        vendor.reviewCount =
-          vendorRatings.length > 0 ? vendorRatings[0].reviewCount : 0;
-
-        return vendor;
-      })
-    );
-
     // Return data with pagination info
     const totalPages = Math.ceil(totalVendors / limit);
     return {
-      vendors: vendorsWithDetails,
+      vendors,
       currentPage: page,
       totalPages,
       totalVendors,
     };
   } catch (error) {
-    return { vendor: [], currentPage: 1, totalPages: 0, totalVendors: 0 };
+    console.error("Error fetching vendors:", error);
+    return { vendors: [], currentPage: 1, totalPages: 0, totalVendors: 0 };
   }
 };
 

@@ -6,10 +6,8 @@ import {
   CheckCircle,
   ChevronDown,
   ChevronUp,
-  Clock,
   Eye,
   FileText,
-  Package,
   RefreshCw,
   Truck,
   XCircle,
@@ -21,6 +19,9 @@ import { Card, CardContent, CardHeader } from "@/components/UI/card";
 import { cn } from "@/lib/utils";
 import type { OrderStatus } from "@/lib/checkout";
 import { useState, useEffect } from "react";
+import { downloadInvoiceHealper } from "@/lib/utils/downloadInvoice";
+import { selectToken } from "@/redux/features/auth/authSlice";
+import { useAppSelector } from "@/redux/hooks";
 
 const statusConfig: Record<
   OrderStatus,
@@ -32,24 +33,21 @@ const statusConfig: Record<
   cancelled: { label: "Cancelled", icon: XCircle, color: "bg-red-500" },
 };
 
-function OrderCard({
-  order,
-  onReorder,
-}: {
-  order: any;
-  onReorder: (order: any) => void;
-}) {
+function OrderCard({ order }: { order: any; onReorder: (order: any) => void }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [mounted, setMounted] = useState(false);
   const status = statusConfig[order.status as OrderStatus];
   const StatusIcon = status?.icon;
+  const token = useAppSelector(selectToken);
+
+  const downloadInvoice = async () => {
+    await downloadInvoiceHealper({ token: token ?? "", orderId: order?._id });
+  };
 
   // Fix hydration by only rendering date on client
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  console.log(order);
 
   return (
     <Card className="overflow-hidden">
@@ -117,7 +115,7 @@ function OrderCard({
           <div className="mb-2 sm:mb-0">
             <p className="text-sm text-muted-foreground">Total Amount</p>
             <p className="text-xl font-bold">
-              ${Number(order.totalAmount || 0).toFixed(2)}
+              AED {Number(order.totalAmount || 0).toFixed(2)}
             </p>
           </div>
           <div className="flex gap-2">
@@ -127,15 +125,7 @@ function OrderCard({
                 View Details
               </Link>
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onReorder(order)}
-            >
-              <RefreshCw className="h-4 w-4 mr-1" />
-              Reorder
-            </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={downloadInvoice}>
               <FileText className="h-4 w-4 mr-1" />
               Invoice
             </Button>
@@ -149,37 +139,39 @@ function OrderCard({
                 Order Items ({order.totalItems.length})
               </h4>
               <div className="space-y-3">
-                {order.totalItems.map((item: any) => (
-                  <div
-                    key={item._id}
-                    className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg"
-                  >
-                    <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center">
-                      <img
-                        src={`${process.env.NEXT_PUBLIC_BASE_URL}${item?.productId?.images[0]})`}
-                        className="h-8 w-8"
-                      />
+                {order.totalItems.map((item: any) => {
+                  return (
+                    <div
+                      key={item._id}
+                      className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg"
+                    >
+                      <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center">
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_BASE_URL}/${item?.productId?.images[0]})`}
+                          className="h-8 w-8"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium">
+                          {item.productId?.productName || "Product"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Quantity: {item.quantity} × AED
+                          {Number(item.price || 0).toFixed(2)}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Vendor: {item.vendorId?.storeName || "N/A"}
+                        </p>
+                      </div>
+                      <p className="font-semibold">
+                        $
+                        {Number(
+                          (item.quantity || 0) * (item.price || 0)
+                        ).toFixed(2)}
+                      </p>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-medium">
-                        {item.productId?.productName || "Product"}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Quantity: {item.quantity} × $
-                        {Number(item.price || 0).toFixed(2)}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        Vendor: {item.vendorId?.storeName || "N/A"}
-                      </p>
-                    </div>
-                    <p className="font-semibold">
-                      $
-                      {Number((item.quantity || 0) * (item.price || 0)).toFixed(
-                        2
-                      )}
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
@@ -229,7 +221,7 @@ function OrderCard({
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Items Total</span>
-                    <span>${Number(order.totalAmount || 0).toFixed(2)}</span>
+                    <span>AED {Number(order.totalAmount || 0).toFixed(2)}</span>
                   </div>
                   {order.shipping !== undefined && (
                     <div className="flex justify-between">
@@ -244,20 +236,21 @@ function OrderCard({
                   {order.tax !== undefined && (
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Tax</span>
-                      <span>${Number(order.tax).toFixed(2)}</span>
+                      <span>AED {Number(order.tax).toFixed(2)}</span>
                     </div>
                   )}
                   {order.coupon?.isValid && (
                     <div className="flex justify-between text-green-600">
                       <span>Coupon Discount</span>
                       <span>
-                        -${Number(order.coupon?.discountAmount || 0).toFixed(2)}
+                        -AED{" "}
+                        {Number(order.coupon?.discountAmount || 0).toFixed(2)}
                       </span>
                     </div>
                   )}
                   <div className="flex justify-between font-semibold pt-2 border-t">
                     <span>Total Amount</span>
-                    <span>${Number(order.totalAmount || 0).toFixed(2)}</span>
+                    <span>AED {Number(order.totalAmount || 0).toFixed(2)}</span>
                   </div>
                 </div>
 

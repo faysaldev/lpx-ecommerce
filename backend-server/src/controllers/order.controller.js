@@ -87,11 +87,17 @@ const getOrderSingleDetailsInvoice = catchAsync(async (req, res) => {
       message: "Order ID is required",
     });
   }
+
+  // Fetch the invoice PDF buffer
   const invoice = await orderService.getOrderSingleDetailsInvoice(orderId);
+
   // Send the generated PDF as a download
   res.setHeader("Content-Type", "application/pdf");
-  res.setHeader("Content-Disposition", `attachment; filename=invoice-LPX.pdf`);
-  res.send(invoice);
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename=invoice-LPX-${orderId}.pdf`
+  );
+  res.send(invoice); // Send the actual buffer as response
 });
 
 module.exports = {

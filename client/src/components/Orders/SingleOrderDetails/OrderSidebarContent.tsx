@@ -156,7 +156,7 @@ export default function OrderSidebarContent({
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
               <span className="font-medium">
-                ${Number(order.total || 0).toFixed(2)}
+                AED {Number(order.total || 0).toFixed(2)}
               </span>
             </div>
             {order.shipping !== undefined && (
@@ -166,30 +166,23 @@ export default function OrderSidebarContent({
                   {order.shipping === 0 ? (
                     <span className="text-green-600">FREE</span>
                   ) : (
-                    `$${Number(order.shipping).toFixed(2)}`
+                    `AED ${Number(order.shipping).toFixed(2)}`
                   )}
                 </span>
               </div>
             )}
-            {order.tax !== undefined && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Tax</span>
-                <span className="font-medium">
-                  ${Number(order.tax).toFixed(2)}
-                </span>
-              </div>
-            )}
+
             {order.coupon?.isValid && order.coupon?.discountAmount && (
               <div className="flex justify-between text-green-600">
                 <span>Discount</span>
                 <span className="font-medium">
-                  -${Number(order.coupon.discountAmount).toFixed(2)}
+                  -AED {Number(order.coupon.discountAmount).toFixed(2)}
                 </span>
               </div>
             )}
             <div className="flex justify-between font-bold pt-2 border-t">
               <span>Total</span>
-              <span>${Number(order.totalAmount || 0).toFixed(2)}</span>
+              <span>AED {Number(order.totalAmount || 0).toFixed(2)}</span>
             </div>
           </div>
         </CardContent>

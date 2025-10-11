@@ -4,9 +4,10 @@
 import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
-import { Copy, Download, RefreshCw } from "lucide-react";
+import { Copy, Download } from "lucide-react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import { getImageUrl } from "@/lib/getImageURL";
 
 interface OrderHeaderProps {
   order: any;
@@ -27,10 +28,8 @@ export default function OrderHeader({
   order,
   status,
   StatusIcon,
-  copied,
   copyOrderNumber,
   downloadInvoice,
-  handleReorder,
 }: OrderHeaderProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -86,10 +85,6 @@ export default function OrderHeader({
 
           {/* Actions */}
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleReorder}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Reorder
-            </Button>
             <Button variant="outline" onClick={downloadInvoice}>
               <Download className="h-4 w-4 mr-2" />
               Invoice
@@ -104,7 +99,7 @@ export default function OrderHeader({
               <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center overflow-hidden">
                 {order.customer.image ? (
                   <img
-                    src={order.customer.image}
+                    src={getImageUrl(order.customer.image)}
                     alt={order.customer.name}
                     className="w-full h-full object-cover"
                   />
