@@ -16,7 +16,7 @@ router
   .route("/single/:id")
   .get(auth("common"), vendorController.getSingleVendors);
 // search the vendors with filter option
-router.route("/search").get(auth("common"), vendorController.allVendors);
+router.route("/search").get(vendorController.allVendors);
 
 // search indivual vendor with the owner id and filter with that one
 router
