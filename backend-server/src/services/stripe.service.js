@@ -6,7 +6,10 @@ const {
   vendorService,
   productService,
 } = require(".");
-const { sendNotificationEmail } = require("./email.service");
+const {
+  sendNotificationEmail,
+  sendNotificationEmailWithDelay,
+} = require("./email.service");
 const { Product, Vendor } = require("../models");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -302,46 +305,34 @@ const handleCheckoutCompleted = async (checkoutSession) => {
       updateData
     );
 
-    if (
-      !updatedOrder ||
-      !updatedOrder.totalItems ||
-      updatedOrder.totalItems.length === 0
-    ) {
-      throw new Error(
-        `Failed to update order or empty totalItems: ${order_id}`
-      );
-    }
-
     console.log(updatedOrder, "updated OrderData");
 
     // Loop through each vendor and update earnings
-    const vendorUpdatePromises = updatedOrder.totalItems.map(
-      async (orderItem) => {
-        const { vendorId, productPrice, sellerId, quantity, productId } =
-          orderItem;
+    const vendorUpdatePromises = updatedOrder.map(async (orderItem) => {
+      const { vendorId, productPrice, sellerId, quantity, productId } =
+        orderItem;
 
-        // Update vendor earnings by adding the current product price to the previous earnings
-        await vendorService.updateVendorMoneyCalculation(vendorId, {
-          totalEarnings: productPrice,
-        });
+      // Update vendor earnings by adding the current product price to the previous earnings
+      await vendorService.updateVendorMoneyCalculation(vendorId, {
+        totalEarnings: productPrice,
+      });
 
-        // Create notification for the vendor (seller)
-        const vendorNotificationData = {
-          authorId: sellerId, // Customer is the author for vendor
-          sendTo: sellerId, // Send to seller
-          transactionId: purchase_id,
-          title: "You Earned from a Sale",
-          description: `You earned ${productPrice} from the sale of your product.`,
-          type: "vendor",
-        };
+      // Create notification for the vendor (seller)
+      const vendorNotificationData = {
+        authorId: sellerId, // Customer is the author for vendor
+        sendTo: sellerId, // Send to seller
+        transactionId: purchase_id,
+        title: "You Earned from a Sale",
+        description: `You earned ${productPrice} from the sale of your product.`,
+        type: "vendor",
+      };
 
-        await productService.prodoctOrderPlaceDecreaseQuantity(
-          productId,
-          quantity
-        );
-        await notificationService.addNewNotification(vendorNotificationData);
-      }
-    );
+      await productService.prodoctOrderPlaceDecreaseQuantity(
+        productId,
+        quantity
+      );
+      await notificationService.addNewNotification(vendorNotificationData);
+    });
 
     // Wait for all vendor updates to finish
     await Promise.all(vendorUpdatePromises);
@@ -369,7 +360,12 @@ const handleCheckoutCompleted = async (checkoutSession) => {
       timestamp: new Date(),
     };
 
-    await sendNotificationEmail(customer_email || email, emailBodyCustomer);
+    // await sendNotificationEmail(customer_email || email, emailBodyCustomer);
+    await sendNotificationEmailWithDelay(
+      customer_email || email,
+      emailBodyCustomer,
+      2000
+    );
 
     const emailBodySeller = {
       username: name || "Customer",
@@ -383,12 +379,15 @@ const handleCheckoutCompleted = async (checkoutSession) => {
 
     // Ensure vendor email is fetched if `updatedOrder.totalItems` is valid and has items
     const vendorEmail =
-      updatedOrder.totalItems.length > 0
-        ? updatedOrder.totalItems[0]?.vendorId?.email
-        : null;
+      updatedOrder.length > 0 ? updatedOrder[0]?.vendorId?.email : null;
 
     if (vendorEmail) {
       await sendNotificationEmail(vendorEmail, emailBodySeller);
+      await sendNotificationEmailWithDelay(
+        vendorEmail || email,
+        emailBodySeller,
+        5000
+      );
     } else {
       console.error("Vendor email not found for the order.");
     }

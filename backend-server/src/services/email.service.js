@@ -558,6 +558,43 @@ const sendNotificationEmail = async (to, notificationData) => {
   }
 };
 
+// make a delay email function
+const sendNotificationEmailWithDelay = async (to, notificationData, delay) => {
+  try {
+    const subject = `🔔 ${notificationData.title} - LPX Collect`;
+    const html = getNotificationTemplate(notificationData);
+
+    const msg = {
+      from: config.email.from,
+      to,
+      subject,
+      html,
+    };
+
+    // Function to send email after a delay
+    const sendEmailWithDelay = () => {
+      return new Promise((resolve, reject) => {
+        setTimeout(async () => {
+          try {
+            await transport.sendMail(msg);
+            console.log(`Notification sent successfully to: ${to}`);
+            resolve();
+          } catch (error) {
+            console.error("Error sending notification email:", error);
+            reject(error);
+          }
+        }, delay); // Delay time in milliseconds (e.g., 2000ms = 2 seconds)
+      });
+    };
+
+    // Send the email with delay
+    await sendEmailWithDelay();
+  } catch (error) {
+    console.error("Error in sendNotificationEmailWithDelay:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   transport,
   sendEmail,
@@ -566,4 +603,5 @@ module.exports = {
   sendEmailVerification,
   sendWelcomeEmail,
   sendNotificationEmail,
+  sendNotificationEmailWithDelay,
 };
