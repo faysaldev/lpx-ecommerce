@@ -38,15 +38,19 @@ import {
 } from "@/components/UI/table";
 import SinglePlaymentDetailsDialogBox from "./SinglePaymentDetailsDialogBox";
 
-interface PaymentRequest {
+export interface PaymentRequest {
   _id: string;
   seller: string;
+  vendor: {
+    _id: string;
+    storeName: string;
+  };
   bankName: string;
   accountNumber: string;
-  accountType: string;
+  accountType: "savings" | "current" | string; // you can narrow this further
   phoneNumber: string;
   withdrawalAmount: number;
-  status: string;
+  status: "pending" | "approved" | "rejected" | string; // adjust as needed
   requestDate: string;
   createdAt: string;
   updatedAt: string;
@@ -209,8 +213,11 @@ export default function PaymentRequestTable({
                     <TableCell>
                       <div>
                         <p className="font-medium">Vendor</p>
-                        <p className="text-sm text-muted-foreground">
-                          {request.seller}
+                        <p
+                          className="text-sm text-muted-foreground font-medium truncate w-20 md:w-28 overflow-hidden
+                      whitespace-nowrap"
+                        >
+                          {request.vendor.storeName}
                         </p>
                       </div>
                     </TableCell>
@@ -250,7 +257,12 @@ export default function PaymentRequestTable({
 
                   <TableCell>
                     <div className="text-sm">
-                      <p>{formatDate(request.requestDate)}</p>
+                      <p
+                        className="text-sm font-medium truncate w-18 md:w-24 overflow-hidden
+                      whitespace-nowrap"
+                      >
+                        {formatDate(request.requestDate)}
+                      </p>
                       <p className="text-muted-foreground">
                         {getTimeSinceRequest(request.requestDate)}
                       </p>
@@ -258,22 +270,9 @@ export default function PaymentRequestTable({
                   </TableCell>
 
                   <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => handleViewDetails(request)}
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Details
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button onClick={() => handleViewDetails(request)}>
+                      <Eye className="" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               );

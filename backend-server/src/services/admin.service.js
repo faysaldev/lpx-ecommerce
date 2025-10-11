@@ -522,7 +522,11 @@ const getAdminAllPaymentRequests = async ({
   const paymentRequests = await PaymentRequest.find(query)
     .skip(skip)
     .limit(Number(limit))
-    .sort(sortOption);
+    .sort(sortOption)
+    .populate({
+      path: "vendor", // Populate vendor details for payment request
+      select: "storeName", // Select storeName and id of vendor
+    });
 
   // Decrypt bankName and accountNumber for each payment request
   const decryptedPaymentRequests = paymentRequests.map((request) => {
