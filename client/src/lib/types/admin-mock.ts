@@ -63,29 +63,25 @@ export interface AdminOrder {
 }
 
 export interface AdminVendor {
-  id: string;
-  _id?: string;
-  seller: string;
-  firstName: string;
-  lastName: string;
-  ownerName?: string;
+  _id: string; // the main identifier
+  seller: {
+    _id: string;
+    name: string;
+    email: string;
+    image: string;
+  };
+  ownerName: string;
   storeName: string;
   storePhoto: string;
-  email: string;
-  description: string;
   category: string;
-  website: string;
-  socialLinks: {
-    type: string;
-    username: string;
-    _id: string;
-  }[];
-  ratings: number[];
-  averageRating: number;
   status: "approved" | "pending" | "suspended";
-  verified: boolean;
+  location: string;
+  productCount: number;
+  totalSales: number;
+  totalEarnings: number;
+  totalWithDrawal: number;
+  averageRating: string; // was "0.00" in the sample, so string for now unless you convert it
   createdAt: string;
-  updatedAt: string;
 }
 
 export interface AdminActivity {
@@ -257,12 +253,12 @@ class AdminMockService {
       .sort((a, b) => {
         const dateA = new Date(this.parseRelativeTime(a.time));
         const dateB = new Date(this.parseRelativeTime(b.time));
-        
+
         // Handle invalid dates by treating them as the oldest possible
         if (isNaN(dateA.getTime()) || isNaN(dateB.getTime())) {
           return isNaN(dateA.getTime()) ? 1 : -1;
         }
-        
+
         // Sort in descending order (newest first)
         return dateB.getTime() - dateA.getTime();
       })
@@ -317,13 +313,13 @@ class AdminMockService {
     if (isNaN(date.getTime())) {
       return "Just now"; // Default to "Just now" for invalid dates
     }
-    
+
     const now = new Date();
     // Check if the date is in the future
     if (date > now) {
       return "Just now";
     }
-    
+
     const diffInHours = Math.floor(
       (now.getTime() - date.getTime()) / (1000 * 60 * 60)
     );
@@ -374,7 +370,9 @@ class AdminMockService {
         }
         // Limit to prevent date overflow
         const safeDays = Math.min(days, 365); // Limit to 1 year max
-        const resultDate = new Date(now.getTime() - safeDays * 24 * 60 * 60 * 1000);
+        const resultDate = new Date(
+          now.getTime() - safeDays * 24 * 60 * 60 * 1000
+        );
         // Ensure the date is not in the future or invalid
         if (resultDate > now) {
           return now.toISOString();

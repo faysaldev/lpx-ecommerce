@@ -133,7 +133,7 @@ export default function OrdersManagement() {
 
   // Handle view order details
   const handleViewOrder = (orderId: string) => {
-    router.push(`/admin/orders/${orderId}`);
+    router.push(`/orders/${orderId}`);
   };
 
   // Filter orders based on search query (client-side as backup)

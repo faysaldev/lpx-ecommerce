@@ -36,9 +36,66 @@ const getAllVendors = async (query) => {
 
   try {
     const vendors = await Vendor.find(filter)
+      .select(
+        "ownerName storeName storePhoto category status location productsCount totalEarnings totalWithDrawal createdAt"
+      )
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate({
+        path: "seller", // Populate seller details for vendor
+        select: "name email image",
+      })
+      .lean(); // Convert documents to plain JavaScript objects
+
+    // Populate and aggregate additional details
+    for (let vendor of vendors) {
+      // Get the total products count for each vendor
+      const productCount = await Product.countDocuments({ vendor: vendor._id });
+
+      // Get total sales from the Order model based on the vendor's products
+      const totalSales = await Order.aggregate([
+        {
+          $match: {
+            "totalItems.vendorId": vendor._id,
+            status: { $ne: "unpaid" },
+          },
+        },
+        { $unwind: "$totalItems" },
+        { $match: { "totalItems.vendorId": vendor._id } },
+        {
+          $group: {
+            _id: "$totalItems.vendorId",
+            totalSales: { $sum: "$totalItems.price" },
+          },
+        },
+      ]);
+
+      // Calculate the average ratings from the Rating model
+      const ratingsAggregation = await Rating.aggregate([
+        {
+          $match: {
+            referenceId: vendor._id, // Match ratings for the vendor
+            ratingType: "vendor", // We assume "vendor" is the rating type for vendor ratings
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            averageRating: { $avg: "$rating" }, // Calculate the average rating
+          },
+        },
+      ]);
+
+      const avgRating =
+        ratingsAggregation.length > 0 ? ratingsAggregation[0].averageRating : 0;
+
+      // Add the aggregated data to the vendor object
+      vendor.productCount = productCount;
+      vendor.totalSales = totalSales.length > 0 ? totalSales[0].totalSales : 0;
+      vendor.averageRating = avgRating.toFixed(2); // Limit rating to 2 decimal places
+    }
+
     const totalCount = await Vendor.countDocuments(filter);
 
     return {
@@ -668,53 +725,6 @@ const getAdminFinancialOverview = async () => {
 };
 
 // TODO: approve payment request with invoices
-// const approvedAdminPayment = async ({ paymentId, data }) => {
-//   try {
-//     const { note, invoiceImage, status } = data;
-
-//     // Ensure that the status is either "paid" or "rejected"
-//     if (status !== "paid" && status !== "rejected") {
-//       return "Invalid status provided";
-//     }
-
-//     // Prepare the update data object
-//     const updateData = {};
-
-//     // If the status is "paid", we expect an invoiceImage to be present, as it's required for paid status
-//     if (status === "paid" && !invoiceImage) {
-//       return "Invoice image is required when the status is 'paid'";
-//     }
-
-//     // Update the relevant fields
-//     updateData.status = status; // Set the status to "paid" or "rejected"
-//     updateData.paidDate = status === "paid" ? new Date() : null; // Set the paidDate only if status is "paid"
-
-//     if (note) {
-//       updateData.note = note; // Note is optional for both statuses
-//     }
-
-//     if (status === "paid" && invoiceImage) {
-//       updateData.invoiceImage = invoiceImage; // Invoice image is optional but required when status is "paid"
-//     }
-
-//     // Find the payment request by paymentId and update the fields
-//     const updatedPaymentRequest = await PaymentRequest.findOneAndUpdate(
-//       { _id: paymentId }, // Find the payment request by paymentId
-//       { $set: updateData }, // Update only the fields that are provided
-//       { new: true } // Return the updated document
-//     );
-
-//     if (!updatedPaymentRequest) {
-//       return "Payment request not found";
-//     }
-
-//     return updatedPaymentRequest;
-//   } catch (error) {
-//     console.error("Error updating payment request:", error);
-//     return "Error updating payment request";
-//   }
-// };
-
 const approvedAdminPayment = async ({ paymentId, data }) => {
   try {
     const { note, invoiceImage, status } = data;
