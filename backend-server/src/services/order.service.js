@@ -117,6 +117,7 @@ const editeSingleOrder = async (orderId, newData) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "Order ID is required");
   }
 
+  // Update data for the order
   const updateData = {
     status: newData.status || undefined, // Only update status if it's provided
     shippingInformation: {
@@ -151,7 +152,34 @@ const editeSingleOrder = async (orderId, newData) => {
     },
   };
 
-  return Order.findByIdAndUpdate(orderId, updateData, { new: true });
+  // Find the order by its ID and populate vendor details
+  const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, {
+    new: true,
+  }).populate({
+    path: "totalItems.vendorId",
+    select: "email seller",
+  });
+
+  if (!updatedOrder) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Order not found");
+  }
+
+  // Extract the vendor details and calculate price for each product, include productId and quantity
+  const vendorDetails = updatedOrder.totalItems.map((item) => {
+    // Calculate price for each item by multiplying the quantity with the price
+    const totalPrice = item.price * item.quantity;
+
+    return {
+      productId: item.productId, // Product ID
+      quantity: item.quantity, // Quantity of the product
+      vendorId: item.vendorId._id, // Vendor ID
+      email: item.vendorId.email, // Vendor email
+      sellerId: item.vendorId.seller, // Seller's user ID
+      productPrice: totalPrice, // Calculated price (price * quantity)
+    };
+  });
+
+  return vendorDetails;
 };
 
 const generateInvoicePDF = async (order) => {

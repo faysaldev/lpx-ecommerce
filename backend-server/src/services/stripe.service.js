@@ -1,10 +1,29 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
-const { orderService, notificationService } = require(".");
+const {
+  orderService,
+  notificationService,
+  vendorService,
+  productService,
+} = require(".");
 const { sendNotificationEmail } = require("./email.service");
 const { Product, Vendor } = require("../models");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+
+const makeEmailBodyHealper = async ({ name, purchase_id }) => {
+  const emailBody = {
+    username: name || "Customer",
+    title: `Order ${purchase_id} Confirmed`,
+    description: `We have successfully received your order. Our team is now processing your items, and we will begin shipping your products shortly. You will receive another notification once your order has shipped.`,
+    priority: "high",
+    type: "orders",
+    transactionId: purchase_id,
+    timestamp: new Date(),
+  };
+
+  return emailBody;
+};
 
 // Constants
 const ALLOWED_SHIPPING_COUNTRIES = ["AE", "US"];
@@ -150,9 +169,96 @@ const webhookPayload = async (event, req) => {
 };
 
 // Helper function to handle checkout completion
+// const handleCheckoutCompleted = async (checkoutSession) => {
+//   try {
+//     // FIX: Parse metadata values - they're now plain strings, not JSON
+//     const { order_id, customer_id, customer_email, purchase_id } =
+//       checkoutSession.metadata;
+
+//     const { address, email, name, phone } =
+//       checkoutSession.customer_details || {};
+//     const shippingDetails = checkoutSession.shipping_details;
+
+//     // Validate required data
+//     if (!order_id) {
+//       throw new Error("Order ID missing from metadata");
+//     }
+
+//     // Prepare update data
+//     const updateData = {
+//       status: "processing",
+//       shippingInformation: {
+//         name: name || "",
+//         email: email || customer_email || "",
+//         phoneNumber: phone || "",
+//         address: {
+//           line1: address?.line1 || "",
+//           line2: address?.line2 || "",
+//           city: address?.city || "",
+//           state: address?.state || "",
+//           postal_code: address?.postal_code || "",
+//           country: address?.country || "",
+//         },
+//       },
+//     };
+
+//     // Add shipping details if available
+//     if (shippingDetails) {
+//       updateData.shippingInformation.shippingDetails = shippingDetails;
+//     }
+
+//     // Update order with shipping information
+//     const updatedOrder = await orderService.editeSingleOrder(
+//       order_id, // FIX: This is now a clean string without extra quotes
+//       updateData
+//     );
+
+//     if (!updatedOrder) {
+//       throw new Error(`Failed to update order: ${order_id}`);
+//     }
+
+//     console.log(updatedOrder, "updated OrderData");
+
+//     // Create notification
+//     if (customer_id && purchase_id) {
+//       const notificationData = {
+//         authorId: customer_id,
+//         sendTo: customer_id,
+//         transactionId: purchase_id,
+//         title: "Order Placed Successfully",
+//         description: `Your order ${purchase_id} has been received and is being processed`,
+//         type: "orders",
+//       };
+
+//       await notificationService.addNewNotification(notificationData);
+//       await vendorService.updateVendorMoneyCalculation("the the vendor id", {
+//         totalEarnings: "productPrice of the each each vendor",
+//       });
+
+//       // Send email notification
+//       if (customer_email || email) {
+//         const emailBody = {
+//           username: name || "Customer",
+//           title: `Order ${purchase_id} Confirmed`,
+//           description: `We have successfully received your order. Our team is now processing your items, and we will begin shipping your products shortly. You will receive another notification once your order has shipped.`,
+//           priority: "high",
+//           type: "orders",
+//           transactionId: purchase_id,
+//           timestamp: new Date(),
+//         };
+
+//         await sendNotificationEmail(customer_email || email, emailBody);
+//       }
+//     }
+//   } catch (error) {
+//     console.error("Error handling checkout completion:", error);
+//     throw error;
+//   }
+// };
+
 const handleCheckoutCompleted = async (checkoutSession) => {
   try {
-    // FIX: Parse metadata values - they're now plain strings, not JSON
+    // Extract necessary data from checkoutSession metadata
     const { order_id, customer_id, customer_email, purchase_id } =
       checkoutSession.metadata;
 
@@ -161,11 +267,13 @@ const handleCheckoutCompleted = async (checkoutSession) => {
     const shippingDetails = checkoutSession.shipping_details;
 
     // Validate required data
-    if (!order_id) {
-      throw new Error("Order ID missing from metadata");
+    if (!order_id || !customer_id || !purchase_id) {
+      throw new Error(
+        "Order ID, Customer ID, or Purchase ID missing from metadata"
+      );
     }
 
-    // Prepare update data
+    // Prepare update data for the order
     const updateData = {
       status: "processing",
       shippingInformation: {
@@ -190,43 +298,99 @@ const handleCheckoutCompleted = async (checkoutSession) => {
 
     // Update order with shipping information
     const updatedOrder = await orderService.editeSingleOrder(
-      order_id, // FIX: This is now a clean string without extra quotes
+      order_id,
       updateData
     );
 
-    if (!updatedOrder) {
-      throw new Error(`Failed to update order: ${order_id}`);
+    if (
+      !updatedOrder ||
+      !updatedOrder.totalItems ||
+      updatedOrder.totalItems.length === 0
+    ) {
+      throw new Error(
+        `Failed to update order or empty totalItems: ${order_id}`
+      );
     }
 
     console.log(updatedOrder, "updated OrderData");
 
-    // Create notification
-    if (customer_id && purchase_id) {
-      const notificationData = {
-        authorId: customer_id,
-        sendTo: customer_id,
-        transactionId: purchase_id,
-        title: "Order Placed Successfully",
-        description: `Your order ${purchase_id} has been received and is being processed`,
-        type: "order",
-      };
+    // Loop through each vendor and update earnings
+    const vendorUpdatePromises = updatedOrder.totalItems.map(
+      async (orderItem) => {
+        const { vendorId, productPrice, sellerId, quantity, productId } =
+          orderItem;
 
-      await notificationService.addNewNotification(notificationData);
+        // Update vendor earnings by adding the current product price to the previous earnings
+        await vendorService.updateVendorMoneyCalculation(vendorId, {
+          totalEarnings: productPrice,
+        });
 
-      // Send email notification
-      if (customer_email || email) {
-        const emailBody = {
-          username: name || "Customer",
-          title: `Order ${purchase_id} Confirmed`,
-          description: `We have successfully received your order. Our team is now processing your items, and we will begin shipping your products shortly. You will receive another notification once your order has shipped.`,
-          priority: "high",
-          type: "orders",
+        // Create notification for the vendor (seller)
+        const vendorNotificationData = {
+          authorId: sellerId, // Customer is the author for vendor
+          sendTo: sellerId, // Send to seller
           transactionId: purchase_id,
-          timestamp: new Date(),
+          title: "You Earned from a Sale",
+          description: `You earned ${productPrice} from the sale of your product.`,
+          type: "vendor",
         };
 
-        await sendNotificationEmail(customer_email || email, emailBody);
+        await productService.prodoctOrderPlaceDecreaseQuantity(
+          productId,
+          quantity
+        );
+        await notificationService.addNewNotification(vendorNotificationData);
       }
+    );
+
+    // Wait for all vendor updates to finish
+    await Promise.all(vendorUpdatePromises);
+
+    // Create notification for the customer
+    const customerNotificationData = {
+      authorId: customer_id,
+      sendTo: customer_id,
+      transactionId: purchase_id,
+      title: "Order Placed Successfully",
+      description: `Your order ${purchase_id} has been received and is being processed.`,
+      type: "orders",
+    };
+
+    await notificationService.addNewNotification(customerNotificationData);
+
+    // Send email notifications to customer and seller
+    const emailBodyCustomer = {
+      username: name || "Customer",
+      title: `Order ${purchase_id} Confirmed`,
+      description: `We have successfully received your order. Our team is now processing your items, and we will begin shipping your products shortly.`,
+      priority: "high",
+      type: "orders",
+      transactionId: purchase_id,
+      timestamp: new Date(),
+    };
+
+    await sendNotificationEmail(customer_email || email, emailBodyCustomer);
+
+    const emailBodySeller = {
+      username: name || "Customer",
+      title: `New Order: ${purchase_id}`,
+      description: `You have received a new order. Please proceed with preparing the items for shipment.`,
+      priority: "high",
+      type: "orders",
+      transactionId: purchase_id,
+      timestamp: new Date(),
+    };
+
+    // Ensure vendor email is fetched if `updatedOrder.totalItems` is valid and has items
+    const vendorEmail =
+      updatedOrder.totalItems.length > 0
+        ? updatedOrder.totalItems[0]?.vendorId?.email
+        : null;
+
+    if (vendorEmail) {
+      await sendNotificationEmail(vendorEmail, emailBodySeller);
+    } else {
+      console.error("Vendor email not found for the order.");
     }
   } catch (error) {
     console.error("Error handling checkout completion:", error);

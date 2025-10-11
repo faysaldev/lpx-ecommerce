@@ -42,15 +42,6 @@ const addNewProducts = async (productsBody) => {
   return product;
 };
 
-// const addNewProducts = async (productsBody) => {
-//   if (!productsBody) {
-//     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
-//   }
-//   const vendorId = Vendor.findOne({ seller: productsBody?.authorId });
-//   console.log(vendorId);
-//   return Product.create({ ...productsBody, vendor: vendorId?._id });
-// };
-
 const productDetails = async (productsId) => {
   if (!productsId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Product ID is required");
@@ -171,78 +162,35 @@ const searchProducts = async ({
   return products;
 };
 
-// const searchProducts = async ({
-//   query,
-//   minPrice,
-//   maxPrice,
-//   condition,
-//   sortBy,
-//   page,
-//   limit,
-//   category,
-// }) => {
-//   // Construct the search query object
-//   const searchQuery = {};
+// order placed and decrease the products quantity
+const prodoctOrderPlaceDecreaseQuantity = async (productId, quantity) => {
+  if (!productId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Product ID is required");
+  }
 
-//   // Handle multiple query filters (name, tags, category, etc.)
-//   if (query) {
-//     const queryRegEx = { $regex: query, $options: "i" }; // Case-insensitive regex search
+  // Find the product by its ID
+  const product = await Product.findById(productId);
 
-//     searchQuery.$or = [
-//       { productName: queryRegEx }, // Check productName
-//       { category: queryRegEx }, // Check category
-//       { tags: { $in: query.split(",") } }, // Check tags
-//     ];
-//   }
+  if (!product) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Product not found");
+  }
 
-//   // Price range filter
-//   if (minPrice) searchQuery.price = { ...searchQuery.price, $gte: minPrice };
-//   if (maxPrice) searchQuery.price = { ...searchQuery.price, $lte: maxPrice };
+  // Ensure that the product has enough stock
+  if (product.stockQuantity < quantity) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Not enough stock available");
+  }
 
-//   // Condition filter
-//   if (condition) searchQuery.condition = condition;
+  // Decrease the stock quantity
+  product.stockQuantity -= quantity;
 
-//   // Determine sort option
-//   let sort = {};
-//   switch (sortBy) {
-//     case "lowToHigh":
-//       sort.price = 1;
-//       break;
-//     case "highToLow":
-//       sort.price = -1;
-//       break;
-//     case "A-Z":
-//       sort.productName = 1;
-//       break;
-//     case "a-z":
-//       sort.productName = -1;
-//       break;
-//     case "newestFirst":
-//     default:
-//       sort.createdAt = -1;
-//   }
+  // If stock quantity becomes zero, set inStock to false
+  if (product.stockQuantity === 0) {
+    product.inStock = false;
+  }
 
-//   // Pagination logic
-//   const skip = (page - 1) * limit;
-
-//   // Query the database with the built query object and populate vendor details
-//   const products = await Product.find(searchQuery)
-//     .populate("vendor", "storeName") // Populate the vendor's store name
-//     .select(
-//       "productName category description price stockQuantity condition images tags"
-//     ) // Select specific fields
-//     .skip(skip) // Pagination: skip to the appropriate page
-//     .limit(Number(limit)) // Limit the number of results
-//     .sort(sort) // Sorting based on user input
-//     .lean(); // Return plain JavaScript objects
-
-//   // If no products are found, throw an error
-//   if (products.length === 0) {
-//     return "No products found with the given filters.";
-//   }
-
-//   return products;
-// };
+  // Save the updated product
+  await product.save();
+};
 
 module.exports = {
   getMyProducts,
@@ -252,4 +200,5 @@ module.exports = {
   deleteProducts,
   getAllProducts,
   searchProducts,
+  prodoctOrderPlaceDecreaseQuantity,
 };

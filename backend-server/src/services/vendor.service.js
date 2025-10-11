@@ -252,6 +252,27 @@ const getVendorByUserId = async (id) => {
   return Vendor.findOne({ seller: id }).populate("_id");
 };
 
+// venorder ordercomplete money added
+const updateVendorMoneyCalculation = async (id, data) => {
+  // Find the vendor by ID
+  const vendor = await Vendor.findById(id);
+
+  // If vendor doesn't exist, throw an error
+  if (!vendor) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
+  }
+
+  // Add the new earnings to the previous totalEarnings
+  const updatedEarnings = vendor.totalEarnings + data.totalEarnings;
+
+  // Update the vendor's totalEarnings with the new value
+  return Vendor.findByIdAndUpdate(
+    id,
+    { totalEarnings: updatedEarnings },
+    { new: true }
+  );
+};
+
 module.exports = {
   getVendorByUserId,
   getVendors,
@@ -260,4 +281,5 @@ module.exports = {
   allVendors,
   getSingleVendors,
   searchSingleOwnerShop,
+  updateVendorMoneyCalculation,
 };
