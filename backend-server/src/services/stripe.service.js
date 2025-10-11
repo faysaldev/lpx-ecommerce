@@ -198,6 +198,8 @@ const handleCheckoutCompleted = async (checkoutSession) => {
       throw new Error(`Failed to update order: ${order_id}`);
     }
 
+    console.log(updatedOrder, "updated OrderData");
+
     // Create notification
     if (customer_id && purchase_id) {
       const notificationData = {
@@ -226,10 +228,6 @@ const handleCheckoutCompleted = async (checkoutSession) => {
         await sendNotificationEmail(customer_email || email, emailBody);
       }
     }
-
-    console.log(
-      `Order ${order_id} updated successfully after payment completion`
-    );
   } catch (error) {
     console.error("Error handling checkout completion:", error);
     throw error;

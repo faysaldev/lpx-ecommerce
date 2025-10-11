@@ -1,6 +1,6 @@
 const express = require("express");
 const auth = require("../../middlewares/auth");
-const { adminController } = require("../../controllers");
+const { adminController, orderController } = require("../../controllers");
 const userFileUploadMiddleware = require("../../middlewares/fileUpload");
 const convertHeicToPngMiddleware = require("../../middlewares/converter");
 
@@ -33,6 +33,12 @@ router
   .get(auth("common"), adminController.getAdminOrderStats);
 
 router.route("/all-orders").get(auth("common"), adminController.getAllOrders);
+
+// update order stats
+router
+  .route("/order-status-update/:id")
+  .patch(auth("common"), orderController.getOrderSingleStatusUpdate);
+
 // all the payment request with statitics
 
 router

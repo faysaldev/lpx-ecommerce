@@ -15,7 +15,17 @@ const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    updateOrderStatus: builder.mutation({
+      query: ({ id, status }) => ({
+        url: `/admin/order-status-update/${id}?status=${status}`,
+        method: "PATCH",
+      }),
+    }),
   }),
 });
 
-export const { useAdminOrdersStatsQuery, useSearchAdminOrdersQuery } = authApi;
+export const {
+  useAdminOrdersStatsQuery,
+  useSearchAdminOrdersQuery,
+  useUpdateOrderStatusMutation,
+} = authApi;

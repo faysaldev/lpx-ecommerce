@@ -74,6 +74,21 @@ const getOrderSingleDetails = catchAsync(async (req, res) => {
   );
 });
 
+const getOrderSingleStatusUpdate = catchAsync(async (req, res) => {
+  const ordres = await orderService.getOrderSingleStatusUpdate(
+    req.params.id,
+    req.query.status
+  );
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "the Orders",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: ordres,
+    })
+  );
+});
+
 // gotInvoice
 
 // Function to generate PDF
@@ -105,4 +120,5 @@ module.exports = {
   createOrder,
   getOrderSingleDetails,
   getOrderSingleDetailsInvoice,
+  getOrderSingleStatusUpdate,
 };

@@ -105,6 +105,12 @@ const getOrderSingleDetails = async (orderId) => {
   return order;
 };
 
+const getOrderSingleStatusUpdate = async (orderId, status) => {
+  const order = await Order.findByIdAndUpdate(orderId, { status });
+
+  return order;
+};
+
 // todo: working to stripe webhook to update all the details
 const editeSingleOrder = async (orderId, newData) => {
   if (!orderId) {
@@ -396,4 +402,5 @@ module.exports = {
   getOrderSingleDetails,
   editeSingleOrder,
   getOrderSingleDetailsInvoice,
+  getOrderSingleStatusUpdate,
 };
