@@ -78,8 +78,8 @@ export function Pagination({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-4 px-6 py-4 border-t",
-        className,
+        "flex flex-col space-y-2 sm:flex-row items-center justify-between gap-4 px-6 py-4 border-t",
+        className
       )}
     >
       {/* Left side - Items info */}
@@ -137,7 +137,9 @@ export function Pagination({
             if (page === "...") {
               return (
                 <span
-                  key={`ellipsis-before-${index > getPageNumbers().length / 2 ? "end" : "start"}`}
+                  key={`ellipsis-before-${
+                    index > getPageNumbers().length / 2 ? "end" : "start"
+                  }`}
                   className="px-2 text-muted-foreground"
                 >
                   ...

@@ -49,6 +49,8 @@ export default function PageLayout({
       ? [{ label: "Home", href: "/" }, ...breadcrumbs]
       : [];
 
+  // write the bg to gray-100
+
   return (
     <div className={cn("min-h-screen flex flex-col bg-background", className)}>
       {showHeader && <Header />}
@@ -56,13 +58,13 @@ export default function PageLayout({
       <main className="flex-grow">
         <div
           className={cn(
-            "mx-auto px-6 py-8",
+            "mx-auto px-1 sm:px-0 py-0 sm:py-8",
             !fullWidth && "max-w-7xl",
             containerClassName
           )}
         >
           {withCard ? (
-            <div className="bg-card rounded-xl border border-border shadow-lg p-8">
+            <div className="bg-card rounded-none sm:rounded-xl border border-border shadow-lg p-4 sm:p-8">
               {/* Breadcrumbs */}
               {allBreadcrumbs.length > 0 && (
                 <Breadcrumb className="mb-8">

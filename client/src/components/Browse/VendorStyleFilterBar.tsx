@@ -48,7 +48,7 @@ interface VendorStyleFilterBarProps {
   filterContent?: React.ReactNode;
   advancedFilterContent?: React.ReactNode;
   onOpenFilters?: () => void;
-    isVendorPage?:boolean;
+  isVendorPage?: boolean;
 }
 
 export function VendorStyleFilterBar({
@@ -66,7 +66,7 @@ export function VendorStyleFilterBar({
   showDesktopFilters = false,
   filterContent,
   advancedFilterContent,
-  isVendorPage
+  isVendorPage,
 }: // onOpenFilters,
 VendorStyleFilterBarProps) {
   const [isFilterExpanded, setIsFilterExpanded] = useState(false);
@@ -74,10 +74,7 @@ VendorStyleFilterBarProps) {
 
   const sortOptions = SORT_OPTIONS;
 
-
-
-  console.log(isVendorPage,"isvendor Page")
-
+  console.log(isVendorPage, "isvendor Page");
 
   return (
     <div className={cn("mb-6", className)}>
@@ -144,7 +141,7 @@ VendorStyleFilterBarProps) {
               {activeFilters.map((filter) => (
                 <span
                   key={`filter-${filter.type}-${filter.value}`}
-                  className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-xs"
+                  className="hidden sm:inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-xs"
                 >
                   {filter.label}
                   {onRemoveFilter && (
@@ -163,7 +160,7 @@ VendorStyleFilterBarProps) {
 
           {/* Search Filter Pill */}
           {!isFilterExpanded && search && (
-            <span className="inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-xs">
+            <span className="hidden sm:inline-flex items-center gap-1 px-2 py-1 bg-secondary text-secondary-foreground rounded-md text-xs">
               Search: {search}
               <button
                 type="button"
@@ -248,30 +245,30 @@ VendorStyleFilterBarProps) {
                 </span>
               </span>
             </button>
-{isSortOpen && (
-  <div className="absolute top-full mt-1 right-0 z-50 min-w-[12rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md">
-    {(Boolean(isVendorPage) ? sortOptions : sortOptions.slice(0, 3)).map(
-      (option) => (
-        <button
-          type="button"
-          key={option.value}
-          onClick={() => {
-            onSortChange(option.value as SortOption);
-            setIsSortOpen(false);
-          }}
-          className={cn(
-            "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground",
-            sortOption === option.value &&
-              "bg-accent text-accent-foreground"
-          )}
-        >
-          {option.label}
-        </button>
-      )
-    )}
-  </div>
-)}
-
+            {isSortOpen && (
+              <div className="absolute top-full mt-1 right-0 z-50 min-w-[12rem] overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-md">
+                {(Boolean(isVendorPage)
+                  ? sortOptions
+                  : sortOptions.slice(0, 3)
+                ).map((option) => (
+                  <button
+                    type="button"
+                    key={option.value}
+                    onClick={() => {
+                      onSortChange(option.value as SortOption);
+                      setIsSortOpen(false);
+                    }}
+                    className={cn(
+                      "relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground",
+                      sortOption === option.value &&
+                        "bg-accent text-accent-foreground"
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

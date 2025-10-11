@@ -288,31 +288,10 @@ function BrowsePageContent() {
       }
       breadcrumbs={[{ label: "Browse Collectibles" }]}
     >
-      {/* Mobile Filter Button */}
-      <div className="flex justify-end mb-8 lg:hidden">
-        <MobileFilterSheet
-          filters={filters}
-          onUpdateFilter={updateFilter}
-          onClearFilters={clearFilters}
-          categories={categories}
-          products={products}
-        >
-          <Button variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-            {activeFilterCount > 0 && (
-              <span className="ml-2 bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-xs">
-                {activeFilterCount}
-              </span>
-            )}
-          </Button>
-        </MobileFilterSheet>
-      </div>
-
       {/* Search and Controls */}
       <div className="mb-6">
         <VendorStyleFilterBar
-        isVendorPage={false}
+          isVendorPage={false}
           search={filters.search}
           onSearchChange={(value: any) => updateFilter("search", value)}
           sortOption={sortOption}
