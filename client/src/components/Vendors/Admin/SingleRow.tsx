@@ -15,7 +15,6 @@ import { Calendar } from "antd";
 import {
   CheckCircle,
   Eye,
-  Mail,
   MapPin,
   MoreHorizontal,
   Star,

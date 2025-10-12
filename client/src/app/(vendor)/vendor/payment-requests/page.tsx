@@ -34,7 +34,6 @@ import {
 } from "@/redux/features/vendors/paymentRequest";
 import PaymentRequestLoader from "@/components/Payments/PaymentRequestLoader";
 import PaymentRequstSummy from "@/components/Payments/PaymentRequstSummy";
-import { mockVendorOrders } from "@/lib/mockdata";
 
 export default function VendorPaymentRequestsPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -53,7 +52,7 @@ export default function VendorPaymentRequestsPage() {
     isLoading,
     refetch,
   } = useMyPaymentRequestQuery({
-    search: "",
+    search: searchQuery,
     page,
     status: statusFilter,
     sort: sortBy,

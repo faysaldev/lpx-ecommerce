@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/UI/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../UI/dialog";
 import { Textarea } from "@/components/UI/textarea";
 import { Label } from "@/components/UI/label";
-import { Star, User, X } from "lucide-react";
+import { Star, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/UI/avatar";
 import { Badge } from "@/components/UI/badge";
 import { toast } from "sonner";
@@ -60,6 +60,7 @@ export default function ReviewModal({
       toast.success("Review submitted successfully!");
       handleClose();
     } catch (error) {
+      console.error(error);
       toast.error("Failed to submit review. Please try again.");
     } finally {
       setIsSubmitting(false);

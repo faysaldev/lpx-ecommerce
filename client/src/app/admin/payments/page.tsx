@@ -1,23 +1,10 @@
 "use client";
-import {
-  CheckCircle,
-  Clock,
-  CreditCard,
-  DollarSign,
-  Download,
-} from "lucide-react";
+import { CheckCircle, Clock, CreditCard, DollarSign } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
-import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/UI/tabs";
 import PaymentApprovalDialog from "@/components/Payments/PaymentApprovalDialog";
-import type {
-  PaymentRequest,
-  PaymentRequestStats,
-  VendorPaymentSummary,
-} from "@/lib/payment-request";
-import { formatCurrency } from "@/lib/utils/helpers";
+import type { PaymentRequest } from "@/lib/payment-request";
 import AdminPaymentAnalytics from "@/components/Admin/Payments/AdminPaymentAnalytics";
 import PaymentVendorAnalysis from "@/components/Admin/Payments/PaymentVendorAnalysis";
 import AdminPaymentRequest from "@/components/Admin/Payments/AdminPaymentRequest";
@@ -42,12 +29,6 @@ export default function AdminPaymentManagementPage() {
   const handleApprovalUpdate = () => {
     setShowApprovalDialog(false);
     setSelectedRequest(null);
-  };
-
-  const handleExportData = () => {
-    toast.info("Export functionality", {
-      description: "Export feature would be implemented here",
-    });
   };
 
   // Dynamically set stats from the paymentManageMentStats data
@@ -105,7 +86,7 @@ export default function AdminPaymentManagementPage() {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {dashboardStats.map((stat, _index) => (
-          <Card key={stat.title}>
+          <Card key={_index}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>

@@ -3,7 +3,7 @@
 import { Heart, Minus, Plus, ShoppingCart, Star, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import PageLayout from "@/components/layout/PageLayout";
 import {
   ConditionBadge,
@@ -108,10 +108,10 @@ const ImageMagnifier = ({
 };
 
 const ProductDetailsPage = () => {
-  const type = "product";
+  // const type = "product";
   const { id }: any = useParams();
 
-  const idtype = { id, type };
+  // const idtype = { id, type };
 
   const { data, isLoading, isError } = useGetSingleProductQuery(id);
 
@@ -202,7 +202,6 @@ const ProductDetailsPage = () => {
         vendorId: product?.vendorId,
       },
     ];
-    console.log("pyment data show ", data);
     try {
       const res = await payment(data);
       if (res?.data?.code === 200) {

@@ -18,7 +18,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/UI/button";
 import {
   Tooltip,
@@ -28,6 +28,9 @@ import {
 } from "@/components/UI/tooltip";
 // import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import { cn } from "@/lib/utils";
+import { useAllCategoriesQuery } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
+import { useAppDispatch } from "@/redux/hooks";
+import { setAllCategories } from "@/redux/features/Common/CommonSlice";
 
 const adminNavItems = [
   {
@@ -77,6 +80,13 @@ function AdminLayoutContent({ children }: { children: ReactNode }) {
   const pathname: string | null = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const { data: categoriesData, isLoading: categoriesLoading } =
+    useAllCategoriesQuery({});
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(setAllCategories(categoriesData?.data?.attributes || null));
+  }, [categoriesData]);
 
   return (
     <div className="min-h-screen bg-background">

@@ -7,21 +7,16 @@ import {
   ExternalLink,
   Facebook,
   Globe,
-  Heart,
   Instagram,
   MapPin,
-  MessageCircle,
   Package,
   Star,
   Store,
   Twitter,
   Users,
-  X,
 } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/UI/badge";
-import { Button } from "@/components/UI/button";
-import { cn } from "@/lib/utils";
 function LeftSidebarVendorInfo({ vendor }: { vendor: any }) {
   return (
     <div className="lg:w-80 w-full space-y-4 lg:sticky lg:top-4 lg:self-start">
@@ -157,28 +152,6 @@ function LeftSidebarVendorInfo({ vendor }: { vendor: any }) {
           </div>
         </div>
       )}
-
-      {/* Actions */}
-      <div className="space-y-2">
-        <Button className="w-full" size="sm">
-          <MessageCircle className="h-4 w-4 mr-2" />
-          Contact Seller
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => setIsFollowing(!isFollowing)}
-          className="w-full"
-          size="sm"
-        >
-          <Heart
-            className={cn(
-              "h-4 w-4 mr-2",
-              isFollowing ? "fill-current text-red-500" : ""
-            )}
-          />
-          {isFollowing ? "Following" : "Follow Shop"}
-        </Button>
-      </div>
     </div>
   );
 }

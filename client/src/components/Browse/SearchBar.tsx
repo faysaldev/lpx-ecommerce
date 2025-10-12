@@ -94,17 +94,6 @@ export function SearchBar({
     return <ArrowUpDown className="h-3 w-3" />;
   };
 
-  const _getViewIcon = (mode: ViewMode) => {
-    switch (mode) {
-      case "grid":
-        return <Grid3x3 className="h-4 w-4" />;
-      case "list":
-        return <LayoutList className="h-4 w-4" />;
-      default:
-        return <Grid3x3 className="h-4 w-4" />;
-    }
-  };
-
   return (
     <div className={cn("flex items-center gap-3", className)}>
       {/* Search Input */}

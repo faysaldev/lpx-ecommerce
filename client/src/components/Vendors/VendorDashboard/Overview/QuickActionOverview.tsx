@@ -12,25 +12,15 @@ import { DollarSign, Eye, Package, Plus, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-interface Customer {
-  name: string;
-  avatar: string;
-}
-
-interface Order {
-  id: string;
-  customer: Customer;
-  total: number;
-  status: string;
-  createdAt: string;
-}
-
-function QuickActionOverview({ AllStats, AllRecentOrders, setActiveTab, }: {
+function QuickActionOverview({
+  AllStats,
+  AllRecentOrders,
+  setActiveTab,
+}: {
   setActiveTab: any;
   AllStats: any;
-  AllRecentOrders: any
+  AllRecentOrders: any;
 }) {
-  console.log("all data get quic Action overivew ",AllStats)
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card>
@@ -97,65 +87,71 @@ function QuickActionOverview({ AllStats, AllRecentOrders, setActiveTab, }: {
           <CardDescription>Latest customer orders</CardDescription>
         </CardHeader>
         <CardContent>
-        {AllRecentOrders.length === 0 ? (
-  <div className="text-center py-8">
-    <ShoppingCart className="h-8 w-8 mx-auto mb-4 text-muted-foreground/50" />
-    <p className="text-sm text-muted-foreground">No recent orders</p>
-  </div>
-) : (
-  <div className="space-y-3">
-    {AllRecentOrders.slice(0, 3).map((order:any) => (
-      <div
-        key={order.orderMongoId} // changed from order.id to order.orderMongoId
-        className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-      >
-        <div className="flex items-center gap-3">
-          <Image
-            src={order.userImage ? `${process.env.NEXT_PUBLIC_BASE_URL}${order.userImage}` : ''} // changed from order.customer.avatar to order.userImage
-            alt={order.userName} // changed from order.customer.name to order.userName
-            width={32}
-            height={32}
-            className="w-8 h-8 rounded-full"
-          />
-          <div>
-            <p className="font-medium text-sm">
-              {order.userName} {/* changed from order.customer.name */}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {order.orderId} {/* changed from order.id to order.orderId */}
-            </p>
-          </div>
-        </div>
-        <div className="text-right">
-          <p className="font-medium text-sm">AED {order.price}</p> {/* changed from order.total to order.price */}
-          <Badge
-            className={
-              order.status === "completed"
-                ? "bg-green-100 text-green-800"
-                : order.status === "pending"
-                ? "bg-yellow-100 text-yellow-800"
-                : order.status === "processing"
-                ? "bg-blue-100 text-blue-800"
-                : order.status === "delivered" // added "delivered" check
-                ? "bg-purple-100 text-purple-800"
-                : ""
-            }
-          >
-            {order.status}
-          </Badge>
-        </div>
-      </div>
-    ))}
-    <Button
-      variant="outline"
-      className="w-full mt-3"
-      onClick={() => setActiveTab("orders")}
-    >
-      View All Orders
-    </Button>
-  </div>
-)}
-
+          {AllRecentOrders.length === 0 ? (
+            <div className="text-center py-8">
+              <ShoppingCart className="h-8 w-8 mx-auto mb-4 text-muted-foreground/50" />
+              <p className="text-sm text-muted-foreground">No recent orders</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {AllRecentOrders.slice(0, 3).map((order: any) => (
+                <div
+                  key={order.orderMongoId} // changed from order.id to order.orderMongoId
+                  className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                >
+                  <div className="flex items-center gap-3">
+                    <Image
+                      src={
+                        order.userImage
+                          ? `${process.env.NEXT_PUBLIC_BASE_URL}${order.userImage}`
+                          : ""
+                      } // changed from order.customer.avatar to order.userImage
+                      alt={order.userName} // changed from order.customer.name to order.userName
+                      width={32}
+                      height={32}
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <div>
+                      <p className="font-medium text-sm">
+                        {order.userName}{" "}
+                        {/* changed from order.customer.name */}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {order.orderId}{" "}
+                        {/* changed from order.id to order.orderId */}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-medium text-sm">AED {order.price}</p>{" "}
+                    {/* changed from order.total to order.price */}
+                    <Badge
+                      className={
+                        order.status === "completed"
+                          ? "bg-green-100 text-green-800"
+                          : order.status === "pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : order.status === "processing"
+                          ? "bg-blue-100 text-blue-800"
+                          : order.status === "delivered" // added "delivered" check
+                          ? "bg-purple-100 text-purple-800"
+                          : ""
+                      }
+                    >
+                      {order.status}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+              <Button
+                variant="outline"
+                className="w-full mt-3"
+                onClick={() => setActiveTab("orders")}
+              >
+                View All Orders
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

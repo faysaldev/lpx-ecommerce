@@ -4,12 +4,10 @@
 import {
   ArrowRight,
   Clock,
-  CreditCard,
   Heart,
   Settings,
   ShoppingBag,
   Star,
-  Truck,
 } from "lucide-react";
 import Link from "next/link";
 import PageLayout from "@/components/layout/PageLayout";

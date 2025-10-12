@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  Button,
-  buttonVariants,
-} from "@/components/UI/button";
+import { Button } from "@/components/UI/button";
 import {
   Card,
   CardContent,

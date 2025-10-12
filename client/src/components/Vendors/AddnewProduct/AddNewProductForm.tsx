@@ -6,11 +6,9 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import * as z from "zod";
 
 import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
-import { Checkbox } from "@/components/UI/checkbox";
 import { Input } from "@/components/UI/input";
 import { Label } from "@/components/UI/label";
 import { RadioGroup, RadioGroupItem } from "@/components/UI/radio-group";
@@ -21,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/UI/select";
-import { Separator } from "@/components/UI/separator";
 import { Textarea } from "@/components/UI/textarea";
 import {
   useDraftsCreateMutation,

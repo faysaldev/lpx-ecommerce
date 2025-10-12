@@ -6,7 +6,6 @@ import {
   CheckCircle,
   ChevronDown,
   ChevronUp,
-  Clock,
   ExternalLink,
   Facebook,
   Globe,
@@ -14,8 +13,6 @@ import {
   Instagram,
   LayoutList,
   Linkedin,
-  MapPin,
-  MessageCircle,
   Package,
   Search,
   Shield,
@@ -27,14 +24,13 @@ import {
   X,
 } from "lucide-react";
 import Image from "next/image";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import PageLayout from "@/components/layout/PageLayout";
 import { EmptyStates } from "@/components/shared/EmptyState";
 import ProductCard from "@/components/shared/ProductCard";
 import { Badge } from "@/components/UI/badge";
-import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
 import { productStyles } from "@/components/UI/product.variants";
 import { Skeleton } from "@/components/UI/skeleton";
@@ -70,7 +66,6 @@ export default function VendorStorefrontPage() {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
     null
   );
-  const router = useRouter();
   const categories = useAppSelector(selectCategories);
 
   // Sort options
@@ -205,6 +200,7 @@ export default function VendorStorefrontPage() {
 
   const handleBuyNow = (product: Product) => {
     toast.info("Buy now functionality coming soon!");
+    console.log(product);
   };
 
   const handleShare = (product: Product) => {

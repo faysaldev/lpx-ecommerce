@@ -2,23 +2,6 @@
 import React from "react";
 import { TabsContent } from "../UI/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "../UI/card";
-// If you don't have a Skeleton component, create one at ../UI/skeleton.tsx:
-// import { cn } from "@/lib/utils";
-//
-// function Skeleton({
-//   className,
-//   ...props
-// }: React.HTMLAttributes<HTMLDivElement>) {
-//   return (
-//     <div
-//       className={cn("animate-pulse rounded-md bg-muted", className)}
-//       {...props}
-//     />
-//   );
-// }
-//
-// export { Skeleton };
-
 import { Skeleton } from "../UI/skeleton";
 import { formatCurrency } from "@/lib/utils/helpers";
 import { useGetPaymentRequestSummaryQuery } from "@/redux/features/vendors/paymentRequest";

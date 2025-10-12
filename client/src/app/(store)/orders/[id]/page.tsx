@@ -3,13 +3,11 @@
 import {
   ArrowLeft,
   CheckCircle,
-  Clock,
   Package,
   RefreshCw,
   Truck,
   XCircle,
 } from "lucide-react";
-import jsPDF from "jspdf";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
@@ -19,7 +17,6 @@ import { EmptyStates } from "@/components/shared/EmptyState";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Separator } from "@/components/UI/separator";
-import type { OrderStatus } from "@/lib/checkout";
 import { useSingleOrderDetailsQuery } from "@/redux/features/Orders/Orders";
 import OrderTimeline from "@/components/Orders/SingleOrderDetails/OrderTimeline";
 import OrderDetailsSkeleton from "@/components/Orders/SingleOrderDetails/OrderDetailsSkeleton";
@@ -30,6 +27,8 @@ import OrderSummerySingle from "@/components/Orders/SingleOrderDetails/OrderSumm
 import { useAppSelector } from "@/redux/hooks";
 import { selectToken } from "@/redux/features/auth/authSlice";
 import { downloadInvoiceHealper } from "@/lib/utils/downloadInvoice";
+
+type OrderStatus = "conformed" | "shipped" | "delivered" | "cancelled";
 
 const statusConfig: Record<
   OrderStatus,
