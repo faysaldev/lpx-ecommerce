@@ -17,11 +17,11 @@ import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader } from "@/components/UI/card";
 import { cn } from "@/lib/utils";
-import type { OrderStatus } from "@/lib/checkout";
 import { useState, useEffect } from "react";
 import { downloadInvoiceHealper } from "@/lib/utils/downloadInvoice";
 import { selectToken } from "@/redux/features/auth/authSlice";
 import { useAppSelector } from "@/redux/hooks";
+import { OrderStatus } from "@/lib/types";
 
 const statusConfig: Record<
   OrderStatus,

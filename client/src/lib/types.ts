@@ -1,6 +1,7 @@
 // API Types and Interfaces for the data layer abstraction
 
-import { OrderStatus } from "./checkout";
+export type OrderStatus = "conformed" | "shipped" | "delivered" | "cancelled";
+
 import { PaymentRequestItem, PaymentRequestStatus } from "./payment-request";
 
 export interface Product {

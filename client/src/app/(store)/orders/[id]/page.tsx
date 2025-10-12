@@ -27,8 +27,7 @@ import OrderSummerySingle from "@/components/Orders/SingleOrderDetails/OrderSumm
 import { useAppSelector } from "@/redux/hooks";
 import { selectToken } from "@/redux/features/auth/authSlice";
 import { downloadInvoiceHealper } from "@/lib/utils/downloadInvoice";
-
-type OrderStatus = "conformed" | "shipped" | "delivered" | "cancelled";
+import { OrderStatus } from "@/lib/types";
 
 const statusConfig: Record<
   OrderStatus,

@@ -22,11 +22,6 @@ import {
 } from "@/components/UI/card";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/UI/tabs";
-import {
-  mockVendorAnalytics,
-  mockVendorOrders,
-  mockVendorProducts,
-} from "@/lib/mockdata";
 import { StatsOverview } from "@/components/Vendors/VendorDashboard/Overview/StatsOverview";
 import RecentOrderOverview from "@/components/Vendors/VendorDashboard/Overview/RecentOrderOverview";
 import QuickActionOverview from "@/components/Vendors/VendorDashboard/Overview/QuickActionOverview";
@@ -34,29 +29,19 @@ import { OrdersTable } from "@/components/Vendors/VendorDashboard/Order/OrdersTa
 import AnalysisSection from "@/components/Vendors/VendorDashboard/Analysis/AnalysisSection";
 import VendorProductSection from "@/components/Vendors/VendorDashboard/Products/VendorProductSection";
 import { SortOption } from "@/lib/browse-utils";
-import { useVendorDashboardOverviewQuery, useVendorToSellingQuery } from "@/redux/features/vendors/VendorDashboard";
-
-const initialDashboardData = {
-  analytics: mockVendorAnalytics,
-  recentOrders: mockVendorOrders.slice(0, 5).map((order: any) => ({
-    ...order,
-    createdAt: order.orderDate,
-    updatedAt: order.orderDate,
-    orderNumber: order.orderNumber,
-  })), // Get the 5 most recent orders
-  topProducts: mockVendorAnalytics.topProducts,
-  messages: [],
-};
+import {
+  useVendorDashboardOverviewQuery,
+  useVendorToSellingQuery,
+} from "@/redux/features/vendors/VendorDashboard";
 
 type ProductStatus = "all" | "active" | "draft" | "sold" | "out_of_stock";
 
 const VendorDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("products");
-  const [products, setProducts] = useState(mockVendorProducts);
+  const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<ProductStatus>("all");
   const [sortOption, setSortOption] = useState<SortOption>("newest");
-  const dashboard = initialDashboardData;
 
   // Calculate stats from products (already provided by mockVendorAnalytics)
   const productStats = {
@@ -69,64 +54,61 @@ const VendorDashboardPage = () => {
     ).length,
   };
 
-  // Update dashboard analytics with real product stats
-  dashboard.analytics.products = productStats;
-
   // Filter and sort products
-  useEffect(() => {
-    let filtered = [...products];
+  // useEffect(() => {
+  //   let filtered = [...products];
 
-    // Apply status filter
-    if (statusFilter !== "all") {
-      if (statusFilter === "out_of_stock") {
-        filtered = filtered.filter(
-          (p) => p.stock === 0 && p.status === "active"
-        );
-      } else {
-        filtered = filtered.filter((p) => p.status === statusFilter);
-      }
-    }
+  //   // Apply status filter
+  //   if (statusFilter !== "all") {
+  //     if (statusFilter === "out_of_stock") {
+  //       filtered = filtered.filter(
+  //         (p) => p.stock === 0 && p.status === "active"
+  //       );
+  //     } else {
+  //       filtered = filtered.filter((p) => p.status === statusFilter);
+  //     }
+  //   }
 
-    // Apply search filter
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query) ||
-          p.description.toLowerCase().includes(query) ||
-          p.category.toLowerCase().includes(query)
-      );
-    }
+  //   // Apply search filter
+  //   if (searchQuery) {
+  //     const query = searchQuery.toLowerCase();
+  //     filtered = filtered.filter(
+  //       (p) =>
+  //         p.name.toLowerCase().includes(query) ||
+  //         p.description.toLowerCase().includes(query) ||
+  //         p.category.toLowerCase().includes(query)
+  //     );
+  //   }
 
-    // Apply sorting
-    switch (sortOption) {
-      case "price-asc":
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case "name-asc":
-        filtered.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      default:
-        filtered.sort(
-          (a, b) =>
-            new Date(b.dateCreated || 0).getTime() -
-            new Date(a.dateCreated || 0).getTime()
-        );
-        break;
-    }
-  }, [products, statusFilter, searchQuery, sortOption]);
+  //   // Apply sorting
+  //   switch (sortOption) {
+  //     case "price-asc":
+  //       filtered.sort((a, b) => a.price - b.price);
+  //       break;
+  //     case "price-desc":
+  //       filtered.sort((a, b) => b.price - a.price);
+  //       break;
+  //     case "name-asc":
+  //       filtered.sort((a, b) => a.name.localeCompare(b.name));
+  //       break;
+  //     default:
+  //       filtered.sort(
+  //         (a, b) =>
+  //           new Date(b.dateCreated || 0).getTime() -
+  //           new Date(a.dateCreated || 0).getTime()
+  //       );
+  //       break;
+  //   }
+  // }, [products, statusFilter, searchQuery, sortOption]);
 
-  const { data:VendorDashboardStats,  } =useVendorDashboardOverviewQuery({});
-  
+  const { data: VendorDashboardStats } = useVendorDashboardOverviewQuery({});
+
   const AllStats = VendorDashboardStats?.data?.stats;
   const AllRecentOrders = VendorDashboardStats?.data?.recentOrders;
-  
-  const {data:vendorTopSelling} = useVendorToSellingQuery({});
+
+  const { data: vendorTopSelling } = useVendorToSellingQuery({});
   const allTopSelling = vendorTopSelling?.data?.attributes;
-  console.log('top selling page data show', allTopSelling);
+  console.log("top selling page data show", allTopSelling);
 
   return (
     // <ProtectedRoute>
@@ -197,7 +179,7 @@ const VendorDashboardPage = () => {
               <CardDescription>Latest customer orders</CardDescription>
             </CardHeader>
             <CardContent>
-              <OrdersTable  />
+              <OrdersTable />
             </CardContent>
           </Card>
         </TabsContent>
@@ -212,6 +194,6 @@ const VendorDashboardPage = () => {
     </PageLayout>
     // </ProtectedRoute>
   );
-}
+};
 
-export default VendorDashboardPage ; 
+export default VendorDashboardPage;
