@@ -60,7 +60,6 @@
     "react-share": "^5.2.2",
     "recharts": "^3.2.1",
     "redux-persist": "^6.0.0",
-    "simple-image-magnifier": "^1.1.4",
     "sonner": "^2.0.7",
     "sweetalert2": "^11.23.0",
     "tailwind-merge": "^3.3.1",
