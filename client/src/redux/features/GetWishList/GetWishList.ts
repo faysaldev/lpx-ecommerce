@@ -7,6 +7,7 @@ const GetWishList = baseApi.injectEndpoints({
         url: "wishlists/my-wishlist",
         method: "GET",
       }),
+      providesTags: ["my_wishList"],
     }),
     AllDeleteWishList: builder.mutation({
       query: () => ({
@@ -21,7 +22,7 @@ const GetWishList = baseApi.injectEndpoints({
         method: "POST",
         body: withlistBody,
       }),
-      invalidatesTags: ["New_Category"],
+      invalidatesTags: ["my_wishList", "header_statics"],
     }),
   }),
 });

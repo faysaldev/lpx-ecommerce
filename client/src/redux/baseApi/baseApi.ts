@@ -31,6 +31,9 @@ export const baseApi = createApi({
     "General_Settings",
     "Condition",
     "Coupon",
+    "header_statics",
+    "my_wishList",
+    "my_cartList",
   ],
   endpoints: () => ({}),
 });

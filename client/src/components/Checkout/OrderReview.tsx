@@ -17,14 +17,14 @@ import {
   SecondaryButton,
 } from "@/components/UI/button.variants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/UI/checkbox";
 import { Separator } from "@/components/UI/separator";
 import { Textarea } from "@/components/UI/textarea";
 // import { useCart } from "@/context/CartContext";
 import { useCheckout } from "@/context/CheckoutContext";
 import { cn } from "@/lib/utils";
 import type { BillingAddress, ShippingAddress } from "@/lib/checkout";
-import { Label } from "../UI/label";
+import { Label } from "@/components/UI/label";
 
 const OrderReview = () => {
   const {

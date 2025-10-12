@@ -17,7 +17,6 @@ import OrderReview from "@/components/Checkout/OrderReview";
 import PaymentForm from "@/components/Checkout/PaymentForm";
 import ShippingForm from "@/components/Checkout/ShippingForm";
 import { cn } from "@/lib/utils";
-import { CheckoutStep } from "@/lib/checkout";
 
 const items = [
   {
@@ -111,35 +110,7 @@ function CheckoutContent() {
     );
   }
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case "shipping":
-        return <ShippingForm />;
-      case "billing":
-        return <BillingForm />;
-      case "payment":
-        return <PaymentForm />;
-      case "review":
-        return <OrderReview />;
-      default:
-        return <ShippingForm />;
-    }
-  };
 
-  const getStepTitle = () => {
-    // switch (currentStep) {
-    //   case "shipping":
-    //     return "Shipping Information";
-    //   case "billing":
-    //     return "Billing Information";
-    //   case "payment":
-    //     return "Payment Method";
-    //   case "review":
-    //     return "Review & Place Order";
-    //   default:
-    //     return "Checkout";
-    // }
-  };
 
   const breadcrumbs = [{ label: "Cart", href: "/cart" }, { label: "Checkout" }];
 

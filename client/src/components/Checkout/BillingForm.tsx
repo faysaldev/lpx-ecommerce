@@ -9,7 +9,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "@/components/UI/button.variants";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/UI/checkbox";
 import { Input } from "@/components/UI/input";
 import {
   Select,
@@ -20,7 +20,7 @@ import {
 } from "@/components/UI/select";
 import { useCheckout } from "@/context/CheckoutContext";
 import type { BillingAddress } from "@/lib/checkout";
-import { Label } from "../UI/label";
+import { Label } from "@/components/UI/label";
 
 const billingSchema = z.object({
   firstName: z.string().min(1, "First name is required"),

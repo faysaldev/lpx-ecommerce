@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { Filter } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -9,9 +10,10 @@ import { Category, Product } from "@/lib/types";
 import { useBrowseFilters } from "@/hooks/useBrowseFilters";
 import PageLayout from "@/components/layout/PageLayout";
 import { EmptyStates } from "@/components/shared/EmptyState";
+import { MobileFilterSheet } from "@/components/Browse/FilterSidebar";
 import { VendorStyleFilterBar } from "@/components/Browse/VendorStyleFilterBar";
 import { ProductGrid } from "@/components/Browse/ProductGrid";
-import { CONDITIONS, type SortOption, type ViewMode } from "@/lib/browse-utils";
+import { CONDITIONS } from "@/lib/browse-utils";
 import { Button } from "@/components/UI/button";
 import { Label } from "@/components/UI/label";
 import {
@@ -23,18 +25,17 @@ import {
 } from "@/components/UI/select";
 import { Input } from "@/components/UI/input";
 import { productStyles } from "@/components/UI/product.variants";
-import { MobileFilterSheet } from "@/components/Browse/FilterSidebar";
-import { Filter } from "lucide-react";
 import {
   useAllCategoriesQuery,
   useAllProductsBrowseCollectiblesQuery,
 } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 
 export default function CategoryPage() {
-  const params: Record<string, string> | null = useParams();
-  const categorySlug = params?.slug ? decodeURIComponent(params.slug) : null;
+  const params = useParams();
+  const categorySlug = params?.slug ? decodeURIComponent(params.slug as string) : null;
   
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(24);
 
@@ -78,10 +79,26 @@ export default function CategoryPage() {
 
   // Process categories data from backend
   useEffect(() => {
-    if (productsData?.data) {
-      setProducts(productsData.data);
+    if (categoriesData?.data?.attributes) {
+      const backendCategories = categoriesData.data.attributes;
+
+      // Transform backend categories to match your Category type
+      const transformedCategories: Category[] = backendCategories.map(
+        (cat: any) => ({
+          id: cat._id,
+          name: cat.name,
+          slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, "-"),
+          description: cat.description,
+          image: cat.image || "",
+          productCount: cat.productCount || 0,
+          createdAt: cat.createdAt,
+          updatedAt: cat.updatedAt,
+        })
+      );
+
+      setCategories(transformedCategories);
     }
-  }, [productsData]);
+  }, [categoriesData]);
 
   // Process products data from backend
   useEffect(() => {
@@ -264,8 +281,8 @@ export default function CategoryPage() {
             }`
       }
       breadcrumbs={[
-        { label: "Category", href:  `/category/${categorySlug}` },
-        { label: categorySlug, href: `/category/${categorySlug}` },
+        { label: "Category", href:  `/category/${categorySlug || ""}` },
+        { label: categorySlug || "Loading...", href: `/category/${categorySlug || ""}` },
       ]}
     >
       {/* Mobile Filter Button */}
@@ -275,6 +292,7 @@ export default function CategoryPage() {
           onUpdateFilter={updateFilter}
           onClearFilters={clearFilters}
           products={products}
+          categories={categories}
         >
           <Button variant="outline">
             <Filter className="h-4 w-4 mr-2" />

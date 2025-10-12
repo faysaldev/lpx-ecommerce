@@ -89,7 +89,6 @@ const createVendorRequest = catchAsync(async (req, res) => {
     req.body.storePhoto = `/uploads/vendors/${req.file.filename}`;
   }
 
-  console.log(req);
   const createVendor = await vendorService.createVendorRequest({
     ...req.body,
     seller: req.user.id,

@@ -20,6 +20,7 @@ const BrowseCollectibles = baseApi.injectEndpoints({
         url: "/lpx/header-statitics",
         method: "GET",
       }),
+      providesTags: ["header_statics"],
     }),
   }),
 });

@@ -1,6 +1,9 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import {
+  Button,
+  buttonVariants,
+} from "@/components/UI/button";
 import {
   Card,
   CardContent,
@@ -9,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/UI/card";
 import { Input } from "@/components/UI/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/UI/label";
 import { Separator } from "@/components/UI/separator";
 import { Switch } from "@/components/UI/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/UI/tabs";

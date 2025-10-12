@@ -29,9 +29,9 @@ import { cn } from "@/lib/utils";
 import type { Order } from "@/lib/checkout";
 
 export default function OrderConfirmationPage() {
-  const params: Record<string, string | string[]> | null = useParams();
+  const params = useParams();
   const _router = useRouter();
-  const orderId = params ? (params.id as string | null) : null;
+  const orderId = params?.id ? (params.id as string) : null;
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);

@@ -55,7 +55,7 @@ const VendorDashboardPage = () => {
   const [products, setProducts] = useState(mockVendorProducts);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<ProductStatus>("all");
-  const [sortOption, setSortOption] = useState<SortOption>("");
+  const [sortOption, setSortOption] = useState<SortOption>("newest");
   const dashboard = initialDashboardData;
 
   // Calculate stats from products (already provided by mockVendorAnalytics)

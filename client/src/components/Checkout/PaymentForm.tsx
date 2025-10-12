@@ -16,7 +16,7 @@ import {
   PrimaryButton,
   SecondaryButton,
 } from "@/components/UI/button.variants";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Checkbox } from "@/components/UI/checkbox";
 import { Input } from "@/components/UI/input";
 import { Label } from "@/components/UI/label";
 import { RadioGroup, RadioGroupItem } from "@/components/UI/radio-group";

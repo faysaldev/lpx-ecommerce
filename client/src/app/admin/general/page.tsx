@@ -44,7 +44,7 @@ type Coupon = {
   isActive: boolean;
 };
 
-export function formatTimeAgo(dateString: string): string {
+function formatTimeAgo(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
