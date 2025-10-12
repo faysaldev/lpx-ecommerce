@@ -187,8 +187,12 @@ function RequestVendorForm() {
       const res = await vendorCreationApplication(formData);
 
       if (res.error) {
-        //  ("Failed to submit application");
-        toast(`❌ ${res.error?.data?.message}`);
+        if ('data' in res.error) {
+          const errorData = res.error.data as { message: string };
+          toast(`❌ ${errorData.message}`);
+        } else {
+          toast(`❌ An unknown error occurred`);
+        }
       } else {
         toast.success(
           "Application submitted successfully! We'll review it within 24-48 hours."

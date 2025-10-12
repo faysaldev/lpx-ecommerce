@@ -149,24 +149,27 @@ class AdminMockService {
       const vendorProducts = mockProducts.filter(
         (p: any) => p.vendorId === vendor.id
       );
-      const _vendorOrders = mockVendorOrders.filter(() => Math.random() > 0.3); // Simulate some orders for each vendor
 
       return {
-        id: vendor.id,
-        name: vendor.name,
-        owner: this.extractOwnerName(vendor.name),
-        email: vendor.contact.email,
-        products: vendorProducts.length,
-        sales: vendor.totalSales,
-        revenue: vendor.totalSales * 150, // Approximate revenue
-        rating: vendor.rating,
-        status: vendor.verified ? "verified" : "pending",
-        joined: vendor.joinedDate,
-        location: {
-          city: vendor.location.city,
-          country: vendor.location.country,
+        _id: vendor.id,
+        seller: {
+          _id: vendor.id,
+          name: vendor.name,
+          email: vendor.contact.email,
+          image: vendor.avatar,
         },
-        avatar: vendor.avatar,
+        ownerName: this.extractOwnerName(vendor.name),
+        storeName: vendor.name,
+        storePhoto: vendor.avatar,
+        category: vendor.category,
+        status: vendor.verified ? "approved" : "pending",
+        location: `${vendor.location.city}, ${vendor.location.country}`,
+        productCount: vendorProducts.length,
+        totalSales: vendor.totalSales,
+        totalEarnings: vendor.totalSales * 150, // Approximate revenue
+        totalWithDrawal: 0, // Mock data
+        averageRating: vendor.rating.toString(),
+        createdAt: vendor.joinedDate,
       };
     });
   }
@@ -239,7 +242,7 @@ class AdminMockService {
     const vendors = this.getAllVendors();
     vendors.slice(0, 1).forEach((vendor) => {
       activities.push({
-        id: `activity-vendor-${vendor.id}`,
+        id: `activity-vendor-${vendor._id}`,
         action: `Vendor verified`,
         details: `${vendor.storeName} has been verified and approved`,
         status: "success",
@@ -271,17 +274,17 @@ class AdminMockService {
     name: string;
     sales: number;
     revenue: number;
-    rating: number;
+    rating: string;
   }> {
     return this.getAllVendors()
-      .sort((a, b) => b.revenue - a.revenue)
+      .sort((a, b) => b.totalEarnings - a.totalEarnings)
       .slice(0, 5)
       .map((vendor) => ({
-        id: vendor.id,
-        name: vendor.name,
-        sales: vendor.sales,
-        revenue: vendor.revenue,
-        rating: vendor.rating,
+        id: vendor._id,
+        name: vendor.storeName,
+        sales: vendor.totalSales,
+        revenue: vendor.totalEarnings,
+        rating: vendor.averageRating,
       }));
   }
 

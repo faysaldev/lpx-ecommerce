@@ -11,7 +11,7 @@ export const mapBackendTypeToFrontend = (
 ): NotificationType => {
   switch (backendType) {
     case "order":
-      return "order";
+      return "orders";
     case "system":
     case "promotion":
     case "vendor":
@@ -27,7 +27,7 @@ export const mapFrontendTypeToBackend = (
   frontendType: NotificationType | "all"
 ): string => {
   switch (frontendType) {
-    case "order":
+    case "orders":
       return "orders";
     case "system":
     case "promotion":
@@ -50,7 +50,7 @@ export const transformApiNotification = (
   let actionUrl = "";
   let actionLabel = "";
 
-  if (frontendType === "order" && apiNotification.transactionId) {
+  if (frontendType === "orders" && apiNotification.transactionId) {
     actionUrl = `/orders/${apiNotification.transactionId}`;
     actionLabel = "View Order";
   } else if (frontendType === "promotion") {
@@ -78,7 +78,7 @@ export const transformApiNotification = (
 };
 
 export const notificationIcons: Record<NotificationType, React.ElementType> = {
-  order: Package,
+  orders: Package,
   system: AlertCircle,
   promotion: Tag,
   vendor: Store,
@@ -86,7 +86,7 @@ export const notificationIcons: Record<NotificationType, React.ElementType> = {
 };
 
 export const notificationColors: Record<NotificationType, string> = {
-  order: "text-blue-500",
+  orders: "text-blue-500",
   system: "text-gray-500",
   promotion: "text-purple-500",
   vendor: "text-green-500",

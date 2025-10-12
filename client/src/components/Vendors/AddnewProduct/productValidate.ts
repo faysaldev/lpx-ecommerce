@@ -15,8 +15,8 @@ export const productSchema = z.object({
   condition: z.string().min(1, "Condition is required"),
   rarity: z.string().min(1, "Rarity is required"),
   brand: z.string().optional(),
-  stockQuantity: z.number().min(1, "Stock must be at least 1").default(1),
-  tags: z.array(z.string()).default([]),
+  stockQuantity: z.number().min(1, "Stock must be at least 1"),
+  tags: z.array(z.string()),
   isDraft: z.boolean().default(true),
   discountPercentage: z.number().min(0).max(100).optional(),
   shippingCost: z

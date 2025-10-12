@@ -54,15 +54,26 @@ function AddNewProductForm() {
     watch,
     setValue,
     formState: { errors },
-  } = useForm<ProductFormData>({
+  } = useForm({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      isDraft: true,
-      stockQuantity: 1,
-      shippingCost: 0,
-      acceptOffers: false,
-      discountPercentage: 0,
+      productName: "",
+      description: "",
       price: 0,
+      optionalPrice: 0,
+      category: "",
+      condition: "",
+      rarity: "",
+      brand: "",
+      stockQuantity: 1,
+      tags: [],
+      isDraft: true,
+      discountPercentage: 0,
+      shippingCost: 0,
+      weight: 0,
+      dimensions: "",
+      acceptOffers: false,
+      minOffer: 0,
     },
   });
 
