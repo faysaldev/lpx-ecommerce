@@ -480,12 +480,7 @@ const ProductCard = ({
             <div className="grid grid-cols-2 gap-2">
               <Button
                 size="sm"
-                onClick={() =>
-                  addToCart({
-                    productId: product._id,
-                    vendorId: product.vendor,
-                  })
-                }
+                onClick={addToCart}
                 disabled={finalStockQuantity === 0}
                 className="text-xs w-full"
               >
