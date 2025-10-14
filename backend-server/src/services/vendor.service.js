@@ -264,11 +264,16 @@ const updateVendorMoneyCalculation = async (id, data) => {
 
   // Add the new earnings to the previous totalEarnings
   const updatedEarnings = vendor.totalEarnings + data.totalEarnings;
+  const updatedAvailableWithDrawl =
+    vendor.availableWithdrawl + data.totalEarnings;
 
   // Update the vendor's totalEarnings with the new value
   return Vendor.findByIdAndUpdate(
     id,
-    { totalEarnings: updatedEarnings },
+    {
+      totalEarnings: updatedEarnings,
+      availableWithdrawl: updatedAvailableWithDrawl,
+    },
     { new: true }
   );
 };
