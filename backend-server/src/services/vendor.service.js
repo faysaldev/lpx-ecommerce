@@ -46,7 +46,7 @@ const searchSingleOwnerShop = async ({
   const products = await Product.find(searchQuery)
     .populate("vendor", "storeName")
     .select(
-      "productName category price stockQuantity condition images vendor averageRating vendorName"
+      "productName category price stockQuantity condition images vendor averageRating tags optionalPrice discountPercentage"
     )
     .skip(skip)
     .limit(limit)
@@ -58,8 +58,27 @@ const searchSingleOwnerShop = async ({
 
   const totalPages = Math.ceil(totalProducts / limit);
 
+  // Map the products to the desired format
+  const formattedProducts = products.map((product) => ({
+    _id: product._id.toString(),
+    vendor: {
+      _id: product.vendor._id.toString(),
+      storeName: product.vendor.storeName,
+    },
+    productName: product.productName,
+    category: product.category,
+    condition: product.condition,
+    tags: product.tags || [], // Ensure tags are an array (can be empty if not defined)
+    price: product.price,
+    optionalPrice: product.optionalPrice,
+    stockQuantity: product.stockQuantity,
+    images: product.images,
+    discountPercentage: product.discountPercentage,
+    vendorId: product.vendor._id.toString(), // Include vendorId as string
+  }));
+
   return {
-    products,
+    products: formattedProducts,
     currentPage: page,
     totalPages,
     totalProducts,

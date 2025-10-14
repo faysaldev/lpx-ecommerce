@@ -21,7 +21,6 @@ import { cn } from "@/lib/utils";
 import ConditionBadgeComponent from "../Vendors/SingleVendorView/ConditionBadgeComponent";
 import { useAddTocartMutation } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 import { getImageUrl } from "@/lib/getImageURL";
-import { useRouter } from "next/navigation";
 import { useAddNewToWishListMutation } from "@/redux/features/GetWishList/GetWishList";
 import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant";
 import ProductViewModal from "../Products/ProductQuickViewModal";
@@ -120,12 +119,11 @@ const ProductCard = ({
   const [addtoCartProduct] = useAddTocartMutation();
   const [addtoWithlist] = useAddNewToWishListMutation();
   const [payment] = useBuyNowMutation();
-  const router = useRouter();
 
-  const addToCart = async ({ productId, vendorId }: any) => {
+  const addToCart = async () => {
     await addtoCartProduct({
       product: productId,
-      vendorId,
+      vendorId: vendorId ? vendorId : product?.vendorId,
       quantity: 1,
       price,
     });
@@ -306,12 +304,7 @@ const ProductCard = ({
               <div className="flex items-center gap-2 mt-4">
                 <Button
                   size="sm"
-                  onClick={() =>
-                    addToCart({
-                      productId: product._id,
-                      vendorId: product.vendor,
-                    })
-                  }
+                  onClick={addToCart}
                   disabled={finalStockQuantity === 0}
                 >
                   <ShoppingCart className="h-4 w-4 mr-2" />
