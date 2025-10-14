@@ -69,6 +69,7 @@ const getFeturedProducts = async () => {
         optionalPrice: 1,
         discountPercentage: 1,
         vendorName: "$vendorDetails.storeName", // Add storeName from vendorDetails
+        vendorId: "$vendorDetails._id", // Add storeName from vendorDetails
       },
     },
   ]);
@@ -80,7 +81,7 @@ const getFeturedProducts = async () => {
       .limit(4)
       .populate("vendor", "storeName") // Populate the vendor's store name
       .select(
-        "productName price stockQuantity condition images category vendor tags optionalPrice discountPercentage"
+        "productName price stockQuantity condition images category vendor optionalPrice discountPercentage"
       )
       .lean();
 
@@ -107,7 +108,7 @@ const getFeturedProducts = async () => {
       .limit(4 - uniqueProducts.length)
       .populate("vendor", "storeName") // Populate the vendor's store name
       .select(
-        "productName price stockQuantity condition images category vendor tags optionalPrice discountPercentage"
+        "productName price stockQuantity condition images category vendor optionalPrice discountPercentage"
       )
       .lean();
 

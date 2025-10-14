@@ -190,24 +190,12 @@ export default function VendorCard({
             <TrendingUp className="h-3 w-3" />
             <span>{vendor.totalSales?.toLocaleString() || 0} sales</span>
           </div>
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <Clock className="h-3 w-3" />
-            <span>{vendor.responseTime} response</span>
-          </div>
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <Shield className="h-3 w-3" />
-            <span>95% positive</span>
-          </div>
         </div>
 
         <div className="flex items-center justify-between mt-4 pt-4 border-t text-xs text-muted-foreground">
           <div className="flex items-center gap-1">
             <MapPin className="h-3 w-3" />
-            <span>United States</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Users className="h-3 w-3" />
-            <span>1,234 followers</span>
+            <span className="max-w-[200px] truncate">{vendor?.location}</span>
           </div>
         </div>
       </div>

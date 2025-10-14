@@ -165,10 +165,10 @@ const allVendors = async ({
     const vendors = await Vendor.aggregate([
       { $match: searchQuery }, // Matching vendors by the search query
 
-      // Add product count and rating calculations
+      // Step 1: Add product count dynamically
       {
         $lookup: {
-          from: "products",
+          from: "products", // Lookup products for each vendor
           localField: "_id",
           foreignField: "vendor",
           as: "products",
@@ -180,6 +180,7 @@ const allVendors = async ({
         },
       },
 
+      // Step 2: Add ratings and calculate average rating
       {
         $lookup: {
           from: "ratings",
@@ -194,10 +195,30 @@ const allVendors = async ({
         },
       },
 
-      { $sort: sortOrder }, // Apply sorting based on the sortBy parameter
+      // Step 3: Sorting based on the sortBy parameter
+      { $sort: sortOrder },
 
-      { $skip: (page - 1) * limit }, // Pagination
-      { $limit: limit }, // Limit results
+      // Step 4: Pagination
+      { $skip: (page - 1) * limit }, // Skip based on the page
+      { $limit: limit }, // Limit the number of results
+
+      // Step 5: Select the required fields
+      {
+        $project: {
+          _id: 1,
+          seller: 1,
+          ownerName: 1,
+          storeName: 1,
+          storePhoto: 1,
+          description: 1,
+          category: 1,
+          experiences: 1,
+          averageRating: 1,
+          status: 1,
+          location: 1,
+          productsCount: 1,
+        },
+      },
     ]);
 
     // Get the total number of vendors for pagination
@@ -226,10 +247,24 @@ const getVendors = async (userId) => {
 
 const createVendorRequest = async (vendorBody) => {
   if (!vendorBody) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+    throw new ApiError(httpStatus.BAD_REQUEST, "User is not authenticated");
   }
 
-  console.log(vendorBody);
+  // Check if the user already has a vendor with a status of "pending" or "approved"
+  const existingVendor = await Vendor.findOne({
+    seller: vendorBody.seller,
+    $or: [{ status: "pending" }, { status: "approved" }],
+  });
+
+  // If an existing vendor is found, throw an error
+  if (existingVendor) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You already have a vendor request"
+    );
+  }
+
+  // If no existing vendor found, create a new vendor
   const createNewVendor = await Vendor.create(vendorBody);
   return createNewVendor;
 };

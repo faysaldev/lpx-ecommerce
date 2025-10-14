@@ -37,6 +37,12 @@ const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    getSingleProductQuickView: builder.mutation({
+      query: (id) => ({
+        url: `/products/quick-details/${id}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -46,4 +52,5 @@ export const {
   useDraftsCreateMutation,
   useGetSingleProductQuery,
   useRemoveSingleProductsMutation,
+  useGetSingleProductQuickViewMutation,
 } = authApi;

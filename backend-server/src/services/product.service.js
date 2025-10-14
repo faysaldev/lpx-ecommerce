@@ -64,6 +64,22 @@ const productDetails = async (productsId) => {
   return product;
 };
 
+const productSingleQuickDetails = async (productsId) => {
+  if (!productsId) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "Product ID is required");
+  }
+
+  // Fetch the product with populated vendor details
+  const product = await Product.findById(productsId).lean(); // Use lean to return plain JavaScript objects instead of Mongoose documents
+
+  if (!product) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  // Return the populated product details
+  return product;
+};
+
 const editeProducts = async (productsId, productsData) => {
   console.log(productsId, productsData);
 
@@ -145,10 +161,10 @@ const searchProducts = async ({
 
   // Query the database with the built query object and populate vendor details
   const products = await Product.find(searchQuery)
-    .populate("vendor", "storeName") // Populate the vendor's store name
+    .populate("vendor", "_id storeName") // Populate the vendor's storeName and _id
     .select(
-      "productName category price stockQuantity condition images tags optionalPrice discountPercentage"
-    ) // Select specific fields
+      "productName category price stockQuantity condition images tags optionalPrice discountPercentage vendor"
+    ) // Select vendor as well
     .skip(skip) // Pagination: skip to the appropriate page
     .limit(Number(limit)) // Limit the number of results
     .sort(sort) // Sorting based on user input
@@ -159,7 +175,13 @@ const searchProducts = async ({
     return [];
   }
 
-  return products;
+  // Adding the vendorId to each product in the result
+  const result = products.map((product) => ({
+    ...product,
+    vendorId: product.vendor._id.toString(), // Add vendorId key
+  }));
+
+  return result;
 };
 
 // order placed and decrease the products quantity
@@ -201,4 +223,5 @@ module.exports = {
   getAllProducts,
   searchProducts,
   prodoctOrderPlaceDecreaseQuantity,
+  productSingleQuickDetails,
 };

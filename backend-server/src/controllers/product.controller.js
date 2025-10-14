@@ -71,6 +71,20 @@ const productDetails = catchAsync(async (req, res) => {
   );
 });
 
+const productSingleQuickDetails = catchAsync(async (req, res) => {
+  const products = await productService.productSingleQuickDetails(
+    req.params.id
+  );
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Single Products",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: products,
+    })
+  );
+});
+
 const deleteProducts = catchAsync(async (req, res) => {
   const products = await productService.deleteProducts(req.params.id);
   res.status(httpStatus.CREATED).json(
@@ -135,4 +149,5 @@ module.exports = {
   editeProducts,
   getAllProducts,
   searchProducts,
+  productSingleQuickDetails,
 };

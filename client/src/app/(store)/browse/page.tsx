@@ -230,12 +230,6 @@ function BrowsePageContent() {
     }
   };
 
-  // Handle product actions
-  const handleBuyNow = (product: Product) => {
-    // console.log("Buy now clicked for:", product.id);
-    // toast.info("Buy now functionality coming soon!");
-  };
-
   const handleShare = (product: Product) => {
     if (navigator.share) {
       navigator
@@ -431,7 +425,6 @@ function BrowsePageContent() {
           viewMode={viewMode}
           isLoading={isLoading}
           onQuickView={(product: Product) => setQuickViewProduct(product)}
-          onBuyNow={handleBuyNow}
           onShare={handleShare}
         />
       </div>

@@ -28,6 +28,7 @@ import {
   TableRow,
 } from "@/components/UI/table";
 import { useAdminDasboardQuery } from "@/redux/features/admin/Dashboard";
+import { formatNumber } from "@/lib/utils/helpers";
 
 interface TopVendor {
   _id: string;
@@ -35,6 +36,7 @@ interface TopVendor {
   totalSales: number;
   revenue?: number;
   rating?: number;
+  totalEarnings: number;
 }
 
 interface RecentActivity {
@@ -450,9 +452,7 @@ export default function AdminDashboard() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Vendor</TableHead>
-                  <TableHead className="text-center">Sales</TableHead>
-                  <TableHead className="text-right">Revenue</TableHead>
-                  <TableHead className="text-center">Rating</TableHead>
+                  <TableHead className="text-center">Total Sales</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -474,19 +474,11 @@ export default function AdminDashboard() {
                       <TableCell className="font-medium">
                         {vendor.storeName}
                       </TableCell>
-                      <TableCell className="text-center">
-                        {vendor.totalSales}
-                      </TableCell>
                       <TableCell className="text-right">
-                        AED {(vendor.revenue || 0).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <div className="flex items-center justify-center gap-1">
-                          <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
-                          <span className="text-sm">
-                            {vendor.rating || "N/A"}
-                          </span>
-                        </div>
+                        AED{" "}
+                        {(
+                          formatNumber(vendor.totalEarnings) || 0
+                        ).toLocaleString()}
                       </TableCell>
                     </TableRow>
                   ))

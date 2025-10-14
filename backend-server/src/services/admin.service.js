@@ -133,12 +133,16 @@ const updateVendor = async (query) => {
 const getAdminDashboardData = async () => {
   // Get platform statistics
   const totalUsers = await User.countDocuments({ isDeleted: false });
-  const totalProducts = await Product.countDocuments();
-  const totalOrders = await Order.countDocuments();
+
+  // Exclude 'unpaid' orders for total orders count
+  const totalOrders = await Order.countDocuments({ status: { $ne: "unpaid" } });
+
+  // Get total revenue excluding unpaid orders
   const totalRevenue = await Order.aggregate([
-    { $match: { status: "delivered" } },
+    { $match: { status: { $ne: "unpaid" } } }, // Exclude 'unpaid' orders
     { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
   ]);
+
   const activeVendors = await Vendor.countDocuments({ status: "approved" });
   const pendingApprovals = await Vendor.countDocuments({ status: "pending" });
 
@@ -151,6 +155,7 @@ const getAdminDashboardData = async () => {
   const usersChange = ((totalUsers - lastMonthUsers) / lastMonthUsers) * 100;
 
   // Get products' monthly change percentage
+  const totalProducts = await Product.countDocuments();
   const lastMonthProducts = await Product.countDocuments({
     createdAt: {
       $gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
@@ -164,15 +169,16 @@ const getAdminDashboardData = async () => {
     createdAt: {
       $gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
     },
+    status: { $ne: "unpaid" }, // Exclude 'unpaid' orders
   });
   const ordersChange =
     ((totalOrders - lastMonthOrders) / lastMonthOrders) * 100;
 
-  // Get revenue change percentage
+  // Get revenue change percentage excluding unpaid orders
   const lastMonthRevenue = await Order.aggregate([
     {
       $match: {
-        status: "delivered",
+        status: { $ne: "unpaid" },
         createdAt: {
           $gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
         },
@@ -186,25 +192,32 @@ const getAdminDashboardData = async () => {
       (lastMonthRevenue[0]?.totalRevenue || 1)) *
     100;
 
-  // Get top vendors by sales
+  // Get top vendors by total earnings (calculated by summing totalAmount from orders)
   const topVendors = await Vendor.aggregate([
-    { $match: { status: "approved" } },
+    { $match: { status: "approved" } }, // Only approved vendors
     {
       $lookup: {
-        from: "orders",
-        localField: "_id",
-        foreignField: "vendorId",
+        from: "orders", // Join the orders collection
+        localField: "_id", // Match vendor's _id with vendorId in orders
+        foreignField: "totalItems.vendorId",
         as: "orders",
+      },
+    },
+    {
+      $addFields: {
+        totalEarnings: {
+          $sum: "$orders.totalAmount", // Sum the totalAmount from all orders
+        },
       },
     },
     {
       $project: {
         storeName: 1,
-        totalSales: { $sum: "$orders.totalAmount" },
+        totalEarnings: 1, // Include total earnings
       },
     },
-    { $sort: { totalSales: -1 } },
-    { $limit: 5 },
+    { $sort: { totalEarnings: -1 } }, // Sort vendors by total earnings, highest first
+    { $limit: 5 }, // Limit to top 5 vendors
   ]);
 
   // Get recent activities for today from different models (Order, Vendor, Product)
@@ -212,7 +225,10 @@ const getAdminDashboardData = async () => {
   const startOfDay = new Date(today.setHours(0, 0, 0, 0));
 
   // Get recent Orders placed today
-  const recentOrders = await Order.find({ createdAt: { $gte: startOfDay } })
+  const recentOrders = await Order.find({
+    createdAt: { $gte: startOfDay },
+    status: { $ne: "unpaid" },
+  })
     .select("orderID status totalAmount createdAt")
     .sort({ createdAt: -1 })
     .limit(5);

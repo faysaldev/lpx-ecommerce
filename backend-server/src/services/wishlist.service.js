@@ -42,15 +42,22 @@ const myWishList = async (userId) => {
 };
 
 const addToWishlist = async (wishlistBody) => {
-  if (!wishlistBody) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+  const wishlistExist = await Wishlist.findOne({
+    customer: wishlistBody?.customer, // The user who owns the wishlist
+    products: wishlistBody?.products, // The product being added
+  });
+  if (wishlistExist) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Product already exists in your wishlist"
+    );
   }
   return Wishlist.create(wishlistBody);
 };
 
 const removeToWishlist = async (id) => {
   if (!id) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+    throw new ApiError(httpStatus.BAD_REQUEST, "Id Is required");
   }
   return Wishlist.findByIdAndDelete(id);
 };

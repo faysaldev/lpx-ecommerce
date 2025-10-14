@@ -5,6 +5,7 @@ const {
   notificationService,
   vendorService,
   productService,
+  cartService,
 } = require(".");
 const {
   sendNotificationEmail,
@@ -345,7 +346,7 @@ const handleCheckoutCompleted = async (checkoutSession) => {
     };
 
     await notificationService.addNewNotification(customerNotificationData);
-
+    await cartService.removeAllCartList(customer_id);
     // Send email notifications to customer and seller
     const emailBodyCustomer = {
       username: name || "Customer",

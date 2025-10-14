@@ -14,6 +14,7 @@ import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Separator } from "@/components/UI/separator";
 import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant";
+import { formatNumber } from "@/lib/utils/helpers";
 
 interface CartSummaryProps {
   subtotal: number;
@@ -125,7 +126,7 @@ export default function CartSummary({
           <span className="font-semibold text-lg">Total</span>
           <div className="text-right">
             <div className="font-bold text-2xl text-primary">
-              AED {total.toFixed(2)}
+              AED {formatNumber(total.toFixed(2))}
             </div>
           </div>
         </div>

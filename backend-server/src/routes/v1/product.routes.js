@@ -36,6 +36,9 @@ router
   .patch(auth("common"), productController.editeProducts);
 
 router.route("/details/:id").get(productController.productDetails);
+router
+  .route("/quick-details/:id")
+  .get(productController.productSingleQuickDetails);
 
 router.get("/search", productController.searchProducts);
 
