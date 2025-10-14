@@ -1,7 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Edit2, Eye, MoreVertical, Package, Plus, Trash2 } from "lucide-react";
+import {
+  Edit2,
+  Eye,
+  MoreVertical,
+  Package,
+  Plus,
+  Trash2,
+  Save,
+  X,
+} from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
@@ -21,7 +30,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/UI/table";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/UI/select";
 import Image from "next/image";
+import NoProductsInVendor from "./NoProductsInVendor";
+import { useState } from "react";
+import { Input } from "@/components/UI/input";
+import { useProductUpdateMutation } from "@/redux/features/products/product";
+
+interface Vendor {
+  _id: string;
+  storeName: string;
+}
+
+interface Product {
+  _id: string;
+  vendor: Vendor;
+  productName: string;
+  category: string;
+  price: number;
+  stockQuantity: number;
+  images: string[];
+  isDraft: boolean;
+  inStock: boolean;
+}
 
 export function ProductTable({
   products,
@@ -29,11 +68,23 @@ export function ProductTable({
   onView,
   onDelete,
 }: {
-  products: any[];
+  products: Product[];
   onEdit: (id: string) => void;
   onView: (id: string) => void;
   onDelete: (id: string) => void;
 }) {
+  const [editingField, setEditingField] = useState<{
+    productId: string;
+    field: string;
+    value: any;
+  } | null>(null);
+
+  const [updatingProduct] = useProductUpdateMutation();
+
+  const [editedValues, setEditedValues] = useState<{
+    [key: string]: any;
+  }>({});
+
   const getStatusBadge = (isDraft: boolean, inStock: boolean) => {
     if (isDraft) {
       return <Badge variant="secondary">Draft</Badge>;
@@ -44,25 +95,200 @@ export function ProductTable({
     return <Badge className="bg-green-100 text-green-800">Active</Badge>;
   };
 
-  if (!products || products.length === 0) {
+  const handleDoubleClick = (
+    productId: string,
+    field: string,
+    currentValue: any
+  ) => {
+    setEditingField({ productId, field, value: currentValue });
+    setEditedValues((prev) => ({
+      ...prev,
+      [productId]: {
+        ...prev[productId],
+        [field]: currentValue,
+      },
+    }));
+  };
+
+  const handleInputChange = (value: string) => {
+    if (!editingField) return;
+
+    setEditedValues((prev) => ({
+      ...prev,
+      [editingField.productId]: {
+        ...prev[editingField.productId],
+        [editingField.field]:
+          editingField.field === "price" ||
+          editingField.field === "stockQuantity"
+            ? Number(value)
+            : value,
+      },
+    }));
+  };
+
+  const handleSave = async (product: Product) => {
+    const changes = editedValues[product._id];
+    console.log(product, "single product");
+
+    if (changes) {
+      console.log("Saving changes for product:", product._id, changes);
+
+      // Conditionally construct the `data` object
+      const data: any = {};
+
+      // Update `inStock` if it has changed, otherwise leave it unchanged
+      if (changes.status && changes.status !== product.inStock) {
+        data.inStock = changes.status === "out_of_stock" ? false : true;
+      }
+
+      // Update `stockQuantity` if it has changed, otherwise leave it unchanged
+      if (
+        changes.stockQuantity &&
+        changes.stockQuantity !== product.stockQuantity
+      ) {
+        data.stockQuantity = changes.stockQuantity;
+      }
+
+      // Update `price` if it has changed, otherwise leave it unchanged
+      if (changes.price && changes.price !== product.price) {
+        data.price = changes.price;
+      }
+
+      // Only send the `data` if there are any changes
+      if (Object.keys(data).length > 0) {
+        await updatingProduct({ id: product._id, data });
+        console.log("Product updated:", data);
+      } else {
+        console.log("No changes detected for product:", product._id);
+      }
+    }
+
+    // Reset editing state
+    setEditingField(null);
+    setEditedValues((prev) => {
+      const newValues = { ...prev };
+      delete newValues[product._id];
+      return newValues;
+    });
+  };
+
+  const handleCancel = (product: Product) => {
+    setEditingField(null);
+    setEditedValues((prev) => {
+      const newValues = { ...prev };
+      delete newValues[product._id];
+      return newValues;
+    });
+  };
+
+  const isEditing = (productId: string, field: string) => {
     return (
-      <div className="text-center py-12">
-        <div className="mx-auto bg-muted rounded-full flex items-center justify-center mb-6 w-24 h-24">
-          <Package className="text-muted-foreground h-12 w-12" />
-        </div>
-        <h3 className="font-semibold mb-2 text-xl">No products found</h3>
-        <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-          You haven&apos;t created any products yet. Start by adding your first
-          product to your store.
-        </p>
-        <Button asChild>
-          <Link href="/vendor/products/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Create Your First Product
-          </Link>
-        </Button>
+      editingField?.productId === productId && editingField?.field === field
+    );
+  };
+
+  const hasChanges = (productId: string) => {
+    return !!editedValues[productId];
+  };
+
+  const renderEditableCell = (
+    product: Product,
+    field: string,
+    displayValue: any
+  ) => {
+    if (isEditing(product._id, field)) {
+      return (
+        <Input
+          type={
+            field === "price" || field === "stockQuantity" ? "number" : "text"
+          }
+          value={editedValues[product._id]?.[field] ?? displayValue}
+          onChange={(e) => handleInputChange(e.target.value)}
+          className="h-8 w-24"
+          autoFocus
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleSave(product);
+            } else if (e.key === "Escape") {
+              handleCancel(product);
+            }
+          }}
+        />
+      );
+    }
+
+    return (
+      <div
+        onDoubleClick={() =>
+          handleDoubleClick(product._id, field, displayValue)
+        }
+        className="cursor-pointer px-2 py-1 rounded transition-colors"
+      >
+        {field === "price" ? `AED ${displayValue}` : displayValue}
       </div>
     );
+  };
+
+  const renderStatusEditableCell = (product: Product) => {
+    if (isEditing(product._id, "status")) {
+      const currentStatus = product.isDraft
+        ? "draft"
+        : !product.inStock
+        ? "out_of_stock"
+        : "active";
+
+      const getStatusDisplayText = (status: string) => {
+        switch (status) {
+          case "active":
+            return "In Stock";
+          case "out_of_stock":
+            return "Out of Stock";
+          default:
+            return "In Stock";
+        }
+      };
+
+      const displayStatus = editedValues[product._id]?.status ?? currentStatus;
+
+      return (
+        <Select
+          value={displayStatus}
+          onValueChange={(newStatus) => {
+            setEditedValues((prev) => ({
+              ...prev,
+              [product._id]: {
+                ...prev[product._id],
+                status: newStatus,
+              },
+            }));
+          }}
+        >
+          <SelectTrigger className="w-[140px] h-8">
+            <SelectValue>{getStatusDisplayText(displayStatus)}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectLabel>Status</SelectLabel>
+              <SelectItem value="stock">Stock</SelectItem>
+              <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    return (
+      <div
+        onDoubleClick={() => handleDoubleClick(product._id, "status", product)}
+        className="cursor-pointer"
+      >
+        {getStatusBadge(product.isDraft, product.inStock)}
+      </div>
+    );
+  };
+
+  if (!products || products.length === 0) {
+    return <NoProductsInVendor />;
   }
 
   return (
@@ -83,7 +309,7 @@ export function ProductTable({
 
         <TableBody>
           {products.map((product) => (
-            <TableRow key={product._id}>
+            <TableRow key={product._id} className="group">
               <TableCell>
                 <Image
                   src={
@@ -100,57 +326,94 @@ export function ProductTable({
 
               <TableCell>
                 <div>
-                  <p className="font-medium">{product.productName}</p>
-                  <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                  <p className="font-medium truncate max-w-[170px]">
+                    {product.productName}
+                  </p>
+                  <p className="text-sm text-muted-foreground truncate max-w-[150px]">
                     ID: {product._id}
                   </p>
                 </div>
               </TableCell>
 
-              <TableCell>{product.category || "N/A"}</TableCell>
+              <TableCell>
+                {renderEditableCell(
+                  product,
+                  "category",
+                  product.category || "N/A"
+                )}
+              </TableCell>
 
-              <TableCell className="font-medium">${product.price}</TableCell>
-
-              <TableCell>{product.stockQuantity}</TableCell>
+              <TableCell className="font-medium">
+                {renderEditableCell(product, "price", product.price)}
+              </TableCell>
 
               <TableCell>
-                {getStatusBadge(product.isDraft, product.inStock)}
+                {renderEditableCell(
+                  product,
+                  "stockQuantity",
+                  product.stockQuantity
+                )}
               </TableCell>
+
+              <TableCell>{renderStatusEditableCell(product)}</TableCell>
 
               <TableCell>{product.vendor?.storeName || "N/A"}</TableCell>
 
               <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
+                <div className="flex items-center justify-end gap-2">
+                  {hasChanges(product._id) && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleSave(product)}
+                        className="h-8 px-2 text-green-600 border-green-200 hover:bg-green-50"
+                      >
+                        <Save className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCancel(product)}
+                        className="h-8 px-2 text-red-600 border-red-200 hover:bg-red-50"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </>
+                  )}
 
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="h-8 w-8 p-0">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
 
-                    <DropdownMenuItem onClick={() => onView(product._id)}>
-                      <Eye className="mr-2 h-4 w-4" />
-                      View
-                    </DropdownMenuItem>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                    <DropdownMenuItem onClick={() => onEdit(product._id)}>
-                      <Edit2 className="mr-2 h-4 w-4" />
-                      Edit
-                    </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onView(product._id)}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        View
+                      </DropdownMenuItem>
 
-                    <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => onEdit(product._id)}>
+                        <Edit2 className="mr-2 h-4 w-4" />
+                        Edit
+                      </DropdownMenuItem>
 
-                    <DropdownMenuItem
-                      onClick={() => onDelete(product._id)}
-                      className="text-destructive"
-                    >
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuItem
+                        onClick={() => onDelete(product._id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </TableCell>
             </TableRow>
           ))}
@@ -159,3 +422,405 @@ export function ProductTable({
     </div>
   );
 }
+
+// /* eslint-disable @typescript-eslint/no-explicit-any */
+// "use client";
+
+// import {
+//   Edit2,
+//   Eye,
+//   MoreVertical,
+//   Package,
+//   Plus,
+//   Trash2,
+//   Save,
+//   X,
+// } from "lucide-react";
+// import Link from "next/link";
+// import { Badge } from "@/components/UI/badge";
+// import { Button } from "@/components/UI/button";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
+//   DropdownMenuSeparator,
+//   DropdownMenuTrigger,
+// } from "@/components/UI/dropdown-menu";
+// import {
+//   Table,
+//   TableBody,
+//   TableCell,
+//   TableHead,
+//   TableHeader,
+//   TableRow,
+// } from "@/components/UI/table";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectGroup,
+//   SelectItem,
+//   SelectLabel,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/UI/select";
+// import Image from "next/image";
+// import NoProductsInVendor from "./NoProductsInVendor";
+// import { useState } from "react";
+// import { Input } from "@/components/UI/input";
+
+// interface EditableProduct {
+//   _id: string;
+//   productName: string;
+//   category: string;
+//   price: number;
+//   stockQuantity: number;
+//   isDraft: boolean;
+//   inStock: boolean;
+//   images?: string[];
+//   vendor?: {
+//     storeName: string;
+//   };
+// }
+
+// interface Vendor {
+//   _id: string;
+//   storeName: string;
+// }
+
+// interface Product {
+//   _id: string;
+//   vendor: Vendor;
+//   productName: string;
+//   category: string;
+//   price: number;
+//   stockQuantity: number;
+//   images: string[];
+//   isDraft: boolean;
+//   inStock: boolean;
+// }
+
+// export function ProductTable({
+//   products,
+//   onEdit,
+//   onView,
+//   onDelete,
+// }: {
+//   products: any[];
+//   onEdit: (id: string) => void;
+//   onView: (id: string) => void;
+//   onDelete: (id: string) => void;
+// }) {
+//   const [editingField, setEditingField] = useState<{
+//     productId: string;
+//     field: string;
+//     value: any;
+//   } | null>(null);
+
+//   const [editedValues, setEditedValues] = useState<{
+//     [key: string]: any;
+//   }>({});
+
+//   const getStatusBadge = (isDraft: boolean, inStock: boolean) => {
+//     if (isDraft) {
+//       return <Badge variant="secondary">Draft</Badge>;
+//     }
+//     if (!inStock) {
+//       return <Badge variant="destructive">Out of Stock</Badge>;
+//     }
+//     return <Badge className="bg-green-100 text-green-800">Active</Badge>;
+//   };
+
+//   const handleDoubleClick = (
+//     productId: string,
+//     field: string,
+//     currentValue: any
+//   ) => {
+//     setEditingField({ productId, field, value: currentValue });
+//     setEditedValues((prev) => ({
+//       ...prev,
+//       [productId]: {
+//         ...prev[productId],
+//         [field]: currentValue,
+//       },
+//     }));
+//   };
+
+//   const handleInputChange = (value: string) => {
+//     if (!editingField) return;
+
+//     setEditedValues((prev) => ({
+//       ...prev,
+//       [editingField.productId]: {
+//         ...prev[editingField.productId],
+//         [editingField.field]:
+//           editingField.field === "price" ||
+//           editingField.field === "stockQuantity"
+//             ? Number(value)
+//             : value,
+//       },
+//     }));
+//   };
+
+//   const handleSave = (product: Product) => {
+//     // console.log(productId);
+
+//     const changes = editedValues[product?._id];
+//     if (changes) {
+//       console.log("Saving changes for product:", product?._id, changes);
+//       // Here you would typically make an API call to update the product
+//     }
+
+//     // Reset editing state
+//     setEditingField(null);
+//     setEditedValues((prev) => {
+//       const newValues = { ...prev };
+//       delete newValues[product?._id];
+//       return newValues;
+//     });
+//   };
+
+//   const handleCancel = (productId?: string) => {
+//     setEditingField(null);
+//     setEditedValues((prev) => {
+//       const newValues = { ...prev };
+//       delete newValues[productId ? productId : ""];
+//       return newValues;
+//     });
+//   };
+
+//   const isEditing = (productId: string, field: string) => {
+//     return (
+//       editingField?.productId === productId && editingField?.field === field
+//     );
+//   };
+
+//   const hasChanges = (productId: string) => {
+//     return !!editedValues[productId];
+//   };
+
+//   const renderEditableCell = (
+//     product: EditableProduct,
+//     field: string,
+//     displayValue: any
+//   ) => {
+//     if (isEditing(product._id, field)) {
+//       return (
+//         <Input
+//           type={
+//             field === "price" || field === "stockQuantity" ? "number" : "text"
+//           }
+//           value={editedValues[product._id]?.[field] ?? displayValue}
+//           onChange={(e) => handleInputChange(e.target.value)}
+//           className="h-8 w-24"
+//           autoFocus
+//           onKeyDown={(e) => {
+//             if (e.key === "Enter") {
+//               handleSave(product);
+//             } else if (e.key === "Escape") {
+//               handleCancel();
+//             }
+//           }}
+//         />
+//       );
+//     }
+
+//     return (
+//       <div
+//         onDoubleClick={() =>
+//           handleDoubleClick(product._id, field, displayValue)
+//         }
+//         className="cursor-pointer px-2 py-1 rounded transition-colors"
+//       >
+//         {field === "price" ? `AED ${displayValue}` : displayValue}
+//       </div>
+//     );
+//   };
+
+//   const renderStatusEditableCell = (product: EditableProduct) => {
+//     if (isEditing(product._id, "status")) {
+//       const currentStatus = product.isDraft
+//         ? "draft"
+//         : !product.inStock
+//         ? "out_of_stock"
+//         : "active";
+
+//       const getStatusDisplayText = (status: string) => {
+//         switch (status) {
+//           case "active":
+//             return "Active";
+//           case "draft":
+//             return "Draft";
+//           case "out_of_stock":
+//             return "Out of Stock";
+//           default:
+//             return "Active";
+//         }
+//       };
+
+//       const displayStatus = editedValues[product._id]?.status ?? currentStatus;
+
+//       return (
+//         <Select
+//           value={displayStatus}
+//           onValueChange={(newStatus) => {
+//             setEditedValues((prev) => ({
+//               ...prev,
+//               [product._id]: {
+//                 ...prev[product._id],
+//                 status: newStatus,
+//               },
+//             }));
+//           }}
+//         >
+//           <SelectTrigger className="w-[140px] h-8">
+//             <SelectValue>{getStatusDisplayText(displayStatus)}</SelectValue>
+//           </SelectTrigger>
+//           <SelectContent>
+//             <SelectGroup>
+//               <SelectLabel>Status</SelectLabel>
+//               <SelectItem value="active">Active</SelectItem>
+//               <SelectItem value="draft">Draft</SelectItem>
+//               <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+//             </SelectGroup>
+//           </SelectContent>
+//         </Select>
+//       );
+//     }
+
+//     return (
+//       <div
+//         onDoubleClick={() => handleDoubleClick(product._id, "status", product)}
+//         className="cursor-pointer"
+//       >
+//         {getStatusBadge(product.isDraft, product.inStock)}
+//       </div>
+//     );
+//   };
+//   if (!products || products.length === 0) {
+//     return <NoProductsInVendor />;
+//   }
+
+//   return (
+//     <div className="rounded-md border">
+//       <Table>
+//         <TableHeader>
+//           <TableRow>
+//             <TableHead className="w-[100px]">Image</TableHead>
+//             <TableHead>Product</TableHead>
+//             <TableHead>Category</TableHead>
+//             <TableHead>Price</TableHead>
+//             <TableHead>Stock</TableHead>
+//             <TableHead>Status</TableHead>
+//             <TableHead>Vendor</TableHead>
+//             <TableHead className="text-right">Actions</TableHead>
+//           </TableRow>
+//         </TableHeader>
+
+//         <TableBody>
+//           {products.map((product) => (
+//             <TableRow key={product._id} className="group">
+//               <TableCell>
+//                 <Image
+//                   src={
+//                     product.images?.[0]
+//                       ? `${process.env.NEXT_PUBLIC_BASE_URL}/${product.images[0]}`
+//                       : "/placeholder.jpg"
+//                   }
+//                   alt={product.productName}
+//                   width={64}
+//                   height={64}
+//                   className="w-16 h-16 object-cover rounded-md border"
+//                 />
+//               </TableCell>
+
+//               <TableCell>
+//                 <div>
+//                   <p className="font-medium">{product.productName}</p>
+//                   <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+//                     ID: {product._id}
+//                   </p>
+//                 </div>
+//               </TableCell>
+
+//               <TableCell>{product.category || "N/A"}</TableCell>
+
+//               <TableCell className="font-medium">
+//                 {renderEditableCell(product, "price", product.price)}
+//               </TableCell>
+
+//               <TableCell>
+//                 {renderEditableCell(
+//                   product,
+//                   "stockQuantity",
+//                   product.stockQuantity
+//                 )}
+//               </TableCell>
+
+//               <TableCell>{renderStatusEditableCell(product)}</TableCell>
+
+//               <TableCell>{product.vendor?.storeName || "N/A"}</TableCell>
+
+//               <TableCell className="text-right">
+//                 <div className="flex items-center justify-end gap-2">
+//                   {hasChanges(product._id) && (
+//                     <>
+//                       <Button
+//                         size="sm"
+//                         variant="outline"
+//                         onClick={() => handleSave(product)}
+//                         className="h-8 px-2 text-green-600 border-green-200 hover:bg-green-50"
+//                       >
+//                         <Save className="h-4 w-4" />
+//                       </Button>
+//                       <Button
+//                         size="sm"
+//                         variant="outline"
+//                         onClick={() => handleCancel(product)}
+//                         className="h-8 px-2 text-red-600 border-red-200 hover:bg-red-50"
+//                       >
+//                         <X className="h-4 w-4" />
+//                       </Button>
+//                     </>
+//                   )}
+
+//                   <DropdownMenu>
+//                     <DropdownMenuTrigger asChild>
+//                       <Button variant="ghost" className="h-8 w-8 p-0">
+//                         <MoreVertical className="h-4 w-4" />
+//                       </Button>
+//                     </DropdownMenuTrigger>
+
+//                     <DropdownMenuContent align="end">
+//                       <DropdownMenuLabel>Actions</DropdownMenuLabel>
+
+//                       <DropdownMenuItem onClick={() => onView(product._id)}>
+//                         <Eye className="mr-2 h-4 w-4" />
+//                         View
+//                       </DropdownMenuItem>
+
+//                       <DropdownMenuItem onClick={() => onEdit(product._id)}>
+//                         <Edit2 className="mr-2 h-4 w-4" />
+//                         Edit
+//                       </DropdownMenuItem>
+
+//                       <DropdownMenuSeparator />
+
+//                       <DropdownMenuItem
+//                         onClick={() => onDelete(product._id)}
+//                         className="text-destructive"
+//                       >
+//                         <Trash2 className="mr-2 h-4 w-4" />
+//                         Delete
+//                       </DropdownMenuItem>
+//                     </DropdownMenuContent>
+//                   </DropdownMenu>
+//                 </div>
+//               </TableCell>
+//             </TableRow>
+//           ))}
+//         </TableBody>
+//       </Table>
+//     </div>
+//   );
+// }

@@ -242,7 +242,7 @@ const getVendors = async (userId) => {
   if (!userId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
   }
-  return Vendor.find({ seller: userId });
+  return Vendor.find({ seller: userId }).select("_id storeName seller");
 };
 
 const createVendorRequest = async (vendorBody) => {

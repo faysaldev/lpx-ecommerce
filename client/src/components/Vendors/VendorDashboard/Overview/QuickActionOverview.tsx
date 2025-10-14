@@ -8,6 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/UI/card";
+import { selectSelectedVendor } from "@/redux/features/Common/CommonSlice";
+import { useAppSelector } from "@/redux/hooks";
 import { DollarSign, Eye, Package, Plus, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -21,6 +23,8 @@ function QuickActionOverview({
   AllStats: any;
   AllRecentOrders: any;
 }) {
+  const vendor = useAppSelector(selectSelectedVendor);
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card>
@@ -41,16 +45,8 @@ function QuickActionOverview({
               Payment Requests
             </Link>
           </Button>
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => setActiveTab("products")}
-          >
-            <Package className="h-4 w-4 mr-2" />
-            Manage Products
-          </Button>
           <Button variant="outline" className="w-full" asChild>
-            <Link href="/vendor/1">
+            <Link href={`/vendor/${vendor?.vendorId}`}>
               <Eye className="h-4 w-4 mr-2" />
               View Store
             </Link>
