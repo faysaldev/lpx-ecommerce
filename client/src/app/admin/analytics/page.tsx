@@ -25,8 +25,7 @@ import UsersTrendsChart from "@/components/Admin/Analytics/UsersTrendsChart ";
 import ProductsTrendsChart from "@/components/Admin/Analytics/ProductsTrendsChart ";
 
 export default function AnalyticsDashboard() {
-  const { data: analyticsStats, isLoading: isLoadingAnalyticsStats } =
-    useGetAnalyticsStatsQuery({});
+  const { data: analyticsStats } = useGetAnalyticsStatsQuery({});
   const { data: totalSales, isLoading: isLoadingTotalSales } =
     useGetTotalSalesQuery({});
   const { data: totalUsers, isLoading: isLoadingTotalUsers } =
@@ -217,7 +216,7 @@ export default function AnalyticsDashboard() {
               {(topSellingCategories?.data?.attributes || []).map(
                 (category: any, index: number) => (
                   <div
-                    key={category.category}
+                    key={index}
                     className="flex items-center justify-between"
                   >
                     <div>

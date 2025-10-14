@@ -1,33 +1,9 @@
 "use client";
 
-import {
-  Calendar,
-  Clock,
-  DollarSign,
-  Download,
-  Eye,
-  FileText,
-  MoreHorizontal,
-  User,
-} from "lucide-react";
+import { DollarSign, Eye } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/UI/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/UI/dropdown-menu";
 import {
   Table,
   TableBody,

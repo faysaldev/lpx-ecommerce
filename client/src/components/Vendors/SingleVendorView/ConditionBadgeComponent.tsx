@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Package, Star, Shield, CheckCircle } from "lucide-react"; // Importing Lucide icons
+import { Package, Star, Shield } from "lucide-react"; // Importing Lucide icons
 
 const ConditionBadgeComponent = ({ condition }: { condition: any }) => {
   const getConditionUI = () => {

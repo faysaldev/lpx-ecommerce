@@ -1,19 +1,13 @@
 "use client";
 
-import { toast } from "sonner";
-import { Button } from "@/components/UI/button";
-import { Badge } from "@/components/UI/badge";
 import { Separator } from "@/components/UI/separator";
-import { cn } from "@/lib/utils";
 import { Vendor } from "@/lib/types";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
 import {
   Award,
   CheckCircle,
   Clock,
-  Heart,
   MapPin,
   Package,
   Shield,
@@ -26,21 +20,10 @@ import {
 export default function VendorCard({
   vendor,
   viewMode,
-  onFollow,
 }: {
   vendor: Vendor;
   viewMode: "grid" | "list";
-  onFollow: (vendorId: string) => void;
 }) {
-  const [isFollowing, setIsFollowing] = useState(false);
-
-  const handleFollow = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsFollowing(!isFollowing);
-    onFollow(vendor.id);
-    toast.success(isFollowing ? "Unfollowed vendor" : "Following vendor");
-  };
-
   const imageUrl =
     vendor?.storePhoto && process.env.NEXT_PUBLIC_BASE_URL
       ? `${process.env.NEXT_PUBLIC_BASE_URL}${vendor.storePhoto}`
@@ -180,7 +163,7 @@ export default function VendorCard({
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
           {vendor.description}
         </p>
-{/* 
+        {/* 
         {vendor.specialties?.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-4">
             {vendor.specialties.slice(0, 3).map((specialty: string) => (

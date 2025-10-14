@@ -7,6 +7,7 @@ const ShoppingCart = baseApi.injectEndpoints({
         url: "/carts/my-carts",
         method: "GET",
       }),
+      providesTags: ["my_wishList"],
     }),
     DeleteSingleCart: builder.mutation({
       query: ({ id }) => ({
@@ -30,9 +31,9 @@ const ShoppingCart = baseApi.injectEndpoints({
   }),
 });
 
-export const { 
-  useAllShoppingCartQuery, 
-  useDeleteSingleCartMutation, 
+export const {
+  useAllShoppingCartQuery,
+  useDeleteSingleCartMutation,
   useAllDeleteCartMutation,
-  useUpdateCartQuantityMutation
+  useUpdateCartQuantityMutation,
 } = ShoppingCart;

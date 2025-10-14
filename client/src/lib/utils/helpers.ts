@@ -213,6 +213,7 @@ export function getPaymentRequestSummary(requests: PaymentRequest[]): {
   const averageAmount = totalRequests > 0 ? totalAmount / totalRequests : 0;
 
   const statusCounts: Record<PaymentRequestStatus, number> = {
+    all: 0,
     pending: 0,
     approved: 0,
     paid: 0,
@@ -221,6 +222,7 @@ export function getPaymentRequestSummary(requests: PaymentRequest[]): {
 
   requests.forEach((req) => {
     statusCounts[req.status]++;
+    statusCounts.all++;
   });
 
   return {

@@ -1,8 +1,4 @@
-import {
-  ReadonlyURLSearchParams,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/types";
 import {
@@ -42,7 +38,6 @@ interface UseBrowseFiltersReturn {
 }
 
 export function useBrowseFilters(products: Product[]): UseBrowseFiltersReturn {
-  const _router = useRouter();
   const searchParams: ReadonlyURLSearchParams | null = useSearchParams();
 
   // Initialize filters from URL params

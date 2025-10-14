@@ -45,7 +45,7 @@ interface FilterSidebarProps {
   filters: BrowseFilters;
   onUpdateFilter: <K extends keyof BrowseFilters>(
     key: K,
-    value: BrowseFilters[K],
+    value: BrowseFilters[K]
   ) => void;
   onClearFilters: () => void;
   categories: any;
@@ -155,7 +155,7 @@ export function FilterSidebar({
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-2 pt-2">
-                  {categories.map((category:any) => (
+                  {categories.map((category: any) => (
                     <div
                       key={category.id}
                       className="flex items-center space-x-2"
@@ -284,7 +284,7 @@ export function FilterSidebar({
                         <div
                           className={cn(
                             "w-2 h-2 rounded-full",
-                            condition.color,
+                            condition.color
                           )}
                         />
                         {condition.label}

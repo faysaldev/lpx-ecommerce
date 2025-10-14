@@ -74,8 +74,6 @@ VendorStyleFilterBarProps) {
 
   const sortOptions = SORT_OPTIONS;
 
-  console.log(isVendorPage, "isvendor Page");
-
   return (
     <div className={cn("mb-6", className)}>
       {/* Filter Toggle & Quick Actions */}

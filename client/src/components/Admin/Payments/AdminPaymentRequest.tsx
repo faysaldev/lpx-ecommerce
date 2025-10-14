@@ -3,7 +3,6 @@
 
 import {
   ArrowUpDown,
-  CheckCircle,
   Clock,
   DollarSign,
   Filter,

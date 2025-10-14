@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { Filter } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -8,10 +9,10 @@ import { cn } from "@/lib/utils/index";
 import { Category, Product } from "@/lib/types";
 import { useBrowseFilters } from "@/hooks/useBrowseFilters";
 import PageLayout from "@/components/layout/PageLayout";
-import { EmptyStates } from "@/components/shared/EmptyState";
+import { MobileFilterSheet } from "@/components/Browse/FilterSidebar";
 import { VendorStyleFilterBar } from "@/components/Browse/VendorStyleFilterBar";
 import { ProductGrid } from "@/components/Browse/ProductGrid";
-import { CONDITIONS, type SortOption, type ViewMode } from "@/lib/browse-utils";
+import { CONDITIONS } from "@/lib/browse-utils";
 import { Button } from "@/components/UI/button";
 import { Label } from "@/components/UI/label";
 import {
@@ -23,18 +24,19 @@ import {
 } from "@/components/UI/select";
 import { Input } from "@/components/UI/input";
 import { productStyles } from "@/components/UI/product.variants";
-import { MobileFilterSheet } from "@/components/Browse/FilterSidebar";
-import { Filter } from "lucide-react";
 import {
   useAllCategoriesQuery,
   useAllProductsBrowseCollectiblesQuery,
 } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 
 export default function CategoryPage() {
-  const params: Record<string, string> | null = useParams();
-  const categorySlug = params?.slug ? decodeURIComponent(params.slug) : null;
-  
+  const params = useParams();
+  const categorySlug = params?.slug
+    ? decodeURIComponent(params.slug as string)
+    : null;
+
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(24);
 
@@ -62,9 +64,7 @@ export default function CategoryPage() {
   } = useAllProductsBrowseCollectiblesQuery({
     query: filters.search || "",
     minPrice:
-      filters.priceRange.min > 0
-        ? filters.priceRange.min.toString()
-        : "0",
+      filters.priceRange.min > 0 ? filters.priceRange.min.toString() : "0",
     maxPrice:
       filters.priceRange.max < 10000
         ? filters.priceRange.max.toString()
@@ -78,10 +78,26 @@ export default function CategoryPage() {
 
   // Process categories data from backend
   useEffect(() => {
-    if (productsData?.data) {
-      setProducts(productsData.data);
+    if (categoriesData?.data?.attributes) {
+      const backendCategories = categoriesData.data.attributes;
+
+      // Transform backend categories to match your Category type
+      const transformedCategories: Category[] = backendCategories.map(
+        (cat: any) => ({
+          id: cat._id,
+          name: cat.name,
+          slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, "-"),
+          description: cat.description,
+          image: cat.image || "",
+          productCount: cat.productCount || 0,
+          createdAt: cat.createdAt,
+          updatedAt: cat.updatedAt,
+        })
+      );
+
+      setCategories(transformedCategories);
     }
-  }, [productsData]);
+  }, [categoriesData]);
 
   // Process products data from backend
   useEffect(() => {
@@ -264,30 +280,13 @@ export default function CategoryPage() {
             }`
       }
       breadcrumbs={[
-        { label: "Category", href:  `/category/${categorySlug}` },
-        { label: categorySlug, href: `/category/${categorySlug}` },
+        { label: "Category", href: `/category/${categorySlug || ""}` },
+        {
+          label: categorySlug || "Loading...",
+          href: `/category/${categorySlug || ""}`,
+        },
       ]}
     >
-      {/* Mobile Filter Button */}
-      <div className="flex justify-end mb-8 lg:hidden">
-        <MobileFilterSheet
-          filters={filters}
-          onUpdateFilter={updateFilter}
-          onClearFilters={clearFilters}
-          products={products}
-        >
-          <Button variant="outline">
-            <Filter className="h-4 w-4 mr-2" />
-            Filters
-            {activeFilterCount > 0 && (
-              <span className="ml-2 bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-xs">
-                {activeFilterCount}
-              </span>
-            )}
-          </Button>
-        </MobileFilterSheet>
-      </div>
-
       {/* Controls */}
       <div className="mb-6">
         <VendorStyleFilterBar
@@ -338,7 +337,10 @@ export default function CategoryPage() {
                     </SelectItem>
                     {categoriesData?.data?.attributes?.map((category: any) => {
                       // Don't show the current category in the dropdown since we're already in that category page
-                      if (category.name.toLowerCase().replace(/\s+/g, "-") === categorySlug) {
+                      if (
+                        category.name.toLowerCase().replace(/\s+/g, "-") ===
+                        categorySlug
+                      ) {
                         return null;
                       }
                       return (
@@ -448,8 +450,17 @@ export default function CategoryPage() {
         <div className="mt-8 pt-6 border-t border-border">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-muted-foreground">
-              Showing {Math.min((currentPage - 1) * itemsPerPage + 1, backendFilteredProducts.length)}-
-              {Math.min(currentPage * itemsPerPage, backendFilteredProducts.length)} of {backendFilteredProducts.length} results
+              Showing{" "}
+              {Math.min(
+                (currentPage - 1) * itemsPerPage + 1,
+                backendFilteredProducts.length
+              )}
+              -
+              {Math.min(
+                currentPage * itemsPerPage,
+                backendFilteredProducts.length
+              )}{" "}
+              of {backendFilteredProducts.length} results
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -472,7 +483,7 @@ export default function CategoryPage() {
                   } else {
                     pageNum = currentPage - 2 + i;
                   }
-                  
+
                   return (
                     <Button
                       key={pageNum}
@@ -498,7 +509,9 @@ export default function CategoryPage() {
               <span className="text-sm text-muted-foreground">Show:</span>
               <select
                 value={itemsPerPage}
-                onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                onChange={(e) =>
+                  handleItemsPerPageChange(Number(e.target.value))
+                }
                 className="border rounded-md px-2 py-1 text-sm"
               >
                 <option value="12">12</option>
@@ -510,16 +523,6 @@ export default function CategoryPage() {
           </div>
         </div>
       )}
-
-   <ProductGrid
-          products={productsData?.data || []}
-          viewMode={viewMode}
-          isLoading={productsLoading}
-          onAddToCart={handleAddToCart}
-          onAddToWishlist={handleAddToWishlist}
-          onBuyNow={handleBuyNow}
-          onShare={handleShare}
-        />
     </PageLayout>
   );
 }

@@ -8,15 +8,11 @@ import {
   Shield,
   ShoppingBag,
   Truck,
-  TrendingUp,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Separator } from "@/components/UI/separator";
-import { useAppSelector } from "@/redux/hooks";
-import { selectCurrentUser } from "@/redux/features/auth/authSlice";
 import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant";
 
 interface CartSummaryProps {

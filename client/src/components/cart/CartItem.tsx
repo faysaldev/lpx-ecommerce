@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/UI/button";
 import { Card } from "@/components/UI/card";
 import { getImageUrl } from "@/lib/getImageURL";
+import { useRouter } from "next/navigation";
+import { useAddNewToWishListMutation } from "@/redux/features/GetWishList/GetWishList";
 
 interface CartItemProps {
   item: any;
@@ -35,6 +37,8 @@ const CartItem = ({
   const [isUpdating, setIsUpdating] = useState(false);
   const [quantity, setQuantity] = useState(localQuantity);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const router = useRouter();
+  const [addtoWithlist] = useAddNewToWishListMutation();
 
   // Extract item data
   const productId = item.productId;
@@ -110,6 +114,14 @@ const CartItem = ({
       }
     };
   }, []);
+
+  const addNewWishList = async () => {
+    await addtoWithlist({
+      products: item?.productId,
+      vendorId: item?.vendorId,
+    });
+    router.push("/wishlist");
+  };
 
   return (
     <Card className="p-4 sm:p-6 transition-all">
@@ -243,11 +255,21 @@ const CartItem = ({
 
           {/* Actions */}
           <div className="flex gap-2 pt-1">
-            <Button variant="ghost" size="sm" className="text-xs h-8">
+            <Button
+              onClick={addNewWishList}
+              variant="ghost"
+              size="sm"
+              className="text-xs h-8"
+            >
               <Heart className="h-3 w-3 mr-1" />
               Save for later
             </Button>
-            <Button variant="ghost" size="sm" className="text-xs h-8">
+            <Button
+              onClick={() => router.push(`/category/${item?.category}`)}
+              variant="ghost"
+              size="sm"
+              className="text-xs h-8"
+            >
               <Package className="h-3 w-3 mr-1" />
               View similar
             </Button>

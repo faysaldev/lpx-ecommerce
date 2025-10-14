@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Button, type ButtonProps } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/UI/button";
 import { cn } from "@/lib/utils";
 
 // Primary CTA Button - Enhanced with design system

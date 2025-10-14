@@ -31,6 +31,7 @@ const BrowseCollectibles = baseApi.injectEndpoints({
         body: cartBody,
         method: "POST",
       }),
+      invalidatesTags: ["my_wishList", "header_statics"],
     }),
 
     remmoveTocart: builder.query({
@@ -46,6 +47,7 @@ const BrowseCollectibles = baseApi.injectEndpoints({
         body: wishlistBody,
         method: "POST",
       }),
+      invalidatesTags: ["my_wishList", "header_statics"],
     }),
 
     remmoveToWishlist: builder.query({

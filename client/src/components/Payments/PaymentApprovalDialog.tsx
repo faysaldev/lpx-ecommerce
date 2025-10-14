@@ -5,7 +5,6 @@ import {
   AlertCircle,
   Calendar,
   CheckCircle,
-  DollarSign,
   FileText,
   Upload,
   User,

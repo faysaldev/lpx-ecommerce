@@ -65,7 +65,7 @@ const VendorProductSection = () => {
 
   const products = data?.data?.attributes?.products;
   // console.log("data?.data?.attributes?.products",products)
-  const total = data?.data?.total || 0;
+  // const total = data?.data?.total || 0;
 
   // Mutation Hook
   const [removeProduct] = useRemoveSingleProductsMutation();

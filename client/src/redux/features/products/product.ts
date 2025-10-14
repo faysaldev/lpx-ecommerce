@@ -16,15 +16,14 @@ const authApi = baseApi.injectEndpoints({
       }),
     }),
     productUpdate: builder.mutation({
-      query: (args) => {
-        const { id, data } = args;
-        return {
-          url: `/products/edite/${id}`,
-          method: "PATCH",
-          body: data,
-        };
-      },
+      query: ({ id, data }) => ({
+        url: `/products/edite/${id}`,
+        method: "PATCH",
+        body: data,
+      }),
+      invalidatesTags: ["product"], // Add this to refresh product data after update
     }),
+
     draftsCreate: builder.mutation({
       query: (productInfo) => ({
         url: "/drafts/add",

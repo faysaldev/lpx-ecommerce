@@ -1,15 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import {
-  Copy,
-  Edit2,
-  Eye,
-  MoreVertical,
-  Package,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { Edit2, Eye, MoreVertical, Package, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";

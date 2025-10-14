@@ -2,7 +2,7 @@
 "use client";
 
 import { Award, Filter, Package, Shield, Star, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import PageLayout from "@/components/layout/PageLayout";
 import { EmptyStates } from "@/components/shared/EmptyState";
@@ -598,11 +598,6 @@ export default function VendorsPage() {
     (filters.minProducts > 0 ? 1 : 0) +
     (filters.location ? 1 : 0);
 
-  // Handle vendor follow
-  const handleFollow = (vendorId: string) => {
-    // API call for following vendor would go here
-  };
-
   const paginationData = vendorsData?.data?.attributes;
   const totalVendors = paginationData?.totalVendors || 0;
   const totalPages = paginationData?.totalPages || 1;
@@ -640,7 +635,7 @@ export default function VendorsPage() {
       {/* Search and Controls */}
       <div className="mb-6">
         <VendorStyleFilterBar
-        isVendorPage={true}
+          isVendorPage={true}
           search={filters.search}
           onSearchChange={(value) => updateFilter("search", value)}
           sortOption={sortBy}
@@ -737,12 +732,7 @@ export default function VendorsPage() {
             )}
           >
             {vendors.map((vendor: any) => (
-              <VendorCard
-                key={vendor.id}
-                vendor={vendor}
-                viewMode={viewMode}
-                onFollow={handleFollow}
-              />
+              <VendorCard key={vendor.id} vendor={vendor} viewMode={viewMode} />
             ))}
           </div>
         ) : (

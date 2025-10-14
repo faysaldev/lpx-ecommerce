@@ -4,15 +4,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  Search,
-  Home,
   ShoppingBag,
   ArrowRight,
   Sparkles,
   Navigation,
+  Home,
 } from "lucide-react";
 import { Button } from "@/components/UI/button";
-import { Input } from "@/components/UI/input";
 
 export default function NotFound() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -60,7 +58,7 @@ export default function NotFound() {
             404
           </div>
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-6xl font-bold text-white bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+            <div className="text-6xl font-bold text-white bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text">
               404
             </div>
           </div>

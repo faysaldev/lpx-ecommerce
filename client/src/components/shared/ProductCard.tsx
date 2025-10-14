@@ -140,8 +140,6 @@ const ProductCard = ({
   // Use the correct stock quantity
   const finalStockQuantity = stockQuantity;
 
-  console.log(finalStockQuantity, "stocks");
-
   // Use the correct vendor name
   const finalVendorName =
     vendor?.storeName || vendorName || vendor || "Unknown Vendor";

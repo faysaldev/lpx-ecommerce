@@ -19,8 +19,7 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Toaster, toast } from "sonner";
+import { useState } from "react";
 
 import { SimplePageLayout } from "@/components/layout/PageLayout";
 import ProductCard from "@/components/shared/ProductCard";
@@ -32,15 +31,12 @@ import {
   useLandingpageFetureProductsQuery,
   useLandingpageStatiticsQuery,
 } from "@/redux/features/Common/LandingPageUtils";
+import { toast } from "sonner";
 
 export default function Home() {
-  // const { addToCart } = useCart();
-  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
-  const { data: fetchFeaturedProducts, isLoading } =
-    useLandingpageFetureProductsQuery({});
+  const { data: fetchFeaturedProducts } = useLandingpageFetureProductsQuery({});
 
-  const { data: fetchStatistics, isLoading: isStatsLoading } =
-    useLandingpageStatiticsQuery({});
+  const { data: fetchStatistics } = useLandingpageStatiticsQuery({});
 
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(
     null

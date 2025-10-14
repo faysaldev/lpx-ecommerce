@@ -3,7 +3,7 @@
 import { CheckCircle, Tag, X } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/UI/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
 import { Input } from "@/components/UI/input";
 

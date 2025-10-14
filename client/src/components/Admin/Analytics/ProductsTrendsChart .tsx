@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  ComposedChart,
-  Line,
   Bar,
   XAxis,
   YAxis,
@@ -13,6 +11,7 @@ import {
 } from "recharts";
 
 const ProductsTrendsChart = ({ data }: { data: any[] }) => {
+  console.log(data, "Products Trends Charts");
   const formatDate = (dateStr: any) => {
     const date = new Date(dateStr);
     return `${date.getMonth() + 1}/${date.getDate()}`;

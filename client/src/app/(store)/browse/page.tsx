@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { Filter } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -9,7 +8,6 @@ import { cn } from "@/lib/utils";
 import { Category, Product } from "@/lib/types";
 import { useBrowseFilters } from "@/hooks/useBrowseFilters";
 import PageLayout from "@/components/layout/PageLayout";
-import { Button } from "@/components/UI/button";
 import { Label } from "@/components/UI/label";
 import {
   Select,
@@ -20,7 +18,6 @@ import {
 } from "@/components/UI/select";
 import { Input } from "@/components/UI/input";
 import { CONDITIONS } from "@/lib/browse-utils";
-import { MobileFilterSheet } from "@/components/Browse/FilterSidebar";
 import { VendorStyleFilterBar } from "@/components/Browse/VendorStyleFilterBar";
 import { ProductGrid } from "@/components/Browse/ProductGrid";
 import { QuickView } from "@/components/Browse/QuickView";

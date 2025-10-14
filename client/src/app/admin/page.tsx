@@ -90,7 +90,6 @@ export default function AdminDashboard() {
   });
 
   const { data, error, isLoading } = useAdminDasboardQuery({});
-
   useEffect(() => {
     if (data?.data?.attributes) {
       const apiData = data.data.attributes;

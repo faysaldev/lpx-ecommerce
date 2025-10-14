@@ -5,9 +5,9 @@ import { TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useMemo, useCallback } from "react";
 import PageLayout from "@/components/layout/PageLayout";
-import { EmptyStates } from "@/components/shared/EmptyState";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
+import { EmptyStates } from "@/components/shared/EmptyState";
 import RecentlyViewed from "@/components/cart/RecentlyViewed";
 import CartSummary from "@/components/cart/CartSummary";
 import CartItem from "@/components/cart/CartItem";
@@ -70,7 +70,7 @@ const CartPage = () => {
     } else {
       setLocalCartItems(new Map());
     }
-  }, [data]);
+  }, [data, items]);
 
   // Optimized quantity update handler with debouncing
   const updateQuantity = useCallback(
