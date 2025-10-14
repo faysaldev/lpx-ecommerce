@@ -389,7 +389,7 @@ const getVendorRecentOrders = async (userId, page = 1, limit = 10) => {
     totalPrice: order.totalAmount,
     status: order.status,
     orderDate: order.createdAt,
-    orderMongoId: order._id,
+    id: order._id,
   }));
 
   return {
