@@ -27,6 +27,7 @@ import {
 import { useLandingpageHeaderStatiticsQuery } from "@/redux/features/Common/LandingPageUtils";
 import MobileMenuToggle from "./Common/MobileMenuToggle";
 import DropDownHeaderMenu from "./Common/DropDownHeaderMenu";
+import Image from "next/image";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,8 +35,7 @@ export default function Header() {
     { name: string; slug: string; productCount?: number }[]
   >([]);
   const headerStats = useAppSelector(selectHeaderStatitics);
-  const { data: categoriesData, isLoading: categoriesLoading } =
-    useAllCategoriesQuery({});
+  const { data: categoriesData } = useAllCategoriesQuery({});
 
   const { data: headerStatitics } = useLandingpageHeaderStatiticsQuery({});
   const dispatch = useAppDispatch();
@@ -58,8 +58,11 @@ export default function Header() {
           <div className="flex items-center space-x-2">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <img
-                src={"./lpx_logo.svg"}
+              <Image
+                width={100}
+                height={100}
+                alt="image"
+                src="./lpx_logo.svg"
                 className="h-8"
                 style={{ filter: "invert(1) grayscale(100%)" }} // This inverts the image to white
               />
@@ -153,13 +156,13 @@ export default function Header() {
                   <IconButton asChild className="relative">
                     <Link href="/wishlist">
                       <Heart className="h-5 w-5" />
-                      {(headerStats?.wishlistItemsCount ?? 0) > 0 && (
+                      {(headerStats?.wishlistProductIds?.length ?? 0) > 0 && (
                         <Badge
                           className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center"
                           variant="destructive"
                         >
-                          {headerStats?.wishlistItemsCount
-                            ? headerStats?.wishlistItemsCount
+                          {headerStats?.wishlistProductIds?.length
+                            ? headerStats?.wishlistProductIds?.length
                             : 0}
                         </Badge>
                       )}

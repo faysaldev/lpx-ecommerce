@@ -17,10 +17,14 @@ interface VendorOwnerDetails {
   sellerId: string;
 }
 
+type withListId = {
+  id: string;
+};
+
 type UserHeaderStatus = {
   unreadNotificationsCount: number;
   cartItemsCount: number;
-  wishlistItemsCount: number;
+  wishlistProductIds: withListId[];
 };
 
 // Define the state for categories

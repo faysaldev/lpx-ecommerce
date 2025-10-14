@@ -214,19 +214,25 @@ const headerStatistics = async (userId) => {
     const cartItems = await Cart.find({ customer: userId }).lean();
 
     // Fetch all wishlist items for the user (customer == userId)
-    const wishlistItems = await Wishlist.find({ customer: userId }).lean();
+    const wishlistItems = await Wishlist.find({ customer: userId })
+      .lean()
+      .select("products"); // Only fetch the 'products' field from the wishlist items
+
+    // Extract product IDs from the wishlist items
+    const wishlistProductIds = wishlistItems.map((item) => item.products);
 
     // Return statistics
     return {
       unreadNotificationsCount: unreadNotifications.length,
       cartItemsCount: cartItems.length,
-      wishlistItemsCount: wishlistItems.length,
+      wishlistProductIds: wishlistProductIds, // Array of product IDs in the wishlist
     };
   } catch (error) {
     console.error("Error fetching header statistics:", error);
     throw new Error("Error fetching header statistics");
   }
 };
+
 // get customer dashboard details
 const getCustomerDashboard = async (userId) => {
   // Get basic stats
