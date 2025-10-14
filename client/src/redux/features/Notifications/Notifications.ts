@@ -9,8 +9,8 @@ const Notifications = baseApi.injectEndpoints({
       }),
     }),
     AllDeleteNotifications: builder.mutation({
-      query: () => ({
-        url: "/wishlists/remove-all",
+      query: (type) => ({
+        url: `/notifications/remove-all?type=${type}`,
         method: "DELETE",
       }),
     }),
@@ -40,5 +40,5 @@ export const {
   useAllDeleteNotificationsMutation,
   useAllNotificationsReadMutation,
   useSingleDeleteMutation,
-  useUpdateNotificationsMutation
+  useUpdateNotificationsMutation,
 } = Notifications;

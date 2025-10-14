@@ -24,4 +24,8 @@ router
   .route("/remove/:id")
   .delete(auth("common"), notificationController.removeNotification);
 
+router
+  .route("/remove-all/")
+  .delete(auth("common"), notificationController.removeAllNotification);
+
 module.exports = router;

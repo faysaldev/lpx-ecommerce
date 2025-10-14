@@ -40,6 +40,13 @@ const removeNotification = async (notificationId) => {
   return Notification.findByIdAndDelete(notificationId);
 };
 
+const removeAllNotification = async (authorId, type) => {
+  if (!type) {
+    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+  }
+  return Notification.deleteMany({ authorId, type });
+};
+
 const makeAllNotificationRead = async (userId) => {
   if (!userId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
@@ -66,4 +73,5 @@ module.exports = {
   updateNotification,
   makeAllNotificationRead,
   removeNotification,
+  removeAllNotification,
 };

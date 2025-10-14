@@ -321,12 +321,7 @@ export interface IAPIFactory {
   createPaymentMethodsAPI(): IPaymentMethodsAPI;
 }
 
-export type NotificationType =
-  | "orders"
-  | "system"
-  | "promotion"
-  | "vendor"
-  | "price_alert";
+export type NotificationType = "orders" | "system" | "promotion" | "vendor";
 export type NotificationPriority = "low" | "medium" | "high";
 
 export interface Notification {
