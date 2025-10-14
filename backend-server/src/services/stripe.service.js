@@ -278,7 +278,7 @@ const handleCheckoutCompleted = async (checkoutSession) => {
 
     // Prepare update data for the order
     const updateData = {
-      status: "processing",
+      status: "conformed",
       shippingInformation: {
         name: name || "",
         email: email || customer_email || "",
