@@ -125,9 +125,13 @@ const ProductCard = ({
 
   // Use the correct ID (support both _id and id)
   const productId = _id || id;
-
   // Check if product is already in wishlist
   const isInWishlist = headerStats?.wishlistProductIds?.includes(productId);
+
+  // const [wishlistIconUpdate, setWishlistIconUpdate] = useState(isInWishlist);
+
+  // console.log('show wishlist Icon', wishlistIconUpdate)
+
 
   const addToCart = async () => {
     await addtoCartProduct({
