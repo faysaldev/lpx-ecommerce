@@ -18,17 +18,13 @@ const authApi = baseApi.injectEndpoints({
         sortBy,
         page,
         limit,
+        category,
       }) => ({
-        url: `/admin/all-products?query=${query || ""}&minPrice=${
-          minPrice || ""
-        }&maxPrice=${maxPrice || ""}&condition=${condition || ""}&sortBy=${
-          sortBy || ""
-        }&page=${page || ""}&limit=${limit || ""}`,
+        url: `/admin/all-products?query=${query}&minPrice=${minPrice}&maxPrice=${maxPrice}&condition=${condition}&sortBy=${sortBy}&page=${page}&limit=${limit}&category=${category}`,
         method: "GET",
       }),
     }),
   }),
 });
 
-export const { useSearchAdminProductsQuery, useAdminProductsStatsQuery } =
-  authApi;
+export const { useSearchAdminProductsQuery, useAdminProductsStatsQuery } =authApi;

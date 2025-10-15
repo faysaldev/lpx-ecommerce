@@ -46,7 +46,7 @@ export default function Header() {
     setCategories(categoriesData?.data?.attributes || []);
     dispatch(setAllCategories(categoriesData?.data?.attributes || null));
     dispatch(setHeaderStatitics(headerStatitics?.data));
-  }, [categoriesData]);
+  }, [categoriesData, headerStatitics]);
 
   const memoizedCategories = useMemo(() => categories, [categories]);
 
@@ -62,7 +62,7 @@ export default function Header() {
                 width={100}
                 height={100}
                 alt="image"
-                src="./lpx_logo.svg"
+                src="/lpx_logo.svg"
                 className="h-8"
                 style={{ filter: "invert(1) grayscale(100%)" }} // This inverts the image to white
               />

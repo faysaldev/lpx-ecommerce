@@ -39,6 +39,9 @@ import {
   useSearchAdminProductsQuery,
   // useDeleteProductMutation,
 } from "@/redux/features/admin/AdminProducts";
+import { selectCategories } from "@/redux/features/Common/CommonSlice";
+import { useSelector } from "react-redux";
+import { useAppSelector } from "@/redux/hooks";
 
 // Updated types based on API response
 export interface AdminProduct {
@@ -101,6 +104,9 @@ export default function ProductsManagement() {
   } = useAdminProductsStatsQuery({});
 
   // const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
+
+   const categoriesData = useAppSelector(selectCategories);
+   console.log("categoriesData", categoriesData);
 
   useEffect(() => {
     if (productsData?.data?.attributes) {
