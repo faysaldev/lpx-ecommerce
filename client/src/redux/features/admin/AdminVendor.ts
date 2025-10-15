@@ -15,6 +15,7 @@ const authApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: vendorInfo,
       }),
+      invalidatesTags: ["vendor_update"],
     }),
   }),
 });

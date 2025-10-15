@@ -31,6 +31,11 @@ router.route("/").get(generalsController.getGeneral);
 router.route("/update").patch(auth("common"), generalsController.updateGeneral);
 
 /**
+ * ⚙️ get shipping information
+ */
+router.route("/shipping-tax").get(generalsController.getShippingTaxEtc);
+
+/**
  * 📋 Conditions
  */
 router
