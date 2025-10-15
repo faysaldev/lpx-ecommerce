@@ -98,7 +98,20 @@ const deleteProducts = catchAsync(async (req, res) => {
 });
 
 const editeProducts = catchAsync(async (req, res) => {
-  const products = await productService.editeProducts(req.params.id, req.body);
+  const imagePaths = req?.files?.image?.map(
+    (img) => `${img.path.replace("public\\", "")}`
+  );
+  console.log(imagePaths);
+  const dataFormat = {
+    images: imagePaths,
+    ...req.body,
+  };
+
+  console.log(dataFormat);
+  const products = await productService.editeProducts(
+    req.params.id,
+    dataFormat
+  );
   res.status(httpStatus.CREATED).json(
     response({
       message: "Edited Products",

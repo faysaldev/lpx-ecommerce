@@ -532,7 +532,7 @@ const NewProductPage = () => {
       // New images
       if (images.length > 0) {
         images.forEach((image) => {
-          formData.append("images", image);
+          formData.append("image", image);
         });
       }
 

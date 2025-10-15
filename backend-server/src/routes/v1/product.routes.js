@@ -33,7 +33,12 @@ router
 
 router
   .route("/edite/:id")
-  .patch(auth("common"), productController.editeProducts);
+  .patch(
+    auth("common"),
+    [uploadUsers.fields([{ name: "image", maxCount: 8 }])],
+    convertHeicToPngMiddleware(UPLOADS_FOLDER_USERS),
+    productController.editeProducts
+  );
 
 router.route("/details/:id").get(productController.productDetails);
 router

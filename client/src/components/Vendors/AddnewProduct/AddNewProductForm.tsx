@@ -106,6 +106,13 @@ function AddNewProductForm() {
   const onSubmit = async (data: ProductFormData) => {
     setIsSubmitting(true);
 
+    // Check if images are selected
+    if (images.length === 0) {
+      toast.error("Please upload at least one image.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const formData = new FormData();
 
