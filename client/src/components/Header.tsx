@@ -78,7 +78,7 @@ export default function Header() {
           {/* Navigation and Icons */}
           <div className="flex items-center gap-6">
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-6 header-auth-section">
+            <nav className="items-center gap-6 md:min-w-[200px] hidden md:inline-flex md:items-center md:justify-end">
               {/* Categories Dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
