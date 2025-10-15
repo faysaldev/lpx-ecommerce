@@ -23,6 +23,7 @@ import RevenueTrendsChart from "@/components/Admin/Analytics/RevenueTrendsChart 
 import SalesTrendsChart from "@/components/Admin/Analytics/SalesTrendsChart ";
 import UsersTrendsChart from "@/components/Admin/Analytics/UsersTrendsChart ";
 import ProductsTrendsChart from "@/components/Admin/Analytics/ProductsTrendsChart ";
+import { formatNumber } from "@/lib/utils/helpers";
 
 export default function AnalyticsDashboard() {
   const { data: analyticsStats } = useGetAnalyticsStatsQuery({});
@@ -90,10 +91,12 @@ export default function AnalyticsDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              $
-              {analyticsStats?.data?.attributes?.totalRevenue?.count?.toFixed(
-                2
-              ) || "0.00"}
+              AED{" "}
+              {formatNumber(
+                analyticsStats?.data?.attributes?.totalRevenue?.count?.toFixed(
+                  2
+                )
+              )}
             </div>
             <p className="text-xs text-muted-foreground">
               {analyticsStats?.data?.attributes?.totalRevenue?.percentage || 0}%
