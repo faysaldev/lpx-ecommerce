@@ -49,7 +49,7 @@ function SignupCard() {
       const data = {
         email: email,
         password: password,
-        name: `${firstName}`,
+        name: `${firstName} ${lastName}`,
         phoneNumber: phone,
         role: "user",
         type: "customer",

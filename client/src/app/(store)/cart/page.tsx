@@ -18,6 +18,7 @@ import {
 } from "@/redux/features/ShoppingCart/ShoppingCart";
 import ProtectedRoute from "@/Provider/ProtectedRoutes";
 import { toast } from "sonner";
+import { useLpxtaxEtcDetailsQuery } from "@/redux/features/Common/LandingPageUtils";
 
 interface CartItemType {
   id: string;
@@ -44,6 +45,8 @@ const CartPage = () => {
   const [deleteSingleCart] = useDeleteSingleCartMutation();
   const [deleteAllCart] = useAllDeleteCartMutation();
   // const [updateCartItem] = useUpdateCartItemMutation();
+  const { data: platformInformation } = useLpxtaxEtcDetailsQuery({});
+  console.log(platformInformation, "platformInformation");
 
   // Local state for optimistic updates
   const [localCartItems, setLocalCartItems] = useState<
@@ -122,10 +125,10 @@ const CartPage = () => {
 
     // Shipping: Free over $100, otherwise $10
     // const shipping = subtotal > 100 ? 0 : subtotal > 0 ? 10 : 0;
-    const shipping = 20;
+    const shipping = platformInformation?.data?.attributes?.shippingCharge;
 
     // Tax (currently 0%)
-    const tax = subtotal * 0;
+    const tax = subtotal * platformInformation?.data?.attributes?.estimatedTax;
 
     // Discount (can be applied via coupon)
     const discount = 0;

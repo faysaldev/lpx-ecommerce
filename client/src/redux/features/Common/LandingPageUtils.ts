@@ -22,6 +22,12 @@ const BrowseCollectibles = baseApi.injectEndpoints({
       }),
       providesTags: ["header_statics"],
     }),
+    lpxtaxEtcDetails: builder.query({
+      query: () => ({
+        url: "/generals/shipping-tax",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -29,4 +35,5 @@ export const {
   useLandingpageFetureProductsQuery,
   useLandingpageStatiticsQuery,
   useLandingpageHeaderStatiticsQuery,
+  useLpxtaxEtcDetailsQuery,
 } = BrowseCollectibles;

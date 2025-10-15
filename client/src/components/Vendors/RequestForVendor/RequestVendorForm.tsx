@@ -187,7 +187,7 @@ function RequestVendorForm() {
       const res = await vendorCreationApplication(formData);
 
       if (res.error) {
-        if ('data' in res.error) {
+        if ("data" in res.error) {
           const errorData = res.error.data as { message: string };
           toast(`❌ ${errorData.message}`);
         } else {
@@ -371,7 +371,6 @@ function RequestVendorForm() {
               <Input
                 name="website"
                 id="website"
-                type="url"
                 placeholder="https://yourstore.com"
                 className="pl-10"
               />

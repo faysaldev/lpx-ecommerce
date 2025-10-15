@@ -23,6 +23,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
+// Define a custom type for the error response (if possible)
+type VerificationErrorResponse = {
+  message: string;
+};
+
 function VerifyEmailForm() {
   const [verificationCode, setVerificationCode] = useState("");
   const [errors, setError] = useState("");
@@ -128,7 +133,22 @@ function VerifyEmailForm() {
       };
 
       const res = await verificationEmailCode(data);
-      if (!res?.error) router.replace("/auth/signin");
+
+      if (res?.error) {
+        // Check if the error is of type FetchBaseQueryError and contains data
+        if ("data" in res.error) {
+          const errorData = res.error.data as VerificationErrorResponse; // Cast to the correct type
+
+          // Access the message property safely
+          toast(errorData?.message || "An unknown error occurred");
+        } else {
+          // Handle other types of errors if any (e.g., network error)
+          toast("An error occurred. Please try again.");
+        }
+      } else {
+        // If no error, proceed to sign-in page
+        router.replace("/auth/signin");
+      }
     } catch (_err) {
       setError("Something went wrong. Please try again.");
     } finally {

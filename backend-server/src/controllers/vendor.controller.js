@@ -1,7 +1,11 @@
 const httpStatus = require("http-status");
 const catchAsync = require("../utils/catchAsync");
 const response = require("../config/response");
-const { vendorService } = require("../services");
+const {
+  vendorService,
+  notificationService,
+  emailService,
+} = require("../services");
 
 const getSingleVendors = catchAsync(async (req, res) => {
   const vendors = await vendorService.getSingleVendors(req.params.id);
@@ -116,16 +120,53 @@ const approvedVendorRequest = catchAsync(async (req, res) => {
       })
     );
   }
-  const approvedVendors = await vendorService.approvedVendorRequest(
+  const approved = await vendorService.approvedVendorRequest(
     req.body.vendorId,
     req.body.sellerId
   );
+
+  console.log(approved, "approved vendor");
+  const vendorNotificationData = {
+    authorId: approved?._id, // The seller is the author of the notification
+    sendTo: approved?._id, // Send the notification to the seller
+    transactionId: approved.id, // Use the approved vendor's id as the transactionId
+    title: "Your Vendor Has Been Approved", // Change the title to reflect the approval
+    description: approved.notes || "No additional notes provided.", // Use the vendor's notes as the description. If no notes, provide a default message.
+    type: "vendor", // The type of notification
+  };
+
+  const notification = await notificationService.addNewNotification(
+    vendorNotificationData
+  );
+
+  const vendorApprovalData = {
+    username: approved?.seller?.name,
+    title: "Your Vendor Has Been Approved",
+    description:
+      approved?.notes ||
+      "Your vendor application has been reviewed and approved. You can now start selling on our platform.",
+    transactionId: approved?.id || "VENDOR_12345", // This would be the approved.id
+    timestamp: new Date().toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }),
+  };
+  await emailService.sendNotificationEmailWithDelayVendor(
+    approved?.seller?.email || "admin@gmail.com",
+    vendorApprovalData,
+    5000
+  );
+
   res.status(httpStatus.CREATED).json(
     response({
       message: "Approval Done",
       status: "OK",
       statusCode: httpStatus.CREATED,
-      data: approvedVendors,
+      data: approved,
     })
   );
 });

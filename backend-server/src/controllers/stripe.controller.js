@@ -1,6 +1,6 @@
 const httpStatus = require("http-status");
 const response = require("../config/response");
-const { stripeService, orderService } = require("../services");
+const { stripeService, orderService, generalsService } = require("../services");
 const {
   forMatOrderData,
   forMatStripeLineItems,
@@ -14,11 +14,14 @@ const checkOutSession = async (req, res) => {
       req.body
     );
 
+    const shippingTax = await generalsService.getShippingTaxEtc();
+    console.log(shippingTax);
+
     const orderData = forMatOrderData({
       productDetails,
       customer: req.user.id,
-      shippingCost: 20,
-      taxCost: 0,
+      shippingCost: shippingTax?.shippingCharge,
+      taxCost: shippingTax?.estimatedTax,
       orderNotes: "",
       cupon: {},
     });

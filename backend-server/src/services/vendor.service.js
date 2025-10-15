@@ -293,12 +293,14 @@ const approvedVendorRequest = async (VendorId, sellerId) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
   }
 
-  const approved = await Vendor.findByIdAndUpdate(VendorId, {
-    status: "approved",
-    verified: true,
-  });
-
-  // await User.findByIdAndUpdate(sellerId, { type: "seller" });
+  const approved = await Vendor.findByIdAndUpdate(
+    VendorId,
+    {
+      status: "approved",
+      verified: true,
+    },
+    { new: true }
+  );
   return approved;
 };
 
