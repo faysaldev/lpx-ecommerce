@@ -105,8 +105,8 @@ export default function ProductsManagement() {
 
   // const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
-   const categoriesData = useAppSelector(selectCategories);
-   console.log("categoriesData", categoriesData);
+  const categoriesData = useAppSelector(selectCategories);
+  console.log("categoriesData", categoriesData);
 
   useEffect(() => {
     if (productsData?.data?.attributes) {
@@ -241,10 +241,6 @@ export default function ProductsManagement() {
             Review and manage marketplace listings
           </p>
         </div>
-        <Button variant="outline">
-          <Download className="mr-2 h-4 w-4" />
-          Export
-        </Button>
       </div>
 
       {/* Stats Cards */}

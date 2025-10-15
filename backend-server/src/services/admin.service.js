@@ -412,21 +412,20 @@ const getAdminOrderStats = async () => {
     status: { $ne: "unpaid" }, // Exclude orders with "unpaid" status
   });
 
-  // Orders in Conformed status (excluding unpaid)
+  // Orders in Conformed status (excluding unpaid, counting shipped and delivered)
   const conformedOrders = await Order.countDocuments({
-    status: "conformed",
-    status: { $ne: "unpaid" }, // Exclude orders with "unpaid" status
+    status: { $in: ["shipped", "delivered"] }, // Check if status is either "shipped" or "delivered"
   });
 
   // Orders in Delivered status (excluding unpaid)
   const deliveredOrders = await Order.countDocuments({
     status: "delivered",
-    status: { $ne: "unpaid" }, // Exclude orders with "unpaid" status
+    // Filter to exclude unpaid orders from the result (it's sufficient to just check for status "delivered")
   });
 
   // Total Sales (from completed orders, excluding unpaid)
   const totalSales = await Order.aggregate([
-    { $match: { status: "delivered", status: { $ne: "unpaid" } } }, // Exclude "unpaid"
+    { $match: { status: "delivered" } }, // Only include "delivered" orders
     { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
   ]);
 
@@ -434,7 +433,7 @@ const getAdminOrderStats = async () => {
     totalOrders,
     conformedOrders,
     deliveredOrders,
-    totalSales: totalSales[0]?.totalSales || 0,
+    totalSales: totalSales[0]?.totalSales || 0, // Default to 0 if no sales are found
   };
 };
 

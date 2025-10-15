@@ -92,10 +92,8 @@ export default function AnalyticsDashboard() {
           <CardContent>
             <div className="text-2xl font-bold">
               AED{" "}
-              {formatNumber(
-                analyticsStats?.data?.attributes?.totalRevenue?.count?.toFixed(
-                  2
-                )
+              {analyticsStats?.data?.attributes?.totalRevenue?.count?.toFixed(
+                2
               )}
             </div>
             <p className="text-xs text-muted-foreground">
