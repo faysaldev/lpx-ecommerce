@@ -2,7 +2,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, Truck, Scale, Ruler } from "lucide-react";
+import {
+  X,
+  Loader2,
+  Truck,
+  Scale,
+  Ruler,
+  Tag,
+  Package,
+  Shield,
+} from "lucide-react";
 import { Button } from "@/components/UI/button";
 import { Badge } from "@/components/UI/badge";
 import { useGetSingleProductQuickViewMutation } from "@/redux/features/products/product";
@@ -62,7 +71,6 @@ export default function ProductViewModal({
 
       try {
         setError(null);
-
         const res: any = await fetchQuickDetails(productId);
 
         if (res?.data?.data?.attributes) {
@@ -72,7 +80,6 @@ export default function ProductViewModal({
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
-      } finally {
       }
     };
 
@@ -83,7 +90,6 @@ export default function ProductViewModal({
   useEffect(() => {
     if (!isOpen) {
       setProduct(null);
-
       setError(null);
       setSelectedImage(0);
     }
@@ -122,42 +128,47 @@ export default function ProductViewModal({
 
   const getConditionColor = (condition: string) => {
     const colors: { [key: string]: string } = {
-      Mint: "bg-green-100 text-green-800 border-green-200",
-      "Near Mint": "bg-emerald-100 text-emerald-800 border-emerald-200",
-      Excellent: "bg-blue-100 text-blue-800 border-blue-200",
-      "Very Good": "bg-cyan-100 text-cyan-800 border-cyan-200",
-      Good: "bg-amber-100 text-amber-800 border-amber-200",
-      Fair: "bg-orange-100 text-orange-800 border-orange-200",
-      Poor: "bg-red-100 text-red-800 border-red-200",
+      Mint: "bg-green-500/20 text-green-300 border-green-500/30",
+      "Near Mint": "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+      Excellent: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+      "Very Good": "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+      Good: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+      Fair: "bg-orange-500/20 text-orange-300 border-orange-500/30",
+      Poor: "bg-red-500/20 text-red-300 border-red-500/30",
     };
-    return colors[condition] || "bg-gray-100 text-gray-800 border-gray-200";
+    return (
+      colors[condition] || "bg-gray-500/20 text-gray-300 border-gray-500/30"
+    );
   };
 
   const getRarityColor = (rarity: string) => {
     const colors: { [key: string]: string } = {
-      Common: "bg-gray-100 text-gray-800 border-gray-200",
-      Uncommon: "bg-green-100 text-green-800 border-green-200",
-      Rare: "bg-blue-100 text-blue-800 border-blue-200",
-      "Super Rare": "bg-purple-100 text-purple-800 border-purple-200",
-      "Ultra Rare": "bg-yellow-100 text-yellow-800 border-yellow-200",
-      "Secret Rare": "bg-red-100 text-red-800 border-red-200",
-      Legendary: "bg-orange-100 text-orange-800 border-orange-200",
-      Mythic: "bg-pink-100 text-pink-800 border-pink-200",
+      Common: "bg-gray-500/20 text-gray-300 border-gray-500/30",
+      Uncommon: "bg-green-500/20 text-green-300 border-green-500/30",
+      Rare: "bg-blue-500/20 text-blue-300 border-blue-500/30",
+      "Super Rare": "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      "Ultra Rare": "bg-yellow-500/20 text-yellow-300 border-yellow-500/30",
+      "Secret Rare": "bg-red-500/20 text-red-300 border-red-500/30",
+      Legendary: "bg-orange-500/20 text-orange-300 border-orange-500/30",
+      Mythic: "bg-pink-500/20 text-pink-300 border-pink-500/30",
     };
-    return colors[rarity] || "bg-gray-100 text-gray-800 border-gray-200";
+    return colors[rarity] || "bg-gray-500/20 text-gray-300 border-gray-500/30";
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-sm">
-      <div className="relative bg-white rounded-xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#252D3D] backdrop-blur-sm">
+      <div className="relative bg-gray-900 border border-gray-700 rounded-2xl max-w-6xl w-full max-h-[95vh] overflow-hidden shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-gray-50 to-white">
-          <h2 className="text-2xl font-bold text-gray-900">Product Details</h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-700 bg-gradient-to-r from-gray-800 to-gray-900">
+          <div className="flex items-center gap-3">
+            <Package className="h-6 w-6 text-blue-400" />
+            <h2 className="text-2xl font-bold text-white">Product Details</h2>
+          </div>
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="h-10 w-10 rounded-full hover:bg-gray-100 transition-colors"
+            className="h-10 w-10 rounded-full hover:bg-gray-800 transition-colors text-gray-400 hover:text-white"
           >
             <X className="h-5 w-5" />
           </Button>
@@ -168,8 +179,8 @@ export default function ProductViewModal({
           {isLoading && (
             <div className="flex items-center justify-center p-16">
               <div className="text-center">
-                <Loader2 className="h-16 w-16 animate-spin text-primary mx-auto mb-4" />
-                <p className="text-lg text-muted-foreground font-medium">
+                <Loader2 className="h-16 w-16 animate-spin text-blue-400 mx-auto mb-4" />
+                <p className="text-lg text-gray-300 font-medium">
                   Loading product details...
                 </p>
               </div>
@@ -179,14 +190,14 @@ export default function ProductViewModal({
           {error && (
             <div className="flex items-center justify-center p-16">
               <div className="text-center">
-                <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <X className="h-10 w-10 text-red-600" />
+                <div className="w-20 h-20 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/30">
+                  <X className="h-10 w-10 text-red-400" />
                 </div>
-                <p className="text-red-600 text-lg font-medium mb-4">{error}</p>
+                <p className="text-red-400 text-lg font-medium mb-4">{error}</p>
                 <Button
                   onClick={onClose}
                   variant="outline"
-                  className="rounded-lg"
+                  className="rounded-lg border-gray-600 text-white hover:bg-gray-800"
                 >
                   Close
                 </Button>
@@ -195,11 +206,11 @@ export default function ProductViewModal({
           )}
 
           {!isLoading && !error && product && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-8">
               {/* Image Gallery */}
               <div className="space-y-6">
                 {/* Main Image */}
-                <div className="aspect-square overflow-hidden rounded-2xl bg-gray-100 border border-gray-200">
+                <div className="aspect-square overflow-hidden rounded-2xl bg-gray-800 border border-gray-700">
                   <img
                     src={`${process.env.NEXT_PUBLIC_BASE_URL}/${product.images[selectedImage]}`}
                     alt={product.productName}
@@ -216,8 +227,8 @@ export default function ProductViewModal({
                         onClick={() => setSelectedImage(index)}
                         className={`aspect-square overflow-hidden rounded-xl border-2 transition-all duration-200 ${
                           selectedImage === index
-                            ? "border-primary ring-2 ring-primary ring-opacity-20"
-                            : "border-gray-200 hover:border-gray-300"
+                            ? "border-blue-500 ring-2 ring-blue-500 ring-opacity-30"
+                            : "border-gray-700 hover:border-gray-600"
                         }`}
                       >
                         <img
@@ -232,42 +243,38 @@ export default function ProductViewModal({
               </div>
 
               {/* Product Details */}
-              <div className="space-y-8">
+              <div className="space-y-6 lg:space-y-8">
                 {/* Header */}
                 <div className="space-y-4">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-3 flex-1">
-                      <h1 className="text-3xl font-bold text-gray-900 leading-tight">
-                        {product.productName}
-                      </h1>
+                  <div className="space-y-3">
+                    <h1 className="text-2xl lg:text-3xl font-bold text-white leading-tight">
+                      {product.productName}
+                    </h1>
 
-                      {product.brand && (
-                        <p className="text-lg text-gray-600 font-medium">
-                          Brand: {product.brand}
+                    {product.brand && (
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-gray-400" />
+                        <p className="text-lg text-gray-300 font-medium">
+                          {product.brand}
                         </p>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Badges */}
-                  <div className="flex flex-wrap gap-3">
-                    <Badge
-                      variant="secondary"
-                      className="px-3 py-1.5 text-sm font-medium"
-                    >
+                  <div className="flex flex-wrap gap-2 lg:gap-3">
+                    <Badge className="px-3 py-1.5 text-sm font-medium bg-blue-500/20 text-blue-300 border-blue-500/30">
                       {product.category}
                     </Badge>
                     <Badge
-                      variant="outline"
-                      className={`px-3 py-1.5 text-sm font-medium border-2 ${getConditionColor(
+                      className={`px-3 py-1.5 text-sm font-medium border ${getConditionColor(
                         product.condition
                       )}`}
                     >
                       {product.condition}
                     </Badge>
                     <Badge
-                      variant="outline"
-                      className={`px-3 py-1.5 text-sm font-medium border-2 ${getRarityColor(
+                      className={`px-3 py-1.5 text-sm font-medium border ${getRarityColor(
                         product.rarity
                       )}`}
                     >
@@ -277,9 +284,9 @@ export default function ProductViewModal({
                 </div>
 
                 {/* Price Section */}
-                <div className="space-y-3 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
-                  <div className="flex items-center gap-4">
-                    <span className="text-4xl font-bold text-gray-900">
+                <div className="space-y-3 p-6 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-2xl border border-blue-500/20">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                    <span className="text-3xl lg:text-4xl font-bold text-white">
                       AED{" "}
                       {product.discountPercentage > 0
                         ? calculateDiscountPrice(
@@ -290,27 +297,27 @@ export default function ProductViewModal({
                     </span>
                     {product.discountPercentage > 0 && (
                       <div className="flex items-center gap-2">
-                        <span className="text-xl text-gray-500 line-through">
+                        <span className="text-xl text-gray-400 line-through">
                           AED {product.price.toFixed(2)}
                         </span>
-                        <Badge
-                          variant="destructive"
-                          className="px-3 py-1 text-sm font-bold"
-                        >
+                        <Badge className="px-3 py-1 text-sm font-bold bg-red-500/20 text-red-300 border-red-500/30">
                           {product.discountPercentage}% OFF
                         </Badge>
                       </div>
                     )}
                   </div>
                   {product.optionalPrice && (
-                    <p className="text-sm text-gray-600 font-medium">
-                      Optional Price: AED {product.optionalPrice.toFixed(2)}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <Tag className="h-4 w-4 text-gray-400" />
+                      <p className="text-sm text-gray-400 font-medium">
+                        Optional Price: AED {product.optionalPrice.toFixed(2)}
+                      </p>
+                    </div>
                   )}
                 </div>
 
                 {/* Stock & Offers */}
-                <div className="flex items-center gap-6 p-4 bg-gray-50 rounded-xl">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-gray-800/50 rounded-xl border border-gray-700">
                   <div className="flex items-center gap-2">
                     <div
                       className={`w-3 h-3 rounded-full ${
@@ -319,7 +326,7 @@ export default function ProductViewModal({
                     />
                     <span
                       className={`font-semibold ${
-                        product.inStock ? "text-green-700" : "text-red-700"
+                        product.inStock ? "text-green-400" : "text-red-400"
                       }`}
                     >
                       {product.inStock
@@ -327,40 +334,47 @@ export default function ProductViewModal({
                         : "Out of Stock"}
                     </span>
                   </div>
+                  {product.acceptOffers && (
+                    <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/30">
+                      Offers Accepted
+                    </Badge>
+                  )}
                 </div>
 
                 {/* Description */}
                 <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-xl font-semibold text-white">
                     Description
                   </h3>
-                  <p className="text-gray-600 leading-relaxed text-lg">
-                    <VendorTruncateDetails
-                      description={product.description}
-                      truncateLength={150}
-                    />
-                  </p>
+                  <div className="p-4 bg-gray-800/30 rounded-xl border border-gray-700">
+                    <p className="text-gray-300 leading-relaxed text-base lg:text-lg">
+                      <VendorTruncateDetails
+                        description={product.description}
+                        truncateLength={150}
+                      />
+                    </p>
+                  </div>
                 </div>
 
                 {/* Shipping & Details */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-gray-50 rounded-2xl">
+                <div className="grid grid-cols-1  gap-6 p-6 bg-gray-800/30 rounded-2xl border border-gray-700">
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-gray-900 flex items-center gap-2">
-                      <Truck className="h-5 w-5 text-blue-600" />
+                    <h4 className="font-semibold text-white flex items-center gap-2">
+                      <Truck className="h-5 w-5 text-blue-400" />
                       Shipping Information
                     </h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-800">Weight:</span>
-                        <span className="font-semibold flex items-center gap-1 text-gray-800">
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between items-center py-2 border-b border-gray-700">
+                        <span className="text-gray-300">Weight:</span>
+                        <span className="font-semibold flex items-center gap-1 text-white">
                           <Scale className="h-4 w-4" />
                           {product.shipping.weight} kg
                         </span>
                       </div>
                       {product.shipping.dimensions && (
-                        <div className="flex justify-between">
-                          <span className="text-gray-800">Dimensions:</span>
-                          <span className="font-semibold flex items-center gap-1 text-gray-800">
+                        <div className="flex justify-between items-center py-2">
+                          <span className="text-gray-300">Dimensions:</span>
+                          <span className="font-semibold flex items-center gap-1 text-white">
                             <Ruler className="h-4 w-4" />
                             {product.shipping.dimensions}
                           </span>
