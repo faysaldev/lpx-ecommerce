@@ -10,7 +10,7 @@ export interface Product {
   slug: string;
   description: string;
   price: number;
-  originalPrice: number;
+  optionalPrice: number;
   image: string;
   images: string[];
   category: string;
@@ -44,6 +44,7 @@ export interface Product {
   updatedAt: string;
   likes?: number;
   stockQuantity: number;
+  discountPercentage: number;
 }
 
 export interface Category {

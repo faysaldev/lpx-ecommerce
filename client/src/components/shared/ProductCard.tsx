@@ -101,6 +101,7 @@ const ProductCard = ({
   isWishlistItem = false,
 }: ProductCardProps) => {
   // Extract product data with proper fallbacks
+  console.log("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy", product)
   const {
     _id,
     id,

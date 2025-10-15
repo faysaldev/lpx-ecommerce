@@ -85,6 +85,8 @@ export default function VendorStorefrontPage() {
     skip: !vendorId,
   });
 
+ console.log('vendor data show this section page ', vendorSingleDetails);
+
   // Fetch vendor products with filters
   const { data: vendorProductsData, isLoading: isProductsLoading } =
     useSearchSingleVendorProductsQuery(
@@ -104,6 +106,7 @@ export default function VendorStorefrontPage() {
     if (!vendorSingleDetails?.data?.attributes) return null;
 
     const vendorData = vendorSingleDetails.data.attributes;
+    
     return {
       id: vendorData._id,
       slug:
@@ -150,8 +153,13 @@ export default function VendorStorefrontPage() {
       (product: any) =>
         ({
           id: product._id,
+          slug: product.slug || product.productName.toLowerCase().replace(/\s+/g, "-"),
           name: product.productName,
+          description: product.description || "",
+          discountPercentage: product.discountPercentage,
           price: product.price,
+          optionalPrice: product.optionalPrice || product.price,
+          stock: product.stockQuantity || 0,
           image: product.images?.[0] || "",
           images: product.images || [],
           category: product.category,
@@ -160,10 +168,10 @@ export default function VendorStorefrontPage() {
             "uncategorized",
           vendor: product.vendor?.storeName || vendor?.name || "Unknown Vendor",
           vendorId: product.vendor?._id || vendorId,
-          stockQuantity: product.stockQuantity || 0,
           condition: product.condition || "new",
-          rating: 0, // You might want to add ratings to your product schema
-          reviewCount: 0,
+          rating: product.rating || 0,
+          reviewCount: product.reviewCount || 0,
+          // Add any other missing properties with default values as needed
         } as Product)
     );
   }, [vendorProductsData, vendor, vendorId]);
