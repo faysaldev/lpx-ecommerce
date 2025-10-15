@@ -27,7 +27,7 @@ const authApi = baseApi.injectEndpoints({
         }&sortBy=${sortBy}&page=${page}&limit=${limit}&category=${
           category || ""
         }`,
-        method: "GET",
+          method: "GET",
       }),
     }),
   }),
