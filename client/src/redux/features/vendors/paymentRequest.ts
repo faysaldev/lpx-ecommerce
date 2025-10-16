@@ -42,6 +42,33 @@ const paymentRequest = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    // payment methods card;
+    // Banks Endpoints
+    getMyCards: builder.query({
+      query: () => ({
+        url: `/banks/my-cards`,
+        method: "GET",
+      }),
+      providesTags: ["payment_method"],
+    }),
+
+    addBankCard: builder.mutation({
+      query: (bankCardBody) => ({
+        url: "/banks/add",
+        method: "POST",
+        body: bankCardBody,
+      }),
+      invalidatesTags: ["payment_method"],
+    }),
+
+    removeBankCard: builder.mutation({
+      query: (id) => ({
+        url: `/banks/remove/${id}`,
+        method: "DELETE",
+      }),
+
+      invalidatesTags: ["payment_method"],
+    }),
   }),
 });
 
@@ -52,4 +79,9 @@ export const {
   useGetPaymentWithDrawlElgbleQuery,
   useGetSinglePaymentdetailsQuery,
   useGetPaymentRequestSummaryQuery,
+
+  // payment methods
+  useGetMyCardsQuery,
+  useAddBankCardMutation,
+  useRemoveBankCardMutation,
 } = paymentRequest;

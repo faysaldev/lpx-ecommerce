@@ -386,3 +386,39 @@ export interface NotificationGroup {
   title: string;
   notifications: Notification[];
 }
+// payemt types over here
+
+export interface SinglePaymentRequest {
+  paymentRequestId: string;
+  createdAt: Date;
+  seller: Seller;
+  bankDetails: BankDetails;
+  withdrawalAmount: number;
+  status: string;
+}
+
+export interface BankDetails {
+  bankName: string;
+  accountNumber: string;
+  phoneNumber: string;
+  accountType: string;
+}
+
+export interface Seller {
+  name: string;
+  image: string;
+  email: string;
+}
+
+// cards
+export interface PaymentCards {
+  accountType: string;
+  _id: string;
+  seller: string;
+  bankName: string;
+  accountNumber: string;
+  phoneNumber: string;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
+}

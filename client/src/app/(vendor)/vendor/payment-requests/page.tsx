@@ -29,11 +29,13 @@ import PaymentRequestTable from "@/components/Payments/PaymentRequestTable";
 import ProtectedRoute from "@/Provider/ProtectedRoutes";
 import PaymentRequestDialog from "@/components/Vendors/PaymentRequest/PaymentRequestDialog";
 import {
+  useGetMyCardsQuery,
   useGetPaymeRequestStatsQuery,
   useMyPaymentRequestQuery,
 } from "@/redux/features/vendors/paymentRequest";
 import PaymentRequestLoader from "@/components/Payments/PaymentRequestLoader";
 import PaymentRequstSummy from "@/components/Payments/PaymentRequstSummy";
+import PaymentMethods from "@/components/Vendors/PaymentRequest/PaymentMethods";
 
 export default function VendorPaymentRequestsPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -62,6 +64,7 @@ export default function VendorPaymentRequestsPage() {
 
   // Fetch stats
   const { data: paymentRequestStats } = useGetPaymeRequestStatsQuery({});
+  const { data: paymentMethodCards } = useGetMyCardsQuery({});
 
   // Extract data from API response
   const paymentRequests =
@@ -71,6 +74,8 @@ export default function VendorPaymentRequestsPage() {
   const currentPage = parseInt(
     paymentRequestsData?.data?.attributes?.currentPage || "1"
   );
+
+  // todo:paymentMethod card
 
   // Update URL with filters
   const updateURL = (updates: {
@@ -191,8 +196,9 @@ export default function VendorPaymentRequestsPage() {
 
           {/* Main Content with Tabs */}
           <Tabs defaultValue="requests" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full md:grid-cols-3">
               <TabsTrigger value="requests">Payment Requests</TabsTrigger>
+              <TabsTrigger value="methods">Payment Methods</TabsTrigger>
               <TabsTrigger value="summary">Summary</TabsTrigger>
             </TabsList>
 
@@ -305,6 +311,12 @@ export default function VendorPaymentRequestsPage() {
               </Card>
             </TabsContent>
 
+            <TabsContent value="methods" className="space-y-6">
+              <PaymentMethods
+                payMathods={paymentMethodCards?.data?.attributes}
+              />
+            </TabsContent>
+
             <TabsContent value="summary" className="space-y-6">
               <PaymentRequstSummy
                 paymentRequestStats={paymentRequestStats?.data}
@@ -318,6 +330,7 @@ export default function VendorPaymentRequestsPage() {
           handleCreateSuccess={handleCreateSuccess}
           setShowCreateForm={setShowCreateForm}
           showCreateForm={showCreateForm}
+          payMathods={paymentMethodCards?.data?.attributes}
         />
       </PageLayout>
     </ProtectedRoute>

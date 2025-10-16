@@ -153,6 +153,7 @@ const getWithDrawlPaymentlStats = async (userId) => {
 };
 
 const getSinglePaymentRequestDetails = async (paymentDetailsId) => {
+  // Fetch the payment request and populate the necessary fields
   const paymentRequest = await PaymentRequest.findById(paymentDetailsId)
     .populate("bankDetails") // Populate bankDetails
     .populate("seller", "name image email"); // Populate seller details: name, image, email
@@ -162,21 +163,27 @@ const getSinglePaymentRequestDetails = async (paymentDetailsId) => {
     throw new ApiError(httpStatus.NOT_FOUND, "Payment Request not found");
   }
 
-  // Decrypt bank details using the model method
-  const decryptedDetails = paymentRequest.decryptBankDetails();
+  // Ensure that bankDetails are populated and decrypt the fields
+  const decryptedDetails = paymentRequest.bankDetails
+    ? paymentRequest.bankDetails.decryptBankDetails() // Decrypt bank details
+    : {};
 
   // Return payment request with decrypted bank details and seller info
   return {
     paymentRequestId: paymentRequest._id,
+    createdAt: paymentRequest.createdAt,
+    paidDate: paymentRequest.paidDate,
     seller: {
       name: paymentRequest.seller.name,
       image: paymentRequest.seller.image,
       email: paymentRequest.seller.email,
     },
-    bankName: decryptedDetails.bankName, // Decrypted bankName
-    accountNumber: decryptedDetails.accountNumber, // Decrypted accountNumber
-    accountType: paymentRequest.accountType,
-    phoneNumber: decryptedDetails.phoneNumber,
+    bankDetails: {
+      bankName: decryptedDetails.bankName, // Decrypted bankName
+      accountNumber: decryptedDetails.accountNumber, // Decrypted accountNumber
+      phoneNumber: decryptedDetails.phoneNumber, // Decrypted phoneNumber
+      accountType: paymentRequest.bankDetails.accountType, // accountType from populated bankDetails
+    },
     withdrawalAmount: paymentRequest.withdrawalAmount,
     requestDate: paymentRequest.requestDate,
     status: paymentRequest.status,

@@ -32,8 +32,8 @@ const BankDetailsSchema = new Schema(
     },
     accountType: {
       type: String,
-      enum: ["savings", "current", "checking", "other"],
-      default: "savings",
+      enum: ["Savings", "Current", "Checking", "Others"],
+      default: "Savings",
     },
 
     phoneNumber: {

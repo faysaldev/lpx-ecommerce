@@ -17,20 +17,20 @@ import SinglePlaymentDetailsDialogBox from "./SinglePaymentDetailsDialogBox";
 export interface PaymentRequest {
   _id: string;
   seller: string;
-  vendor: {
-    _id: string;
-    storeName: string;
-  };
+  vendor: string;
+  bankDetails: BankDetails;
+  withdrawalAmount: number;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
+}
+
+export interface BankDetails {
   bankName: string;
   accountNumber: string;
-  accountType: "savings" | "current" | string; // you can narrow this further
   phoneNumber: string;
-  withdrawalAmount: number;
-  status: "pending" | "approved" | "rejected" | string; // adjust as needed
-  requestDate: string;
-  createdAt: string;
-  updatedAt: string;
-  __v: number;
+  accountType: string;
 }
 
 interface PaymentRequestTableProps {
@@ -180,7 +180,7 @@ export default function PaymentRequestTable({
                         {request._id}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {getTimeSinceRequest(request.requestDate)}
+                        {getTimeSinceRequest(request?.createdAt.toString())}
                       </p>
                     </div>
                   </TableCell>
@@ -193,7 +193,7 @@ export default function PaymentRequestTable({
                           className="text-sm text-muted-foreground font-medium truncate w-20 md:w-28 overflow-hidden
                       whitespace-nowrap"
                         >
-                          {request.vendor.storeName}
+                          {request.vendor}
                         </p>
                       </div>
                     </TableCell>
@@ -205,10 +205,10 @@ export default function PaymentRequestTable({
                         className="font-medium truncate w-24 overflow-hidden
                       whitespace-nowrap"
                       >
-                        {request.bankName}
+                        {request.bankDetails.bankName}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {request.accountNumber}
+                        {request.bankDetails.accountNumber}
                       </p>
                     </div>
                   </TableCell>
@@ -221,7 +221,7 @@ export default function PaymentRequestTable({
 
                   <TableCell>
                     <p className="font-medium capitalize">
-                      {request.accountType}
+                      {request.bankDetails.accountType}
                     </p>
                   </TableCell>
 
@@ -237,10 +237,10 @@ export default function PaymentRequestTable({
                         className="text-sm font-medium truncate w-18 md:w-24 overflow-hidden
                       whitespace-nowrap"
                       >
-                        {formatDate(request.requestDate)}
+                        {formatDate(request.createdAt.toString())}
                       </p>
                       <p className="text-muted-foreground">
-                        {getTimeSinceRequest(request.requestDate)}
+                        {getTimeSinceRequest(request.createdAt.toString())}
                       </p>
                     </div>
                   </TableCell>
