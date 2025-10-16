@@ -127,8 +127,9 @@ export function ProductTable({
       const data: any = {};
 
       // Update `inStock` if it has changed, otherwise leave it unchanged
-      if (changes.status && changes.status !== product.inStock) {
-        data.inStock = changes.status === "out_of_stock" ? false : true;
+      console.log(changes,"changes")
+      if (changes.status && changes.status !== product.isDraft) {
+        data.isDraft = changes.status === "active" ? false : true;
       }
 
       // Update `stockQuantity` if it has changed, otherwise leave it unchanged
@@ -230,15 +231,16 @@ export function ProductTable({
       const getStatusDisplayText = (status: string) => {
         switch (status) {
           case "active":
-            return "In Stock";
+            return "active";
           case "out_of_stock":
             return "Out of Stock";
           default:
-            return "In Stock";
+            return "Status";
         }
       };
 
-      const displayStatus = editedValues[product._id]?.status ?? currentStatus;
+      const displayStatus = editedValues[product._id]?.isDraft ?? currentStatus;
+       console.log('displayStatus', displayStatus)
 
       return (
         <Select
@@ -258,9 +260,8 @@ export function ProductTable({
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectLabel>Status</SelectLabel>
-              <SelectItem value="stock">Stock</SelectItem>
-              <SelectItem value="out_of_stock">Out of Stock</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inActive">In Active</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>

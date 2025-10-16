@@ -8,6 +8,7 @@ const authApi = baseApi.injectEndpoints({
         url: `/lpx/vendor/products?search=${search}&page=${page}&limit=${limit}&status=${status}&sortBy=${sortBy}`,
         method: "GET",
       }),
+      providesTags: ["product"],
     }),
     vendorDashboardOverview: builder.query({
       query: () => ({
@@ -29,8 +30,8 @@ const authApi = baseApi.injectEndpoints({
     }),
     vendorAnalytics: builder.query({
       query: () => ({
-        url:"/lpx/vendor/analytics",
-        method: "GET"
+        url: "/lpx/vendor/analytics",
+        method: "GET",
       }),
     }),
   }),
