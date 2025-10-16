@@ -20,6 +20,7 @@ import { Button } from "../UI/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../UI/avatar";
 import { Label } from "../UI/label";
 import { Textarea } from "../UI/textarea";
+import { getImageUrl } from "@/lib/getImageURL";
 
 function VendorReviewDialog({
   setIsReviewDialogOpen,
@@ -59,10 +60,7 @@ function VendorReviewDialog({
               <div className="flex items-center gap-3 mb-3">
                 <Avatar className="h-12 w-12">
                   <AvatarImage
-                    src={`${process.env.NEXT_PUBLIC_BASE_URL}${
-                      selectedVendor?.storePhoto ||
-                      selectedVendor.firstName.slice(0, 2)
-                    }`}
+                    src={`${getImageUrl(selectedVendor?.storePhoto)}`}
                   />
                   <AvatarFallback>{selectedVendor.storeName}</AvatarFallback>
                 </Avatar>
