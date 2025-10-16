@@ -30,17 +30,17 @@ export default function VendorCard({
   if (viewMode === "list") {
     return (
       <Link href={`/vendor/${vendor.id}`}>
-        <div className="group bg-card rounded-lg border hover:shadow-lg transition-all p-6">
+        <div className="group bg-card rounded-lg border hover:shadow-lg transition-all my-5">
           <div className="flex gap-6">
             <div className="flex-shrink-0">
-              <div className="w-full">
+              <div className="h-[150px] w-[200px]">
                 {imageUrl ? (
                   <Image
                     src={imageUrl}
                     width={500}
                     height={500}
                     alt={vendor.name}
-                    className="object-cover rounded-md h-[200px] w-[200px]"
+                    className="object-fill rounded-l-md h-[150px] w-[200px]"
                   />
                 ) : (
                   <Store className="h-10 w-10 text-primary" />
@@ -48,7 +48,7 @@ export default function VendorCard({
               </div>
             </div>
 
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 mt-3">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
@@ -96,20 +96,18 @@ export default function VendorCard({
                       <span>{vendor.totalProducts} products</span>
                     </div>
                     <div className="flex items-center gap-1 text-muted-foreground">
-                      <TrendingUp className="h-4 w-4" />
-                      <span>
-                        {vendor.totalSales?.toLocaleString() || 0} sales
-                      </span>
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />
+                        <span className="max-w-[200px] truncate">
+                          {vendor?.location}
+                        </span>
+                      </div>
                     </div>
                     <div className="flex items-center gap-1 text-muted-foreground">
                       <Users className="h-4 w-4" />
                       <span>
                         {vendor.totalProducts?.toLocaleString() || 0} products
                       </span>
-                    </div>
-                    <div className="flex items-center gap-1 text-muted-foreground">
-                      <MapPin className="h-4 w-4" />
-                      <span>United States</span>
                     </div>
                   </div>
                 </div>
@@ -123,8 +121,8 @@ export default function VendorCard({
 
   return (
     <Link href={`/vendor/${vendor.id}`}>
-      <div className="group bg-card rounded-lg border hover:shadow-lg transition-all p-4 h-full flex flex-col">
-        <div className="flex items-start justify-between mb-4">
+      <div className="group rounded-lg border hover:shadow-lg transition-all  h-full flex flex-col">
+        <div className="flex items-start justify-between mb-4 ">
           <div className="w-full">
             {imageUrl ? (
               <Image
@@ -132,7 +130,7 @@ export default function VendorCard({
                 width={500}
                 height={500}
                 alt={vendor.name}
-                className="object-contain rounded-md h-[200px] w-[200px] "
+                className="object-fill rounded-md h-[200px] w-full "
               />
             ) : (
               <Store className="h-10 w-10 text-primary" />
@@ -140,50 +138,44 @@ export default function VendorCard({
           </div>
         </div>
 
-        <div className="flex items-center gap-2 mb-2">
-          <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-1">
-            {vendor.name}
-          </h3>
-          {vendor.verified && (
-            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
-          )}
-          {vendor.featured && (
-            <Award className="h-5 w-5 text-yellow-500 flex-shrink-0" />
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 mb-3">
-          <Star className="h-4 w-4 text-yellow-400 fill-current" />
-          <span className="font-medium">
-            {" "}
-            {parseFloat(vendor?.rating?.toFixed(2))}
-          </span>
-          <span className="text-sm text-muted-foreground">
-            ({vendor?.reviewCount?.toFixed(2)} reviews)
-          </span>
-        </div>
-
-        <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
-          {vendor.description}
-        </p>
-
-        <Separator className="my-4" />
-
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <Package className="h-3 w-3" />
-            <span>{vendor.totalProducts} items</span>
+        <div className="px-2 pb-2">
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold text-lg group-hover:text-primary transition-colors line-clamp-1">
+              {vendor.name}
+            </h3>
+            {vendor.verified && (
+              <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0" />
+            )}
+            {vendor.featured && (
+              <Award className="h-5 w-5 text-yellow-500 flex-shrink-0" />
+            )}
           </div>
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <TrendingUp className="h-3 w-3" />
-            <span>{vendor.totalSales?.toLocaleString() || 0} sales</span>
-          </div>
-        </div>
 
-        <div className="flex items-center justify-between mt-4 pt-4 border-t text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <MapPin className="h-3 w-3" />
-            <span className="max-w-[200px] truncate">{vendor?.location}</span>
+          <div className="flex items-center gap-2 mb-1 p-4">
+            <Star className="h-4 w-4 text-yellow-400 fill-current" />
+            <span className="font-medium">
+              {" "}
+              {parseFloat(vendor?.rating?.toFixed(2))}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              ({vendor?.reviewCount?.toFixed(2)} reviews)
+            </span>
+          </div>
+
+          <p className="text-sm text-muted-foreground  line-clamp-2 flex-1">
+            {vendor.description}
+          </p>
+
+          <Separator className="my-4" />
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="flex items-center gap-1 text-muted-foreground">
+              <Package className="h-3 w-3" />
+              <span>{vendor.totalProducts} items</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              <span className="max-w-[200px] truncate">{vendor?.location}</span>
+            </div>
           </div>
         </div>
       </div>
