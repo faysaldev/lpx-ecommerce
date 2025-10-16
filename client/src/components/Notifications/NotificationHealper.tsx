@@ -15,8 +15,6 @@ export const mapBackendTypeToFrontend = (
     case "system":
     case "promotion":
     case "vendor":
-    case "price_alert":
-      return backendType as NotificationType;
     default:
       return "system";
   }
@@ -32,8 +30,6 @@ export const mapFrontendTypeToBackend = (
     case "system":
     case "promotion":
     case "vendor":
-    case "price_alert":
-      return frontendType;
     case "all":
     default:
       return "all";
@@ -82,7 +78,6 @@ export const notificationIcons: Record<NotificationType, React.ElementType> = {
   system: AlertCircle,
   promotion: Tag,
   vendor: Store,
-  price_alert: TrendingDown,
 };
 
 export const notificationColors: Record<NotificationType, string> = {
@@ -90,5 +85,4 @@ export const notificationColors: Record<NotificationType, string> = {
   system: "text-gray-500",
   promotion: "text-purple-500",
   vendor: "text-green-500",
-  price_alert: "text-orange-500",
 };
