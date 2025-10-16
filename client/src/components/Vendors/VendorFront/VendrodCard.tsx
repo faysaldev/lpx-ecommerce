@@ -7,10 +7,8 @@ import Image from "next/image";
 import {
   Award,
   CheckCircle,
-  Clock,
   MapPin,
   Package,
-  Shield,
   Star,
   Store,
   TrendingUp,

@@ -310,6 +310,10 @@ const getVendorByUserId = async (id) => {
 
 // venorder ordercomplete money added
 const updateVendorMoneyCalculation = async (id, data) => {
+  // TODO: taking 5 parcentage from the vendor payment
+  const percentage = 5;
+  const remainingAmount = data.totalEarnings * (1 - percentage / 100);
+
   // Find the vendor by ID
   const vendor = await Vendor.findById(id);
 
@@ -317,12 +321,9 @@ const updateVendorMoneyCalculation = async (id, data) => {
   if (!vendor) {
     throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
   }
-
   // Add the new earnings to the previous totalEarnings
-  const updatedEarnings = vendor.totalEarnings + data.totalEarnings;
-  const updatedAvailableWithDrawl =
-    vendor.availableWithdrawl + data.totalEarnings;
-
+  const updatedEarnings = vendor.totalEarnings + remainingAmount;
+  const updatedAvailableWithDrawl = vendor.availableWithdrawl + remainingAmount;
   // Update the vendor's totalEarnings with the new value
   return Vendor.findByIdAndUpdate(
     id,

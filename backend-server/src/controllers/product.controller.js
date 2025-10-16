@@ -101,7 +101,6 @@ const editeProducts = catchAsync(async (req, res) => {
   const imagePaths = req?.files?.image?.map(
     (img) => `${img.path.replace("public\\", "")}`
   );
-  console.log(imagePaths);
   const dataFormat = {
     images: imagePaths,
     ...req.body,

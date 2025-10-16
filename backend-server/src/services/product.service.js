@@ -87,9 +87,7 @@ const editeProducts = async (productsId, productsData) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
   }
 
-  // Use findByIdAndUpdate to update the product based on its ID
   return Product.findByIdAndUpdate(productsId, productsData, { new: true });
-  // The `{ new: true }` option ensures the returned document is the updated one.
 };
 
 const deleteProducts = async (productsId) => {
