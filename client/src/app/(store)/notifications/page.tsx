@@ -2,8 +2,8 @@
 "use client";
 
 import { Check, CheckCircle, RefreshCcw, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+
+import { useState } from "react";
 import { toast } from "sonner";
 import PageLayout from "@/components/layout/PageLayout";
 import { EmptyStates } from "@/components/shared/EmptyState";
@@ -19,8 +19,6 @@ import {
   useAllDeleteNotificationsMutation,
 } from "@/redux/features/Notifications/Notifications";
 import { Checkbox } from "@/components/UI/checkbox";
-import { useAppSelector } from "@/redux/hooks";
-import { selectCurrentUser } from "@/redux/features/auth/authSlice";
 import {
   mapFrontendTypeToBackend,
   notificationColors,
@@ -78,9 +76,6 @@ function groupNotificationsByTime(
 }
 
 export default function NotificationsPage() {
-  const router = useRouter();
-  const user = useAppSelector(selectCurrentUser);
-
   const [filterType, setFilterType] = useState<"all" | NotificationType>("all");
   const [selectedNotifications, setSelectedNotifications] = useState<
     Set<string>
@@ -99,12 +94,6 @@ export default function NotificationsPage() {
   const [deleteSingleNotification] = useSingleDeleteMutation();
   const [markAllAsReadApi] = useAllNotificationsReadMutation();
   const [bulkDeleteNotifications] = useAllDeleteNotificationsMutation();
-
-  useEffect(() => {
-    if (!user) {
-      router.push("/login?redirect=/notifications");
-    }
-  }, [user, router]);
 
   // Transform and filter notifications from API
   const notifications: Notification[] = (() => {
