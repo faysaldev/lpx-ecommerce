@@ -305,7 +305,7 @@ const approvedVendorRequest = async (VendorId, sellerId) => {
 };
 
 const getVendorByUserId = async (id) => {
-  return Vendor.findOne({ seller: id }).populate("_id");
+  return Vendor.findOne({ seller: id }).select("_id");
 };
 
 // venorder ordercomplete money added

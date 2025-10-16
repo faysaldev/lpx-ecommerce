@@ -10,6 +10,7 @@ const {
 } = require("../models");
 const ApiError = require("../utils/ApiError");
 const moment = require("moment");
+const { decryptData } = require("../utils/decrypteHealper"); // Assuming decryptData is imported from the helper
 
 const getAllUsers = async (userId) => {
   if (!userId) {
@@ -478,6 +479,7 @@ const getAllOrders = async ({ query, page, limit }) => {
 };
 
 // get all the payment request
+
 const getAdminAllPaymentRequests = async ({
   search,
   status,
@@ -490,7 +492,7 @@ const getAdminAllPaymentRequests = async ({
 
   // Search functionality for vendor name and bank name
   if (search) {
-    // Search by vendor name
+    // Search by vendor name (storeName)
     const vendorSearch = await User.find({
       storeName: { $regex: search, $options: "i" },
       type: "seller",
@@ -503,9 +505,9 @@ const getAdminAllPaymentRequests = async ({
       query.seller = { $in: vendorIds }; // Filter by vendors found in search
     }
 
-    // Search by bank name
+    // Search by bank name (decrypted bankName stored in PaymentRequest)
     query.$or = [
-      { bankName: { $regex: search, $options: "i" } }, // Case-insensitive search for bankName
+      { "bankDetails.bankName": { $regex: search, $options: "i" } }, // Case-insensitive search for bankName
     ];
   }
 
@@ -518,19 +520,19 @@ const getAdminAllPaymentRequests = async ({
   let sortOption = {};
   switch (sortBy) {
     case "newestFirst":
-      sortOption = { requestDate: -1 };
+      sortOption = { requestDate: -1 }; // Sort by newest request
       break;
     case "oldestFirst":
-      sortOption = { requestDate: 1 };
+      sortOption = { requestDate: 1 }; // Sort by oldest request
       break;
     case "highToLow":
-      sortOption = { withdrawalAmount: -1 };
+      sortOption = { withdrawalAmount: -1 }; // Sort by high to low withdrawal amount
       break;
     case "lowToHigh":
-      sortOption = { withdrawalAmount: 1 };
+      sortOption = { withdrawalAmount: 1 }; // Sort by low to high withdrawal amount
       break;
     default:
-      sortOption = { requestDate: -1 };
+      sortOption = { requestDate: -1 }; // Default to newestFirst
   }
 
   // Fetching payment requests based on the filters and sorting
@@ -541,17 +543,39 @@ const getAdminAllPaymentRequests = async ({
     .populate({
       path: "vendor", // Populate vendor details for payment request
       select: "storeName", // Select storeName and id of vendor
-    });
+    })
+    .populate("bankDetails"); // Ensure bankDetails are populated
 
-  // Decrypt bankName and accountNumber for each payment request
-  const decryptedPaymentRequests = paymentRequests.map((request) => {
-    const decryptedDetails = request.decryptBankDetails(); // Decrypt bank details
-    return {
-      ...request.toObject(), // Convert mongoose document to plain object
-      bankName: decryptedDetails.bankName, // Add decrypted bankName
-      accountNumber: decryptedDetails.accountNumber, // Add decrypted accountNumber
-    };
-  });
+  // Decrypt bankName, accountNumber, and phoneNumber for each payment request
+  const decryptedPaymentRequests = await Promise.all(
+    paymentRequests.map(async (request) => {
+      // Ensure bankDetails are populated and decrypt
+      if (request.bankDetails) {
+        const decryptedBankName = decryptData(request.bankDetails.bankName);
+        const decryptedAccountNumber = decryptData(
+          request.bankDetails.accountNumber
+        );
+        const decryptedPhoneNumber = decryptData(
+          request.bankDetails.phoneNumber
+        );
+
+        // Return the request with decrypted bank details under the bankDetails field
+        return {
+          ...request.toObject(), // Convert mongoose document to plain object
+          bankDetails: {
+            bankName: decryptedBankName, // Add decrypted bankName
+            accountNumber: decryptedAccountNumber, // Add decrypted accountNumber
+            phoneNumber: decryptedPhoneNumber, // Add decrypted phoneNumber
+            accountType: request.bankDetails.accountType, // Keep other fields from bankDetails
+            bankDetailsId: request.bankDetails._id, // Add bankDetailsId
+          },
+        };
+      }
+
+      // If no bankDetails, return the request as is
+      return request.toObject();
+    })
+  );
 
   // Get total number of records matching the query (for total pages calculation)
   const totalRecords = await PaymentRequest.countDocuments(query);
