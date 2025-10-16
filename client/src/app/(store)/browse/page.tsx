@@ -265,7 +265,7 @@ function BrowsePageContent() {
 
   return (
     <PageLayout
-      title="Browse Collectibles"
+      title="Browse"
       description={
         isLoading
           ? "Loading..."
@@ -277,7 +277,7 @@ function BrowsePageContent() {
                 : ""
             }`
       }
-      breadcrumbs={[{ label: "Browse Collectibles" }]}
+      breadcrumbs={[{ label: "Browse" }]}
     >
       {/* Search and Controls */}
       <div className="mb-6">
