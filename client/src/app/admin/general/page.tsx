@@ -684,10 +684,10 @@ export default function GeneralSettingsPage() {
       </div>
 
       <Tabs defaultValue="categories" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-2">
           <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="coupons">Coupons</TabsTrigger>
-          <TabsTrigger value="conditions">Conditions</TabsTrigger>
+          {/* <TabsTrigger value="coupons">Coupons</TabsTrigger> */}
+          {/* <TabsTrigger value="conditions">Conditions</TabsTrigger> */}
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
@@ -695,13 +695,13 @@ export default function GeneralSettingsPage() {
           <CategoriesManagement />
         </TabsContent>
 
-        <TabsContent value="coupons">
+        {/* <TabsContent value="coupons">
           <CouponsManagement />
-        </TabsContent>
+        </TabsContent> */}
 
-        <TabsContent value="conditions">
+        {/* <TabsContent value="conditions">
           <ConditionsManagement />
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="settings">
           <GeneralSettingsManagement />

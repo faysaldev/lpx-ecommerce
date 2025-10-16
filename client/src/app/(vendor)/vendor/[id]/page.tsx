@@ -85,7 +85,7 @@ export default function VendorStorefrontPage() {
     skip: !vendorId,
   });
 
- console.log('vendor data show this section page ', vendorSingleDetails);
+  console.log("vendor data show this section page ", vendorSingleDetails);
 
   // Fetch vendor products with filters
   const { data: vendorProductsData, isLoading: isProductsLoading } =
@@ -106,7 +106,7 @@ export default function VendorStorefrontPage() {
     if (!vendorSingleDetails?.data?.attributes) return null;
 
     const vendorData = vendorSingleDetails.data.attributes;
-    
+
     return {
       id: vendorData._id,
       slug:
@@ -142,6 +142,7 @@ export default function VendorStorefrontPage() {
         : undefined,
       responseTime: "within hours",
       totalSales: 0, // You might want to calculate this from orders
+      totalRatings: vendorData?.totalRatings,
     } as Vendor;
   }, [vendorSingleDetails]);
 
@@ -153,7 +154,9 @@ export default function VendorStorefrontPage() {
       (product: any) =>
         ({
           id: product._id,
-          slug: product.slug || product.productName.toLowerCase().replace(/\s+/g, "-"),
+          slug:
+            product.slug ||
+            product.productName.toLowerCase().replace(/\s+/g, "-"),
           name: product.productName,
           description: product.description || "",
           discountPercentage: product.discountPercentage,
@@ -296,8 +299,12 @@ export default function VendorStorefrontPage() {
                 <div className="mt-3 space-y-1">
                   <div className="flex items-center justify-center gap-1 text-sm">
                     <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                    <span className="font-semibold">{vendor.rating}</span>
-                    <span className="text-muted-foreground">(0 reviews)</span>
+                    <span className="font-semibold">
+                      {parseFloat(vendor?.rating?.toFixed(2))}
+                    </span>
+                    <span className="text-muted-foreground">
+                      ({vendor?.totalRatings || 0} {` `}reviews)
+                    </span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {vendor.totalSales?.toLocaleString() || 0} sales •{" "}

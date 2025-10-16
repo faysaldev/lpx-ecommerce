@@ -188,6 +188,7 @@ export interface Vendor {
     twitter?: string;
   };
   joinedAt?: Date;
+  totalRatings: number;
 }
 
 export interface IVendorAPI {

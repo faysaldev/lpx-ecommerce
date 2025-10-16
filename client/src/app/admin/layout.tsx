@@ -69,11 +69,11 @@ const adminNavItems = [
     href: "/admin/general",
     icon: ListEndIcon,
   },
-  {
-    title: "Settings",
-    href: "/admin/settings",
-    icon: Settings,
-  },
+  // {
+  //   title: "Settings",
+  //   href: "/admin/settings",
+  //   icon: Settings,
+  // },
 ];
 
 function AdminLayoutContent({ children }: { children: ReactNode }) {
