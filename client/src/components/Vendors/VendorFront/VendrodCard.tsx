@@ -86,9 +86,11 @@ export default function VendorCard({
                   <div className="flex flex-wrap gap-4 text-sm">
                     <div className="flex items-center gap-1">
                       <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                      <span className="font-medium">{vendor.rating}</span>
+                      <span className="font-medium">
+                        {parseFloat(vendor?.rating?.toFixed(2))}
+                      </span>
                       <span className="text-muted-foreground">
-                        ({vendor.reviewCount})
+                        ({vendor?.reviewCount?.toFixed(2)} reviews)
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-muted-foreground">
@@ -154,30 +156,18 @@ export default function VendorCard({
 
         <div className="flex items-center gap-2 mb-3">
           <Star className="h-4 w-4 text-yellow-400 fill-current" />
-          <span className="font-medium">{vendor.rating}</span>
+          <span className="font-medium">
+            {" "}
+            {parseFloat(vendor?.rating?.toFixed(2))}
+          </span>
           <span className="text-sm text-muted-foreground">
-            ({vendor.reviewCount} reviews)
+            ({vendor?.reviewCount?.toFixed(2)} reviews)
           </span>
         </div>
 
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2 flex-1">
           {vendor.description}
         </p>
-        {/* 
-        {vendor.specialties?.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-4">
-            {vendor.specialties.slice(0, 3).map((specialty: string) => (
-              <Badge key={specialty} variant="outline" className="text-xs">
-                {specialty}
-              </Badge>
-            ))}
-            {vendor.specialties.length > 3 && (
-              <Badge variant="outline" className="text-xs">
-                +{vendor.specialties.length - 3}
-              </Badge>
-            )}
-          </div>
-        )} */}
 
         <Separator className="my-4" />
 
