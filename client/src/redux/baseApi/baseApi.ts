@@ -9,6 +9,7 @@ export const baseApi = createApi({
     prepareHeaders: (headers, { getState }) => {
       // Extract the token correctly by parsing the stringified token object
       const token = (getState() as RootState).auth.token?.replace(/['"]+/g, "");
+      console.log(token);
       if (token) {
         headers.set("authorization", `Bearer ${token}`);
       }
