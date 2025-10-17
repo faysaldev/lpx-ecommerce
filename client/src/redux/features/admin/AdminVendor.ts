@@ -11,7 +11,7 @@ const authApi = baseApi.injectEndpoints({
 
     updateVendorStatus: builder.mutation({
       query: (vendorInfo) => ({
-        url: `/admin//update-vendor`,
+        url: `/admin/update-vendor`,
         method: "PATCH",
         body: vendorInfo,
       }),
