@@ -15,6 +15,7 @@ import {
 import { useGetSinglePaymentdetailsQuery } from "@/redux/features/vendors/paymentRequest";
 import { formatCurrency, formatDate } from "@/lib/utils/helpers";
 import { getImageUrl } from "@/lib/getImageURL";
+import { SinglePaymentRequest } from "@/lib/types";
 
 // Helper functions
 
@@ -70,10 +71,10 @@ function SinglePlaymentDetailsDialogBox({
       skip: !requestId || !showDetailsDialog,
     });
 
-  console.log(singlePaymentDetails, "single Payment details");
-
   // Extract the payment request data
-  const paymentRequest = singlePaymentDetails?.data?.attributes;
+  const paymentRequest: SinglePaymentRequest =
+    singlePaymentDetails?.data?.attributes;
+  console.log(paymentRequest, "payment request");
 
   return (
     <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
@@ -117,7 +118,9 @@ function SinglePlaymentDetailsDialogBox({
                   </p>
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span>{formatDate(paymentRequest.requestDate)}</span>
+                    <span>
+                      {formatDate(paymentRequest.createdAt.toString())}
+                    </span>
                   </div>
                 </div>
 
@@ -168,7 +171,7 @@ function SinglePlaymentDetailsDialogBox({
                     Bank Name
                   </p>
                   <p className="text-lg font-semibold">
-                    {paymentRequest.bankName}
+                    {paymentRequest.bankDetails.bankName}
                   </p>
                 </div>
 
@@ -177,7 +180,7 @@ function SinglePlaymentDetailsDialogBox({
                     Account Number
                   </p>
                   <p className="text-lg font-semibold">
-                    {paymentRequest.accountNumber}
+                    {paymentRequest.bankDetails.accountNumber}
                   </p>
                 </div>
               </div>
@@ -192,26 +195,32 @@ function SinglePlaymentDetailsDialogBox({
                     Account Type
                   </p>
                   <p className="font-medium capitalize">
-                    {paymentRequest.accountType}
+                    {paymentRequest.bankDetails.accountType}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
                     Phone Number
                   </p>
-                  <p className="font-medium">{paymentRequest.phoneNumber}</p>
+                  <p className="font-medium">
+                    {paymentRequest.bankDetails.phoneNumber}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
                     Bank Name
                   </p>
-                  <p className="font-medium">{paymentRequest.bankName}</p>
+                  <p className="font-medium">
+                    {paymentRequest.bankDetails.bankName}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">
                     Account Number
                   </p>
-                  <p className="font-medium">{paymentRequest.accountNumber}</p>
+                  <p className="font-medium">
+                    {paymentRequest.bankDetails.accountNumber}
+                  </p>
                 </div>
               </div>
             </div>
@@ -255,7 +264,7 @@ function SinglePlaymentDetailsDialogBox({
                   <div className="flex-1">
                     <p className="text-sm font-medium">Request Submitted</p>
                     <p className="text-sm text-muted-foreground">
-                      {formatDate(paymentRequest.requestDate)}
+                      {formatDate(paymentRequest.createdAt.toString())}
                     </p>
                   </div>
                 </div>

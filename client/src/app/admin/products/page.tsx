@@ -1,15 +1,15 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import {
   AlertTriangle,
   CheckCircle,
-  Download,
   Edit,
   Eye,
   MoreHorizontal,
   Package,
   Trash2,
   XCircle,
+  Search,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -32,15 +32,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/UI/table";
-import type { SortOption, ViewMode } from "@/lib/browse-utils";
-import { VendorStyleFilterBar } from "@/components/Browse/VendorStyleFilterBar";
+import { Input } from "@/components/UI/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/UI/select";
 import {
   useAdminProductsStatsQuery,
   useSearchAdminProductsQuery,
-  // useDeleteProductMutation,
 } from "@/redux/features/admin/AdminProducts";
+import { selectCategories } from "@/redux/features/Common/CommonSlice";
+import { useAppSelector } from "@/redux/hooks";
 
-// Updated types based on API response
 export interface AdminProduct {
   _id: string;
   productName: string;
@@ -54,8 +60,6 @@ export interface AdminProduct {
   condition: string;
   sales: number;
   status?: "active" | "pending" | "flagged" | "inactive";
-  listed?: string;
-  flagReason?: string;
 }
 
 interface ProductsStats {
@@ -73,9 +77,19 @@ interface StatusVariant {
 
 export default function ProductsManagement() {
   const router = useRouter();
+  const categoriesData = useAppSelector(selectCategories);
+
+  // --- Filters ---
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortOption, setSortOption] = useState<SortOption>("newest");
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [category, setCategory] = useState("");
+  const [condition, setCondition] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [sortOption, setSortOption] = useState("newest");
+
+  // ✅ Toggle filter section visibility
+  const [showFilters, setShowFilters] = useState(false);
+
   const [products, setProducts] = useState<AdminProduct[]>([]);
   const [stats, setStats] = useState<ProductsStats>({
     totalProducts: 0,
@@ -91,17 +105,24 @@ export default function ProductsManagement() {
     isFetching: productsFetching,
     error: productsError,
     refetch: refetchProducts,
-  } = useSearchAdminProductsQuery({ query: searchQuery });
+  } = useSearchAdminProductsQuery({
+    query: searchQuery,
+    category,
+    minPrice,
+    maxPrice,
+    condition,
+    sortBy: sortOption,
+    page: 1,
+    limit: 20,
+  });
 
   const {
     data: productsStats,
     isLoading: productsStatsLoading,
-    isFetching: productsStatsFetching,
     error: productsStatsError,
   } = useAdminProductsStatsQuery({});
 
-  // const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
-
+  // Sync data
   useEffect(() => {
     if (productsData?.data?.attributes) {
       setProducts(productsData.data.attributes);
@@ -114,16 +135,18 @@ export default function ProductsManagement() {
     }
   }, [productsStats]);
 
-  // Handle product deletion
+  // Auto-refetch on filter change
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      refetchProducts();
+    }, 400); // debounce for smoother typing
+    return () => clearTimeout(timeout);
+  }, [searchQuery, category, condition, minPrice, maxPrice, sortOption]);
+
+  // Handlers
   const handleDeleteProduct = async (productId: string) => {
-    if (
-      confirm(
-        "Are you sure you want to delete this product? This action cannot be undone."
-      )
-    ) {
+    if (confirm("Are you sure you want to delete this product?")) {
       try {
-        // await deleteProduct(productId).unwrap();
-        // Refresh the products list
         refetchProducts();
       } catch (error) {
         console.error("Failed to delete product:", error);
@@ -132,51 +155,12 @@ export default function ProductsManagement() {
     }
   };
 
-  // Handle view product details
-  const handleViewProduct = (productId: string) => {
-    router.push(`/admin/products/${productId}`);
-  };
-
-  // Handle edit product
-  const handleEditProduct = (productId: string) => {
-    router.push(`/admin/products/${productId}/edit`);
-  };
-
-  // Filter products based on search query (client-side as backup)
-  const filteredProducts = products.filter((product) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      product.productName.toLowerCase().includes(query) ||
-      product.vendor.storeName.toLowerCase().includes(query) ||
-      product.category.toLowerCase().includes(query)
-    );
-  });
-
-  // Sort products based on sort option
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortOption) {
-      case "newest":
-        // Assuming newer products have higher IDs or you might have a createdAt field
-        return b._id.localeCompare(a._id);
-      case "price-asc":
-        return a.price - b.price;
-      case "price-desc":
-        return b.price - a.price;
-      case "name-asc":
-        return a.productName.localeCompare(b.productName);
-      case "name-desc":
-        return b.productName.localeCompare(a.productName);
-      default:
-        return 0;
-    }
-  });
+  const handleViewProduct = (id: string) => router.push(`/admin/products/${id}`);
+  const handleEditProduct = (id: string) => router.push(`/admin/products/${id}/edit`);
 
   const getStatusBadge = (product: AdminProduct) => {
-    // Determine status based on available data
     let status: "active" | "pending" | "flagged" | "inactive" = "active";
     if (product.stockQuantity === 0) status = "inactive";
-    // You can add more logic here based on your business rules
 
     const variants: Record<string, StatusVariant> = {
       active: { variant: "default", icon: CheckCircle },
@@ -197,10 +181,7 @@ export default function ProductsManagement() {
   if (productsLoading || productsStatsLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
-          <p className="mt-4 text-lg">Loading products...</p>
-        </div>
+        <p>Loading products...</p>
       </div>
     );
   }
@@ -208,18 +189,7 @@ export default function ProductsManagement() {
   if (productsError || productsStatsError) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center text-red-500">
-          <AlertTriangle className="h-12 w-12 mx-auto mb-4" />
-          <h2 className="text-xl font-bold">Error loading products</h2>
-          <p>Please try again later</p>
-          <Button
-            onClick={() => refetchProducts()}
-            className="mt-4"
-            variant="outline"
-          >
-            Retry
-          </Button>
-        </div>
+        <p className="text-red-500">Error loading products</p>
       </div>
     );
   }
@@ -228,97 +198,111 @@ export default function ProductsManagement() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Product Management
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight">Product Management</h1>
           <p className="text-muted-foreground">
             Review and manage marketplace listings
           </p>
         </div>
-        <Button variant="outline">
-          <Download className="mr-2 h-4 w-4" />
-          Export
-        </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Products
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalProducts}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {stats.activeProducts}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pending Review
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-yellow-600">
-              {stats.pendingReview}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Flagged</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {stats.flaggedProducts}
-            </div>
-          </CardContent>
-        </Card>
+        <Card><CardContent><div className="text-xl font-semibold py-10 flex justify-center items-center">Total: {stats.totalProducts}</div></CardContent></Card>
+        <Card><CardContent><div className="text-xl font-semibold text-green-600 py-10 flex justify-center items-center">Active: {stats.activeProducts}</div></CardContent></Card>
+        <Card><CardContent><div className="text-xl font-semibold text-yellow-600 py-10 flex justify-center items-center">Pending: {stats.pendingReview}</div></CardContent></Card>
+        <Card><CardContent><div className="text-xl font-semibold text-red-600 py-10 flex justify-center items-center">Flagged: {stats.flaggedProducts}</div></CardContent></Card>
       </div>
 
-      {/* Products Table */}
+      {/* ✅ Products Table */}
       <Card>
-        <CardHeader className="pb-4">
-          <div className="flex items-center justify-between mb-4">
-            <CardTitle>All Products</CardTitle>
+        <div className="bg-[#3c485f6c]">
+          <CardHeader>
+          <CardTitle>All Products</CardTitle>
+          <div className="flex justify-between items-center">
+            <div>
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search by name, vendor, or category"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8 w-[310px]"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-5">
+              {/* ✅ Toggle Filter Section */}
+              <Button onClick={() => setShowFilters(!showFilters)}>
+                {showFilters ? "Hide Filters" : "Filtering"}
+              </Button>
+
+              {/* Sort */}
+              <Select value={sortOption} onValueChange={setSortOption}>
+                <SelectTrigger><SelectValue placeholder="Sort By" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest</SelectItem>
+                  <SelectItem value="price-asc">Price (Low → High)</SelectItem>
+                  <SelectItem value="price-desc">Price (High → Low)</SelectItem>
+                  <SelectItem value="name-asc">Name (A–Z)</SelectItem>
+                  <SelectItem value="name-desc">Name (Z–A)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <VendorStyleFilterBar
-            search={searchQuery}
-            onSearchChange={setSearchQuery}
-            sortOption={sortOption}
-            onSortChange={setSortOption}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            activeFilterCount={searchQuery ? 1 : 0}
-            activeFilters={
-              searchQuery
-                ? [
-                    {
-                      type: "search",
-                      value: searchQuery,
-                      label: `Search: ${searchQuery}`,
-                    },
-                  ]
-                : []
-            }
-            onRemoveFilter={(type) => {
-              if (type === "search") setSearchQuery("");
-            }}
-            onClearAllFilters={() => setSearchQuery("")}
-            className="w-full"
-          />
         </CardHeader>
+
+        {/* ✅ Filter Section (Hidden by Default) */}
+        {showFilters && (
+          <CardContent className="grid md:grid-cols-5 gap-4">
+            {/* Category */}
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
+              <SelectContent>
+                {categoriesData?.map((cat: any) => (
+                  <SelectItem key={cat._id} value={cat.name}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Condition */}
+            <Select value={condition} onValueChange={setCondition}>
+              <SelectTrigger><SelectValue placeholder="Condition" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Mint">Mint</SelectItem>
+                <SelectItem value="Near Mint">Near Mint</SelectItem>
+                <SelectItem value="Excellent">Excellent</SelectItem>
+                <SelectItem value="Good">Good</SelectItem>
+                <SelectItem value="Fair">Fair</SelectItem>
+                <SelectItem value="Poor">Poor</SelectItem>
+                <SelectItem value="CGC Graded">CGC Graded</SelectItem>
+                <SelectItem value="PSA Graded">PSA Graded</SelectItem>
+                <SelectItem value="BGS Graded">BGS Graded</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Price Range */}
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                placeholder="Min"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+              />
+              <Input
+                type="number"
+                placeholder="Max"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+              />
+            </div>
+          </CardContent>
+        )}
+        </div>
+
         <CardContent>
           {productsFetching && (
             <div className="flex justify-center py-4">
@@ -340,32 +324,21 @@ export default function ProductsManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedProducts?.length === 0 ? (
+              {products?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center py-8">
-                    <div className="text-muted-foreground">
-                      <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                      <p>No products found</p>
-                      <p className="text-sm">
-                        {searchQuery
-                          ? "Try adjusting your search query"
-                          : "No products available yet"}
-                      </p>
-                    </div>
+                    <Package className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>No products found</p>
                   </TableCell>
                 </TableRow>
               ) : (
-                sortedProducts?.map((product) => (
+                products?.map((product) => (
                   <TableRow key={product._id}>
-                    <TableCell className="font-medium">
-                      {product.productName}
-                    </TableCell>
+                    <TableCell className="font-medium">{product.productName}</TableCell>
                     <TableCell>{product.category}</TableCell>
                     <TableCell>{product.vendor.storeName}</TableCell>
                     <TableCell>AED {product.price.toLocaleString()}</TableCell>
-                    <TableCell>
-                      {product.stockQuantity.toLocaleString()}
-                    </TableCell>
+                    <TableCell>{product.stockQuantity}</TableCell>
                     <TableCell>{getStatusBadge(product)}</TableCell>
                     <TableCell>{product.sales}</TableCell>
                     <TableCell>
@@ -376,38 +349,25 @@ export default function ProductsManagement() {
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            // disabled={isDeleting}
-                          >
+                          <Button variant="ghost" size="icon">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => handleViewProduct(product._id)}
-                          >
-                            <Eye className="mr-2 h-4 w-4" />
-                            View Details
+                          <DropdownMenuItem onClick={() => handleViewProduct(product._id)}>
+                            <Eye className="mr-2 h-4 w-4" /> View
                           </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => handleEditProduct(product._id)}
-                          >
-                            <Edit className="mr-2 h-4 w-4" />
-                            Edit Product
+                          <DropdownMenuItem onClick={() => handleEditProduct(product._id)}>
+                            <Edit className="mr-2 h-4 w-4" /> Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => handleDeleteProduct(product._id)}
-                            // disabled={isDeleting}
                           >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            {/* {isDeleting ? "Deleting..." : "Delete Product"} */}
-                            Delete Product
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

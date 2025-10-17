@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import moment from "moment";
-import { Edit2, Eye, MoreVertical, ShoppingCart } from "lucide-react";
+import { Edit2, Eye, EyeIcon, MoreVertical, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/UI/badge";
 import { Button } from "@/components/UI/button";
@@ -24,6 +24,7 @@ import {
 } from "@/components/UI/table";
 import { Pagination } from "antd"; // ✅ Ant Design Pagination
 import { useVendorDashboarRecentOrderQuery } from "@/redux/features/vendors/VendorDashboard";
+import Link from "next/link";
 
 export function OrdersTable() {
   // 🔹 Pagination States
@@ -137,24 +138,12 @@ export function OrdersTable() {
                 {formatDate(order.orderDate)}
               </TableCell>
               <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem>
-                      <Eye className="mr-2 h-4 w-4" />
-                      View Details
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Edit2 className="mr-2 h-4 w-4" />
-                      Update Status
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <Link
+                  href={`/orders/${order.id}`}
+                  className=" cursor-pointer underline"
+                >
+                  View
+                </Link>
               </TableCell>
             </TableRow>
           ))}

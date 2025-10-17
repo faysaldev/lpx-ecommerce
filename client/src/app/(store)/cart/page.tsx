@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import Swal from "sweetalert2";
 import { TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useMemo, useCallback } from "react";
@@ -18,6 +17,8 @@ import {
   // useUpdateCartItemMutation,
 } from "@/redux/features/ShoppingCart/ShoppingCart";
 import ProtectedRoute from "@/Provider/ProtectedRoutes";
+import { toast } from "sonner";
+import { useLpxtaxEtcDetailsQuery } from "@/redux/features/Common/LandingPageUtils";
 
 interface CartItemType {
   id: string;
@@ -44,6 +45,8 @@ const CartPage = () => {
   const [deleteSingleCart] = useDeleteSingleCartMutation();
   const [deleteAllCart] = useAllDeleteCartMutation();
   // const [updateCartItem] = useUpdateCartItemMutation();
+  const { data: platformInformation } = useLpxtaxEtcDetailsQuery({});
+  console.log(platformInformation, "platformInformation");
 
   // Local state for optimistic updates
   const [localCartItems, setLocalCartItems] = useState<
@@ -122,10 +125,10 @@ const CartPage = () => {
 
     // Shipping: Free over $100, otherwise $10
     // const shipping = subtotal > 100 ? 0 : subtotal > 0 ? 10 : 0;
-    const shipping = 20;
+    const shipping = platformInformation?.data?.attributes?.shippingCharge;
 
     // Tax (currently 0%)
-    const tax = subtotal * 0;
+    const tax = subtotal * platformInformation?.data?.attributes?.estimatedTax;
 
     // Discount (can be applied via coupon)
     const discount = 0;
@@ -159,21 +162,10 @@ const CartPage = () => {
           });
 
           await refetch();
-
-          Swal.fire({
-            title: res?.data?.message || "Item removed successfully",
-            icon: "success",
-            timer: 2000,
-            showConfirmButton: false,
-          });
+          toast.success(res?.data?.message || "Item removed successfully");
         }
       } catch (error) {
-        console.error("Error removing item:", error);
-        Swal.fire({
-          title: "Error",
-          text: "Could not remove item. Please try again.",
-          icon: "error",
-        });
+        toast.error("Could not remove item. Please try again.");
       }
     },
     [deleteSingleCart, refetch]
@@ -181,38 +173,16 @@ const CartPage = () => {
 
   // Clear entire cart
   const clearCart = useCallback(async () => {
-    const result = await Swal.fire({
-      title: "Clear Cart?",
-      text: "Are you sure you want to remove all items?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes, clear it",
-      cancelButtonText: "Cancel",
-      confirmButtonColor: "#ef4444",
-    });
-
-    if (result.isConfirmed) {
-      try {
-        const res = await deleteAllCart("");
-        if (res && "data" in res && res.data?.code === 201) {
-          setLocalCartItems(new Map());
-          await refetch();
-
-          Swal.fire({
-            title: res?.data?.message || "Cart cleared successfully",
-            icon: "success",
-            timer: 2000,
-            showConfirmButton: false,
-          });
-        }
-      } catch (error) {
-        console.error("Error clearing cart:", error);
-        Swal.fire({
-          title: "Error",
-          text: "Could not clear cart. Please try again.",
-          icon: "error",
-        });
+    try {
+      const res = await deleteAllCart("");
+      if (res && "data" in res && res.data?.code === 201) {
+        setLocalCartItems(new Map());
+        await refetch();
+        toast.success(res?.data?.message || "Cart cleared successfully");
       }
+    } catch (error) {
+      console.error("Error clearing cart:", error);
+      toast.success("Could not clear cart. Please try again.");
     }
   }, [deleteAllCart, refetch]);
 

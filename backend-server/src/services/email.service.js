@@ -537,6 +537,334 @@ const getNotificationTemplate = (notificationData) => {
 </html>`;
 };
 
+// get vendor approval template
+const getVendorApprovalTemplate = (notificationData) => {
+  const {
+    username,
+    title,
+    description,
+    transactionId,
+    timestamp = new Date().toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }),
+  } = notificationData;
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Approved - LPX Collect</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            padding: 24px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header .left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header .icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .header .title {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+        }
+        .header .timestamp {
+            text-align: right;
+            color: #e2e8f0;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            margin-bottom: 24px;
+        }
+        .greeting p {
+            color: #718096;
+            font-size: 14px;
+            margin: 0;
+        }
+        .notification-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 0;
+            overflow: hidden;
+        }
+        .notification-header {
+            background-color: #f0fdf4;
+            padding: 16px 20px;
+            border-bottom: 1px solid #dcfce7;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .notification-header .type {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .notification-header .type span {
+            font-size: 18px;
+        }
+        .notification-header .status {
+            background-color: #16a34a;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .notification-body {
+            padding: 24px 20px;
+        }
+        .notification-body h3 {
+            color: #1A202C;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+        }
+        .notification-body p {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0 0 16px 0;
+        }
+        .vendor-details {
+            background-color: #f8fafc;
+            border-radius: 6px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        .vendor-details h4 {
+            color: #1A202C;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+        }
+        .vendor-details p {
+            color: #4a5568;
+            font-size: 13px;
+            margin: 4px 0;
+        }
+        .next-steps {
+            background-color: #fffbeb;
+            border-radius: 6px;
+            padding: 16px;
+            border-left: 4px solid #f59e0b;
+        }
+        .next-steps h4 {
+            color: #92400e;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+        }
+        .next-steps ul {
+            color: #92400e;
+            font-size: 13px;
+            margin: 0;
+            padding-left: 16px;
+        }
+        .next-steps li {
+            margin-bottom: 4px;
+        }
+        .action-buttons {
+            margin-top: 24px;
+            text-align: center;
+        }
+        .action-buttons a {
+            display: inline-block;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+        .action-buttons .primary {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+        }
+        .action-buttons .secondary {
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+        .footer-note {
+            margin-top: 24px;
+            padding: 16px;
+            background-color: #f0f9ff;
+            border-radius: 6px;
+            border-left: 4px solid #0ea5e9;
+        }
+        .footer-note p {
+            color: #0369a1;
+            font-size: 12px;
+            margin: 0;
+            line-height: 1.4;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 24px 30px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer p {
+            color: #718096;
+            font-size: 14px;
+            margin: 0 0 8px 0;
+        }
+        .footer a {
+            color: #a0aec0;
+            text-decoration: none;
+        }
+
+        /* Media Queries for Responsiveness */
+        @media (max-width: 600px) {
+            .container {
+                padding: 10px;
+                margin: 10px;
+            }
+            .header {
+                padding: 16px 20px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .notification-body h3 {
+                font-size: 16px;
+            }
+            .notification-body p {
+                font-size: 13px;
+            }
+            .action-buttons a {
+                padding: 10px 18px;
+                font-size: 12px;
+                margin-bottom: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="left">
+                <div class="icon">✅</div>
+                <div>
+                    <div class="title">Vendor Approved</div>
+                    <div class="timestamp">${timestamp}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="greeting">
+                <p>Hello <strong>${username}</strong>,</p>
+                <p>Great news! Your vendor application has been approved.</p>
+            </div>
+
+            <!-- Notification Card -->
+            <div class="notification-card">
+                <div class="notification-header">
+                    <div class="type">
+                        <span>🏪</span>
+                        <div>
+                            <span style="background-color: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;">
+                                Vendor Approval
+                            </span>
+                            <span class="status">Approved</span>
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="color: #718096; font-size: 12px;">Vendor ID:</span>
+                        <p style="color: #4a5568; font-size: 12px; font-weight: 500;">${transactionId}</p>
+                    </div>
+                </div>
+
+                <!-- Body -->
+                <div class="notification-body">
+                    <h3>${title}</h3>
+                    <p>${description}</p>
+                    
+                    <div class="vendor-details">
+                        <h4>🎉 Welcome to LPX Collect Vendor Network!</h4>
+                        <p>Your vendor account is now active and ready to use. You can start listing your products and managing your store.</p>
+                    </div>
+
+                    <div class="next-steps">
+                        <h4>📋 Next Steps:</h4>
+                        <ul>
+                            <li>Complete your vendor profile setup</li>
+                            <li>Add your products to the marketplace</li>
+                            <li>Set up your payment and shipping preferences</li>
+                            <li>Review our vendor guidelines and policies</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="https://lpxcollect.com/vendor/dashboard" class="primary">Go to Vendor Dashboard</a>
+                <a href="https://lpxcollect.com/vendor/products" class="secondary">Add Products</a>
+            </div>
+
+            <!-- Footer Note -->
+            <div class="footer-note">
+                <p>💼 <strong>Need Help?</strong> Visit our Vendor Center for guides, tutorials, and best practices to help you succeed on LPX Collect.</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>This notification was sent by <strong>LPX Collect Vendor Team</strong></p>
+            <p>© 2025 LPX Collect. All rights reserved. <a href="#">Vendor Support</a> • <a href="#">Privacy Policy</a> • <a href="#">Terms of Service</a></p>
+        </div>
+    </div>
+</body>
+</html>`;
+};
+
 // Enhanced send function with better error handling
 const sendNotificationEmail = async (to, notificationData) => {
   try {
@@ -595,6 +923,46 @@ const sendNotificationEmailWithDelay = async (to, notificationData, delay) => {
   }
 };
 
+const sendNotificationEmailWithDelayVendor = async (
+  to,
+  notificationData,
+  delay
+) => {
+  try {
+    const subject = `🔔 ${notificationData.title} - LPX Collect`;
+    const html = getVendorApprovalTemplate(notificationData);
+
+    const msg = {
+      from: config.email.from,
+      to,
+      subject,
+      html,
+    };
+
+    // Function to send email after a delay
+    const sendEmailWithDelay = () => {
+      return new Promise((resolve, reject) => {
+        setTimeout(async () => {
+          try {
+            await transport.sendMail(msg);
+            console.log(`Notification sent successfully to: ${to}`);
+            resolve();
+          } catch (error) {
+            console.error("Error sending notification email:", error);
+            reject(error);
+          }
+        }, delay); // Delay time in milliseconds (e.g., 2000ms = 2 seconds)
+      });
+    };
+
+    // Send the email with delay
+    await sendEmailWithDelay();
+  } catch (error) {
+    console.error("Error in sendNotificationEmailWithDelay:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   transport,
   sendEmail,
@@ -604,4 +972,5 @@ module.exports = {
   sendWelcomeEmail,
   sendNotificationEmail,
   sendNotificationEmailWithDelay,
+  sendNotificationEmailWithDelayVendor,
 };

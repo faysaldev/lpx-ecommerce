@@ -1,8 +1,5 @@
 const mongoose = require("mongoose");
-const crypto = require("crypto-js");
-const { decryptData } = require("../utils/decrypteHealper");
-
-const ENCRYPTION_KEY = process.env.ENCRYPTION_KEY || "234sfdfsdencryption";
+const { BankDetails } = require("./index"); // Import the BankDetails model
 
 const Schema = mongoose.Schema;
 
@@ -19,28 +16,11 @@ const PaymentRequestSchema = new Schema(
       required: true,
     },
 
-    // Encrypted Bank Information
-    bankName: {
-      type: String,
+    // Reference to BankDetails model
+    bankDetails: {
+      type: Schema.Types.ObjectId,
+      ref: "BankDetails",
       required: true,
-      trim: true,
-    },
-    accountNumber: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    accountType: {
-      type: String,
-      enum: ["savings", "current", "checking", "other"],
-      default: "savings",
-    },
-
-    // Contact Information
-    phoneNumber: {
-      type: String,
-      required: true,
-      trim: true,
     },
 
     withdrawalAmount: {
@@ -48,12 +28,6 @@ const PaymentRequestSchema = new Schema(
       min: 1,
       required: true,
     },
-
-    requestDate: {
-      type: Date,
-      default: Date.now,
-    },
-
     status: {
       type: String,
       enum: ["pending", "paid", "rejected"],
@@ -72,31 +46,10 @@ const PaymentRequestSchema = new Schema(
   { timestamps: true }
 );
 
-/* 🔐 Encryption Helper */
-function encryptData(data) {
-  return crypto.AES.encrypt(data, ENCRYPTION_KEY).toString();
-}
-
-/* 🔐 Encrypt bankName & accountNumber before saving */
-PaymentRequestSchema.pre("save", function (next) {
-  if (this.isModified("bankName")) {
-    this.bankName = encryptData(this.bankName);
-  }
-  if (this.isModified("accountNumber")) {
-    this.accountNumber = encryptData(this.accountNumber);
-  }
-  next();
-});
-
-/* 🔓 Method to decrypt sensitive details */
-PaymentRequestSchema.methods.decryptBankDetails = function () {
-  const decryptedBankName = decryptData(this.bankName);
-  const decryptedAccountNumber = decryptData(this.accountNumber);
-
-  return {
-    bankName: decryptedBankName,
-    accountNumber: decryptedAccountNumber,
-  };
+// Method to retrieve bank details for a payment request
+PaymentRequestSchema.methods.getBankDetails = async function () {
+  const bankDetails = await BankDetails.findById(this.bankDetails).exec();
+  return bankDetails ? bankDetails.decryptBankDetails() : null;
 };
 
 const PaymentRequest = mongoose.model("PaymentRequest", PaymentRequestSchema);

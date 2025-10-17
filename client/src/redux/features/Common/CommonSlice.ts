@@ -10,21 +10,34 @@ interface CategoryAttributes {
   updatedAt: string;
   __v: number;
 }
+
+interface VendorOwnerDetails {
+  vendorId: string;
+  vendorName: string;
+  sellerId: string;
+}
+
+type withListId = {
+  id: string;
+};
+
 type UserHeaderStatus = {
   unreadNotificationsCount: number;
   cartItemsCount: number;
-  wishlistItemsCount: number;
+  wishlistProductIds: withListId[];
 };
 
 // Define the state for categories
 type CommonState = {
   categories: CategoryAttributes[] | null;
   headerStatics: UserHeaderStatus | null;
+  vendor: VendorOwnerDetails | null;
 };
 
 const initialState: CommonState = {
   categories: null,
   headerStatics: null,
+  vendor: null,
 };
 
 const commonSlice = createSlice({
@@ -44,6 +57,12 @@ const commonSlice = createSlice({
     ) => {
       state.headerStatics = action.payload;
     },
+    setVendorDetails: (
+      state,
+      action: PayloadAction<VendorOwnerDetails | null>
+    ) => {
+      state.vendor = action.payload;
+    },
     addCategory: (state, action: PayloadAction<CategoryAttributes>) => {
       if (state.categories) {
         state.categories.push(action.payload);
@@ -62,6 +81,7 @@ export const {
   addCategory,
   resetCategories,
   setHeaderStatitics,
+  setVendorDetails,
 } = commonSlice.actions;
 
 export default commonSlice.reducer;
@@ -74,3 +94,7 @@ export const selectCategories = (
 export const selectHeaderStatitics = (
   state: RootState
 ): UserHeaderStatus | null => state.common.headerStatics;
+
+export const selectSelectedVendor = (
+  state: RootState
+): VendorOwnerDetails | null => state.common.vendor;

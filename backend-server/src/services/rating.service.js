@@ -1,5 +1,5 @@
 const httpStatus = require("http-status");
-const { Rating } = require("../models");
+const { Rating, Vendor } = require("../models");
 const ApiError = require("../utils/ApiError");
 
 const getMyratings = async (Id, ratingType) => {
@@ -20,10 +20,50 @@ const getMyratings = async (Id, ratingType) => {
 };
 
 const addNewRatings = async (ratingBody) => {
+  console.log(ratingBody);
+
+  // Ensure that the ratingBody is valid
   if (!ratingBody) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+    throw new ApiError(httpStatus.BAD_REQUEST, "User is not authenticated");
   }
-  return Rating.create(ratingBody);
+
+  // Add the new rating to the database
+  const newRating = await Rating.create(ratingBody);
+
+  // If the rating type is for a vendor, calculate and update the average rating
+  if (ratingBody.ratingType === "vendor") {
+    const vendorId = ratingBody.referenceId;
+
+    // Retrieve the vendor's current ratings
+    const vendor = await Vendor.findById(vendorId).populate("ratings");
+
+    if (!vendor) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
+    }
+
+    // Calculate the total sum of ratings
+    const totalRatings = vendor.ratings.length;
+    const totalRatingValue = vendor.ratings.reduce(
+      (sum, rating) => sum + rating.rating,
+      0
+    );
+
+    // Include the new rating in the calculation
+    const updatedTotalRatingValue = totalRatingValue + ratingBody.rating;
+    const updatedTotalRatings = totalRatings + 1;
+
+    // Calculate the new average rating
+    const newAverageRating = updatedTotalRatingValue / updatedTotalRatings;
+
+    // Update the vendor's average rating and ratings count
+    vendor.averageRating = newAverageRating;
+    vendor.productsCount = updatedTotalRatings; // Update the product count or rating count if necessary
+
+    // Save the updated vendor data
+    await vendor.save();
+  }
+
+  return "Rating Added Successfully";
 };
 
 const removeRatings = async (ratingId) => {

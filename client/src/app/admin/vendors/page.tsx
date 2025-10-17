@@ -381,10 +381,6 @@ export default function VendorsManagement() {
             Manage and monitor all marketplace vendors and stores
           </p>
         </div>
-        <Button variant="outline">
-          <Download className="mr-2 h-4 w-4" />
-          Export Vendors
-        </Button>
       </div>
 
       {/* Stats Grid */}

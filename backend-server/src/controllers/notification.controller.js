@@ -79,10 +79,26 @@ const removeNotification = catchAsync(async (req, res) => {
   );
 });
 
+const removeAllNotification = catchAsync(async (req, res) => {
+  const notification = await notificationService.removeAllNotification(
+    req.user.id,
+    req.query.type
+  );
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Deleted notification",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: notification,
+    })
+  );
+});
+
 module.exports = {
   getMyNotification,
   addNewNotification,
   updateNotification,
   removeNotification,
   makeAllNotificationRead,
+  removeAllNotification,
 };

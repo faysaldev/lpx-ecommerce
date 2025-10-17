@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Menu } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/UI/avatar";
 import { IconButton } from "@/components/UI/button.variants";
@@ -39,13 +39,14 @@ function MobileMenuToggle({
           <Menu className="h-6 w-6" />
         </IconButton>
       </SheetTrigger>
-      <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+      <SheetContent side="right" className="w-[210px] sm:w-[300px]">
         <SheetHeader>
           <SheetTitle>Menu</SheetTitle>
+          
         </SheetHeader>
-        <div className="mt-6">
+        <div className="mt-6 overflow-y-auto max-h-[90vh]">
           {/* Mobile Navigation */}
-          <nav className="flex flex-col gap-3">
+          <nav className=" overflow-y-auto flex flex-col gap-3">
             <p className="text-sm font-semibold mb-2">Categories</p>
             {memoizedCategories.map((category: any) => (
               <Link

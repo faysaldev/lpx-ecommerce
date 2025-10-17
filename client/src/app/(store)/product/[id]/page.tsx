@@ -20,6 +20,11 @@ import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant"
 import VendorTruncateDetails from "@/components/Vendors/SingleVendorView/VendorTruncateDetails";
 import { getImageUrl } from "@/lib/getImageURL";
 import { useAddNewToWishListMutation } from "@/redux/features/GetWishList/GetWishList";
+import { useAddTocartMutation } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
+import { toast } from "sonner";
+import { useAppSelector } from "@/redux/hooks";
+import { selectHeaderStatitics } from "@/redux/features/Common/CommonSlice";
+import SingleProductImageModal from "@/components/Products/SingleProductImageModal";
 
 // Image Magnifier Component
 interface ImageMagnifierProps {
@@ -30,96 +35,36 @@ interface ImageMagnifierProps {
   zoomLevel?: number;
 }
 
-const ImageMagnifier = ({
-  src,
-  alt,
-  magnifierHeight = 200,
-  magnifierWidth = 200,
-  zoomLevel = 2.5,
-}: ImageMagnifierProps) => {
-  const [showMagnifier, setShowMagnifier] = useState(false);
-  const [[x, y], setXY] = useState([0, 0]);
-  const [[imgWidth, imgHeight], setSize] = useState([0, 0]);
+const ImageMagnifier = ({ src, alt }: ImageMagnifierProps) => {
   const imgRef = useRef<HTMLImageElement>(null);
 
-  const mouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
-    const elem = e.currentTarget;
-    const { width, height } = elem.getBoundingClientRect();
-    setSize([width, height]);
-    setShowMagnifier(true);
-  };
-
-  const mouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const elem = e.currentTarget;
-    const { top, left } = elem.getBoundingClientRect();
-
-    const x = e.pageX - left - window.pageXOffset;
-    const y = e.pageY - top - window.pageYOffset;
-    setXY([x, y]);
-  };
-
-  const mouseLeave = () => {
-    setShowMagnifier(false);
-  };
-
   return (
-    <div
-      className="relative w-full h-full"
-      onMouseEnter={mouseEnter}
-      onMouseMove={mouseMove}
-      onMouseLeave={mouseLeave}
-    >
+    <div className="relative w-full h-full">
       <img
         ref={imgRef}
         src={src}
         alt={alt}
-        className="w-full h-full object-contain rounded-lg"
+        className="w-full h-full object-contain rounded-lg cursor-zoom-in"
         style={{ display: "block" }}
       />
-
-      {showMagnifier && (
-        <div
-          style={{
-            position: "absolute",
-            pointerEvents: "none",
-            height: `${magnifierHeight}px`,
-            width: `${magnifierWidth}px`,
-            top: `${y - magnifierHeight / 2}px`,
-            left: `${x - magnifierWidth / 2}px`,
-            opacity: "1",
-            border: "2px solid lightgray",
-            backgroundColor: "white",
-            backgroundImage: `url('${src}')`,
-            backgroundRepeat: "no-repeat",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-
-            backgroundSize: `${imgWidth * zoomLevel}px ${
-              imgHeight * zoomLevel
-            }px`,
-
-            backgroundPositionX: `${-x * zoomLevel + magnifierWidth / 2}px`,
-            backgroundPositionY: `${-y * zoomLevel + magnifierHeight / 2}px`,
-          }}
-        />
-      )}
     </div>
   );
 };
 
+// Image Modal Component
+
 const ProductDetailsPage = () => {
-  // const type = "product";
   const { id }: any = useParams();
-
-  // const idtype = { id, type };
-
   const { data, isLoading, isError } = useGetSingleProductQuery(id);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [payment] = useBuyNowMutation();
   const [addtoWithlist] = useAddNewToWishListMutation();
+  const [addtoCartProduct] = useAddTocartMutation();
+  const headerStats = useAppSelector(selectHeaderStatitics);
 
   const allData = data?.data?.attributes;
 
@@ -192,7 +137,10 @@ const ProductDetailsPage = () => {
       }
     : null;
 
+  const isInWishlist = headerStats?.wishlistProductIds?.includes(product?.id);
+
   const totalPrice = product?.price * quantity || 0;
+
   const byNowHandler = async () => {
     const data = [
       {
@@ -215,8 +163,30 @@ const ProductDetailsPage = () => {
   const saveTowishList = async () => {
     await addtoWithlist({
       products: product?.id,
-      vendorId: product?.vendor?._id,
+      vendorId: product?.vendorId,
     });
+    toast("Added to Wishlist");
+  };
+
+  const addToCart = async () => {
+    const data = {
+      product: product?.id,
+      vendorId: product?.vendorId,
+      quantity: quantity,
+      price: product?.price,
+    };
+    console.log(data);
+
+    await addtoCartProduct(data);
+    toast("Added to Cart");
+  };
+
+  const openImageModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    setIsModalOpen(false);
   };
 
   if (isLoading) {
@@ -252,331 +222,354 @@ const ProductDetailsPage = () => {
     { label: "Browse", href: "/browse" },
     {
       label: product.category,
-      href: `/category/${product.categorySlug}`,
+      href: `/category/${product.category}`,
     },
     { label: product.name },
   ];
 
   return (
-    <PageLayout
-      breadcrumbs={breadcrumbs}
-      showHeader={true}
-      showFooter={true}
-      withCard={true}
-    >
-      <section>
-        <div className="flex min-h-[600px] overflow-hidden rounded-lg border">
-          {/* Left Half - Product Images */}
-          <div className="flex-1 flex flex-col bg-muted/30 border-r">
-            {/* Main Image with Magnifier */}
-            <div className="flex-1 flex items-center justify-center p-8">
-              <div className="w-full max-w-lg aspect-square relative">
-                <ImageMagnifier
-                  src={
-                    product.images?.[selectedImage]
-                      ? `${process.env.NEXT_PUBLIC_BASE_URL}/${product.images[selectedImage]}`
-                      : product.image
-                      ? `${process.env.NEXT_PUBLIC_BASE_URL}/${product.image}`
-                      : "/placeholder-card.jpg"
-                  }
-                  alt={product.name}
-                  magnifierHeight={250}
-                  magnifierWidth={250}
-                  zoomLevel={2.5}
-                />
-              </div>
-            </div>
-
-            {/* Thumbnail Images */}
-            {product.images.length > 0 && (
-              <div className="p-6 border-t">
-                <div className="flex space-x-3 justify-center">
-                  {product.images.map((image: any, index: number) => (
-                    <button
-                      type="button"
-                      key={`image-${index}`}
-                      onClick={() => setSelectedImage(index)}
-                      className={cn(
-                        "flex-shrink-0 w-16 h-16 rounded-lg border-2 overflow-hidden transition-all relative",
-                        selectedImage === index
-                          ? "border-primary ring-2 ring-primary ring-opacity-20"
-                          : "border-gray-200 hover:border-gray-300"
-                      )}
-                    >
-                      <Image
-                        src={image ? getImageUrl(image) : ""}
-                        alt={`${product.name} view ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Right Half - Product Info */}
-          <div className="flex-1 flex flex-col">
-            <div className="flex-1 overflow-y-auto">
-              <div className="p-8 space-y-6">
-                {/* Title and Rating */}
-                <div>
-                  <h1 className={cn(designTokens.typography.h3, "mb-2")}>
-                    {product.name}
-                  </h1>
-
-                  {/* Seller Info */}
-                  <div className="mb-4">
-                    <p className="text-sm text-muted-foreground">
-                      Sold by{" "}
-                      {product.vendorId ? (
-                        <Link
-                          href={`/vendor/${product.vendorId}`}
-                          className="font-medium text-foreground hover:text-primary transition-colors underline decoration-dotted hover:decoration-solid"
-                        >
-                          {product.vendor}
-                        </Link>
-                      ) : (
-                        <span className="font-medium text-foreground">
-                          {product.vendor}
-                        </span>
-                      )}
-                      {product.vendorVerified && (
-                        <span className="ml-2 inline-flex items-center text-xs text-green-600">
-                          ✓ Verified
-                        </span>
-                      )}
-                    </p>
-                    <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={`star-${product.id}-${i}`}
-                            className={cn(
-                              "h-3 w-3",
-                              i < Math.floor(product.vendorRating)
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-gray-300"
-                            )}
-                          />
-                        ))}
-                      </div>
-                      <span>
-                        {product.vendorRating > 0
-                          ? `${product.vendorRating.toFixed(1)} rating`
-                          : "(New Seller)"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mb-4">
-                    <span className="text-sm text-muted-foreground">
-                      SKU: {product.id.slice(-8).toUpperCase()}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Price */}
-                <div className="space-y-2">
-                  <div className="flex items-baseline space-x-2">
-                    <span className={cn(designTokens.typography.h4)}>
-                      AED {product.price.toLocaleString()}
-                    </span>
-                    {product.discountPercentage > 0 && (
-                      <>
-                        <span className="text-sm text-muted-foreground line-through">
-                          AED {product.optionalPrice.toLocaleString()}
-                        </span>
-                        <span className="text-xs font-semibold text-green-600">
-                          {product.discountPercentage}% OFF
-                        </span>
-                      </>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {product.stock > 5
-                      ? "In Stock"
-                      : product.stock > 0
-                      ? `Only ${product.stock} left in stock`
-                      : "Out of Stock"}
-                  </p>
-                </div>
-
-                {/* Product Badges */}
-                <div className="flex flex-wrap gap-2">
-                  {product.stock <= 5 && product.stock > 0 && (
-                    <StockBadge stock={product.stock} />
-                  )}
-                  {product.state === "sealed" && <SealedBadge />}
-                  {product.state === "open" && product.grading && (
-                    <GradingBadge
-                      company={product.grading.company}
-                      grade={product.grading.grade}
+    <>
+      <PageLayout
+        breadcrumbs={breadcrumbs}
+        showHeader={true}
+        showFooter={true}
+        withCard={true}
+      >
+        <section>
+          <div className="flex min-h-[600px] overflow-hidden rounded-lg border">
+            {/* Left Half - Product Images */}
+            <div className="flex-1 flex flex-col bg-muted/30 border-r">
+              {/* Main Image with Magnifier */}
+              <div className="flex-1 flex items-center justify-center p-8">
+                <div className="w-full max-w-lg aspect-square relative">
+                  <div className="cursor-zoom-in" onClick={openImageModal}>
+                    <ImageMagnifier
+                      src={
+                        product.images?.[selectedImage]
+                          ? `${process.env.NEXT_PUBLIC_BASE_URL}/${product.images[selectedImage]}`
+                          : product.image
+                          ? `${process.env.NEXT_PUBLIC_BASE_URL}/${product.image}`
+                          : "/placeholder-card.jpg"
+                      }
+                      alt={product.name}
+                      magnifierHeight={250}
+                      magnifierWidth={250}
+                      zoomLevel={2.5}
                     />
-                  )}
-                  {product.state === "open" &&
-                    !product.grading &&
-                    product.condition && (
-                      <ConditionBadge condition={product.condition} />
-                    )}
-                  {product.rarity && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                      {product.rarity}
-                    </span>
-                  )}
+                  </div>
                 </div>
+              </div>
 
-                {/* Tags */}
-                {product.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {product.tags.map((tag: any, index: number) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700"
+              {/* Thumbnail Images */}
+              {product.images.length > 0 && (
+                <div className="p-6 border-t">
+                  <div className="flex space-x-3 justify-center">
+                    {product.images.map((image: any, index: number) => (
+                      <button
+                        type="button"
+                        key={`image-${index}`}
+                        onClick={() => setSelectedImage(index)}
+                        className={cn(
+                          "flex-shrink-0 w-16 h-16 rounded-lg border-2 overflow-hidden transition-all relative",
+                          selectedImage === index
+                            ? "border-primary ring-2 ring-primary ring-opacity-20"
+                            : "border-gray-200 hover:border-gray-300"
+                        )}
                       >
-                        #{tag}
-                      </span>
+                        <Image
+                          src={image ? getImageUrl(image) : ""}
+                          alt={`${product.name} view ${index + 1}`}
+                          fill
+                          className="object-cover"
+                        />
+                      </button>
                     ))}
                   </div>
-                )}
-
-                {/* Quantity and Add to Cart */}
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-4">
-                    <span className="text-sm font-medium">Quantity:</span>
-                    <div className="flex items-center border rounded-lg">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        disabled={quantity <= 1}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <span className="px-4 py-2 text-center min-w-[50px]">
-                        {quantity}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          setQuantity(Math.min(product.stock, quantity + 1))
-                        }
-                        disabled={quantity >= product.stock}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-wrap gap-3">
-                    <Button
-                      size="lg"
-                      className="min-w-[140px]"
-                      disabled={!product.inStock || product.stock === 0}
-                    >
-                      <ShoppingCart className="h-4 w-4 mr-2" />
-                      Add to Cart
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="min-w-[120px]"
-                      disabled={!product.inStock || product.stock === 0}
-                      onClick={() => byNowHandler()}
-                    >
-                      <Zap className="h-4 w-4 mr-2" />
-                      Buy Now
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="lg"
-                      onClick={() => saveTowishList()}
-                    >
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                  </div>
                 </div>
-
-                {/* Shipping Info */}
-                {product.shipping && (
-                  <div className="border rounded-lg p-4 bg-muted/20">
-                    <h3 className="font-medium mb-2">Shipping Information</h3>
-                    <div className="space-y-1 text-sm text-muted-foreground">
-                      {product.shipping.shippingCost !== undefined && (
-                        <p>Shipping Cost: ${product.shipping.shippingCost}</p>
-                      )}
-                      {product.shipping.weight && (
-                        <p>Weight: {product.shipping.weight} lbs</p>
-                      )}
-                      {product.shipping.dimensions && (
-                        <p>Dimensions: {product.shipping.dimensions}</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
-          </div>
-        </div>
-        {/* Product specifications */}
-        <div className="border-t pt-6">
-          {product.specifications &&
-            Object.keys(product.specifications).length > 0 && (
-              <div>
-                <h3 className={cn(designTokens.typography.h4, "mb-3")}>
-                  Specifications
-                </h3>
-                <div className="space-y-2">
-                  {Object.entries(product.specifications).map(
-                    ([key, value]) => (
-                      <div
-                        key={key}
-                        className="flex justify-between py-2 border-b border-gray-200 last:border-b-0"
-                      >
-                        <span className="font-medium">{key}:</span>
-                        <span className="text-muted-foreground">
-                          {String(value)}
+
+            {/* Right Half - Product Info */}
+            <div className="flex-1 flex flex-col">
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-8 space-y-6">
+                  {/* Title and Rating */}
+                  <div>
+                    <h1 className={cn(designTokens.typography.h3, "mb-2")}>
+                      {product.name}
+                    </h1>
+
+                    {/* Seller Info */}
+                    <div className="mb-4">
+                      <p className="text-sm text-muted-foreground">
+                        Sold by{" "}
+                        {product.vendorId ? (
+                          <Link
+                            href={`/vendor/${product.vendorId}`}
+                            className="font-medium text-foreground hover:text-primary transition-colors underline decoration-dotted hover:decoration-solid"
+                          >
+                            {product.vendor}
+                          </Link>
+                        ) : (
+                          <span className="font-medium text-foreground">
+                            {product.vendor}
+                          </span>
+                        )}
+                        {product.vendorVerified && (
+                          <span className="ml-2 inline-flex items-center text-xs text-green-600">
+                            ✓ Verified
+                          </span>
+                        )}
+                      </p>
+                      <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star
+                              key={`star-${product.id}-${i}`}
+                              className={cn(
+                                "h-3 w-3",
+                                i < Math.floor(product.vendorRating)
+                                  ? "text-yellow-400 fill-yellow-400"
+                                  : "text-gray-300"
+                              )}
+                            />
+                          ))}
+                        </div>
+                        <span>
+                          {product.vendorRating > 0
+                            ? `${product.vendorRating.toFixed(1)} rating`
+                            : "(New Seller)"}
                         </span>
                       </div>
-                    )
+                    </div>
+
+                    <div className="mb-4">
+                      <span className="text-sm text-muted-foreground">
+                        SKU: {product.id.slice(-8).toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Price */}
+                  <div className="space-y-2">
+                    <div className="flex items-baseline space-x-2">
+                      <span className={cn(designTokens.typography.h4)}>
+                        AED {product.price.toLocaleString()}
+                      </span>
+                      {product.discountPercentage > 0 && (
+                        <>
+                          <span className="text-sm text-muted-foreground line-through">
+                            AED {product.optionalPrice.toLocaleString()}
+                          </span>
+                          <span className="text-xs font-semibold text-green-600">
+                            {product.discountPercentage}% OFF
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {product.stock > 5
+                        ? "In Stock"
+                        : product.stock > 0
+                        ? `Only ${product.stock} left in stock`
+                        : "Out of Stock"}
+                    </p>
+                  </div>
+
+                  {/* Product Badges */}
+                  <div className="flex flex-wrap gap-2">
+                    {product.stock <= 5 && product.stock > 0 && (
+                      <StockBadge stock={product.stock} />
+                    )}
+                    {product.state === "sealed" && <SealedBadge />}
+                    {product.state === "open" && product.grading && (
+                      <GradingBadge
+                        company={product.grading.company}
+                        grade={product.grading.grade}
+                      />
+                    )}
+                    {product.state === "open" &&
+                      !product.grading &&
+                      product.condition && (
+                        <ConditionBadge condition={product.condition} />
+                      )}
+                    {product.rarity && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                        {product.rarity}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Tags */}
+                  {product.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {product.tags.map((tag: any, index: number) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center px-2 py-1 rounded text-xs bg-gray-100 text-gray-700"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Quantity and Add to Cart */}
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-4">
+                      <span className="text-sm font-medium">Quantity:</span>
+                      <div className="flex items-center border rounded-lg">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          disabled={quantity <= 1}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="px-4 py-2 text-center min-w-[50px]">
+                          {quantity}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setQuantity(Math.min(product.stock, quantity + 1))
+                          }
+                          disabled={quantity >= product.stock}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-3">
+                      <Button
+                        size="lg"
+                        className="min-w-[140px]"
+                        onClick={addToCart}
+                        disabled={!product.inStock || product.stock === 0}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Add to Cart
+                      </Button>
+                      <Button
+                        size="lg"
+                        variant="outline"
+                        className="min-w-[120px]"
+                        disabled={!product.inStock || product.stock === 0}
+                        onClick={() => byNowHandler()}
+                      >
+                        <Zap className="h-4 w-4 mr-2" />
+                        Buy Now
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={saveTowishList}
+                        disabled={isInWishlist}
+                        className={cn(
+                          isInWishlist &&
+                            "bg-red-50 text-red-600 border-red-200"
+                        )}
+                      >
+                        <Heart
+                          className={cn(
+                            "h-4 w-4",
+                            isInWishlist && "fill-current"
+                          )}
+                        />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Shipping Info */}
+                  {product.shipping && (
+                    <div className="border rounded-lg p-4 bg-muted/20">
+                      <h3 className="font-medium mb-2">Shipping Information</h3>
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        {product.shipping.weight && (
+                          <p>Weight: {product.shipping.weight} lbs</p>
+                        )}
+                        {product.shipping.dimensions && (
+                          <p>Dimensions: {product.shipping.dimensions}</p>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
-            )}
-        </div>
-        <br />
-
-        {product?.StorePolicies ? (
-          <div>
-            <h1 className="text-xl font-semibold">Description</h1>
-            <VendorTruncateDetails
-              description={product?.description}
-              truncateLength={300}
-            />
-            <br />
+            </div>
           </div>
-        ) : null}
-
-        {product?.StorePolicies ? (
-          <div>
-            <h1 className="text-xl font-semibold">Shipping Policy</h1>
-            <VendorTruncateDetails
-              description={product?.StorePolicies?.shippingPolicy}
-              truncateLength={250}
-            />
-            <br />
-            <h1 className="text-xl font-semibold">Return Policy</h1>
-            <VendorTruncateDetails
-              description={product?.StorePolicies?.returnPolicy}
-              truncateLength={250}
-            />
+          {/* Product specifications */}
+          <div className="border-t pt-6">
+            {product.specifications &&
+              Object.keys(product.specifications).length > 0 && (
+                <div>
+                  <h3 className={cn(designTokens.typography.h4, "mb-3")}>
+                    Specifications
+                  </h3>
+                  <div className="space-y-2">
+                    {Object.entries(product.specifications).map(
+                      ([key, value]) => (
+                        <div
+                          key={key}
+                          className="flex justify-between py-2 border-b border-gray-200 last:border-b-0"
+                        >
+                          <span className="font-medium">{key}:</span>
+                          <span className="text-muted-foreground">
+                            {String(value)}
+                          </span>
+                        </div>
+                      )
+                    )}
+                  </div>
+                </div>
+              )}
           </div>
-        ) : null}
-      </section>
-    </PageLayout>
+          <br />
+
+          {product?.StorePolicies ? (
+            <div>
+              <h1 className="text-xl font-semibold">Description</h1>
+              <VendorTruncateDetails
+                description={product?.description}
+                truncateLength={300}
+              />
+              <br />
+            </div>
+          ) : null}
+
+          {product?.StorePolicies ? (
+            <div>
+              <h1 className="text-xl font-semibold">Shipping Policy</h1>
+              <VendorTruncateDetails
+                description={product?.StorePolicies?.shippingPolicy}
+                truncateLength={250}
+              />
+              <br />
+              <h1 className="text-xl font-semibold">Return Policy</h1>
+              <VendorTruncateDetails
+                description={product?.StorePolicies?.returnPolicy}
+                truncateLength={250}
+              />
+            </div>
+          ) : null}
+        </section>
+      </PageLayout>
+
+      {/* Image Modal */}
+      {product && (
+        <SingleProductImageModal
+          images={product.images}
+          initialIndex={selectedImage}
+          isOpen={isModalOpen}
+          onClose={closeImageModal}
+          productName={product.name}
+        />
+      )}
+    </>
   );
 };
 
@@ -587,7 +580,7 @@ export default ProductDetailsPage;
 // import { Heart, Minus, Plus, ShoppingCart, Star, Zap } from "lucide-react";
 // import Image from "next/image";
 // import Link from "next/link";
-// import { useState } from "react";
+// import { useState, useRef } from "react";
 // import PageLayout from "@/components/layout/PageLayout";
 // import {
 //   ConditionBadge,
@@ -600,18 +593,106 @@ export default ProductDetailsPage;
 // import { cn } from "@/lib/utils";
 // import { useParams } from "next/navigation";
 // import { useGetSingleProductQuery } from "@/redux/features/products/product";
-// // TODO: product ratings import
-// // import ReviewAndRatingsProduct from "@/components/ReviewAndRatingsProduct/ReviewAndRatingsProduct";
 // import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant";
 // import VendorTruncateDetails from "@/components/Vendors/SingleVendorView/VendorTruncateDetails";
 // import { getImageUrl } from "@/lib/getImageURL";
 // import { useAddNewToWishListMutation } from "@/redux/features/GetWishList/GetWishList";
+// import { useAddTocartMutation } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
+// import { toast } from "sonner";
+// import { useAppSelector } from "@/redux/hooks";
+// import { selectHeaderStatitics } from "@/redux/features/Common/CommonSlice";
+
+// // Image Magnifier Component
+// interface ImageMagnifierProps {
+//   src: string;
+//   alt: string;
+//   magnifierHeight?: number;
+//   magnifierWidth?: number;
+//   zoomLevel?: number;
+// }
+
+// const ImageMagnifier = ({
+//   src,
+//   alt,
+//   magnifierHeight = 200,
+//   magnifierWidth = 200,
+//   zoomLevel = 2.5,
+// }: ImageMagnifierProps) => {
+//   const [showMagnifier, setShowMagnifier] = useState(false);
+//   const [[x, y], setXY] = useState([0, 0]);
+//   const [[imgWidth, imgHeight], setSize] = useState([0, 0]);
+//   const imgRef = useRef<HTMLImageElement>(null);
+
+//   const mouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+//     const elem = e.currentTarget;
+//     const { width, height } = elem.getBoundingClientRect();
+//     setSize([width, height]);
+//     setShowMagnifier(true);
+//   };
+
+//   const mouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+//     const elem = e.currentTarget;
+//     const { top, left } = elem.getBoundingClientRect();
+
+//     const x = e.pageX - left - window.pageXOffset;
+//     const y = e.pageY - top - window.pageYOffset;
+//     setXY([x, y]);
+//   };
+
+//   const mouseLeave = () => {
+//     setShowMagnifier(false);
+//   };
+
+//   return (
+//     <div
+//       className="relative w-full h-full"
+//       onMouseEnter={mouseEnter}
+//       onMouseMove={mouseMove}
+//       onMouseLeave={mouseLeave}
+//     >
+//       <img
+//         ref={imgRef}
+//         src={src}
+//         alt={alt}
+//         className="w-full h-full object-contain rounded-lg"
+//         style={{ display: "block" }}
+//       />
+
+//       {showMagnifier && (
+//         <div
+//           style={{
+//             position: "absolute",
+//             pointerEvents: "none",
+//             height: `${magnifierHeight}px`,
+//             width: `${magnifierWidth}px`,
+//             top: `${y - magnifierHeight / 2}px`,
+//             left: `${x - magnifierWidth / 2}px`,
+//             opacity: "1",
+//             border: "2px solid lightgray",
+//             backgroundColor: "white",
+//             backgroundImage: `url('${src}')`,
+//             backgroundRepeat: "no-repeat",
+//             borderRadius: "8px",
+//             boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+
+//             backgroundSize: `${imgWidth * zoomLevel}px ${
+//               imgHeight * zoomLevel
+//             }px`,
+
+//             backgroundPositionX: `${-x * zoomLevel + magnifierWidth / 2}px`,
+//             backgroundPositionY: `${-y * zoomLevel + magnifierHeight / 2}px`,
+//           }}
+//         />
+//       )}
+//     </div>
+//   );
+// };
 
 // const ProductDetailsPage = () => {
-//   const type = "product";
+//   // const type = "product";
 //   const { id }: any = useParams();
 
-//   const idtype = { id, type };
+//   // const idtype = { id, type };
 
 //   const { data, isLoading, isError } = useGetSingleProductQuery(id);
 
@@ -620,6 +701,8 @@ export default ProductDetailsPage;
 
 //   const [payment] = useBuyNowMutation();
 //   const [addtoWithlist] = useAddNewToWishListMutation();
+//   const [addtoCartProduct] = useAddTocartMutation();
+//   const headerStats = useAppSelector(selectHeaderStatitics);
 
 //   const allData = data?.data?.attributes;
 
@@ -686,11 +769,13 @@ export default ProductDetailsPage;
 //           allData.condition?.includes("PSA")
 //             ? {
 //                 company: allData.condition.includes("BGS") ? "BGS" : "PSA",
-//                 grade: "N/A", // You might need to parse this from condition string
+//                 grade: "N/A",
 //               }
 //             : undefined,
 //       }
 //     : null;
+
+//   const isInWishlist = headerStats?.wishlistProductIds?.includes(product?.id);
 
 //   const totalPrice = product?.price * quantity || 0;
 //   const byNowHandler = async () => {
@@ -702,11 +787,9 @@ export default ProductDetailsPage;
 //         vendorId: product?.vendorId,
 //       },
 //     ];
-//     console.log("pyment data show ", data);
 //     try {
 //       const res = await payment(data);
 //       if (res?.data?.code === 200) {
-//         // console.log()
 //         window.location.href = res?.data?.data?.attributes?.payment_url || "/";
 //       }
 //     } catch (error) {
@@ -717,8 +800,22 @@ export default ProductDetailsPage;
 //   const saveTowishList = async () => {
 //     await addtoWithlist({
 //       products: product?.id,
-//       vendorId: product?.vendor?._id,
+//       vendorId: product?.vendorId,
 //     });
+//     toast("Added to Wishlist");
+//   };
+
+//   const addToCart = async () => {
+//     const data = {
+//       product: product?.id,
+//       vendorId: product?.vendorId,
+//       quantity: 1,
+//       price: product?.price,
+//     };
+//     console.log(data);
+
+//     await addtoCartProduct(data);
+//     toast("Added to Cart");
 //   };
 
 //   if (isLoading) {
@@ -754,7 +851,7 @@ export default ProductDetailsPage;
 //     { label: "Browse", href: "/browse" },
 //     {
 //       label: product.category,
-//       href: `/category/${product.categorySlug}`,
+//       href: `/category/${product.category}`,
 //     },
 //     { label: product.name },
 //   ];
@@ -770,20 +867,21 @@ export default ProductDetailsPage;
 //         <div className="flex min-h-[600px] overflow-hidden rounded-lg border">
 //           {/* Left Half - Product Images */}
 //           <div className="flex-1 flex flex-col bg-muted/30 border-r">
-//             {/* Main Image */}
+//             {/* Main Image with Magnifier */}
 //             <div className="flex-1 flex items-center justify-center p-8">
 //               <div className="w-full max-w-lg aspect-square relative">
-//                 <Image
+//                 <ImageMagnifier
 //                   src={
 //                     product.images?.[selectedImage]
 //                       ? `${process.env.NEXT_PUBLIC_BASE_URL}/${product.images[selectedImage]}`
 //                       : product.image
 //                       ? `${process.env.NEXT_PUBLIC_BASE_URL}/${product.image}`
-//                       : "" // fallback image
+//                       : "/placeholder-card.jpg"
 //                   }
 //                   alt={product.name}
-//                   fill
-//                   className="object-contain rounded-lg"
+//                   magnifierHeight={250}
+//                   magnifierWidth={250}
+//                   zoomLevel={2.5}
 //                 />
 //               </div>
 //             </div>
@@ -976,6 +1074,7 @@ export default ProductDetailsPage;
 //                     <Button
 //                       size="lg"
 //                       className="min-w-[140px]"
+//                       onClick={addToCart}
 //                       disabled={!product.inStock || product.stock === 0}
 //                     >
 //                       <ShoppingCart className="h-4 w-4 mr-2" />
@@ -992,16 +1091,21 @@ export default ProductDetailsPage;
 //                       Buy Now
 //                     </Button>
 //                     <Button
+//                       size="icon"
 //                       variant="outline"
-//                       size="lg"
-//                       onClick={() => saveTowishList()}
+//                       onClick={saveTowishList}
+//                       disabled={isInWishlist}
+//                       className={cn(
+//                         isInWishlist && "bg-red-50 text-red-600 border-red-200"
+//                       )}
 //                     >
-//                       <Heart className="h-4 w-4" />
+//                       <Heart
+//                         className={cn(
+//                           "h-4 w-4",
+//                           isInWishlist && "fill-current"
+//                         )}
+//                       />
 //                     </Button>
-//                     {/* TODO: shere button */}
-//                     {/* <Button variant="outline" size="lg">
-//                       <Share2 className="h-4 w-4" />
-//                     </Button> */}
 //                   </div>
 //                 </div>
 
@@ -1010,9 +1114,6 @@ export default ProductDetailsPage;
 //                   <div className="border rounded-lg p-4 bg-muted/20">
 //                     <h3 className="font-medium mb-2">Shipping Information</h3>
 //                     <div className="space-y-1 text-sm text-muted-foreground">
-//                       {product.shipping.shippingCost !== undefined && (
-//                         <p>Shipping Cost: ${product.shipping.shippingCost}</p>
-//                       )}
 //                       {product.shipping.weight && (
 //                         <p>Weight: {product.shipping.weight} lbs</p>
 //                       )}
@@ -1080,8 +1181,6 @@ export default ProductDetailsPage;
 //             />
 //           </div>
 //         ) : null}
-//         {/* TODO: products ratings code hide for now */}
-//         {/* <ReviewAndRatingsProduct idtype={idtype} /> */}
 //       </section>
 //     </PageLayout>
 //   );

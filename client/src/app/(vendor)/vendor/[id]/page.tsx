@@ -85,6 +85,8 @@ export default function VendorStorefrontPage() {
     skip: !vendorId,
   });
 
+  console.log("vendor data show this section page ", vendorSingleDetails);
+
   // Fetch vendor products with filters
   const { data: vendorProductsData, isLoading: isProductsLoading } =
     useSearchSingleVendorProductsQuery(
@@ -104,6 +106,7 @@ export default function VendorStorefrontPage() {
     if (!vendorSingleDetails?.data?.attributes) return null;
 
     const vendorData = vendorSingleDetails.data.attributes;
+
     return {
       id: vendorData._id,
       slug:
@@ -139,6 +142,7 @@ export default function VendorStorefrontPage() {
         : undefined,
       responseTime: "within hours",
       totalSales: 0, // You might want to calculate this from orders
+      totalRatings: vendorData?.totalRatings,
     } as Vendor;
   }, [vendorSingleDetails]);
 
@@ -150,8 +154,15 @@ export default function VendorStorefrontPage() {
       (product: any) =>
         ({
           id: product._id,
+          slug:
+            product.slug ||
+            product.productName.toLowerCase().replace(/\s+/g, "-"),
           name: product.productName,
+          description: product.description || "",
+          discountPercentage: product.discountPercentage,
           price: product.price,
+          optionalPrice: product.optionalPrice || product.price,
+          stock: product.stockQuantity || 0,
           image: product.images?.[0] || "",
           images: product.images || [],
           category: product.category,
@@ -160,10 +171,10 @@ export default function VendorStorefrontPage() {
             "uncategorized",
           vendor: product.vendor?.storeName || vendor?.name || "Unknown Vendor",
           vendorId: product.vendor?._id || vendorId,
-          stockQuantity: product.stockQuantity || 0,
           condition: product.condition || "new",
-          rating: 0, // You might want to add ratings to your product schema
-          reviewCount: 0,
+          rating: product.rating || 0,
+          reviewCount: product.reviewCount || 0,
+          // Add any other missing properties with default values as needed
         } as Product)
     );
   }, [vendorProductsData, vendor, vendorId]);
@@ -288,8 +299,12 @@ export default function VendorStorefrontPage() {
                 <div className="mt-3 space-y-1">
                   <div className="flex items-center justify-center gap-1 text-sm">
                     <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                    <span className="font-semibold">{vendor.rating}</span>
-                    <span className="text-muted-foreground">(0 reviews)</span>
+                    <span className="font-semibold">
+                      {parseFloat(vendor?.rating?.toFixed(2))}
+                    </span>
+                    <span className="text-muted-foreground">
+                      ({vendor?.totalRatings || 0} {` `}reviews)
+                    </span>
                   </div>
                   <div className="text-xs text-muted-foreground">
                     {vendor.totalSales?.toLocaleString() || 0} sales •{" "}

@@ -1,39 +1,29 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import PaymentRequestForm from "@/components/Payments/PaymentRequestForm";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/UI/dialog";
+import { Dialog, DialogContent } from "@/components/UI/dialog";
+import { PaymentCards } from "@/lib/types";
 import React from "react";
 
 function PaymentRequestDialog({
   showCreateForm,
   handleCreateSuccess,
   setShowCreateForm,
+  payMathods,
 }: {
   showCreateForm: any;
   handleCreateSuccess: any;
   setShowCreateForm: any;
+  payMathods: PaymentCards[];
 }) {
   return (
     <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
-        <DialogHeader>
-          <DialogTitle>Create Payment Request</DialogTitle>
-          <DialogDescription>
-            Select completed orders to include in your payment request
-          </DialogDescription>
-        </DialogHeader>
-        <div className="overflow-y-auto max-h-[calc(90vh-120px)]">
-          <PaymentRequestForm
-            // completedOrders={completedOrders}
-            onSuccess={handleCreateSuccess}
-            onCancel={() => setShowCreateForm(false)}
-          />
-        </div>
+      <DialogContent className="max-w-6xl max-h-[90vh] p-0 overflow-hidden">
+        <PaymentRequestForm
+          // completedOrders={completedOrders}
+          payMathods={payMathods}
+          onSuccess={handleCreateSuccess}
+          onCancel={() => setShowCreateForm(false)}
+        />
       </DialogContent>
     </Dialog>
   );

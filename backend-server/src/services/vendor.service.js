@@ -46,7 +46,7 @@ const searchSingleOwnerShop = async ({
   const products = await Product.find(searchQuery)
     .populate("vendor", "storeName")
     .select(
-      "productName category price stockQuantity condition images vendor averageRating vendorName"
+      "productName category price stockQuantity condition images vendor averageRating tags optionalPrice discountPercentage"
     )
     .skip(skip)
     .limit(limit)
@@ -58,8 +58,27 @@ const searchSingleOwnerShop = async ({
 
   const totalPages = Math.ceil(totalProducts / limit);
 
+  // Map the products to the desired format
+  const formattedProducts = products.map((product) => ({
+    _id: product._id.toString(),
+    vendor: {
+      _id: product.vendor._id.toString(),
+      storeName: product.vendor.storeName,
+    },
+    productName: product.productName,
+    category: product.category,
+    condition: product.condition,
+    tags: product.tags || [], // Ensure tags are an array (can be empty if not defined)
+    price: product.price,
+    optionalPrice: product.optionalPrice,
+    stockQuantity: product.stockQuantity,
+    images: product.images,
+    discountPercentage: product.discountPercentage,
+    vendorId: product.vendor._id.toString(), // Include vendorId as string
+  }));
+
   return {
-    products,
+    products: formattedProducts,
     currentPage: page,
     totalPages,
     totalProducts,
@@ -165,10 +184,10 @@ const allVendors = async ({
     const vendors = await Vendor.aggregate([
       { $match: searchQuery }, // Matching vendors by the search query
 
-      // Add product count and rating calculations
+      // Step 1: Add product count dynamically
       {
         $lookup: {
-          from: "products",
+          from: "products", // Lookup products for each vendor
           localField: "_id",
           foreignField: "vendor",
           as: "products",
@@ -180,6 +199,7 @@ const allVendors = async ({
         },
       },
 
+      // Step 2: Add ratings and calculate average rating
       {
         $lookup: {
           from: "ratings",
@@ -194,10 +214,30 @@ const allVendors = async ({
         },
       },
 
-      { $sort: sortOrder }, // Apply sorting based on the sortBy parameter
+      // Step 3: Sorting based on the sortBy parameter
+      { $sort: sortOrder },
 
-      { $skip: (page - 1) * limit }, // Pagination
-      { $limit: limit }, // Limit results
+      // Step 4: Pagination
+      { $skip: (page - 1) * limit }, // Skip based on the page
+      { $limit: limit }, // Limit the number of results
+
+      // Step 5: Select the required fields
+      {
+        $project: {
+          _id: 1,
+          seller: 1,
+          ownerName: 1,
+          storeName: 1,
+          storePhoto: 1,
+          description: 1,
+          category: 1,
+          experiences: 1,
+          averageRating: 1,
+          status: 1,
+          location: 1,
+          productsCount: 1,
+        },
+      },
     ]);
 
     // Get the total number of vendors for pagination
@@ -221,15 +261,29 @@ const getVendors = async (userId) => {
   if (!userId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
   }
-  return Vendor.find({ seller: userId });
+  return Vendor.find({ seller: userId }).select("_id storeName seller");
 };
 
 const createVendorRequest = async (vendorBody) => {
   if (!vendorBody) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+    throw new ApiError(httpStatus.BAD_REQUEST, "User is not authenticated");
   }
 
-  console.log(vendorBody);
+  // Check if the user already has a vendor with a status of "pending" or "approved"
+  const existingVendor = await Vendor.findOne({
+    seller: vendorBody.seller,
+    $or: [{ status: "pending" }, { status: "approved" }],
+  });
+
+  // If an existing vendor is found, throw an error
+  if (existingVendor) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You already have a vendor request"
+    );
+  }
+
+  // If no existing vendor found, create a new vendor
   const createNewVendor = await Vendor.create(vendorBody);
   return createNewVendor;
 };
@@ -239,21 +293,27 @@ const approvedVendorRequest = async (VendorId, sellerId) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
   }
 
-  const approved = await Vendor.findByIdAndUpdate(VendorId, {
-    status: "approved",
-    verified: true,
-  });
-
-  // await User.findByIdAndUpdate(sellerId, { type: "seller" });
+  const approved = await Vendor.findByIdAndUpdate(
+    VendorId,
+    {
+      status: "approved",
+      verified: true,
+    },
+    { new: true }
+  );
   return approved;
 };
 
 const getVendorByUserId = async (id) => {
-  return Vendor.findOne({ seller: id }).populate("_id");
+  return Vendor.findOne({ seller: id }).select("_id");
 };
 
 // venorder ordercomplete money added
 const updateVendorMoneyCalculation = async (id, data) => {
+  // TODO: taking 5 parcentage from the vendor payment
+  const percentage = 5;
+  const remainingAmount = data.totalEarnings * (1 - percentage / 100);
+
   // Find the vendor by ID
   const vendor = await Vendor.findById(id);
 
@@ -261,14 +321,16 @@ const updateVendorMoneyCalculation = async (id, data) => {
   if (!vendor) {
     throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
   }
-
   // Add the new earnings to the previous totalEarnings
-  const updatedEarnings = vendor.totalEarnings + data.totalEarnings;
-
+  const updatedEarnings = vendor.totalEarnings + remainingAmount;
+  const updatedAvailableWithDrawl = vendor.availableWithdrawl + remainingAmount;
   // Update the vendor's totalEarnings with the new value
   return Vendor.findByIdAndUpdate(
     id,
-    { totalEarnings: updatedEarnings },
+    {
+      totalEarnings: updatedEarnings,
+      availableWithdrawl: updatedAvailableWithDrawl,
+    },
     { new: true }
   );
 };

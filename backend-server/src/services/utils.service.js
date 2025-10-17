@@ -69,6 +69,7 @@ const getFeturedProducts = async () => {
         optionalPrice: 1,
         discountPercentage: 1,
         vendorName: "$vendorDetails.storeName", // Add storeName from vendorDetails
+        vendorId: "$vendorDetails._id", // Add storeName from vendorDetails
       },
     },
   ]);
@@ -80,7 +81,7 @@ const getFeturedProducts = async () => {
       .limit(4)
       .populate("vendor", "storeName") // Populate the vendor's store name
       .select(
-        "productName price stockQuantity condition images category vendor tags optionalPrice discountPercentage"
+        "productName price stockQuantity condition images category vendor optionalPrice discountPercentage"
       )
       .lean();
 
@@ -107,7 +108,7 @@ const getFeturedProducts = async () => {
       .limit(4 - uniqueProducts.length)
       .populate("vendor", "storeName") // Populate the vendor's store name
       .select(
-        "productName price stockQuantity condition images category vendor tags optionalPrice discountPercentage"
+        "productName price stockQuantity condition images category vendor optionalPrice discountPercentage"
       )
       .lean();
 
@@ -213,19 +214,25 @@ const headerStatistics = async (userId) => {
     const cartItems = await Cart.find({ customer: userId }).lean();
 
     // Fetch all wishlist items for the user (customer == userId)
-    const wishlistItems = await Wishlist.find({ customer: userId }).lean();
+    const wishlistItems = await Wishlist.find({ customer: userId })
+      .lean()
+      .select("products"); // Only fetch the 'products' field from the wishlist items
+
+    // Extract product IDs from the wishlist items
+    const wishlistProductIds = wishlistItems.map((item) => item.products);
 
     // Return statistics
     return {
       unreadNotificationsCount: unreadNotifications.length,
       cartItemsCount: cartItems.length,
-      wishlistItemsCount: wishlistItems.length,
+      wishlistProductIds: wishlistProductIds, // Array of product IDs in the wishlist
     };
   } catch (error) {
     console.error("Error fetching header statistics:", error);
     throw new Error("Error fetching header statistics");
   }
 };
+
 // get customer dashboard details
 const getCustomerDashboard = async (userId) => {
   // Get basic stats
@@ -388,7 +395,7 @@ const getVendorRecentOrders = async (userId, page = 1, limit = 10) => {
     totalPrice: order.totalAmount,
     status: order.status,
     orderDate: order.createdAt,
-    orderMongoId: order._id,
+    id: order._id,
   }));
 
   return {

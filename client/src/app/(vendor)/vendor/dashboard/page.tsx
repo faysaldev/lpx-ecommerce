@@ -28,79 +28,19 @@ import QuickActionOverview from "@/components/Vendors/VendorDashboard/Overview/Q
 import { OrdersTable } from "@/components/Vendors/VendorDashboard/Order/OrdersTable";
 import AnalysisSection from "@/components/Vendors/VendorDashboard/Analysis/AnalysisSection";
 import VendorProductSection from "@/components/Vendors/VendorDashboard/Products/VendorProductSection";
-import { SortOption } from "@/lib/browse-utils";
 import {
   useVendorDashboardOverviewQuery,
   useVendorToSellingQuery,
 } from "@/redux/features/vendors/VendorDashboard";
-
-type ProductStatus = "all" | "active" | "draft" | "sold" | "out_of_stock";
+import { useVendorGetsQuery } from "@/redux/features/vendors/vendor";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  selectSelectedVendor,
+  setVendorDetails,
+} from "@/redux/features/Common/CommonSlice";
 
 const VendorDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("products");
-  const [products, setProducts] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ProductStatus>("all");
-  const [sortOption, setSortOption] = useState<SortOption>("newest");
-
-  // Calculate stats from products (already provided by mockVendorAnalytics)
-  const productStats = {
-    total: products.length,
-    active: products.filter((p: any) => p.status === "active").length,
-    draft: products.filter((p: any) => p.status === "draft").length,
-    sold: products.filter((p: any) => p.status === "sold").length,
-    outOfStock: products.filter(
-      (p: any) => p.stock === 0 && p.status === "active"
-    ).length,
-  };
-
-  // Filter and sort products
-  // useEffect(() => {
-  //   let filtered = [...products];
-
-  //   // Apply status filter
-  //   if (statusFilter !== "all") {
-  //     if (statusFilter === "out_of_stock") {
-  //       filtered = filtered.filter(
-  //         (p) => p.stock === 0 && p.status === "active"
-  //       );
-  //     } else {
-  //       filtered = filtered.filter((p) => p.status === statusFilter);
-  //     }
-  //   }
-
-  //   // Apply search filter
-  //   if (searchQuery) {
-  //     const query = searchQuery.toLowerCase();
-  //     filtered = filtered.filter(
-  //       (p) =>
-  //         p.name.toLowerCase().includes(query) ||
-  //         p.description.toLowerCase().includes(query) ||
-  //         p.category.toLowerCase().includes(query)
-  //     );
-  //   }
-
-  //   // Apply sorting
-  //   switch (sortOption) {
-  //     case "price-asc":
-  //       filtered.sort((a, b) => a.price - b.price);
-  //       break;
-  //     case "price-desc":
-  //       filtered.sort((a, b) => b.price - a.price);
-  //       break;
-  //     case "name-asc":
-  //       filtered.sort((a, b) => a.name.localeCompare(b.name));
-  //       break;
-  //     default:
-  //       filtered.sort(
-  //         (a, b) =>
-  //           new Date(b.dateCreated || 0).getTime() -
-  //           new Date(a.dateCreated || 0).getTime()
-  //       );
-  //       break;
-  //   }
-  // }, [products, statusFilter, searchQuery, sortOption]);
-
   const { data: VendorDashboardStats } = useVendorDashboardOverviewQuery({});
 
   const AllStats = VendorDashboardStats?.data?.stats;
@@ -108,7 +48,30 @@ const VendorDashboardPage = () => {
 
   const { data: vendorTopSelling } = useVendorToSellingQuery({});
   const allTopSelling = vendorTopSelling?.data?.attributes;
-  console.log("top selling page data show", allTopSelling);
+  const { data: getVendorData } = useVendorGetsQuery({});
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (
+      getVendorData?.data?.attributes &&
+      getVendorData?.data?.attributes.length > 0
+    ) {
+      // Extract the first item (index 0) from the attributes array
+      const vendor = getVendorData.data.attributes[0];
+
+      // Map the data to the VendorOwnerDetails interface
+
+      // Dispatch the vendor details to the store
+      dispatch(
+        setVendorDetails({
+          vendorId: vendor._id,
+          vendorName: vendor.storeName,
+          sellerId: vendor.seller,
+        })
+      );
+    }
+  }, [getVendorData, dispatch]);
+  const vendor = useAppSelector(selectSelectedVendor);
 
   return (
     // <ProtectedRoute>
@@ -121,7 +84,7 @@ const VendorDashboardPage = () => {
       <div className="flex justify-end gap-3 mb-6">
         <Button variant="outline" asChild>
           <Link href="/vendor/payment-requests">
-            <DollarSign className="h-4 w-4 mr-2" />
+            <span>AED </span>
             Payment Requests
           </Link>
         </Button>
@@ -132,7 +95,7 @@ const VendorDashboardPage = () => {
           </Link>
         </Button>
         <Button asChild>
-          <Link href="/vendor/1">
+          <Link href={`/vendor/${vendor?.vendorId}`}>
             <Eye className="h-4 w-4 mr-2" />
             View Store
           </Link>

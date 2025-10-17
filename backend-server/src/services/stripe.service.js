@@ -5,6 +5,7 @@ const {
   notificationService,
   vendorService,
   productService,
+  cartService,
 } = require(".");
 const {
   sendNotificationEmail,
@@ -170,95 +171,6 @@ const webhookPayload = async (event, req) => {
     throw error;
   }
 };
-
-// Helper function to handle checkout completion
-// const handleCheckoutCompleted = async (checkoutSession) => {
-//   try {
-//     // FIX: Parse metadata values - they're now plain strings, not JSON
-//     const { order_id, customer_id, customer_email, purchase_id } =
-//       checkoutSession.metadata;
-
-//     const { address, email, name, phone } =
-//       checkoutSession.customer_details || {};
-//     const shippingDetails = checkoutSession.shipping_details;
-
-//     // Validate required data
-//     if (!order_id) {
-//       throw new Error("Order ID missing from metadata");
-//     }
-
-//     // Prepare update data
-//     const updateData = {
-//       status: "processing",
-//       shippingInformation: {
-//         name: name || "",
-//         email: email || customer_email || "",
-//         phoneNumber: phone || "",
-//         address: {
-//           line1: address?.line1 || "",
-//           line2: address?.line2 || "",
-//           city: address?.city || "",
-//           state: address?.state || "",
-//           postal_code: address?.postal_code || "",
-//           country: address?.country || "",
-//         },
-//       },
-//     };
-
-//     // Add shipping details if available
-//     if (shippingDetails) {
-//       updateData.shippingInformation.shippingDetails = shippingDetails;
-//     }
-
-//     // Update order with shipping information
-//     const updatedOrder = await orderService.editeSingleOrder(
-//       order_id, // FIX: This is now a clean string without extra quotes
-//       updateData
-//     );
-
-//     if (!updatedOrder) {
-//       throw new Error(`Failed to update order: ${order_id}`);
-//     }
-
-//     console.log(updatedOrder, "updated OrderData");
-
-//     // Create notification
-//     if (customer_id && purchase_id) {
-//       const notificationData = {
-//         authorId: customer_id,
-//         sendTo: customer_id,
-//         transactionId: purchase_id,
-//         title: "Order Placed Successfully",
-//         description: `Your order ${purchase_id} has been received and is being processed`,
-//         type: "orders",
-//       };
-
-//       await notificationService.addNewNotification(notificationData);
-//       await vendorService.updateVendorMoneyCalculation("the the vendor id", {
-//         totalEarnings: "productPrice of the each each vendor",
-//       });
-
-//       // Send email notification
-//       if (customer_email || email) {
-//         const emailBody = {
-//           username: name || "Customer",
-//           title: `Order ${purchase_id} Confirmed`,
-//           description: `We have successfully received your order. Our team is now processing your items, and we will begin shipping your products shortly. You will receive another notification once your order has shipped.`,
-//           priority: "high",
-//           type: "orders",
-//           transactionId: purchase_id,
-//           timestamp: new Date(),
-//         };
-
-//         await sendNotificationEmail(customer_email || email, emailBody);
-//       }
-//     }
-//   } catch (error) {
-//     console.error("Error handling checkout completion:", error);
-//     throw error;
-//   }
-// };
-
 const handleCheckoutCompleted = async (checkoutSession) => {
   try {
     // Extract necessary data from checkoutSession metadata
@@ -278,7 +190,7 @@ const handleCheckoutCompleted = async (checkoutSession) => {
 
     // Prepare update data for the order
     const updateData = {
-      status: "processing",
+      status: "conformed",
       shippingInformation: {
         name: name || "",
         email: email || customer_email || "",
@@ -345,7 +257,7 @@ const handleCheckoutCompleted = async (checkoutSession) => {
     };
 
     await notificationService.addNewNotification(customerNotificationData);
-
+    await cartService.removeAllCartList(customer_id);
     // Send email notifications to customer and seller
     const emailBodyCustomer = {
       username: name || "Customer",

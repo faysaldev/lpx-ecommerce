@@ -1,9 +1,8 @@
 // API Types and Interfaces for the data layer abstraction
 
-export type OrderStatus = "conformed" | "shipped" | "delivered" | "cancelled";
-
 import { PaymentRequestItem, PaymentRequestStatus } from "./payment-request";
 
+export type OrderStatus = "conformed" | "shipped" | "delivered" | "cancelled";
 export interface Product {
   id: string;
   name: string;
@@ -11,7 +10,7 @@ export interface Product {
   slug: string;
   description: string;
   price: number;
-  originalPrice: number;
+  optionalPrice: number;
   image: string;
   images: string[];
   category: string;
@@ -45,6 +44,7 @@ export interface Product {
   updatedAt: string;
   likes?: number;
   stockQuantity: number;
+  discountPercentage: number;
 }
 
 export interface Category {
@@ -188,6 +188,7 @@ export interface Vendor {
     twitter?: string;
   };
   joinedAt?: Date;
+  totalRatings: number;
 }
 
 export interface IVendorAPI {
@@ -322,12 +323,7 @@ export interface IAPIFactory {
   createPaymentMethodsAPI(): IPaymentMethodsAPI;
 }
 
-export type NotificationType =
-  | "orders"
-  | "system"
-  | "promotion"
-  | "vendor"
-  | "price_alert";
+export type NotificationType = "orders" | "system" | "promotion" | "vendor";
 export type NotificationPriority = "low" | "medium" | "high";
 
 export interface Notification {
@@ -390,4 +386,40 @@ export interface ApiNotification {
 export interface NotificationGroup {
   title: string;
   notifications: Notification[];
+}
+// payemt types over here
+
+export interface SinglePaymentRequest {
+  paymentRequestId: string;
+  createdAt: Date;
+  seller: Seller;
+  bankDetails: BankDetails;
+  withdrawalAmount: number;
+  status: string;
+}
+
+export interface BankDetails {
+  bankName: string;
+  accountNumber: string;
+  phoneNumber: string;
+  accountType: string;
+}
+
+export interface Seller {
+  name: string;
+  image: string;
+  email: string;
+}
+
+// cards
+export interface PaymentCards {
+  accountType: string;
+  _id: string;
+  seller: string;
+  bankName: string;
+  accountNumber: string;
+  phoneNumber: string;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
 }

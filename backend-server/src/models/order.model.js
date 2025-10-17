@@ -16,7 +16,7 @@ const OrderSchema = new Schema(
     status: {
       type: String,
       enum: ["unpaid", "conformed", "shipped", "delivered", "cancelled"],
-      default: "pending",
+      default: "unpaid",
     },
     totalAmount: {
       type: Number,

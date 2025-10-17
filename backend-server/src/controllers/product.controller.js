@@ -71,6 +71,20 @@ const productDetails = catchAsync(async (req, res) => {
   );
 });
 
+const productSingleQuickDetails = catchAsync(async (req, res) => {
+  const products = await productService.productSingleQuickDetails(
+    req.params.id
+  );
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Single Products",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: products,
+    })
+  );
+});
+
 const deleteProducts = catchAsync(async (req, res) => {
   const products = await productService.deleteProducts(req.params.id);
   res.status(httpStatus.CREATED).json(
@@ -84,7 +98,19 @@ const deleteProducts = catchAsync(async (req, res) => {
 });
 
 const editeProducts = catchAsync(async (req, res) => {
-  const products = await productService.editeProducts(req.params.id, req.body);
+  const imagePaths = req?.files?.image?.map(
+    (img) => `${img.path.replace("public\\", "")}`
+  );
+  const dataFormat = {
+    images: imagePaths,
+    ...req.body,
+  };
+
+  console.log(dataFormat);
+  const products = await productService.editeProducts(
+    req.params.id,
+    dataFormat
+  );
   res.status(httpStatus.CREATED).json(
     response({
       message: "Edited Products",
@@ -135,4 +161,5 @@ module.exports = {
   editeProducts,
   getAllProducts,
   searchProducts,
+  productSingleQuickDetails,
 };

@@ -10,6 +10,7 @@ const {
 } = require("../models");
 const ApiError = require("../utils/ApiError");
 const moment = require("moment");
+const { decryptData } = require("../utils/decrypteHealper"); // Assuming decryptData is imported from the helper
 
 const getAllUsers = async (userId) => {
   if (!userId) {
@@ -133,12 +134,16 @@ const updateVendor = async (query) => {
 const getAdminDashboardData = async () => {
   // Get platform statistics
   const totalUsers = await User.countDocuments({ isDeleted: false });
-  const totalProducts = await Product.countDocuments();
-  const totalOrders = await Order.countDocuments();
+
+  // Exclude 'unpaid' orders for total orders count
+  const totalOrders = await Order.countDocuments({ status: { $ne: "unpaid" } });
+
+  // Get total revenue excluding unpaid orders
   const totalRevenue = await Order.aggregate([
-    { $match: { status: "delivered" } },
+    { $match: { status: { $ne: "unpaid" } } }, // Exclude 'unpaid' orders
     { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
   ]);
+
   const activeVendors = await Vendor.countDocuments({ status: "approved" });
   const pendingApprovals = await Vendor.countDocuments({ status: "pending" });
 
@@ -151,6 +156,7 @@ const getAdminDashboardData = async () => {
   const usersChange = ((totalUsers - lastMonthUsers) / lastMonthUsers) * 100;
 
   // Get products' monthly change percentage
+  const totalProducts = await Product.countDocuments();
   const lastMonthProducts = await Product.countDocuments({
     createdAt: {
       $gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
@@ -164,15 +170,16 @@ const getAdminDashboardData = async () => {
     createdAt: {
       $gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
     },
+    status: { $ne: "unpaid" }, // Exclude 'unpaid' orders
   });
   const ordersChange =
     ((totalOrders - lastMonthOrders) / lastMonthOrders) * 100;
 
-  // Get revenue change percentage
+  // Get revenue change percentage excluding unpaid orders
   const lastMonthRevenue = await Order.aggregate([
     {
       $match: {
-        status: "delivered",
+        status: { $ne: "unpaid" },
         createdAt: {
           $gte: new Date(new Date().setMonth(new Date().getMonth() - 1)),
         },
@@ -186,25 +193,32 @@ const getAdminDashboardData = async () => {
       (lastMonthRevenue[0]?.totalRevenue || 1)) *
     100;
 
-  // Get top vendors by sales
+  // Get top vendors by total earnings (calculated by summing totalAmount from orders)
   const topVendors = await Vendor.aggregate([
-    { $match: { status: "approved" } },
+    { $match: { status: "approved" } }, // Only approved vendors
     {
       $lookup: {
-        from: "orders",
-        localField: "_id",
-        foreignField: "vendorId",
+        from: "orders", // Join the orders collection
+        localField: "_id", // Match vendor's _id with vendorId in orders
+        foreignField: "totalItems.vendorId",
         as: "orders",
+      },
+    },
+    {
+      $addFields: {
+        totalEarnings: {
+          $sum: "$orders.totalAmount", // Sum the totalAmount from all orders
+        },
       },
     },
     {
       $project: {
         storeName: 1,
-        totalSales: { $sum: "$orders.totalAmount" },
+        totalEarnings: 1, // Include total earnings
       },
     },
-    { $sort: { totalSales: -1 } },
-    { $limit: 5 },
+    { $sort: { totalEarnings: -1 } }, // Sort vendors by total earnings, highest first
+    { $limit: 5 }, // Limit to top 5 vendors
   ]);
 
   // Get recent activities for today from different models (Order, Vendor, Product)
@@ -212,7 +226,10 @@ const getAdminDashboardData = async () => {
   const startOfDay = new Date(today.setHours(0, 0, 0, 0));
 
   // Get recent Orders placed today
-  const recentOrders = await Order.find({ createdAt: { $gte: startOfDay } })
+  const recentOrders = await Order.find({
+    createdAt: { $gte: startOfDay },
+    status: { $ne: "unpaid" },
+  })
     .select("orderID status totalAmount createdAt")
     .sort({ createdAt: -1 })
     .limit(5);
@@ -396,21 +413,20 @@ const getAdminOrderStats = async () => {
     status: { $ne: "unpaid" }, // Exclude orders with "unpaid" status
   });
 
-  // Orders in Conformed status (excluding unpaid)
+  // Orders in Conformed status (excluding unpaid, counting shipped and delivered)
   const conformedOrders = await Order.countDocuments({
-    status: "conformed",
-    status: { $ne: "unpaid" }, // Exclude orders with "unpaid" status
+    status: { $in: ["shipped", "delivered"] }, // Check if status is either "shipped" or "delivered"
   });
 
   // Orders in Delivered status (excluding unpaid)
   const deliveredOrders = await Order.countDocuments({
     status: "delivered",
-    status: { $ne: "unpaid" }, // Exclude orders with "unpaid" status
+    // Filter to exclude unpaid orders from the result (it's sufficient to just check for status "delivered")
   });
 
   // Total Sales (from completed orders, excluding unpaid)
   const totalSales = await Order.aggregate([
-    { $match: { status: "delivered", status: { $ne: "unpaid" } } }, // Exclude "unpaid"
+    { $match: { status: "delivered" } }, // Only include "delivered" orders
     { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
   ]);
 
@@ -418,7 +434,7 @@ const getAdminOrderStats = async () => {
     totalOrders,
     conformedOrders,
     deliveredOrders,
-    totalSales: totalSales[0]?.totalSales || 0,
+    totalSales: totalSales[0]?.totalSales || 0, // Default to 0 if no sales are found
   };
 };
 
@@ -463,6 +479,7 @@ const getAllOrders = async ({ query, page, limit }) => {
 };
 
 // get all the payment request
+
 const getAdminAllPaymentRequests = async ({
   search,
   status,
@@ -475,7 +492,7 @@ const getAdminAllPaymentRequests = async ({
 
   // Search functionality for vendor name and bank name
   if (search) {
-    // Search by vendor name
+    // Search by vendor name (storeName)
     const vendorSearch = await User.find({
       storeName: { $regex: search, $options: "i" },
       type: "seller",
@@ -488,9 +505,9 @@ const getAdminAllPaymentRequests = async ({
       query.seller = { $in: vendorIds }; // Filter by vendors found in search
     }
 
-    // Search by bank name
+    // Search by bank name (decrypted bankName stored in PaymentRequest)
     query.$or = [
-      { bankName: { $regex: search, $options: "i" } }, // Case-insensitive search for bankName
+      { "bankDetails.bankName": { $regex: search, $options: "i" } }, // Case-insensitive search for bankName
     ];
   }
 
@@ -503,19 +520,19 @@ const getAdminAllPaymentRequests = async ({
   let sortOption = {};
   switch (sortBy) {
     case "newestFirst":
-      sortOption = { requestDate: -1 };
+      sortOption = { requestDate: -1 }; // Sort by newest request
       break;
     case "oldestFirst":
-      sortOption = { requestDate: 1 };
+      sortOption = { requestDate: 1 }; // Sort by oldest request
       break;
     case "highToLow":
-      sortOption = { withdrawalAmount: -1 };
+      sortOption = { withdrawalAmount: -1 }; // Sort by high to low withdrawal amount
       break;
     case "lowToHigh":
-      sortOption = { withdrawalAmount: 1 };
+      sortOption = { withdrawalAmount: 1 }; // Sort by low to high withdrawal amount
       break;
     default:
-      sortOption = { requestDate: -1 };
+      sortOption = { requestDate: -1 }; // Default to newestFirst
   }
 
   // Fetching payment requests based on the filters and sorting
@@ -526,17 +543,39 @@ const getAdminAllPaymentRequests = async ({
     .populate({
       path: "vendor", // Populate vendor details for payment request
       select: "storeName", // Select storeName and id of vendor
-    });
+    })
+    .populate("bankDetails"); // Ensure bankDetails are populated
 
-  // Decrypt bankName and accountNumber for each payment request
-  const decryptedPaymentRequests = paymentRequests.map((request) => {
-    const decryptedDetails = request.decryptBankDetails(); // Decrypt bank details
-    return {
-      ...request.toObject(), // Convert mongoose document to plain object
-      bankName: decryptedDetails.bankName, // Add decrypted bankName
-      accountNumber: decryptedDetails.accountNumber, // Add decrypted accountNumber
-    };
-  });
+  // Decrypt bankName, accountNumber, and phoneNumber for each payment request
+  const decryptedPaymentRequests = await Promise.all(
+    paymentRequests.map(async (request) => {
+      // Ensure bankDetails are populated and decrypt
+      if (request.bankDetails) {
+        const decryptedBankName = decryptData(request.bankDetails.bankName);
+        const decryptedAccountNumber = decryptData(
+          request.bankDetails.accountNumber
+        );
+        const decryptedPhoneNumber = decryptData(
+          request.bankDetails.phoneNumber
+        );
+
+        // Return the request with decrypted bank details under the bankDetails field
+        return {
+          ...request.toObject(), // Convert mongoose document to plain object
+          bankDetails: {
+            bankName: decryptedBankName, // Add decrypted bankName
+            accountNumber: decryptedAccountNumber, // Add decrypted accountNumber
+            phoneNumber: decryptedPhoneNumber, // Add decrypted phoneNumber
+            accountType: request.bankDetails.accountType, // Keep other fields from bankDetails
+            bankDetailsId: request.bankDetails._id, // Add bankDetailsId
+          },
+        };
+      }
+
+      // If no bankDetails, return the request as is
+      return request.toObject();
+    })
+  );
 
   // Get total number of records matching the query (for total pages calculation)
   const totalRecords = await PaymentRequest.countDocuments(query);

@@ -12,16 +12,12 @@ const router = express.Router();
 
 router.route("/my-vendors").get(auth("common"), vendorController.getVendors);
 // get the single details of it
-router
-  .route("/single/:id")
-  .get(auth("common"), vendorController.getSingleVendors);
+router.route("/single/:id").get(vendorController.getSingleVendors);
 // search the vendors with filter option
 router.route("/search").get(vendorController.allVendors);
 
 // search indivual vendor with the owner id and filter with that one
-router
-  .route("/single-owner/:id")
-  .get(auth("common"), vendorController.searchSingleOwnerShop);
+router.route("/single-owner/:id").get(vendorController.searchSingleOwnerShop);
 
 // request for becoming a vendor
 router

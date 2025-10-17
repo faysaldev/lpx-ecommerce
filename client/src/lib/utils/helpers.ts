@@ -293,128 +293,25 @@ export function getTimeSinceRequest(requestDate: string): string {
     return "Just now";
   }
 }
+export function formatNumber(number: any) {
+  // Convert the number to a string and check for decimals
+  const [integer, decimal] = number.toString().split(".");
 
-// import { PaymentRequestStatus } from "../payment-request";
+  // Format the integer part with commas
+  const formattedInteger = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-// export function formatCurrency(amount: number, currency = "AED"): string {
-//   return new Intl.NumberFormat("en-AE", {
-//     style: "currency",
-//     currency,
-//     minimumFractionDigits: 0,
-//     maximumFractionDigits: 2,
-//   }).format(amount);
-// }
+  // If there's no decimal part, return the formatted integer only
+  if (!decimal) {
+    return formattedInteger;
+  }
 
-// // Format date for display
-// export function formatDate(
-//   dateString: string,
-//   options?: Intl.DateTimeFormatOptions
-// ): string {
-//   const defaultOptions: Intl.DateTimeFormatOptions = {
-//     year: "numeric",
-//     month: "short",
-//     day: "numeric",
-//     hour: "2-digit",
-//     minute: "2-digit",
-//   };
+  // If the decimal part is "00", just return the integer
+  if (decimal === "00") {
+    return formattedInteger;
+  }
 
-//   return new Date(dateString).toLocaleDateString("en-AE", {
-//     ...defaultOptions,
-//     ...options,
-//   });
-// }
-// export const PLATFORM_COMMISSION_RATE = 0.15; // 15%
-
-// // Calculate commission and net amount
-// export function calculatePaymentAmounts(totalAmount: number): {
-//   commission: number;
-//   netAmount: number;
-// } {
-//   const commission = totalAmount * PLATFORM_COMMISSION_RATE;
-//   const netAmount = totalAmount - commission;
-
-//   return { commission, netAmount };
-// }
-
-// // Validate payment request creation data
-// export function validatePaymentRequestData(data: {
-//   orderIds: string[];
-//   notes?: string;
-// }): {
-//   isValid: boolean;
-//   errors: string[];
-// } {
-//   const errors: string[] = [];
-
-//   if (!data.orderIds || data.orderIds.length === 0) {
-//     errors.push("At least one order must be selected");
-//   }
-
-//   if (data.notes && data.notes.length > 500) {
-//     errors.push("Notes must be 500 characters or less");
-//   }
-
-//   return {
-//     isValid: errors.length === 0,
-//     errors,
-//   };
-// }
-
-// // Get status badge variant
-// export function getStatusBadgeVariant(status: PaymentRequestStatus): {
-//   variant: "default" | "secondary" | "destructive" | "outline";
-//   className?: string;
-// } {
-//   switch (status) {
-//     case "pending":
-//       return {
-//         variant: "secondary",
-//         className: "bg-yellow-100 text-yellow-800",
-//       };
-//     case "approved":
-//       return { variant: "default", className: "bg-blue-100 text-blue-800" };
-//     case "paid":
-//       return { variant: "default", className: "bg-green-100 text-green-800" };
-//     case "rejected":
-//       return { variant: "destructive" };
-//     default:
-//       return { variant: "outline" };
-//   }
-// }
-
-// // Get status display text
-// export function getStatusDisplayText(status: PaymentRequestStatus): string {
-//   switch (status) {
-//     case "pending":
-//       return "Pending Review";
-//     case "approved":
-//       return "Approved";
-//     case "paid":
-//       return "Paid";
-//     case "rejected":
-//       return "Rejected";
-//     default:
-//       return status;
-//   }
-// }
-
-// // Get time since request
-// export function getTimeSinceRequest(requestDate: string): string {
-//   const now = new Date();
-//   const request = new Date(requestDate);
-//   const diffMs = now.getTime() - request.getTime();
-
-//   const diffMinutes = Math.floor(diffMs / (1000 * 60));
-//   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-//   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-//   if (diffDays > 0) {
-//     return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
-//   } else if (diffHours > 0) {
-//     return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
-//   } else if (diffMinutes > 0) {
-//     return `${diffMinutes} minute${diffMinutes > 1 ? "s" : ""} ago`;
-//   } else {
-//     return "Just now";
-//   }
-// }
+  // Otherwise, return the formatted integer with decimal, rounded to 1 decimal if necessary
+  return `${formattedInteger}.${
+    decimal.length > 2 ? decimal.substring(0, 2) : decimal
+  }`;
+}
