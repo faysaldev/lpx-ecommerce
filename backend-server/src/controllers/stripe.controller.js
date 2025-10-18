@@ -25,10 +25,11 @@ const checkOutSession = async (req, res) => {
           message: "Some products are unavailable or out of stock",
           status: "Error",
           statusCode: httpStatus.NOT_FOUND,
-          data: unavailableProducts,
         })
       );
     }
+
+    console.log(productDetails, "product details data");
 
     const shippingTax = await generalsService.getShippingTaxEtc();
 
@@ -40,6 +41,9 @@ const checkOutSession = async (req, res) => {
       orderNotes: "",
       cupon: {},
     });
+
+    console.log(orderData, "order data");
+
     const stripeItems = forMatStripeLineItems(productDetails);
 
     const orderCreate = await orderService.createOrder(orderData);
@@ -50,6 +54,8 @@ const checkOutSession = async (req, res) => {
         "Failed to create order"
       );
     }
+
+    console.log(orderCreate, "order create");
 
     const checkoutData = await stripeService.checkOutSession(
       stripeItems,

@@ -326,6 +326,7 @@ const handlePaymentFailed = async (paymentIntent) => {
 
 // cehcking product availablity
 const checkProductAvailability = async (data) => {
+  console.log(data, "check availablity");
   const results = [];
 
   // Loop through each item in the data array
@@ -358,10 +359,17 @@ const checkProductAvailability = async (data) => {
         continue;
       }
 
-      // If product exists and quantity is available, return the details
       results.push({
-        productName: product.productName, // Return productName here
-        message: `Product is available with sufficient stock.`,
+        productId,
+        vendorId,
+        available: true,
+        quantity: quantity,
+        price: product.price,
+        image: product.images[0], // Assuming first image is used
+        productName: product.productName,
+        vendorName: product.vendor
+          ? product.vendor.storeName
+          : "Unknown Vendor",
       });
     } catch (error) {
       console.error("Error checking product availability:", error);
