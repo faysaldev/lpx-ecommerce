@@ -47,7 +47,6 @@ function RequestVendorForm() {
   const [storePhoto, setStorePhoto] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const currentUser = useAppSelector(selectCurrentUser);
-  console.log(currentUser, "current user ");
 
   const [vendorCreationApplication] = useVendorCreateMutation();
   const { data: categoriesData, isLoading: categoriesLoading } =
@@ -122,8 +121,9 @@ function RequestVendorForm() {
 
     // Get form values
     const name = currentUser?.name?.split(" ");
-    const firstName = name?.[0] ?? ""; // Default to an empty string if undefined
-    const lastName = name?.[1] ?? ""; // Default to an empty string if undefined
+    console.log(name, "im the name");
+    const firstName = name?.[0] ?? " "; // Default to an empty string if undefined
+    const lastName = name?.[2] ?? "Name"; // Default to an empty string if undefined
 
     const storeName = (form.elements.namedItem("storeName") as HTMLInputElement)
       .value;
