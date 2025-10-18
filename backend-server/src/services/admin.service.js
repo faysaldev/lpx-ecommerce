@@ -830,7 +830,35 @@ const approvedAdminPayment = async ({ paymentId, data }) => {
       return "Invoice image is required when the status is 'paid'";
     }
 
-    // Update the relevant fields
+    // Find the payment request by paymentId
+    const paymentRequest = await PaymentRequest.findById(paymentId);
+
+    if (!paymentRequest) {
+      return "Payment request not found";
+    }
+
+    // If the payment status is "paid", update the vendor's availableWithdrawl and totalWithDrawal
+    if (status === "paid") {
+      const vendor = await Vendor.findById(paymentRequest.vendor);
+
+      if (!vendor) {
+        return "Vendor not found";
+      }
+
+      // Ensure the availableWithdrawl is enough to cover the withdrawal
+      if (vendor.availableWithdrawl < paymentRequest.withdrawalAmount) {
+        return "Not enough available withdrawable amount for the vendor";
+      }
+
+      // Decrease the availableWithdrawl and increase the totalWithDrawal
+      vendor.availableWithdrawl -= paymentRequest.withdrawalAmount;
+      vendor.totalWithDrawal += paymentRequest.withdrawalAmount;
+
+      // Save the vendor after the update
+      await vendor.save();
+    }
+
+    // Update the relevant fields in the payment request
     updateData.status = status; // Set the status to "paid" or "rejected"
     updateData.paidDate = status === "paid" ? new Date() : null; // Set the paidDate only if status is "paid"
 
@@ -842,7 +870,7 @@ const approvedAdminPayment = async ({ paymentId, data }) => {
       updateData.invoiceImage = invoiceImage; // Invoice image is optional but required when status is "paid"
     }
 
-    // Find the payment request by paymentId and update the fields
+    // Update the payment request with the new status and other relevant fields
     const updatedPaymentRequest = await PaymentRequest.findOneAndUpdate(
       { _id: paymentId }, // Find the payment request by paymentId
       { $set: updateData }, // Update only the fields that are provided
@@ -850,7 +878,7 @@ const approvedAdminPayment = async ({ paymentId, data }) => {
     );
 
     if (!updatedPaymentRequest) {
-      return "Payment request not found";
+      return "Payment request update failed";
     }
 
     return updatedPaymentRequest;

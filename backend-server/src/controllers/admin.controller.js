@@ -281,6 +281,8 @@ const approvedAdminPayment = catchAsync(async (req, res) => {
     data: req.body,
   });
 
+  // const calculateDecreaseMoney = await adminService.decreaseVendorMoney()
+
   // Return the data
 
   res.status(httpStatus.OK).json(
