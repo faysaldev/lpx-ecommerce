@@ -36,6 +36,7 @@ export const baseApi = createApi({
     "my_cartList",
     "vendor_update",
     "payment_method",
+    "admin_payment_approved",
   ],
   endpoints: () => ({}),
 });

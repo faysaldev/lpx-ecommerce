@@ -14,6 +14,7 @@ const paymentRequest = baseApi.injectEndpoints({
         url: `/admin/all-payment-requests?search=${search}&status=${status}&limit=${limit}&condition=${page}&sortBy=${sortBy}`,
         method: "GET",
       }),
+      providesTags: ["admin_payment_approved"],
     }),
 
     adminPaymentVendorSummeries: builder.query({
@@ -36,6 +37,8 @@ const paymentRequest = baseApi.injectEndpoints({
         method: "PATCH",
         body: data,
       }),
+
+      invalidatesTags: ["admin_payment_approved"],
     }),
   }),
 });
