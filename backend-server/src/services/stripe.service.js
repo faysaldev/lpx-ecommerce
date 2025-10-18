@@ -59,7 +59,7 @@ const checkOutSession = async (
       phone_number_collection: {
         enabled: true,
       },
-      success_url: `${process.env.FRONTEND_URL}`,
+      success_url: `${process.env.FRONTEND_URL}/orders/${orderId}`,
       cancel_url: `${process.env.FRONTEND_URL}/payment-cancel`,
       metadata: {
         customer_id: customerId.toString(),
@@ -190,7 +190,7 @@ const handleCheckoutCompleted = async (checkoutSession) => {
 
     // Prepare update data for the order
     const updateData = {
-      status: "conformed",
+      status: "confirmed",
       shippingInformation: {
         name: name || "",
         email: email || customer_email || "",

@@ -19,7 +19,7 @@ router
   .get(auth("common"), productController.getAllProducts);
 
 router
-  .route("/add")
+  .route("/add/:type")
   .post(
     auth("common"),
     [uploadUsers.fields([{ name: "image", maxCount: 8 }])],

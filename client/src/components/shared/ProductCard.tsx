@@ -4,8 +4,7 @@
 import { Eye, Heart, Package, ShoppingCart, Store, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { FetchBaseQueryError } from "@reduxjs/toolkit/query"; // Import this for proper typing
-
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 import { useState } from "react";
 import { Button } from "@/components/UI/button";
 import { Card, CardContent } from "@/components/UI/card";
@@ -27,6 +26,7 @@ import ProductViewModal from "../Products/ProductQuickViewModal";
 import { toast } from "sonner";
 import { useAppSelector } from "@/redux/hooks";
 import { selectHeaderStatitics } from "@/redux/features/Common/CommonSlice";
+import { useRouter } from "next/navigation";
 
 interface ErrorData {
   message: string;
@@ -101,7 +101,10 @@ const ProductCard = ({
   isWishlistItem = false,
 }: ProductCardProps) => {
   // Extract product data with proper fallbacks
-  console.log("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy", product)
+  console.log(
+    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy",
+    product
+  );
   const {
     _id,
     id,
@@ -123,6 +126,7 @@ const ProductCard = ({
   const [addtoWithlist] = useAddNewToWishListMutation();
   const [payment] = useBuyNowMutation();
   const headerStats = useAppSelector(selectHeaderStatitics);
+  const router = useRouter();
 
   // Use the correct ID (support both _id and id)
   const productId = _id || id;
@@ -132,7 +136,6 @@ const ProductCard = ({
   // const [wishlistIconUpdate, setWishlistIconUpdate] = useState(isInWishlist);
 
   // console.log('show wishlist Icon', wishlistIconUpdate)
-
 
   const addToCart = async () => {
     await addtoCartProduct({
@@ -250,110 +253,111 @@ const ProductCard = ({
           className
         )}
       >
-        <Link href={`/product/${productId}`}>
-          <div className="flex">
-            {/* Image Section */}
-            <div className="relative rounded-2xl w-48 h-48 flex-shrink-0 ">
-              {productImages[0] ? (
-                <Image
-                  src={getImageUrl(productImages[0])}
-                  alt={finalProductName}
-                  fill
-                  className={cn(
-                    "object-cover transition-opacity duration-300",
-                    imageLoaded ? "opacity-100" : "opacity-0"
+        <div className="flex">
+          {/* Image Section */}
+          <div
+            className="relative rounded-2xl w-48 h-48 flex-shrink-0"
+            onClick={() => router.push(`/product/${productId}`)}
+          >
+            {productImages[0] ? (
+              <Image
+                src={getImageUrl(productImages[0])}
+                alt={finalProductName}
+                fill
+                className={cn(
+                  "object-cover transition-opacity duration-300",
+                  imageLoaded ? "opacity-100" : "opacity-0"
+                )}
+                onLoad={() => setImageLoaded(true)}
+                sizes="192px"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Package className="h-12 w-12 text-muted-foreground/30" />
+              </div>
+            )}
+          </div>
+
+          {/* Content Section */}
+          <div className="flex-1 p-4">
+            <div className="flex justify-between items-start">
+              <div className="flex-1 pr-4">
+                <Link href={`/product/${productId}`}>
+                  <h3 className="font-semibold text-lg hover:text-primary transition-colors line-clamp-1 cursor-pointer">
+                    {finalProductName}
+                  </h3>
+                </Link>
+
+                <div className="flex items-center gap-1 mt-1">
+                  <Store className="h-4 w-4 text-muted-foreground" />
+                  {getVendorLink() ? (
+                    <Link
+                      href={`/vendor/${finalVendorId}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {finalVendorName}
+                    </Link>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">
+                      {finalVendorName}
+                    </span>
                   )}
-                  onLoad={() => setImageLoaded(true)}
-                  sizes="192px"
-                />
-              ) : (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Package className="h-12 w-12 text-muted-foreground/30" />
                 </div>
-              )}
+
+                <ConditionBadgeComponent condition={condition} />
+              </div>
+
+              <div className="text-right space-y-2.5">
+                <h1 className="text-sm pt-3 font-bold">{optionData}</h1>
+
+                <p className="text-sm pt-3 font-bold">AED {formattedPrice}</p>
+                {finalStockQuantity === 0 ? (
+                  <p className="text-sm text-red-600">Out of Stock</p>
+                ) : (
+                  <p className="text-sm text-amber-200">
+                    Only {finalStockQuantity} left
+                  </p>
+                )}
+              </div>
             </div>
 
-            {/* Content Section */}
-            <div className="flex-1 p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex-1 pr-4">
-                  <Link href={`/product/${productId}`}>
-                    <h3 className="font-semibold text-lg hover:text-primary transition-colors line-clamp-1 cursor-pointer">
-                      {finalProductName}
-                    </h3>
-                  </Link>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 mt-4">
+              <Button
+                size="sm"
+                onClick={addToCart}
+                disabled={finalStockQuantity === 0}
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                Add to Cart
+              </Button>
 
-                  <div className="flex items-center gap-1 mt-1">
-                    <Store className="h-4 w-4 text-muted-foreground" />
-                    {getVendorLink() ? (
-                      <Link
-                        href={`/vendor/${finalVendorId}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                      >
-                        {finalVendorName}
-                      </Link>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">
-                        {finalVendorName}
-                      </span>
-                    )}
-                  </div>
-
-                  <ConditionBadgeComponent condition={condition} />
-                </div>
-
-                <div className="text-right space-y-2.5">
-                  <h1 className="text-sm pt-3 font-bold">{optionData}</h1>
-
-                  <p className="text-sm pt-3 font-bold">AED {formattedPrice}</p>
-                  {finalStockQuantity === 0 ? (
-                    <p className="text-sm text-red-600">Out of Stock</p>
-                  ) : (
-                    <p className="text-sm text-amber-200">
-                      Only {finalStockQuantity} left
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 mt-4">
-                <Button
-                  size="sm"
-                  onClick={addToCart}
-                  disabled={finalStockQuantity === 0}
-                >
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Add to Cart
-                </Button>
-
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={byNowHandler}
-                  disabled={finalStockQuantity === 0}
-                >
-                  <Zap className="h-4 w-4 mr-2" />
-                  Buy Now
-                </Button>
-                <Button
-                  size="icon"
-                  variant="outline"
-                  onClick={addNewWishList}
-                  disabled={isInWishlist}
-                  className={cn(
-                    isInWishlist && "bg-red-50 text-red-600 border-red-200"
-                  )}
-                >
-                  <Heart
-                    className={cn("h-4 w-4", isInWishlist && "fill-current")}
-                  />
-                </Button>
-              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={byNowHandler}
+                disabled={finalStockQuantity === 0}
+              >
+                <Zap className="h-4 w-4 mr-2" />
+                Buy Now
+              </Button>
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={addNewWishList}
+                disabled={isInWishlist}
+                className={cn(
+                  isInWishlist && "bg-red-50 text-red-600 border-red-200"
+                )}
+              >
+                <Heart
+                  className={cn("h-4 w-4", isInWishlist && "fill-current")}
+                />
+              </Button>
             </div>
           </div>
-        </Link>
+        </div>
       </Card>
     );
   }
@@ -549,4 +553,3 @@ const ProductCard = ({
 };
 
 export default ProductCard;
-

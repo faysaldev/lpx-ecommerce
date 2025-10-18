@@ -36,7 +36,12 @@ const addNewProducts = catchAsync(async (req, res) => {
   const imagePaths = req?.files?.image?.map(
     (img) => `${img.path.replace("public\\", "")}`
   );
-  console.log(imagePaths);
+
+  const { type } = req.params; // The 'type' query parameter will be 'true' or 'false'
+
+  // Convert the string 'true'/'false' into a boolean
+  const isDraft = type === "true"; // true if 'type' is 'true', false if 'type' is 'false'
+
   const dataFormat = {
     images: imagePaths,
     ...req.body,
@@ -46,6 +51,7 @@ const addNewProducts = catchAsync(async (req, res) => {
       dimensions: req.body.dimensions,
     },
     authorId: req.user.id,
+    isDraft,
   };
 
   const products = await productService.addNewProducts(dataFormat);

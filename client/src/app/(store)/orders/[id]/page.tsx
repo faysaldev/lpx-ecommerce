@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+
 import {
   ArrowLeft,
   CheckCircle,
@@ -33,8 +34,8 @@ const statusConfig: Record<
   OrderStatus,
   { label: string; icon: React.ElementType; color: string; bgColor: string }
 > = {
-  conformed: {
-    label: "Conformed",
+  confirmed: {
+    label: "confirmed",
     icon: RefreshCw,
     color: "text-blue-600",
     bgColor: "bg-blue-100 dark:bg-blue-900/30",

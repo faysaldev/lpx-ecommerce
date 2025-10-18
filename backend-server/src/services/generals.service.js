@@ -114,6 +114,34 @@ const getShippingTaxEtc = async () => {
   };
 };
 
+// tags
+// Service to add tags
+const addTag = async (tag) => {
+  const general = await General.findOne();
+  if (!general) throw new Error("General settings not found");
+
+  // Check if tag already exists
+  if (general.tags.includes(tag)) {
+    throw new Error("Tag already exists");
+  }
+
+  general.tags.push(tag);
+  return general.save();
+};
+
+// Service to get tags with a search query
+const getTags = async (searchQuery = "") => {
+  const general = await General.findOne();
+  if (!general) throw new Error("General settings not found");
+
+  // Filter tags based on the search query
+  const filteredTags = general.tags.filter((tag) =>
+    tag.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return filteredTags;
+};
+
 module.exports = {
   getCategories,
   addCategory,
@@ -126,4 +154,6 @@ module.exports = {
   addCondition,
   removeCondition,
   getShippingTaxEtc,
+  addTag,
+  getTags,
 };

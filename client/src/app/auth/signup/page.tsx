@@ -1,16 +1,14 @@
 "use client";
 
 import { Typography } from "antd";
-import { UserAddOutlined } from "@ant-design/icons";
 import SignupCard from "@/components/Auth/Signup/SignupCard"; // Ensure this path and export are correct
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 export default function SignUpPage() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        {/* Header */}
         {/* Signup Card */}
         {SignupCard && <SignupCard />} {/* Terms and Privacy */}
         <div className="text-center mt-6">

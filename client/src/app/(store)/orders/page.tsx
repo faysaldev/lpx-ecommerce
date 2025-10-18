@@ -118,8 +118,8 @@ export default function OrdersPage() {
           <TabsTrigger value="all">
             All Orders ({getOrderCountByStatus("all")})
           </TabsTrigger>
-          <TabsTrigger value="conformed">
-            Conformed ({getOrderCountByStatus("conformed")})
+          <TabsTrigger value="confirmed">
+            confirmed ({getOrderCountByStatus("confirmed")})
           </TabsTrigger>
           <TabsTrigger value="shipped">
             Shipped ({getOrderCountByStatus("shipped")})

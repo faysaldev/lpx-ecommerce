@@ -157,6 +157,39 @@ const removeCondition = catchAsync(async (req, res) => {
   );
 });
 
+// Controller to add tags
+const addTag = catchAsync(async (req, res) => {
+  const { tag } = req.body;
+
+  if (!tag) {
+    throw new Error("Tag is required");
+  }
+
+  const result = await generalsService.addTag(tag);
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "Tag added successfully",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: result,
+    })
+  );
+});
+
+// Controller to get tags with search query
+const getTags = catchAsync(async (req, res) => {
+  const { search } = req.query;
+  const tags = await generalsService.getTags(search);
+  res.status(httpStatus.OK).json(
+    response({
+      message: "Tags fetched successfully",
+      status: "OK",
+      statusCode: httpStatus.OK,
+      data: tags,
+    })
+  );
+});
+
 module.exports = {
   getCategories,
   postCategories,
@@ -169,4 +202,6 @@ module.exports = {
   addCondition,
   removeCondition,
   getShippingTaxEtc,
+  addTag,
+  getTags,
 };

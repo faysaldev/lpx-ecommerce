@@ -47,6 +47,7 @@ const GeneralSchema = new Schema(
         type: String,
       },
     ],
+    tags: [String], // New field for tags (array of strings)
   },
   { timestamps: true }
 );

@@ -44,7 +44,10 @@ export default function SingleOrderProductCard({
 
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
           <span>Quantity: {item.quantity}</span>
-          <span>Price: AED {Number(item.price || 0).toFixed(2)}</span>
+          <span>
+            Price: AED {` `}
+            {Number(item.price || 0).toFixed(2)}
+          </span>
           {item.vendorId?.storeName && (
             <span>Vendor: {item.vendorId.storeName}</span>
           )}

@@ -4,13 +4,18 @@ const response = require("../config/response");
 const { adminService } = require("../services");
 
 const getAllUsers = catchAsync(async (req, res) => {
-  const alluser = await adminService.getAllUsers(req.user.id);
+  const { page = 1, limit = 10, search = "", sortBy = "newest" } = req.query;
+
+  // Fetch filtered and sorted users from the service
+  const users = await adminService.getAllUsers({ page, limit, search, sortBy });
+
+  // Send the response with the user data
   res.status(httpStatus.CREATED).json(
     response({
       message: "All the user list",
       status: "OK",
       statusCode: httpStatus.CREATED,
-      data: alluser,
+      data: users,
     })
   );
 });

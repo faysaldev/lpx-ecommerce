@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
 import {
   ArrowUpDown,
   Clock,
@@ -143,12 +142,7 @@ function AdminPaymentRequest({
                     <Clock className="mr-2 h-4 w-4" />
                     Pending Review
                   </DropdownMenuItem>
-                  {/* <DropdownMenuItem
-                    onClick={() => handleStatusFilter("approved")}
-                  >
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    Approved
-                  </DropdownMenuItem> */}
+
                   <DropdownMenuItem onClick={() => handleStatusFilter("paid")}>
                     <DollarSign className="mr-2 h-4 w-4" />
                     Paid
@@ -210,7 +204,6 @@ function AdminPaymentRequest({
                 onViewDetails={handleViewRequest}
                 showVendorColumn={true}
               />
-
               {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between mt-6">

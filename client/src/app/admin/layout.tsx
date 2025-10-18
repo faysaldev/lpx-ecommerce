@@ -13,6 +13,7 @@ import {
   Shield,
   ShoppingCart,
   Store,
+  User,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -53,6 +54,11 @@ const adminNavItems = [
     title: "Vendors",
     href: "/admin/vendors",
     icon: Store,
+  },
+  {
+    title: "Users",
+    href: "/admin/users",
+    icon: User,
   },
   {
     title: "Payments",

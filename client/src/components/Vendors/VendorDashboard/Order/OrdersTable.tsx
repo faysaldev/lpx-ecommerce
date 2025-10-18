@@ -39,14 +39,14 @@ export function OrdersTable() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "pending":
-        return <Badge className="bg-yellow-100 text-yellow-800">Pending</Badge>;
-      case "processing":
-        return <Badge className="bg-blue-100 text-blue-800">Processing</Badge>;
+      case "confirmed":
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800">Confirmed</Badge>
+        );
       case "shipped":
         return <Badge className="bg-purple-100 text-purple-800">Shipped</Badge>;
       case "completed":
-      case "conformed":
+      case "confirmed":
         return (
           <Badge className="bg-green-100 text-green-800 capitalize">
             {status}

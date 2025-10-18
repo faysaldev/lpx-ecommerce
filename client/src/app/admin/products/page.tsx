@@ -155,8 +155,9 @@ export default function ProductsManagement() {
     }
   };
 
-  const handleViewProduct = (id: string) => router.push(`/admin/products/${id}`);
-  const handleEditProduct = (id: string) => router.push(`/admin/products/${id}/edit`);
+  const handleViewProduct = (id: string) => router.push(`/product/${id}`);
+  const handleEditProduct = (id: string) =>
+    router.push(`/vendor/products/${id}/edite`);
 
   const getStatusBadge = (product: AdminProduct) => {
     let status: "active" | "pending" | "flagged" | "inactive" = "active";
@@ -198,7 +199,9 @@ export default function ProductsManagement() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Product Management</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            Product Management
+          </h1>
           <p className="text-muted-foreground">
             Review and manage marketplace listings
           </p>
@@ -207,100 +210,134 @@ export default function ProductsManagement() {
 
       {/* Stats */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card><CardContent><div className="text-xl font-semibold py-10 flex justify-center items-center">Total: {stats.totalProducts}</div></CardContent></Card>
-        <Card><CardContent><div className="text-xl font-semibold text-green-600 py-10 flex justify-center items-center">Active: {stats.activeProducts}</div></CardContent></Card>
-        <Card><CardContent><div className="text-xl font-semibold text-yellow-600 py-10 flex justify-center items-center">Pending: {stats.pendingReview}</div></CardContent></Card>
-        <Card><CardContent><div className="text-xl font-semibold text-red-600 py-10 flex justify-center items-center">Flagged: {stats.flaggedProducts}</div></CardContent></Card>
+        <Card>
+          <CardContent>
+            <div className="text-xl font-semibold py-10 flex justify-center items-center">
+              Total: {stats.totalProducts}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <div className="text-xl font-semibold text-green-600 py-10 flex justify-center items-center">
+              Active: {stats.activeProducts}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <div className="text-xl font-semibold text-yellow-600 py-10 flex justify-center items-center">
+              Pending: {stats.pendingReview}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <div className="text-xl font-semibold text-red-600 py-10 flex justify-center items-center">
+              Flagged: {stats.flaggedProducts}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* ✅ Products Table */}
       <Card>
         <div className="bg-[#3c485f6c]">
           <CardHeader>
-          <CardTitle>All Products</CardTitle>
-          <div className="flex justify-between items-center">
-            <div>
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search by name, vendor, or category"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 w-[310px]"
-                />
+            <CardTitle>All Products</CardTitle>
+            <div className="flex justify-between items-center">
+              <div>
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search by name, vendor, or category"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8 w-[310px]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-5">
+                {/* ✅ Toggle Filter Section */}
+                <Button onClick={() => setShowFilters(!showFilters)}>
+                  {showFilters ? "Hide Filters" : "Filtering"}
+                </Button>
+
+                {/* Sort */}
+                <Select value={sortOption} onValueChange={setSortOption}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sort By" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">Newest</SelectItem>
+                    <SelectItem value="price-asc">
+                      Price (Low → High)
+                    </SelectItem>
+                    <SelectItem value="price-desc">
+                      Price (High → Low)
+                    </SelectItem>
+                    <SelectItem value="name-asc">Name (A–Z)</SelectItem>
+                    <SelectItem value="name-desc">Name (Z–A)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+          </CardHeader>
 
-            <div className="flex items-center space-x-5">
-              {/* ✅ Toggle Filter Section */}
-              <Button onClick={() => setShowFilters(!showFilters)}>
-                {showFilters ? "Hide Filters" : "Filtering"}
-              </Button>
-
-              {/* Sort */}
-              <Select value={sortOption} onValueChange={setSortOption}>
-                <SelectTrigger><SelectValue placeholder="Sort By" /></SelectTrigger>
+          {/* ✅ Filter Section (Hidden by Default) */}
+          {showFilters && (
+            <CardContent className="grid md:grid-cols-5 gap-4">
+              {/* Category */}
+              <Select value={category} onValueChange={setCategory}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="price-asc">Price (Low → High)</SelectItem>
-                  <SelectItem value="price-desc">Price (High → Low)</SelectItem>
-                  <SelectItem value="name-asc">Name (A–Z)</SelectItem>
-                  <SelectItem value="name-desc">Name (Z–A)</SelectItem>
+                  {categoriesData?.map((cat: any) => (
+                    <SelectItem key={cat._id} value={cat.name}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-            </div>
-          </div>
-        </CardHeader>
 
-        {/* ✅ Filter Section (Hidden by Default) */}
-        {showFilters && (
-          <CardContent className="grid md:grid-cols-5 gap-4">
-            {/* Category */}
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger><SelectValue placeholder="Select Category" /></SelectTrigger>
-              <SelectContent>
-                {categoriesData?.map((cat: any) => (
-                  <SelectItem key={cat._id} value={cat.name}>
-                    {cat.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {/* Condition */}
+              <Select value={condition} onValueChange={setCondition}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Condition" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Mint">Mint</SelectItem>
+                  <SelectItem value="Near Mint">Near Mint</SelectItem>
+                  <SelectItem value="Excellent">Excellent</SelectItem>
+                  <SelectItem value="Good">Good</SelectItem>
+                  <SelectItem value="Fair">Fair</SelectItem>
+                  <SelectItem value="Poor">Poor</SelectItem>
+                  <SelectItem value="CGC Graded">CGC Graded</SelectItem>
+                  <SelectItem value="PSA Graded">PSA Graded</SelectItem>
+                  <SelectItem value="BGS Graded">BGS Graded</SelectItem>
+                </SelectContent>
+              </Select>
 
-            {/* Condition */}
-            <Select value={condition} onValueChange={setCondition}>
-              <SelectTrigger><SelectValue placeholder="Condition" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Mint">Mint</SelectItem>
-                <SelectItem value="Near Mint">Near Mint</SelectItem>
-                <SelectItem value="Excellent">Excellent</SelectItem>
-                <SelectItem value="Good">Good</SelectItem>
-                <SelectItem value="Fair">Fair</SelectItem>
-                <SelectItem value="Poor">Poor</SelectItem>
-                <SelectItem value="CGC Graded">CGC Graded</SelectItem>
-                <SelectItem value="PSA Graded">PSA Graded</SelectItem>
-                <SelectItem value="BGS Graded">BGS Graded</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Price Range */}
-            <div className="flex gap-2">
-              <Input
-                type="number"
-                placeholder="Min"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-              />
-              <Input
-                type="number"
-                placeholder="Max"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-              />
-            </div>
-          </CardContent>
-        )}
+              {/* Price Range */}
+              <div className="flex gap-2">
+                <Input
+                  type="number"
+                  placeholder="Min"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                />
+                <Input
+                  type="number"
+                  placeholder="Max"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                />
+              </div>
+            </CardContent>
+          )}
         </div>
 
         <CardContent>
@@ -334,7 +371,9 @@ export default function ProductsManagement() {
               ) : (
                 products?.map((product) => (
                   <TableRow key={product._id}>
-                    <TableCell className="font-medium">{product.productName}</TableCell>
+                    <TableCell className="font-medium">
+                      {product.productName}
+                    </TableCell>
                     <TableCell>{product.category}</TableCell>
                     <TableCell>{product.vendor.storeName}</TableCell>
                     <TableCell>AED {product.price.toLocaleString()}</TableCell>
@@ -356,10 +395,14 @@ export default function ProductsManagement() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleViewProduct(product._id)}>
+                          <DropdownMenuItem
+                            onClick={() => handleViewProduct(product._id)}
+                          >
                             <Eye className="mr-2 h-4 w-4" /> View
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEditProduct(product._id)}>
+                          <DropdownMenuItem
+                            onClick={() => handleEditProduct(product._id)}
+                          >
                             <Edit className="mr-2 h-4 w-4" /> Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />

@@ -2,7 +2,7 @@
 
 import { PaymentRequestItem, PaymentRequestStatus } from "./payment-request";
 
-export type OrderStatus = "conformed" | "shipped" | "delivered" | "cancelled";
+export type OrderStatus = "confirmed" | "shipped" | "delivered" | "cancelled";
 export interface Product {
   id: string;
   name: string;

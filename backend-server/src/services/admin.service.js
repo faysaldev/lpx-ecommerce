@@ -12,11 +12,52 @@ const ApiError = require("../utils/ApiError");
 const moment = require("moment");
 const { decryptData } = require("../utils/decrypteHealper"); // Assuming decryptData is imported from the helper
 
-const getAllUsers = async (userId) => {
-  if (!userId) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
+const getAllUsers = async ({ page, limit, search, sortBy }) => {
+  const skip = (page - 1) * limit;
+
+  const query = {};
+
+  // Apply search filter if a search term is provided
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: "i" } }, // Case-insensitive search for name
+      { email: { $regex: search, $options: "i" } }, // Case-insensitive search for email
+      { phoneNumber: { $regex: search, $options: "i" } }, // Case-insensitive search for phoneNumber
+    ];
   }
-  return User.find();
+
+  // Sorting logic
+  let sortOption = {};
+  switch (sortBy) {
+    case "newest":
+      sortOption = { createdAt: -1 }; // Sort by newest (createdAt descending)
+      break;
+    case "oldest":
+      sortOption = { createdAt: 1 }; // Sort by oldest (createdAt ascending)
+      break;
+    default:
+      sortOption = { createdAt: -1 }; // Default to newest
+  }
+
+  // Fetching the users based on the query, sorting, and pagination
+  const users = await User.find(query)
+    .skip(skip)
+    .limit(Number(limit))
+    .sort(sortOption)
+    .select("name email image type phoneNumber createdAt _id"); // Select only required fields
+
+  // Get total number of records matching the query (for pagination)
+  const totalRecords = await User.countDocuments(query);
+
+  // Calculate total pages based on total records and limit
+  const totalPages = Math.ceil(totalRecords / limit);
+
+  return {
+    users,
+    totalPages,
+    totalRecords,
+    currentPage: page,
+  };
 };
 
 const getAllVendors = async (query) => {
@@ -699,19 +740,20 @@ const getAdminVendorSummary = async ({ page = 1, limit = 10 }) => {
 
 // payment Distrubution details
 const getAdminFinancialOverview = async () => {
-  // Define the last 20 days
+  // Define the last 20 days for the overview
   const last20Days = new Date();
   last20Days.setDate(last20Days.getDate() - 20);
 
   // Payment Status Distribution (Count by status in last 20 days)
   const paymentStatusDistribution = await PaymentRequest.aggregate([
-    { $match: { requestDate: { $gte: last20Days } } },
-    { $group: { _id: "$status", count: { $sum: 1 } } },
+    { $match: { requestDate: { $gte: last20Days } } }, // Filter payments in the last 20 days
+    { $group: { _id: "$status", count: { $sum: 1 } } }, // Group by status and count
+    { $project: { status: "$_id", count: 1, _id: 0 } }, // Clean up field names
   ]);
 
-  // Financial Overview (Pie chart format)
+  // Financial Overview (Sum of withdrawal amounts by payment status in last 20 days)
   const financialOverview = await PaymentRequest.aggregate([
-    { $match: { requestDate: { $gte: last20Days } } },
+    { $match: { requestDate: { $gte: last20Days } } }, // Filter payments in the last 20 days
     {
       $group: {
         _id: null,
@@ -734,14 +776,14 @@ const getAdminFinancialOverview = async () => {
     },
   ]);
 
-  // Prepare pie chart data
+  // Prepare financial overview data for pie chart
   const pieChartData = {
     paid: financialOverview[0]?.totalPaid || 0,
     pending: financialOverview[0]?.totalPending || 0,
     rejected: financialOverview[0]?.totalRejected || 0,
   };
 
-  // Recent Payment Activity (Recent 20 days data)
+  // Recent Payment Activity (Recent 5 payment requests)
   const recentPaymentActivity = await PaymentRequest.find({
     requestDate: { $gte: last20Days },
   })
@@ -749,20 +791,23 @@ const getAdminFinancialOverview = async () => {
     .limit(5); // Get the last 5 payment activities
 
   // Decrypt bank information for each recent payment activity
-  const decryptedRecentPaymentActivity = recentPaymentActivity.map(
-    (request) => {
-      const decryptedDetails = request.decryptBankDetails(); // Decrypt bank details
+  const decryptedRecentPaymentActivity = await Promise.all(
+    recentPaymentActivity.map(async (request) => {
+      const decryptedDetails = await request.getBankDetails(); // Decrypt bank details
       return {
         ...request.toObject(), // Convert mongoose document to plain object
-        bankName: decryptedDetails.bankName, // Add decrypted bankName
-        accountNumber: decryptedDetails.accountNumber, // Add decrypted accountNumber
+        bankDetails: {
+          bankName: decryptedDetails.bankName, // Add decrypted bankName
+          accountNumber: decryptedDetails.accountNumber, // Add decrypted accountNumber
+          accountType: request.bankDetails.accountType, // Add account type
+        },
       };
-    }
+    })
   );
 
   return {
     paymentStatusDistribution, // Distribution of payment statuses
-    financialOverview: pieChartData, // Pie chart data
+    financialOverview: pieChartData, // Financial overview for pie chart
     recentPaymentActivity: decryptedRecentPaymentActivity, // Decrypted recent payment activities
   };
 };
@@ -1228,7 +1273,7 @@ const getAnalyticsTotalSalesTrends = async () => {
         },
         conformSales: {
           $sum: {
-            $cond: [{ $eq: ["$status", "conformed"] }, "$totalAmount", 0],
+            $cond: [{ $eq: ["$status", "confirmed"] }, "$totalAmount", 0],
           },
         },
         deliveredSales: {

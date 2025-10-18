@@ -14,10 +14,15 @@ import {
 } from "@/components/UI/table";
 import SinglePlaymentDetailsDialogBox from "./SinglePaymentDetailsDialogBox";
 
+interface Vendor {
+  _id: string;
+  storeName: string;
+}
+
 export interface PaymentRequest {
   _id: string;
   seller: string;
-  vendor: string;
+  vendor: Vendor;
   bankDetails: BankDetails;
   withdrawalAmount: number;
   status: string;
@@ -119,6 +124,7 @@ export default function PaymentRequestTable({
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
 
   const handleViewDetails = (request: PaymentRequest) => {
+    setSelectedRequest(request);
     if (onViewDetails) {
       onViewDetails(request);
     } else {
@@ -126,8 +132,6 @@ export default function PaymentRequestTable({
       setShowDetailsDialog(true);
     }
   };
-
-  console.log("Payment Requests:", paymentRequests);
 
   if (!paymentRequests || paymentRequests.length === 0) {
     return (
@@ -193,7 +197,7 @@ export default function PaymentRequestTable({
                           className="text-sm text-muted-foreground font-medium truncate w-20 md:w-28 overflow-hidden
                       whitespace-nowrap"
                         >
-                          {request.vendor}
+                          {request.vendor?.storeName}
                         </p>
                       </div>
                     </TableCell>
@@ -259,6 +263,7 @@ export default function PaymentRequestTable({
       <SinglePlaymentDetailsDialogBox
         setShowDetailsDialog={setShowDetailsDialog}
         showDetailsDialog={showDetailsDialog}
+        seletedRequest={selectedRequest}
         requestId={selectedRequest?._id}
       />
     </>

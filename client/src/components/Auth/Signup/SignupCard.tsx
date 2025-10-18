@@ -6,13 +6,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRegisterMutation } from "@/redux/features/auth/authApi";
 import Link from "next/link";
-
 import { Eye, EyeOff, Loader2, UserPlus } from "lucide-react";
 import { Card, CardContent } from "@/components/UI/card";
 import { Label } from "@/components/UI/label";
 import { Input } from "@/components/UI/input";
 import { Button } from "@/components/UI/button";
 import { toast } from "sonner";
+
+interface ErrorResponse {
+  message: string;
+}
 
 function SignupCard() {
   const [firstName, setFirstName] = useState("");
@@ -57,11 +60,21 @@ function SignupCard() {
 
       const res = await adduser(data);
 
-      if (!res.data) {
-        toast("Failed to create account. Please try again.");
+      // Check if there was an error
+      if (res?.error) {
+        // Check if `res.error` has a `data` property
+        if ("data" in res.error) {
+          const errorData = res.error.data as ErrorResponse; // Cast the error data to match the shape
+          const errorMessage =
+            errorData?.message || "An unknown error occurred";
+          toast(errorMessage);
+        } else {
+          toast("An error occurred. Please try again.");
+        }
         return;
       }
 
+      // Success flow
       toast(
         "Account created successfully! Redirecting to email verification..."
       );
@@ -71,8 +84,11 @@ function SignupCard() {
         router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
       }, 1000);
     } catch (err: any) {
+      // Catch other errors (network issues, etc.)
+      console.log(err, "Error section");
       toast(
-        err.response?.data?.message || "Something went wrong. Please try again."
+        err?.response?.data?.message ||
+          "Something went wrong. Please try again."
       );
     } finally {
       setIsLoading(false);

@@ -14,6 +14,7 @@ const GetWishList = baseApi.injectEndpoints({
         url: "/wishlists/remove-all",
         method: "DELETE",
       }),
+      invalidatesTags: ["my_wishList", "header_statics"],
     }),
 
     addNewToWishList: builder.mutation({

@@ -19,6 +19,30 @@ import { SinglePaymentRequest } from "@/lib/types";
 
 // Helper functions
 
+interface Vendor {
+  _id: string;
+  storeName: string;
+}
+
+export interface PaymentRequest {
+  _id: string;
+  seller: string;
+  vendor: Vendor;
+  bankDetails: BankDetails;
+  withdrawalAmount: number;
+  status: string;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
+}
+
+export interface BankDetails {
+  bankName: string;
+  accountNumber: string;
+  phoneNumber: string;
+  accountType: string;
+}
+
 const getStatusBadgeVariant = (status: string) => {
   switch (status) {
     case "paid":
@@ -61,10 +85,12 @@ function SinglePlaymentDetailsDialogBox({
   requestId,
   showDetailsDialog,
   setShowDetailsDialog,
+  seletedRequest,
 }: {
   requestId?: string;
   setShowDetailsDialog: any;
   showDetailsDialog: any;
+  seletedRequest: any;
 }) {
   const { data: singlePaymentDetails, isLoading } =
     useGetSinglePaymentdetailsQuery(requestId, {
@@ -74,7 +100,7 @@ function SinglePlaymentDetailsDialogBox({
   // Extract the payment request data
   const paymentRequest: SinglePaymentRequest =
     singlePaymentDetails?.data?.attributes;
-  console.log(paymentRequest, "payment request");
+  console.log(singlePaymentDetails, "payment request data");
 
   return (
     <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>

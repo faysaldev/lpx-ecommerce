@@ -146,7 +146,7 @@ function DashboardContent() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold">${order.price}</p>
+                        <p className="font-bold">AED {order.price}</p>
                         <Badge
                           className={getStatusColor(order.status)}
                           variant="secondary"

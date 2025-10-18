@@ -8,7 +8,14 @@ const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+
+    adminUsers: builder.query({
+      query: () => ({
+        url: `/admin/users`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useAdminDasboardQuery } = authApi;
+export const { useAdminDasboardQuery, useAdminUsersQuery } = authApi;
