@@ -23,7 +23,7 @@ export interface PaymentRequest {
   _id: string;
   seller: string;
   vendor: Vendor;
-  bankDetails: BankDetails;
+  bankDetails?: BankDetails;
   withdrawalAmount: number;
   status: string;
   createdAt: Date;
@@ -209,10 +209,10 @@ export default function PaymentRequestTable({
                         className="font-medium truncate w-24 overflow-hidden
                       whitespace-nowrap"
                       >
-                        {request.bankDetails.bankName}
+                        {request?.bankDetails?.bankName}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {request.bankDetails.accountNumber}
+                        {request?.bankDetails?.accountNumber}
                       </p>
                     </div>
                   </TableCell>
@@ -225,7 +225,7 @@ export default function PaymentRequestTable({
 
                   <TableCell>
                     <p className="font-medium capitalize">
-                      {request.bankDetails.accountType}
+                      {request?.bankDetails?.accountType}
                     </p>
                   </TableCell>
 

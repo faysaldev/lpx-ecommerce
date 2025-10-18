@@ -8,7 +8,6 @@ import React from "react";
 import { toast } from "sonner";
 
 function PaymentMethods({ payMathods }: { payMathods: PaymentCards[] }) {
-  console.log(payMathods, "paymentods");
   const [deletePayMethods] = useRemoveBankCardMutation();
   const [addNewPayMethods] = useAddBankCardMutation();
 
@@ -20,7 +19,6 @@ function PaymentMethods({ payMathods }: { payMathods: PaymentCards[] }) {
       accountType: formData.get("accountType") as string,
       bankName: formData.get("bankName") as string,
       accountNumber: formData.get("accountNumber") as string,
-      phoneNumber: formData.get("phoneNumber") as string,
     };
 
     try {
@@ -196,23 +194,6 @@ function PaymentMethods({ payMathods }: { payMathods: PaymentCards[] }) {
                 placeholder="Enter account number"
               />
             </div>
-
-            <div>
-              <label
-                htmlFor="phoneNumber"
-                className="block text-sm font-medium text-gray-300 mb-2"
-              >
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                id="phoneNumber"
-                name="phoneNumber"
-                required
-                className="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter phone number"
-              />
-            </div>
           </div>
 
           <div className="flex gap-3 pt-6 justify-center">
@@ -242,199 +223,3 @@ function PaymentMethods({ payMathods }: { payMathods: PaymentCards[] }) {
 }
 
 export default PaymentMethods;
-
-// import { PaymentCards } from "@/lib/types";
-// import React from "react";
-
-// function PaymentMethods({ payMathods }: { payMathods: PaymentCards[] }) {
-//   console.log(payMathods, "paymentods");
-
-//   const handleAddNewCard = (event: React.FormEvent<HTMLFormElement>) => {
-//     event.preventDefault();
-
-//     const formData = new FormData(event.currentTarget);
-//     const data = {
-//       accountType: formData.get("accountType") as string,
-//       bankName: formData.get("bankName") as string,
-//       accountNumber: formData.get("accountNumber") as string,
-//       phoneNumber: formData.get("phoneNumber") as string,
-//     };
-
-//     console.log("New card data:", data);
-
-//     // Close the form section
-//     const formSection = document.getElementById("add-card-form");
-//     if (formSection) {
-//       formSection.style.display = "none";
-//     }
-
-//     // Reset the form
-//     event.currentTarget.reset();
-//   };
-
-//   const showAddCardForm = () => {
-//     const formSection = document.getElementById("add-card-form");
-//     if (formSection) {
-//       formSection.style.display = "block";
-//     }
-//   };
-
-//   return (
-//     <div className="p-6">
-//       <h2 className="text-2xl font-bold mb-6">Payment Methods</h2>
-
-//       <div className="grid gap-4 mb-6">
-//         {payMathods.map((method) => (
-//           <div
-//             key={method._id}
-//             className="p-4 rounded-lg text-white"
-//             style={{ backgroundColor: "#252D3D" }}
-//           >
-//             <div className="flex justify-between items-start">
-//               <div>
-//                 <h3 className="font-semibold text-lg">{method.accountType}</h3>
-//                 <p className="text-gray-300">Bank: {method.bankName}</p>
-//                 <p className="text-gray-300">Account: {method.accountNumber}</p>
-//                 <p className="text-gray-300">Phone: {method.phoneNumber}</p>
-//               </div>
-//               <span className="text-sm text-gray-400">
-//                 {new Date(method.createdAt).toLocaleDateString()}
-//               </span>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-
-//       {payMathods.length === 0 && (
-//         <div
-//           className="p-8 rounded-lg text-center text-white mb-6"
-//           style={{ backgroundColor: "#252D3D" }}
-//         >
-//           <p className="mb-4">No payment methods added yet</p>
-//           {payMathods.length < 3 && (
-//             <button
-//               onClick={showAddCardForm}
-//               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-//             >
-//               Add New Card
-//             </button>
-//           )}
-//         </div>
-//       )}
-
-//       {payMathods.length > 0 && payMathods.length < 3 && (
-//         <div
-//           className="p-6 rounded-lg text-center text-white mb-6 cursor-pointer hover:opacity-90 transition-opacity"
-//           style={{ backgroundColor: "#252D3D" }}
-//           onClick={showAddCardForm}
-//         >
-//           <div className="text-2xl mb-2">+</div>
-//           <p>Add New Card</p>
-//         </div>
-//       )}
-
-//       <div id="add-card-form" style={{ display: "none" }} className="mb-6">
-//         <form
-//           onSubmit={handleAddNewCard}
-//           className="space-y-4 p-6 rounded-lg"
-//           style={{ backgroundColor: "#252D3D" }}
-//         >
-//           <h3 className="text-xl font-semibold text-white mb-4">
-//             Add New Payment Method
-//           </h3>
-
-//           <div>
-//             <label
-//               htmlFor="accountType"
-//               className="block text-sm font-medium text-gray-300 mb-1"
-//             >
-//               Account Type
-//             </label>
-//             <input
-//               type="text"
-//               id="accountType"
-//               name="accountType"
-//               required
-//               className="w-full px-3 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-//               placeholder="e.g., Savings, Current"
-//             />
-//           </div>
-
-//           <div>
-//             <label
-//               htmlFor="bankName"
-//               className="block text-sm font-medium text-gray-300 mb-1"
-//             >
-//               Bank Name
-//             </label>
-//             <input
-//               type="text"
-//               id="bankName"
-//               name="bankName"
-//               required
-//               className="w-full px-3 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-//               placeholder="Enter bank name"
-//             />
-//           </div>
-
-//           <div>
-//             <label
-//               htmlFor="accountNumber"
-//               className="block text-sm font-medium text-gray-300 mb-1"
-//             >
-//               Account Number
-//             </label>
-//             <input
-//               type="text"
-//               id="accountNumber"
-//               name="accountNumber"
-//               required
-//               className="w-full px-3 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-//               placeholder="Enter account number"
-//             />
-//           </div>
-
-//           <div>
-//             <label
-//               htmlFor="phoneNumber"
-//               className="block text-sm font-medium text-gray-300 mb-1"
-//             >
-//               Phone Number
-//             </label>
-//             <input
-//               type="tel"
-//               id="phoneNumber"
-//               name="phoneNumber"
-//               required
-//               className="w-full px-3 py-2 rounded-lg border border-gray-600 bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-//               placeholder="Enter phone number"
-//             />
-//           </div>
-
-//           <div className="flex gap-3 pt-2">
-//             <button
-//               type="submit"
-//               className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
-//             >
-//               Add Card
-//             </button>
-//             <button
-//               type="button"
-//               onClick={() => {
-//                 const formSection = document.getElementById("add-card-form");
-//                 if (formSection) {
-//                   formSection.style.display = "none";
-//                 }
-//               }}
-//               className="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-//             >
-//               Cancel
-//             </button>
-//           </div>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default PaymentMethods;

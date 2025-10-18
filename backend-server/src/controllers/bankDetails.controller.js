@@ -19,6 +19,7 @@ const createBankDetails = catchAsync(async (req, res) => {
   const bankDetails = await bankDetailsService.createBankDetails({
     seller: req.user.id,
     ...req.body,
+    phoneNumber: req.user.phoneNumber,
   });
   res.status(httpStatus.CREATED).json(
     response({

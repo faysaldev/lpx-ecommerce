@@ -13,8 +13,10 @@ import {
   SelectValue,
 } from "@/components/UI/select";
 import { Textarea } from "@/components/UI/textarea";
+import { selectCurrentUser } from "@/redux/features/auth/authSlice";
 import { useAllCategoriesQuery } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 import { useVendorCreateMutation } from "@/redux/features/vendors/vendor";
+import { useAppSelector } from "@/redux/hooks";
 import { X, Plus, Upload, MapPin, Phone, Globe } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -44,10 +46,9 @@ function RequestVendorForm() {
   const [socialMedia, setSocialMedia] = useState<SocialMediaEntry[]>([]);
   const [storePhoto, setStorePhoto] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [storePolicies, setStorePolicies] = useState<StorePolicies>({
-    returnPolicy: "",
-    shippingPolicy: "",
-  });
+  const currentUser = useAppSelector(selectCurrentUser);
+  console.log(currentUser, "current user ");
+
   const [vendorCreationApplication] = useVendorCreateMutation();
   const { data: categoriesData, isLoading: categoriesLoading } =
     useAllCategoriesQuery({});
@@ -106,37 +107,34 @@ function RequestVendorForm() {
     setPreviewUrl(null);
   };
 
-  // Update store policies
-  const updateStorePolicy = (policy: keyof StorePolicies, value: string) => {
-    setStorePolicies((prev) => ({
-      ...prev,
-      [policy]: value,
-    }));
-  };
-
   const handleApplicationSubmit = async (
     e: React.FormEvent<HTMLFormElement>
   ) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    if (!storePhoto) {
+      setIsSubmitting(false);
+      return toast.error("Store image Is required");
+    }
+
     const form = e.currentTarget;
 
     // Get form values
+    const name = currentUser?.name?.split(" ");
+    const firstName = name?.[0] ?? ""; // Default to an empty string if undefined
+    const lastName = name?.[1] ?? ""; // Default to an empty string if undefined
 
-    const firstName = (form.elements.namedItem("firstName") as HTMLInputElement)
-      .value;
-    const lastName = (form.elements.namedItem("lastName") as HTMLInputElement)
-      .value;
     const storeName = (form.elements.namedItem("storeName") as HTMLInputElement)
       .value;
-    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const userEmail = currentUser?.email ?? "";
     const contactEmail = (
       form.elements.namedItem("contactEmail") as HTMLInputElement
     ).value;
     const phoneNumber = (
       form.elements.namedItem("phoneNumber") as HTMLInputElement
     ).value;
+
     const location = (form.elements.namedItem("location") as HTMLInputElement)
       .value;
     const category = (form.elements.namedItem("category") as HTMLSelectElement)
@@ -162,7 +160,7 @@ function RequestVendorForm() {
     formData.append("firstName", firstName);
     formData.append("lastName", lastName);
     formData.append("storeName", storeName);
-    formData.append("email", email);
+    formData.append("email", userEmail);
     formData.append("contactEmail", contactEmail);
     formData.append("phoneNumber", phoneNumber);
     formData.append("location", location);
@@ -173,9 +171,6 @@ function RequestVendorForm() {
 
     // Append social media as JSON string
     formData.append("socialLinks", JSON.stringify(validSocialMedia));
-
-    // Append store policies as JSON string
-    formData.append("storePolicies", JSON.stringify(storePolicies));
 
     // Append store photo if available
     if (storePhoto) {
@@ -208,33 +203,6 @@ function RequestVendorForm() {
   };
   return (
     <form onSubmit={handleApplicationSubmit} className="space-y-8">
-      {/* Personal Information Section */}
-      <section>
-        <h3 className="text-lg font-semibold mb-4 pb-2 border-b">
-          Personal Information
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="firstName">First Name *</Label>
-            <Input name="firstName" id="firstName" required className="mt-1" />
-          </div>
-          <div>
-            <Label htmlFor="lastName">Last Name *</Label>
-            <Input name="lastName" id="lastName" required className="mt-1" />
-          </div>
-          <div>
-            <Label htmlFor="email">Personal Email *</Label>
-            <Input
-              name="email"
-              id="email"
-              type="email"
-              required
-              className="mt-1"
-            />
-          </div>
-        </div>
-      </section>
-
       {/* Store Information Section */}
       <section>
         <h3 className="text-lg font-semibold mb-4 pb-2 border-b">
@@ -488,40 +456,6 @@ function RequestVendorForm() {
                 <SelectItem value="10+">10+ years</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-        </div>
-      </section>
-
-      {/* Store Policies Section */}
-      <section>
-        <h3 className="text-lg font-semibold mb-4 pb-2 border-b">
-          Store Policies
-        </h3>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="returnPolicy">Return Policy</Label>
-            <Textarea
-              id="returnPolicy"
-              placeholder="Describe your return policy, including time frames, conditions, and process..."
-              value={storePolicies.returnPolicy}
-              onChange={(e) =>
-                updateStorePolicy("returnPolicy", e.target.value)
-              }
-              className="min-h-[80px] mt-1"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="shippingPolicy">Shipping Policy</Label>
-            <Textarea
-              id="shippingPolicy"
-              placeholder="Describe your shipping policy, including processing times, shipping methods, and international shipping options..."
-              value={storePolicies.shippingPolicy}
-              onChange={(e) =>
-                updateStorePolicy("shippingPolicy", e.target.value)
-              }
-              className="min-h-[80px] mt-1"
-            />
           </div>
         </div>
       </section>

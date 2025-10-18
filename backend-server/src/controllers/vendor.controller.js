@@ -98,7 +98,6 @@ const createVendorRequest = catchAsync(async (req, res) => {
     seller: req.user.id,
     ownerName: req.user.name,
     socialLinks: JSON.parse(req?.body?.socialLinks),
-    storePolicies: JSON.parse(req?.body?.storePolicies),
   });
   res.status(httpStatus.CREATED).json(
     response({

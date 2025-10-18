@@ -25,21 +25,3 @@ router
   .delete(auth("common"), bankDetailsController.removeBankDetail);
 
 module.exports = router;
-
-// const express = require("express");
-// const auth = require("../../middlewares/auth");
-// const { bankDetailsController } = require("../../controllers");
-
-// const router = express.Router();
-
-// router
-//   .route("/my-cards")
-//   .get(auth("common"), bankDetailsController.myPaymentCards);
-// router
-//   .route("/add")
-//   .post(auth("common"), bankDetailsController.createPaymentCards);
-// router
-//   .route("/cards-details/:id")
-//   .get(auth("common"), bankDetailsController.getPaymentCardSingleDetails);
-
-// module.exports = router;

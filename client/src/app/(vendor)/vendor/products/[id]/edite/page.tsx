@@ -20,7 +20,6 @@ import { Button } from "@/components/UI/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Input } from "@/components/UI/input";
 import { Label } from "@/components/UI/label";
-import { RadioGroup, RadioGroupItem } from "@/components/UI/radio-group";
 import {
   Select,
   SelectContent,
@@ -28,7 +27,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/UI/select";
-import { Separator } from "@/components/UI/separator";
 import { Textarea } from "@/components/UI/textarea";
 import {
   useGetSingleProductQuery,
@@ -775,7 +773,6 @@ const NewProductPage = () => {
             </div>
           </CardContent>
         </Card>
-
         {/* Pricing & Inventory */}
         <Card>
           <CardHeader>
@@ -787,7 +784,72 @@ const NewProductPage = () => {
           <CardContent className="space-y-4">
             <div className="grid md:grid-cols-3 gap-4">
               <div>
-                <Label htmlFor="price">Price *</Label>
+                <Label htmlFor="optionalPrice">Original Price *</Label>
+                <Input
+                  id="optionalPrice"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={optionalPrice}
+                  onChange={(e) => {
+                    const originalPrice = e.target.value;
+                    setOptionalPrice(originalPrice);
+
+                    // Calculate price based on original price and discount
+                    if (originalPrice && discountPercentage) {
+                      const original = parseFloat(originalPrice);
+                      const discount = parseFloat(discountPercentage);
+                      const discountedPrice =
+                        original - (original * discount) / 100;
+                      setPrice(discountedPrice.toFixed(2));
+                    } else if (originalPrice) {
+                      setPrice(originalPrice);
+                    }
+                  }}
+                  placeholder="0.00"
+                  className="mt-1"
+                />
+                {errors.optionalPrice && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.optionalPrice}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="discountPercentage">Discount Percentage</Label>
+                <Input
+                  id="discountPercentage"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={discountPercentage}
+                  onChange={(e) => {
+                    const discount = e.target.value;
+                    setDiscountPercentage(discount);
+
+                    // Calculate price based on original price and discount
+                    if (optionalPrice && discount) {
+                      const original = parseFloat(optionalPrice);
+                      const discountPercent = parseFloat(discount);
+                      const discountedPrice =
+                        original - (original * discountPercent) / 100;
+                      setPrice(discountedPrice.toFixed(2));
+                    } else if (optionalPrice && !discount) {
+                      // If discount is removed, set price back to original
+                      setPrice(optionalPrice);
+                    }
+                  }}
+                  placeholder="0"
+                  className="mt-1"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Percentage discount (0-100)
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="price">Final Price *</Label>
                 <Input
                   id="price"
                   type="number"
@@ -796,30 +858,17 @@ const NewProductPage = () => {
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   placeholder="0.00"
-                  className="mt-1"
+                  className="mt-1 bg-muted"
+                  readOnly
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Calculated automatically
+                </p>
                 {errors.price && (
                   <p className="text-sm text-destructive mt-1">
                     {errors.price}
                   </p>
                 )}
-              </div>
-
-              <div>
-                <Label htmlFor="optionalPrice">Original Price (optional)</Label>
-                <Input
-                  id="optionalPrice"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={optionalPrice}
-                  onChange={(e) => setOptionalPrice(e.target.value)}
-                  placeholder="0.00"
-                  className="mt-1"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Show as crossed out for sale pricing
-                </p>
               </div>
 
               <div>
@@ -839,26 +888,7 @@ const NewProductPage = () => {
                   </p>
                 )}
               </div>
-
-              <div>
-                <Label htmlFor="discountPercentage">Discount Percentage</Label>
-                <Input
-                  id="discountPercentage"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={discountPercentage}
-                  onChange={(e) => setDiscountPercentage(e.target.value)}
-                  placeholder="0"
-                  className="mt-1"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Percentage discount (0-100)
-                </p>
-              </div>
             </div>
-
-            <Separator />
           </CardContent>
         </Card>
 
@@ -911,44 +941,6 @@ const NewProductPage = () => {
                 />
               </div>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Publishing Options */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Publishing Options</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RadioGroup
-              value={isDraft ? "draft" : "active"}
-              onValueChange={(value) => setIsDraft(value === "draft")}
-              className="space-y-3"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="draft" id="draft" />
-                <Label htmlFor="draft" className="flex-1">
-                  <div>
-                    <p className="font-medium">Save as Draft</p>
-                    <p className="text-sm text-muted-foreground">
-                      Save your product without publishing. You can edit and
-                      publish later.
-                    </p>
-                  </div>
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="active" id="active" />
-                <Label htmlFor="active" className="flex-1">
-                  <div>
-                    <p className="font-medium">Publish Now</p>
-                    <p className="text-sm text-muted-foreground">
-                      Make your product visible to buyers immediately.
-                    </p>
-                  </div>
-                </Label>
-              </div>
-            </RadioGroup>
           </CardContent>
         </Card>
 

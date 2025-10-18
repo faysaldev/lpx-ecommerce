@@ -519,7 +519,7 @@ const ProductDetailsPage = () => {
           </div>
           <br />
 
-          {product?.StorePolicies ? (
+          {product?.description ? (
             <div>
               <h1 className="text-xl font-semibold">Description</h1>
               <VendorTruncateDetails
@@ -530,7 +530,8 @@ const ProductDetailsPage = () => {
             </div>
           ) : null}
 
-          {product?.StorePolicies ? (
+          {/* products store poilicies is here */}
+          {/* {product?.StorePolicies ? (
             <div>
               <h1 className="text-xl font-semibold">Shipping Policy</h1>
               <VendorTruncateDetails
@@ -544,7 +545,7 @@ const ProductDetailsPage = () => {
                 truncateLength={250}
               />
             </div>
-          ) : null}
+          ) : null} */}
         </section>
       </PageLayout>
 
