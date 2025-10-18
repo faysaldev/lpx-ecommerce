@@ -340,10 +340,9 @@ const checkProductAvailability = async (data) => {
       });
 
       if (!product) {
+        // If the product is not found
         results.push({
-          productId,
-          vendorId,
-          available: false,
+          productName: `Product with ID ${productId}`, // Return productName here
           message: "Product not found",
         });
         continue;
@@ -351,34 +350,23 @@ const checkProductAvailability = async (data) => {
 
       // Check if the quantity is available
       if (product.stockQuantity < quantity) {
+        // If not enough stock is available
         results.push({
-          productId,
-          vendorId,
-          available: false,
+          productName: product.productName, // Return productName here
           message: `Not enough stock for ${product.productName}. Only ${product.stockQuantity} available.`,
         });
         continue;
       }
 
-      // If product exists and quantity is available, push the product details
+      // If product exists and quantity is available, return the details
       results.push({
-        productId,
-        vendorId,
-        available: true,
-        quantity: quantity,
-        price: product.price,
-        image: product.images[0], // Assuming first image is used
-        productName: product.productName,
-        vendorName: product.vendor
-          ? product.vendor.storeName
-          : "Unknown Vendor",
+        productName: product.productName, // Return productName here
+        message: `Product is available with sufficient stock.`,
       });
     } catch (error) {
       console.error("Error checking product availability:", error);
       results.push({
-        productId,
-        vendorId,
-        available: false,
+        productName: `Product with ID ${productId}`, // Return productName here
         message: "Error retrieving product details",
       });
     }

@@ -100,11 +100,6 @@ const ProductCard = ({
   showQuickView = true,
   isWishlistItem = false,
 }: ProductCardProps) => {
-  // Extract product data with proper fallbacks
-  console.log(
-    "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy",
-    product
-  );
   const {
     _id,
     id,
@@ -128,23 +123,31 @@ const ProductCard = ({
   const headerStats = useAppSelector(selectHeaderStatitics);
   const router = useRouter();
 
-  // Use the correct ID (support both _id and id)
   const productId = _id || id;
   // Check if product is already in wishlist
   const isInWishlist = headerStats?.wishlistProductIds?.includes(productId);
-
-  // const [wishlistIconUpdate, setWishlistIconUpdate] = useState(isInWishlist);
-
-  // console.log('show wishlist Icon', wishlistIconUpdate)
-
   const addToCart = async () => {
-    await addtoCartProduct({
-      product: productId,
-      vendorId: vendorId ? vendorId : product?.vendorId,
-      quantity: 1,
-      price,
-    });
-    toast("Added to Cart");
+    try {
+      const res = await addtoCartProduct({
+        product: productId,
+        vendorId: vendorId ? vendorId : product?.vendorId,
+        quantity: 1,
+        price,
+      });
+
+      if (res?.data?.code === 200) {
+        toast("Added to Cart");
+      } else if (res?.error) {
+        if ("data" in res.error && res.error.data) {
+          const errorData = res.error.data as ErrorData; // Cast to the correct type
+
+          toast(errorData?.message); // Safely access the 'data' property
+        } else {
+          // Handle the case where error doesn't have expected structure
+          toast("An unknown error occurred.");
+        }
+      }
+    } catch (error) {}
   };
 
   // Use the correct product name

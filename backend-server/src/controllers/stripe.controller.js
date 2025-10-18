@@ -14,8 +14,23 @@ const checkOutSession = async (req, res) => {
       req.body
     );
 
+    // Filter out unavailable products
+    const unavailableProducts = productDetails.filter(
+      (item) => !item.available
+    );
+
+    if (unavailableProducts.length > 0) {
+      return res.status(httpStatus.NOT_FOUND).json(
+        response({
+          message: "Some products are unavailable or out of stock",
+          status: "Error",
+          statusCode: httpStatus.NOT_FOUND,
+          data: unavailableProducts,
+        })
+      );
+    }
+
     const shippingTax = await generalsService.getShippingTaxEtc();
-    console.log(shippingTax);
 
     const orderData = forMatOrderData({
       productDetails,

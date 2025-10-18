@@ -1,6 +1,7 @@
 const httpStatus = require("http-status");
 const ApiError = require("../utils/ApiError");
 const Cart = require("../models/cart.model");
+const { Product } = require("../models");
 
 // const myCartList = async (userId) => {
 //   if (!userId) {
@@ -84,6 +85,22 @@ const addToCartlist = async (CartListBody) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "Required fields missing");
   }
 
+  // Fetch the product to check stock availability
+  const productDetails = await Product.findById(product);
+
+  // Check if the product exists
+  if (!productDetails) {
+    throw new ApiError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  // Check if the requested quantity is available in stock
+  if (productDetails.stockQuantity < quantity) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Not enough stock for ${productDetails.productName}. Only ${productDetails.stockQuantity} available.`
+    );
+  }
+
   // Check if the product is already in the cart for this customer and vendor
   const existingCartItem = await Cart.findOne({
     customer: customer,
@@ -101,6 +118,14 @@ const addToCartlist = async (CartListBody) => {
     // Recalculate the total price
     const newTotalPrice = newQuantity * price;
 
+    // Check if the updated quantity exceeds stock quantity
+    if (newQuantity > productDetails.stockQuantity) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        `Not enough stock for ${productDetails.productName}. Only ${productDetails.stockQuantity} available.`
+      );
+    }
+
     // Update the cart item with the new quantity and total price
     existingCartItem.quantity = newQuantity;
     existingCartItem.totalPrice = newTotalPrice;
@@ -113,6 +138,15 @@ const addToCartlist = async (CartListBody) => {
     // If the product isn't already in the cart, create a new entry
     const totalPrice = quantity * price; // Calculate total price
 
+    // Check if the requested quantity exceeds stock quantity
+    if (quantity > productDetails.stockQuantity) {
+      throw new ApiError(
+        httpStatus.BAD_REQUEST,
+        `Not enough stock for ${productDetails.productName}. Only ${productDetails.stockQuantity} available.`
+      );
+    }
+
+    // Create the new cart item
     const newCartItem = await Cart.create({
       customer,
       product,

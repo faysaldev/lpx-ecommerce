@@ -369,34 +369,6 @@ export default function ProductViewModal({
                     </p>
                   </div>
                 </div>
-
-                {/* Shipping & Details */}
-                <div className="grid grid-cols-1 gap-3 p-3 sm:p-4 bg-gray-800/30 rounded-xl border border-gray-700">
-                  <div className="space-y-2">
-                    <h4 className="font-semibold text-white flex items-center gap-1 text-sm">
-                      <Truck className="h-4 w-4 text-blue-400" />
-                      Shipping Info
-                    </h4>
-                    <div className="space-y-2 text-xs">
-                      <div className="flex justify-between items-center py-1 border-b border-gray-700">
-                        <span className="text-gray-300">Weight:</span>
-                        <span className="font-medium flex items-center gap-1 text-white">
-                          <Scale className="h-3 w-3" />
-                          {product.shipping.weight} kg
-                        </span>
-                      </div>
-                      {product.shipping.dimensions && (
-                        <div className="flex justify-between items-center py-1">
-                          <span className="text-gray-300">Dimensions:</span>
-                          <span className="font-medium flex items-center gap-1 text-white">
-                            <Ruler className="h-3 w-3" />
-                            {product.shipping.dimensions}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           )}

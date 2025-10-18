@@ -15,6 +15,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/UI/card";
 import { Separator } from "@/components/UI/separator";
 import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant";
 import { formatNumber } from "@/lib/utils/helpers";
+import { toast } from "sonner";
+
+type CheckoutErrorMessage = {
+  message: string;
+};
 
 interface CartSummaryProps {
   subtotal: number;
@@ -58,11 +63,25 @@ export default function CartSummary({
 
     try {
       const res = await payment(checkoutData);
+
+      // Check if the response has the expected success data structure
       if (res?.data?.code === 200) {
         window.location.href = res?.data?.data?.attributes?.payment_url || "/";
+      } else if (res?.error) {
+        // Handle the error response
+        // Check if the error has 'data' property
+        if ("data" in res.error && res.error.data) {
+          const errorData = res.error.data as CheckoutErrorMessage; // Cast to the correct type
+
+          toast(errorData?.message); // Safely access the 'data' property
+        } else {
+          // Handle the case where error doesn't have expected structure
+          toast("An unknown error occurred.");
+        }
       }
     } catch (error) {
-      console.log("error showld", error);
+      console.log("Error occurred during checkout:", error);
+      toast("An error occurred while processing the checkout.");
     }
   };
 
