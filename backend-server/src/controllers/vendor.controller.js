@@ -126,8 +126,8 @@ const approvedVendorRequest = catchAsync(async (req, res) => {
 
   console.log(approved, "approved vendor");
   const vendorNotificationData = {
-    authorId: approved?._id, // The seller is the author of the notification
-    sendTo: approved?._id, // Send the notification to the seller
+    authorId: approved?.seller?._id, // The seller is the author of the notification
+    sendTo: approved?.seller?._id, // Send the notification to the seller
     transactionId: approved.id, // Use the approved vendor's id as the transactionId
     title: "Your Vendor Has Been Approved", // Change the title to reflect the approval
     description: approved.notes || "No additional notes provided.", // Use the vendor's notes as the description. If no notes, provide a default message.

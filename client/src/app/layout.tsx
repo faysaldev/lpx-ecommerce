@@ -31,7 +31,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReduxProvider>
-          <Toaster position="top-right" />
+          <Toaster
+            position="top-right"
+            toastOptions={{ duration: 900, closeButton: true }}
+          />
           <ThemeProvider>{children}</ThemeProvider>
         </ReduxProvider>
       </body>
