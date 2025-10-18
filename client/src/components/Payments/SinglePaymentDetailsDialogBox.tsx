@@ -100,7 +100,7 @@ function SinglePlaymentDetailsDialogBox({
   // Extract the payment request data
   const paymentRequest: SinglePaymentRequest =
     singlePaymentDetails?.data?.attributes;
-  console.log(singlePaymentDetails, "payment request data");
+  console.log(seletedRequest?.bankDetails?.bankName, "payment request data");
 
   return (
     <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
@@ -108,7 +108,7 @@ function SinglePlaymentDetailsDialogBox({
         <DialogHeader>
           <DialogTitle>Payment Request Details</DialogTitle>
           <DialogDescription>
-            Request ID: {paymentRequest?.paymentRequestId}
+            Request ID: {seletedRequest?.seletedRequestId}
           </DialogDescription>
         </DialogHeader>
 
@@ -117,7 +117,7 @@ function SinglePlaymentDetailsDialogBox({
             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
             <span className="ml-2 text-lg">Loading payment details...</span>
           </div>
-        ) : paymentRequest ? (
+        ) : seletedRequest ? (
           <div className="space-y-6">
             {/* Status and Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -128,13 +128,13 @@ function SinglePlaymentDetailsDialogBox({
                   </p>
                   <Badge
                     variant={
-                      getStatusBadgeVariant(paymentRequest.status).variant
+                      getStatusBadgeVariant(seletedRequest.status).variant
                     }
                     className={
-                      getStatusBadgeVariant(paymentRequest.status).className
+                      getStatusBadgeVariant(seletedRequest.status).className
                     }
                   >
-                    {getStatusDisplayText(paymentRequest.status)}
+                    {getStatusDisplayText(seletedRequest.status)}
                   </Badge>
                 </div>
 
@@ -145,7 +145,7 @@ function SinglePlaymentDetailsDialogBox({
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span>
-                      {formatDate(paymentRequest.createdAt.toString())}
+                      {formatDate(seletedRequest.createdAt.toString())}
                     </span>
                   </div>
                 </div>
@@ -159,23 +159,23 @@ function SinglePlaymentDetailsDialogBox({
                     <User className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="font-medium">
-                        {paymentRequest.seller.name}
+                        {seletedRequest?.seller?.name}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {paymentRequest.seller.email}
+                        {seletedRequest?.seller?.email}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {paymentRequest.seller.image && (
+                {seletedRequest?.seller?.image && (
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-2">
                       Seller Image
                     </p>
                     <img
-                      src={getImageUrl(paymentRequest.seller.image)}
-                      alt={paymentRequest.seller.name}
+                      src={getImageUrl(seletedRequest?.seller?.image)}
+                      alt={seletedRequest?.seller?.name}
                       className="w-16 h-16 rounded-full object-cover border"
                     />
                   </div>
@@ -188,7 +188,7 @@ function SinglePlaymentDetailsDialogBox({
                     Withdrawal Amount
                   </p>
                   <p className="text-2xl font-bold text-green-600">
-                    {formatCurrency(paymentRequest.withdrawalAmount)}
+                    {formatCurrency(seletedRequest?.withdrawalAmount)}
                   </p>
                 </div>
 
@@ -197,7 +197,7 @@ function SinglePlaymentDetailsDialogBox({
                     Bank Name
                   </p>
                   <p className="text-lg font-semibold">
-                    {paymentRequest.bankDetails.bankName}
+                    {seletedRequest?.bankDetails?.bankName}
                   </p>
                 </div>
 
@@ -206,7 +206,7 @@ function SinglePlaymentDetailsDialogBox({
                     Account Number
                   </p>
                   <p className="text-lg font-semibold">
-                    {paymentRequest.bankDetails.accountNumber}
+                    {seletedRequest?.bankDetails?.accountNumber}
                   </p>
                 </div>
               </div>
@@ -221,7 +221,7 @@ function SinglePlaymentDetailsDialogBox({
                     Account Type
                   </p>
                   <p className="font-medium capitalize">
-                    {paymentRequest.bankDetails.accountType}
+                    {seletedRequest?.bankDetails?.accountType}
                   </p>
                 </div>
                 <div>
@@ -229,7 +229,7 @@ function SinglePlaymentDetailsDialogBox({
                     Phone Number
                   </p>
                   <p className="font-medium">
-                    {paymentRequest.bankDetails.phoneNumber}
+                    {seletedRequest?.bankDetails?.phoneNumber}
                   </p>
                 </div>
                 <div>
@@ -237,7 +237,7 @@ function SinglePlaymentDetailsDialogBox({
                     Bank Name
                   </p>
                   <p className="font-medium">
-                    {paymentRequest.bankDetails.bankName}
+                    {seletedRequest?.bankDetails?.bankName}
                   </p>
                 </div>
                 <div>
@@ -245,7 +245,7 @@ function SinglePlaymentDetailsDialogBox({
                     Account Number
                   </p>
                   <p className="font-medium">
-                    {paymentRequest.bankDetails.accountNumber}
+                    {seletedRequest?.bankDetails?.accountNumber}
                   </p>
                 </div>
               </div>
@@ -260,7 +260,7 @@ function SinglePlaymentDetailsDialogBox({
                     Withdrawal Amount
                   </p>
                   <p className="text-xl font-bold text-green-600">
-                    {formatCurrency(paymentRequest.withdrawalAmount)}
+                    {formatCurrency(seletedRequest?.withdrawalAmount)}
                   </p>
                 </div>
                 <div>
@@ -269,13 +269,13 @@ function SinglePlaymentDetailsDialogBox({
                   </p>
                   <Badge
                     variant={
-                      getStatusBadgeVariant(paymentRequest.status).variant
+                      getStatusBadgeVariant(seletedRequest?.status).variant
                     }
                     className={
-                      getStatusBadgeVariant(paymentRequest.status).className
+                      getStatusBadgeVariant(seletedRequest?.status).className
                     }
                   >
-                    {getStatusDisplayText(paymentRequest.status)}
+                    {getStatusDisplayText(seletedRequest?.status)}
                   </Badge>
                 </div>
               </div>
@@ -290,12 +290,12 @@ function SinglePlaymentDetailsDialogBox({
                   <div className="flex-1">
                     <p className="text-sm font-medium">Request Submitted</p>
                     <p className="text-sm text-muted-foreground">
-                      {formatDate(paymentRequest.createdAt.toString())}
+                      {formatDate(seletedRequest?.createdAt.toString())}
                     </p>
                   </div>
                 </div>
 
-                {paymentRequest.status === "approved" && (
+                {seletedRequest?.status === "approved" && (
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 bg-green-600 rounded-full flex-shrink-0"></div>
                     <div className="flex-1">
@@ -307,7 +307,7 @@ function SinglePlaymentDetailsDialogBox({
                   </div>
                 )}
 
-                {paymentRequest.status === "paid" && (
+                {seletedRequest?.status === "paid" && (
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 bg-green-600 rounded-full flex-shrink-0"></div>
                     <div className="flex-1">
@@ -319,7 +319,7 @@ function SinglePlaymentDetailsDialogBox({
                   </div>
                 )}
 
-                {paymentRequest.status === "rejected" && (
+                {seletedRequest?.status === "rejected" && (
                   <div className="flex items-center gap-3">
                     <div className="w-3 h-3 bg-red-600 rounded-full flex-shrink-0"></div>
                     <div className="flex-1">
