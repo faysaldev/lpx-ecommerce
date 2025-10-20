@@ -11,7 +11,6 @@ const ProductSchema = new Schema(
     description: { type: String, required: false },
     category: { type: String, required: false },
     condition: { type: String, required: false },
-    rarity: { type: String, required: false },
     tags: { type: [String], default: [] },
     price: { type: Number, required: false },
     optionalPrice: { type: Number, required: false },

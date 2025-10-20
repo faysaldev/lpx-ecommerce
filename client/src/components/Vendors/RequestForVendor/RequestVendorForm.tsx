@@ -36,10 +36,6 @@ interface SocialMediaEntry {
   username: string;
 }
 
-interface StorePolicies {
-  returnPolicy: string;
-  shippingPolicy: string;
-}
 function RequestVendorForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -131,9 +127,7 @@ function RequestVendorForm() {
     const contactEmail = (
       form.elements.namedItem("contactEmail") as HTMLInputElement
     ).value;
-    const phoneNumber = (
-      form.elements.namedItem("phoneNumber") as HTMLInputElement
-    ).value;
+    const phoneNumber = currentUser?.phoneNumber ?? "";
 
     const location = (form.elements.namedItem("location") as HTMLInputElement)
       .value;
@@ -274,44 +268,30 @@ function RequestVendorForm() {
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="contactEmail">Business Email *</Label>
-            <Input
-              name="contactEmail"
-              id="contactEmail"
-              type="email"
-              placeholder="business@example.com"
-              required
-              className="mt-1"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="phoneNumber">Phone Number *</Label>
-            <div className="relative mt-1">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <div className="grid grid-cols-2 gap-x-2">
+            <div>
+              <Label htmlFor="contactEmail">Business Email *</Label>
               <Input
-                name="phoneNumber"
-                id="phoneNumber"
-                type="tel"
-                placeholder="+1 (555) 123-4567"
+                name="contactEmail"
+                id="contactEmail"
+                type="email"
+                placeholder="business@example.com"
                 required
-                className="pl-10"
+                className="mt-1"
               />
             </div>
-          </div>
-
-          <div className="md:col-span-2">
-            <Label htmlFor="location">Business Location *</Label>
-            <div className="relative mt-1">
-              <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                name="location"
-                id="location"
-                placeholder="City, State, Country"
-                required
-                className="pl-10"
-              />
+            <div className="">
+              <Label htmlFor="location">Business Location *</Label>
+              <div className="relative mt-1">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  name="location"
+                  id="location"
+                  placeholder="City, State, Country"
+                  required
+                  className="pl-10"
+                />
+              </div>
             </div>
           </div>
 

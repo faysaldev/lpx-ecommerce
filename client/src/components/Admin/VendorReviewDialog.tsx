@@ -96,7 +96,7 @@ function VendorReviewDialog({
                 </div>
                 <div className="flex items-center gap-2">
                   <Star className="h-4 w-4 text-muted-foreground" />
-                  <span>{selectedVendor.ratings} rating</span>
+                  <span>{selectedVendor.ratings} Rating</span>
                 </div>
               </div>
             </div>
