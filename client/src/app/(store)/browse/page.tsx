@@ -431,7 +431,7 @@ function BrowsePageContent() {
 
       {/* Pagination */}
       {backendFilteredProducts.length > 0 && (
-        <div className="mt-8 pt-6 border-t border-border">
+        <div className="mt-8">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}

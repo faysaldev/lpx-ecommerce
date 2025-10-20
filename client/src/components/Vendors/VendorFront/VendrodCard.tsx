@@ -11,7 +11,6 @@ import {
   Package,
   Star,
   Store,
-  TrendingUp,
   Users,
 } from "lucide-react";
 
@@ -66,20 +65,6 @@ export default function VendorCard({
                   <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                     {vendor.description}
                   </p>
-
-                  {/* {vendor.specialties?.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {vendor.specialties.map((specialty: string) => (
-                        <Badge
-                          key={specialty}
-                          variant="outline"
-                          className="text-xs"
-                        >
-                          {specialty}
-                        </Badge>
-                      ))}
-                    </div>
-                  )} */}
 
                   <div className="flex flex-wrap gap-4 text-sm">
                     <div className="flex items-center gap-1">

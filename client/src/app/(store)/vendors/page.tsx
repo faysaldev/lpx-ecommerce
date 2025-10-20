@@ -281,7 +281,7 @@ export default function VendorsPage() {
 
       {/* Pagination */}
       {totalVendors > itemsPerPage && (
-        <div className="mt-8 pt-6 border-t border-border">
+        <div className="mt-8">
           <VendorPagination
             currentPage={currentPage}
             totalPages={totalPages}
@@ -295,6 +295,3 @@ export default function VendorsPage() {
     </PageLayout>
   );
 }
-
-
-

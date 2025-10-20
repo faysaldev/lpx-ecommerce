@@ -84,22 +84,18 @@ export default function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className={cn(
-                      "transition",
-                      designTokens.colors.text.secondary,
-                      "hover:text-primary"
-                    )}
+                    className={cn("transition", "hover:text-white bg-none")}
                   >
                     Categories
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-[400px] md:w-[500px]">
-                  <div className="grid gap-3 p-4 md:grid-cols-2">
+                  <div className="grid gap-3 md:grid-cols-2">
                     {memoizedCategories.map((category: any) => (
                       <DropdownMenuItem key={category.name}>
                         <Link
                           href={`/category/${category.name}`}
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer w-full"
+                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-gray-50 hover:text-accent-foreground cursor-pointer w-full"
                         >
                           <div className="text-sm font-medium leading-none">
                             {category.name}

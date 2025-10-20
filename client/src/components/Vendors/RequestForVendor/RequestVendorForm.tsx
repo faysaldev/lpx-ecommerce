@@ -1,6 +1,5 @@
 "use client";
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { Button } from "@/components/UI/button";
 import { Checkbox } from "@/components/UI/checkbox";
 import { Input } from "@/components/UI/input";
@@ -17,7 +16,7 @@ import { selectCurrentUser } from "@/redux/features/auth/authSlice";
 import { useAllCategoriesQuery } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 import { useVendorCreateMutation } from "@/redux/features/vendors/vendor";
 import { useAppSelector } from "@/redux/hooks";
-import { X, Plus, Upload, MapPin, Phone, Globe } from "lucide-react";
+import { X, Plus, Upload, MapPin, Globe } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -112,9 +111,7 @@ function RequestVendorForm() {
       setIsSubmitting(false);
       return toast.error("Store image Is required");
     }
-
     const form = e.currentTarget;
-
     // Get form values
     const name = currentUser?.name?.split(" ");
     console.log(name, "im the name");

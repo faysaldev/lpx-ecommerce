@@ -120,15 +120,6 @@ export function ProductGrid({
           )}
         </div>
       )}
-
-      {/* Results summary */}
-      {displayCount >= products.length && products.length > 0 && (
-        <div className="text-center py-8">
-          <p className="text-sm text-muted-foreground">
-            Showing all {products.length} products
-          </p>
-        </div>
-      )}
     </>
   );
 }

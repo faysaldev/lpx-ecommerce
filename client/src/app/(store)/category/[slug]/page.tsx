@@ -447,7 +447,7 @@ export default function CategoryPage() {
 
       {/* Pagination */}
       {backendFilteredProducts.length > 0 && (
-        <div className="mt-8 pt-6 border-t border-border">
+        <div className="mt-8">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-sm text-muted-foreground">
               Showing{" "}

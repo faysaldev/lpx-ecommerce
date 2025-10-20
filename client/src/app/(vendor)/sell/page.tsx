@@ -14,9 +14,9 @@ export default function BecomeVendorPage() {
         description="Complete this form to apply for a vendor account. We'll review your application within 24-48 hours."
         breadcrumbs={[{ label: "Become a Seller" }]}
       >
-        <div className="max-w-4xl mx-auto">
+        <div className="">
           <Card className="shadow-lg">
-            <CardContent className="p-6">
+            <CardContent className="p-3 md:p-5">
               <RequestVendorForm />
             </CardContent>
           </Card>
