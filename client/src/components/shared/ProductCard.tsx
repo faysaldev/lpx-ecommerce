@@ -20,12 +20,18 @@ import { cn } from "@/lib/utils";
 import ConditionBadgeComponent from "../Vendors/SingleVendorView/ConditionBadgeComponent";
 import { useAddTocartMutation } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 import { getImageUrl } from "@/lib/getImageURL";
-import { useAddNewToWishListMutation } from "@/redux/features/GetWishList/GetWishList";
+import {
+  useAddNewToWishListMutation,
+  useRemoveSingleProductWishlitMutation,
+} from "@/redux/features/GetWishList/GetWishList";
 import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant";
 import ProductViewModal from "../Products/ProductQuickViewModal";
 import { toast } from "sonner";
-import { useAppSelector } from "@/redux/hooks";
-import { selectHeaderStatitics } from "@/redux/features/Common/CommonSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  removeSingleWishlit,
+  selectHeaderStatitics,
+} from "@/redux/features/Common/CommonSlice";
 import { useRouter } from "next/navigation";
 
 interface ErrorData {
@@ -119,9 +125,11 @@ const ProductCard = ({
 
   const [addtoCartProduct] = useAddTocartMutation();
   const [addtoWithlist] = useAddNewToWishListMutation();
+  const [removeFromWishlist] = useRemoveSingleProductWishlitMutation();
   const [payment] = useBuyNowMutation();
   const headerStats = useAppSelector(selectHeaderStatitics);
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const productId = _id || id;
   // Check if product is already in wishlist
@@ -135,7 +143,7 @@ const ProductCard = ({
         price,
       });
 
-      if (res?.data?.code === 200) {
+      if (res?.data?.code === 201) {
         toast("Added to Cart");
       } else if (res?.error) {
         if ("data" in res.error && res.error.data) {
@@ -201,6 +209,25 @@ const ProductCard = ({
       }
     } else {
       toast("Added to Wishlist");
+    }
+  };
+
+  const removeFromWishList = async () => {
+    const res = await removeFromWishlist(product?._id);
+    if (res?.error) {
+      const error = res.error as FetchBaseQueryError;
+
+      // Ensure the error data has a message
+      const errorData = error.data as ErrorData | undefined;
+
+      if (errorData && errorData.message) {
+        toast.error(errorData.message);
+      } else {
+        toast.error("An error occurred while adding to the wishlist.");
+      }
+    } else {
+      toast("Remove  to Wishlist");
+      dispatch(removeSingleWishlit(product?._id));
     }
   };
 
@@ -348,8 +375,8 @@ const ProductCard = ({
               <Button
                 size="icon"
                 variant="outline"
-                onClick={addNewWishList}
-                disabled={isInWishlist}
+                onClick={isInWishlist ? removeFromWishList : addNewWishList}
+                // disabled={isInWishlist}
                 className={cn(
                   isInWishlist && "bg-red-50 text-red-600 border-red-200"
                 )}
@@ -431,8 +458,10 @@ const ProductCard = ({
                     <Button
                       size="icon"
                       variant="secondary"
-                      onClick={addNewWishList}
-                      disabled={isInWishlist}
+                      onClick={
+                        isInWishlist ? removeFromWishList : addNewWishList
+                      }
+                      // disabled={isInWishlist}
                       className={cn(
                         "h-8 w-8 transition-all",
                         isInWishlist && "bg-red-50 text-red-600 border-red-200"

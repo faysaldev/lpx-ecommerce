@@ -255,10 +255,6 @@ export default function OrdersManagement() {
             Monitor and manage all customer orders across the platform
           </p>
         </div>
-        <Button variant="outline">
-          <Download className="mr-2 h-4 w-4" />
-          Export Orders
-        </Button>
       </div>
 
       {/* Stats Grid */}
@@ -275,7 +271,7 @@ export default function OrdersManagement() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">
-              confirmed Orders
+              Confirmed Orders
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -377,10 +373,10 @@ export default function OrdersManagement() {
                             <Avatar className="h-8 w-8">
                               <AvatarImage
                                 src={
-                                  order.customer.image ||
+                                  order?.customer?.image ||
                                   "/uploads/users/user.png"
                                 }
-                                alt={order.customer.name}
+                                alt={order?.customer?.name}
                               />
                               <AvatarFallback>
                                 <User className="h-4 w-4" />
@@ -388,10 +384,10 @@ export default function OrdersManagement() {
                             </Avatar>
                             <div>
                               <p className="font-medium text-sm">
-                                {order.customer.name}
+                                {order?.customer?.name}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {order.customer.email}
+                                {order?.customer?.email}
                               </p>
                             </div>
                           </div>

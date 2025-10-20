@@ -16,6 +16,13 @@ const GetWishList = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["my_wishList", "header_statics"],
     }),
+    removeSingleProductWishlit: builder.mutation({
+      query: (id) => ({
+        url: `/wishlists/remove/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["my_wishList", "header_statics"],
+    }),
 
     addNewToWishList: builder.mutation({
       query: (withlistBody) => ({
@@ -32,4 +39,5 @@ export const {
   useAllGetWishListQuery,
   useAllDeleteWishListMutation,
   useAddNewToWishListMutation,
+  useRemoveSingleProductWishlitMutation,
 } = GetWishList;

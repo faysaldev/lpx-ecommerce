@@ -67,7 +67,6 @@ interface ImageUploadSectionProps {
   existingImages?: string[];
   onExistingImagesChange?: (images: string[]) => void;
 }
-
 const ImageUploadSection = ({
   images,
   onImagesChange,
@@ -330,7 +329,6 @@ const ImageUploadSection = ({
     </Card>
   );
 };
-
 const NewProductPage = () => {
   const { id } = useParams<{ id: string }>();
   const { data, isLoading } = useGetSingleProductQuery(id);
@@ -970,5 +968,4 @@ const NewProductPage = () => {
     </PageLayout>
   );
 };
-
 export default NewProductPage;

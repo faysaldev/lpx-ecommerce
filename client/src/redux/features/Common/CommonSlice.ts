@@ -57,6 +57,7 @@ const commonSlice = createSlice({
     ) => {
       state.headerStatics = action.payload;
     },
+
     setVendorDetails: (
       state,
       action: PayloadAction<VendorOwnerDetails | null>
@@ -73,6 +74,16 @@ const commonSlice = createSlice({
     resetCategories: (state) => {
       state.categories = null;
     },
+
+    removeSingleWishlit: (state, action) => {
+      if (state.headerStatics) {
+        // Compare each string directly with the payload
+        state.headerStatics.wishlistProductIds =
+          state.headerStatics.wishlistProductIds.filter(
+            (item) => item !== action.payload // Direct string comparison
+          );
+      }
+    },
   },
 });
 
@@ -82,6 +93,7 @@ export const {
   resetCategories,
   setHeaderStatitics,
   setVendorDetails,
+  removeSingleWishlit,
 } = commonSlice.actions;
 
 export default commonSlice.reducer;

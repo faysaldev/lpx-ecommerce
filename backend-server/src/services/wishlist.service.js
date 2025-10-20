@@ -59,7 +59,7 @@ const removeToWishlist = async (id) => {
   if (!id) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Id Is required");
   }
-  return Wishlist.findByIdAndDelete(id);
+  return Wishlist.findByIdAndDelete(id, { new: true });
 };
 
 const removeAllFromWishlist = async (customerId) => {

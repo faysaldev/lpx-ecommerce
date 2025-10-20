@@ -20,6 +20,7 @@ const ShoppingCart = baseApi.injectEndpoints({
         url: "/carts/remove-all",
         method: "DELETE",
       }),
+      invalidatesTags: ["header_statics"],
     }),
     updateCartQuantity: builder.mutation({
       query: ({ id, quantity }) => ({
