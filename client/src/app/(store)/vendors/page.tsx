@@ -1,14 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
-import { Filter, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import PageLayout from "@/components/layout/PageLayout";
 import { EmptyStates } from "@/components/shared/EmptyState";
-
-import { Badge } from "@/components/UI/badge";
-import { Button } from "@/components/UI/button";
 import { Label } from "@/components/UI/label";
 
 import {

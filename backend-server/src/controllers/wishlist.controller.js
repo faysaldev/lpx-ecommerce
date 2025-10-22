@@ -31,7 +31,10 @@ const addToWishlist = catchAsync(async (req, res) => {
 });
 
 const removeToWishlist = catchAsync(async (req, res) => {
-  const removeTowish = await wishlistService.removeToWishlist(req.params.id);
+  const removeTowish = await wishlistService.removeToWishlist(
+    req.params.id,
+    req.user.id
+  );
   res.status(httpStatus.CREATED).json(
     response({
       message: "Remove Wish to Wish List",

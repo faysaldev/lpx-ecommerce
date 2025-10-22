@@ -19,12 +19,19 @@ import { useGetSingleProductQuery } from "@/redux/features/products/product";
 import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant";
 import VendorTruncateDetails from "@/components/Vendors/SingleVendorView/VendorTruncateDetails";
 import { getImageUrl } from "@/lib/getImageURL";
-import { useAddNewToWishListMutation } from "@/redux/features/GetWishList/GetWishList";
+import {
+  useAddNewToWishListMutation,
+  useRemoveSingleProductWishlitMutation,
+} from "@/redux/features/GetWishList/GetWishList";
 import { useAddTocartMutation } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 import { toast } from "sonner";
-import { useAppSelector } from "@/redux/hooks";
-import { selectHeaderStatitics } from "@/redux/features/Common/CommonSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import {
+  removeSingleWishlit,
+  selectHeaderStatitics,
+} from "@/redux/features/Common/CommonSlice";
 import SingleProductImageModal from "@/components/Products/SingleProductImageModal";
+import { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 // Image Magnifier Component
 interface ImageMagnifierProps {
@@ -33,6 +40,10 @@ interface ImageMagnifierProps {
   magnifierHeight?: number;
   magnifierWidth?: number;
   zoomLevel?: number;
+}
+
+interface ErrorData {
+  message: string;
 }
 
 const ImageMagnifier = ({ src, alt }: ImageMagnifierProps) => {
@@ -65,6 +76,8 @@ const ProductDetailsPage = () => {
   const [addtoWithlist] = useAddNewToWishListMutation();
   const [addtoCartProduct] = useAddTocartMutation();
   const headerStats = useAppSelector(selectHeaderStatitics);
+  const [removeFromWishlist] = useRemoveSingleProductWishlitMutation();
+  const dispatch = useAppDispatch();
 
   const allData = data?.data?.attributes;
 
@@ -166,6 +179,25 @@ const ProductDetailsPage = () => {
       vendorId: product?.vendorId,
     });
     toast("Added to Wishlist");
+  };
+
+  const removeFromWishList = async () => {
+    const res = await removeFromWishlist(product?.id);
+    if (res?.error) {
+      const error = res.error as FetchBaseQueryError;
+
+      // Ensure the error data has a message
+      const errorData = error.data as ErrorData | undefined;
+
+      if (errorData && errorData.message) {
+        toast.error(errorData.message);
+      } else {
+        toast.error("An error occurred while adding to the wishlist.");
+      }
+    } else {
+      toast("Remove  to Wishlist");
+      dispatch(removeSingleWishlit(product?.id));
+    }
   };
 
   const addToCart = async () => {
@@ -467,8 +499,9 @@ const ProductDetailsPage = () => {
                       <Button
                         size="icon"
                         variant="outline"
-                        onClick={saveTowishList}
-                        disabled={isInWishlist}
+                        onClick={
+                          isInWishlist ? removeFromWishList : saveTowishList
+                        }
                         className={cn(
                           isInWishlist &&
                             "bg-red-50 text-red-600 border-red-200"

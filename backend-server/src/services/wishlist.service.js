@@ -55,11 +55,13 @@ const addToWishlist = async (wishlistBody) => {
   return Wishlist.create(wishlistBody);
 };
 
-const removeToWishlist = async (id) => {
-  if (!id) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Id Is required");
-  }
-  return Wishlist.findByIdAndDelete(id, { new: true });
+const removeToWishlist = async (productId, userId) => {
+  const result = await Wishlist.findOneAndDelete({
+    customer: userId,
+    products: productId,
+  });
+
+  return result;
 };
 
 const removeAllFromWishlist = async (customerId) => {
