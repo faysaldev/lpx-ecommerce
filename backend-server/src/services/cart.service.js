@@ -175,10 +175,7 @@ const removeAllCartList = async (customerId) => {
   const result = await Cart.deleteMany({ customer: customerId });
 
   if (result.deletedCount === 0) {
-    throw new ApiError(
-      httpStatus.NOT_FOUND,
-      "No Cart items found for this customer"
-    );
+    return "No Cart items found for this customer";
   }
 
   return { message: "All wishlist items removed successfully" };

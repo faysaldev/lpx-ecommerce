@@ -4,7 +4,7 @@ const Vendor = require("../models/vendor.model");
 const Rating = require("../models/rating.model");
 const Order = require("../models/order.model");
 const Product = require("../models/product.model");
-const { User } = require("../models");
+const { General } = require("../models");
 
 const searchSingleOwnerShop = async ({
   vendorId,
@@ -311,6 +311,10 @@ const getVendorByUserId = async (id) => {
 // venorder ordercomplete money added
 const updateVendorMoneyCalculation = async (id, data) => {
   // TODO: taking 5 parcentage from the vendor payment
+  const general = await General.findOne();
+  const platformCharge = general ? general : [];
+
+  console.log(platformCharge.platformCharge, "platform Charge");
   const percentage = 5;
   const remainingAmount = data.totalEarnings * (1 - percentage / 100);
 

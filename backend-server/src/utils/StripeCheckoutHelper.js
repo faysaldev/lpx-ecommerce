@@ -28,10 +28,9 @@ export const forMatOrderData = ({
   shippingCost,
 }) => {
   // Calculate the total amount of the order by summing the price of all items
-  const totalAmount = productDetails.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const totalAmount =
+    productDetails.reduce((acc, item) => acc + item.price * item.quantity, 0) +
+    shippingCost;
 
   // Build the order data object
   const orderData = {

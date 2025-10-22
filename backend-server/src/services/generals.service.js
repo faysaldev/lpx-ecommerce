@@ -107,10 +107,10 @@ const removeCondition = async (index) => {
 const getShippingTaxEtc = async () => {
   const general = await General.findOne();
   const data = general ? general : [];
-  console.log(data);
   return {
     shippingCharge: data.shippingCharge,
     estimatedTax: data.estimatedTax,
+    platformCharge: data.platformCharge,
   };
 };
 
