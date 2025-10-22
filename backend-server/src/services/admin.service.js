@@ -815,7 +815,7 @@ const getAdminFinancialOverview = async () => {
 // TODO: approve payment request with invoices
 const approvedAdminPayment = async ({ paymentId, data }) => {
   try {
-    const { note, invoiceImage, status } = data;
+    const { note, status } = data;
 
     // Ensure that the status is either "paid" or "rejected"
     if (status !== "paid" && status !== "rejected") {
@@ -826,7 +826,7 @@ const approvedAdminPayment = async ({ paymentId, data }) => {
     const updateData = {};
 
     // If the status is "paid", we expect an invoiceImage to be present, as it's required for paid status
-    if (status === "paid" && !invoiceImage) {
+    if (status === "paid" && !note) {
       return "Invoice image is required when the status is 'paid'";
     }
 
@@ -866,8 +866,8 @@ const approvedAdminPayment = async ({ paymentId, data }) => {
       updateData.note = note; // Note is optional for both statuses
     }
 
-    if (status === "paid" && invoiceImage) {
-      updateData.invoiceImage = invoiceImage; // Invoice image is optional but required when status is "paid"
+    if (status === "paid" && note) {
+      updateData.note = note; // Invoice image is optional but required when status is "paid"
     }
 
     // Update the payment request with the new status and other relevant fields

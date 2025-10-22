@@ -1,13 +1,6 @@
 const express = require("express");
 const auth = require("../../middlewares/auth");
 const { adminController, orderController } = require("../../controllers");
-const userFileUploadMiddleware = require("../../middlewares/fileUpload");
-const convertHeicToPngMiddleware = require("../../middlewares/converter");
-
-const UPLOADS_FOLDER_INVOICES = "./public/uploads/invoices";
-
-const uploadInVoices = userFileUploadMiddleware(UPLOADS_FOLDER_INVOICES);
-
 const router = express.Router();
 
 router.route("/users").get(auth("common"), adminController.getAllUsers);
@@ -61,12 +54,7 @@ router
 // approving the payment and uploading invoice
 router
   .route("/payment-completed/:id")
-  .patch(
-    auth("common"),
-    [uploadInVoices.single("image")],
-    convertHeicToPngMiddleware(UPLOADS_FOLDER_INVOICES),
-    adminController.approvedAdminPayment
-  );
+  .patch(auth("common"), adminController.approvedAdminPayment);
 
 // recent activites, and recent
 

@@ -6,7 +6,6 @@ import {
   Calendar,
   CheckCircle,
   FileText,
-  Upload,
   User,
   XCircle,
   Building,
@@ -23,7 +22,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/UI/dialog";
-import { Textarea } from "@/components/UI/textarea";
 import { formatCurrency, formatDate } from "@/lib/utils/helpers";
 import { Label } from "../UI/label";
 import { Input } from "../UI/input";
@@ -48,74 +46,38 @@ export default function PaymentApprovalDialog({
   onUpdate,
 }: PaymentApprovalDialogProps) {
   const [action, setAction] = useState<"approve" | "reject" | null>(null);
-  const [adminNotes, setAdminNotes] = useState("");
-  const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const [transactionNumber, setTransactionNumber] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [updateInvoiceDetails] = useAdminPayRequestInVoiceUploadMutation();
 
   const handleClose = () => {
     setAction(null);
-    setAdminNotes("");
-    setPaymentProofFile(null);
+    setTransactionNumber("");
     onClose();
-  };
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (!file.type.includes("image")) {
-        toast.error("Please upload an image file (JPG, PNG)");
-        return;
-      }
-
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size must be less than 5MB");
-        return;
-      }
-
-      setPaymentProofFile(file);
-      toast.success("File selected successfully");
-    }
   };
 
   const handleSubmit = async () => {
     if (!paymentRequest || !action) return;
 
-    // Validate payment proof for approve action
-    if (action === "approve" && !paymentProofFile) {
-      toast.error("Please upload payment proof image");
+    // Validate transaction number for approve action
+    if (action === "approve" && !transactionNumber.trim()) {
+      toast.error("Please enter transaction number");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Create form data for API call
-      const formData = new FormData();
-
-      // Determine status based on action - Backend only accepts "paid" or "rejected"
       const status = action === "approve" ? "paid" : "rejected";
-      formData.append("status", status);
-
-      // Append the image file if action is 'approve' and paymentProofFile exists
-      if (action === "approve" && paymentProofFile) {
-        formData.append("image", paymentProofFile);
-      }
-
-      // Append admin notes if provided
-      if (adminNotes.trim()) {
-        formData.append("note", adminNotes.trim());
-      }
-
-      // Call the mutation
+      const data = {
+        status: status,
+        note: action === "approve" ? transactionNumber.trim() : "",
+      };
       const response = await updateInvoiceDetails({
-        paymentId: paymentRequest._id,
-        data: formData,
+        paymentId: paymentRequest?._id,
+        data: data,
       }).unwrap();
-
-      console.log("API Response:", response);
-
       const actionText =
         action === "approve" ? "approved and marked as paid" : "rejected";
 
@@ -186,9 +148,6 @@ export default function PaymentApprovalDialog({
         return [];
     }
   };
-
-  console.log("payment approval dialog", paymentRequest);
-
   const availableActions = getAvailableActions();
   const { variant, className } = getStatusBadgeVariant(paymentRequest.status);
 
@@ -361,125 +320,39 @@ export default function PaymentApprovalDialog({
           )}
 
           {/* Action Forms */}
-          {action && (
+          {action === "approve" && (
             <Card>
               <CardContent className="pt-6">
                 <div className="space-y-4">
-                  {/* Admin Notes */}
+                  {/* Transaction Number */}
                   <div>
                     <Label
-                      htmlFor="admin-notes"
+                      htmlFor="transaction-number"
                       className="text-base font-semibold"
                     >
-                      Admin Notes (Optional)
+                      Transaction Number <span className="text-red-500">*</span>
                     </Label>
-                    <Textarea
-                      id="admin-notes"
-                      placeholder={
-                        action === "approve"
-                          ? "Add any notes for approval and payment..."
-                          : "Add reason for rejection..."
-                      }
-                      value={adminNotes}
-                      onChange={(e) => setAdminNotes(e.target.value)}
+                    <Input
+                      id="transaction-number"
+                      placeholder="Enter transaction number..."
+                      value={transactionNumber}
+                      onChange={(e) => setTransactionNumber(e.target.value)}
                       className="mt-2"
-                      rows={4}
+                      required
                     />
                   </div>
 
-                  {/* Payment Proof Upload - Only for approve action */}
-                  {action === "approve" && (
-                    <div>
-                      <Label className="text-base font-semibold mb-2 block">
-                        Payment Proof (Invoice){" "}
-                        <span className="text-red-500">*</span>
-                      </Label>
-                      <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
-                        <div className="text-center">
-                          <Upload className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
-                          <Label
-                            htmlFor="payment-proof"
-                            className="cursor-pointer"
-                          >
-                            <span className="text-sm font-medium text-primary hover:underline">
-                              Upload payment proof image
-                            </span>
-                          </Label>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            JPG or PNG files up to 5MB
-                          </p>
-                          <Input
-                            id="payment-proof"
-                            type="file"
-                            accept=".jpg,.jpeg,.png"
-                            onChange={handleFileChange}
-                            className="hidden"
-                          />
-                        </div>
-                        {paymentProofFile && (
-                          <div className="mt-4 flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                            <FileText className="h-5 w-5 text-green-600" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-green-800 truncate">
-                                {paymentProofFile.name}
-                              </p>
-                              <p className="text-xs text-green-600">
-                                {(paymentProofFile.size / 1024 / 1024).toFixed(
-                                  2
-                                )}{" "}
-                                MB
-                              </p>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setPaymentProofFile(null)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
                   {/* Action Confirmation */}
-                  <div
-                    className={`flex items-start gap-3 p-4 rounded-lg border ${
-                      action === "approve"
-                        ? "bg-green-50 border-green-200"
-                        : "bg-red-50 border-red-200"
-                    }`}
-                  >
-                    <AlertCircle
-                      className={`h-5 w-5 mt-0.5 flex-shrink-0 ${
-                        action === "approve" ? "text-green-600" : "text-red-600"
-                      }`}
-                    />
+                  <div className="flex items-start gap-3 p-4 rounded-lg border bg-green-50 border-green-200">
+                    <AlertCircle className="h-5 w-5 mt-0.5 flex-shrink-0 text-green-600" />
                     <div className="text-sm">
-                      <p
-                        className={`font-medium ${
-                          action === "approve"
-                            ? "text-green-800"
-                            : "text-red-800"
-                        }`}
-                      >
-                        {action === "approve"
-                          ? "Approval & Payment Confirmation"
-                          : "Rejection Confirmation"}
+                      <p className="font-medium text-green-800">
+                        Approval & Payment Confirmation
                       </p>
-                      <p
-                        className={`mt-1 ${
-                          action === "approve"
-                            ? "text-green-700"
-                            : "text-red-700"
-                        }`}
-                      >
-                        {action === "approve" &&
-                          `This will mark the payment request as "paid" and notify the vendor. Please ensure payment has been processed before confirming.`}
-                        {action === "reject" &&
-                          `This will mark the payment request as "rejected" and notify the vendor. They can resubmit after addressing the issues.`}
+                      <p className="mt-1 text-green-700">
+                        This will mark the payment request as {`"paid"`} and
+                        notify the vendor. Please ensure payment has been
+                        processed before confirming.
                       </p>
                     </div>
                   </div>
@@ -502,7 +375,8 @@ export default function PaymentApprovalDialog({
             <Button
               onClick={handleSubmit}
               disabled={
-                isSubmitting || (action === "approve" && !paymentProofFile)
+                isSubmitting ||
+                (action === "approve" && !transactionNumber.trim())
               }
               className={`w-full sm:w-auto ${
                 action === "approve"
