@@ -10,7 +10,9 @@ export type SortOption =
   | "highToLow"
   | "lowToHigh"
   | "productsCount"
-  | "byRatings";
+  | "byRatings"
+  | "Oldest"
+  | "TopVendor" ;
 
 export interface PriceRange {
   min: number;
@@ -72,11 +74,8 @@ export const SORT_OPTIONS = [
   { value: "lowToHigh", label: "Price: Low to High", icon: "arrow-up" },
   { value: "highToLow", label: "Price: High to Low", icon: "arrow-down" },
   { value: "byRatings", label: "Rating: By Ratings", icon: "arrow-down" },
-  {
-    value: "productsCount",
-    label: "Product: Products Count",
-    icon: "arrow-down",
-  },
+  { value: "Oldest", label: "Oldest: Oldest", icon: "arrow-down" },
+  { value: "TopVendor", label: "TopVendor: Top Vendor", icon: "arrow-down",},
 ];
 
 export function filterProducts(
@@ -94,7 +93,6 @@ export function filterProducts(
         (typeof product.vendor === "string" &&
           product.vendor.toLowerCase().includes(searchLower)) ||
         product.tags?.some((tag) => tag.toLowerCase().includes(searchLower));
-
       if (!matchesSearch) return false;
     }
 
@@ -212,7 +210,6 @@ export function sortProducts(
 
 export function getActiveFilterCount(filters: BrowseFilters): number {
   let count = 0;
-
   if (filters.search) count++;
   if (filters.categories.length > 0) count += filters.categories.length;
   if (filters.conditions.length > 0) count += filters.conditions.length;
@@ -220,7 +217,6 @@ export function getActiveFilterCount(filters: BrowseFilters): number {
   if (filters.vendors.length > 0) count += filters.vendors.length;
   if (filters.inStock) count++;
   if (filters.tags.length > 0) count += filters.tags.length;
-
   return count;
 }
 

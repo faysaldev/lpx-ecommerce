@@ -216,7 +216,7 @@ function PaymentMethods({ payMathods }: { payMathods: PaymentCards[] }) {
                 id="SWIFT"
                 name="SWIFT"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700 text-white "
+                className="w-full px-4 py-3 rounded-lg border border-gray-600 bg-gray-700 text-white"
                 placeholder="e.g., ABCDGB2L"
               />
             </div>
