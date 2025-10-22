@@ -196,7 +196,6 @@ const updateVendor = async (query) => {
   if (!query) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
   }
-  console.log(query);
 
   await Vendor.findByIdAndUpdate(query?.id, {
     status: query?.status,
@@ -204,9 +203,6 @@ const updateVendor = async (query) => {
   });
 
   await User.findByIdAndUpdate(query?.seller, { type: "seller" });
-
-  // TODO: here i have to update the user type to customer
-  // await User.findByIdAndUpdate(query?.userId, {});
   return "updated done";
 };
 

@@ -1,5 +1,8 @@
 "use client";
-import { useAdminUsersQuery } from "@/redux/features/admin/Dashboard";
+import {
+  useAdminUsersQuery,
+  useRemoveSingleUserMutation,
+} from "@/redux/features/admin/Dashboard";
 import { useState, useMemo } from "react";
 import {
   Table,
@@ -41,6 +44,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/UI/dropdown-menu";
 import { MoreVertical, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 function AllUsers() {
   const [search, setSearch] = useState("");
@@ -55,7 +59,7 @@ function AllUsers() {
     sortBy,
   });
 
-  console.log(data?.data?.attributes, "datas");
+  const [deleteUser] = useRemoveSingleUserMutation();
 
   const users = data?.data?.attributes?.users || [];
   const totalPages = data?.data?.attributes?.totalPages || 1;
@@ -142,10 +146,11 @@ function AllUsers() {
     }
   };
 
-  const handleDeleteUser = (userId: string) => {
-    console.log("Delete user with ID:", userId);
-    // Add your delete logic here
-    // You can call your delete mutation here
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      const res = await deleteUser(userId);
+      if (res.data) toast("User Deactive Sucessfull");
+    } catch (error) {}
   };
 
   const getInitials = (name: string) => {

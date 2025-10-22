@@ -1,7 +1,12 @@
 const httpStatus = require("http-status");
 const catchAsync = require("../utils/catchAsync");
 const response = require("../config/response");
-const { adminService } = require("../services");
+const {
+  adminService,
+  userService,
+  notificationService,
+  emailService,
+} = require("../services");
 
 const getAllUsers = catchAsync(async (req, res) => {
   const { page = 1, limit = 10, search = "", sortBy = "newest" } = req.query;
@@ -75,8 +80,44 @@ const updateStatus = catchAsync(async (req, res) => {
       })
     );
   }
+  const { seller } = req.body;
 
   const updatedVendor = adminService.updateVendor(req.body);
+
+  const vendorNotificationData = {
+    authorId: seller?._id, // The seller is the author of the notification
+    sendTo: seller?._id, // Send the notification to the seller
+    transactionId: seller._id, // Use the approved vendor's id as the transactionId
+    title: `Your Vendor Has Been ${req.body.status}`, // Change the title to reflect the approval
+    description: req.body.notes || "No additional notes provided.", // Use the vendor's notes as the description. If no notes, provide a default message.
+    type: "vendor", // The type of notification
+  };
+
+  const notification = await notificationService.addNewNotification(
+    vendorNotificationData
+  );
+
+  const vendorApprovalData = {
+    username: seller?.name,
+    title: `Your Vendor Has Been ${req.body.status}`,
+    description:
+      req.body?.notes ||
+      `Your vendor has been reviewed and ${req.body.status}. Logout from the application to Get Updates`,
+    transactionId: req.body?.id || "VENDOR_12345", // This would be the approved.id
+    timestamp: new Date().toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }),
+  };
+  await emailService.sendNotificationEmailWithDelayVendor(
+    seller?.email || "admin@gmail.com",
+    vendorApprovalData,
+    5000
+  );
 
   res.status(httpStatus.CREATED).json(
     response({

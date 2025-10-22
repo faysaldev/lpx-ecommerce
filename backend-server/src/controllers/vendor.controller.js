@@ -5,6 +5,7 @@ const {
   vendorService,
   notificationService,
   emailService,
+  userService,
 } = require("../services");
 
 const getSingleVendors = catchAsync(async (req, res) => {
@@ -124,10 +125,11 @@ const approvedVendorRequest = catchAsync(async (req, res) => {
     req.body.sellerId
   );
 
-  console.log(approved, "approved vendor");
+  const user = await userService.getUserById(req.body.sellerId);
+  console.log(user, "user data");
   const vendorNotificationData = {
-    authorId: approved?.seller?._id, // The seller is the author of the notification
-    sendTo: approved?.seller?._id, // Send the notification to the seller
+    authorId: user?.id, // The seller is the author of the notification
+    sendTo: user?.id, // Send the notification to the seller
     transactionId: approved.id, // Use the approved vendor's id as the transactionId
     title: "Your Vendor Has Been Approved", // Change the title to reflect the approval
     description: approved.notes || "No additional notes provided.", // Use the vendor's notes as the description. If no notes, provide a default message.

@@ -11,7 +11,7 @@ const paymentRequest = baseApi.injectEndpoints({
     }),
 
     myPaymentRequest: builder.query({
-      query: ({ page, search, sort }) => ({
+      query: ({ page, search, sort, status }) => ({
         url: `/payments/my-pay-request?page=${page}&limit=10&search=${search}&status=${status}&sort=${sort}`,
         method: "GET",
       }),

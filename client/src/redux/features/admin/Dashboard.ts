@@ -15,7 +15,18 @@ const authApi = baseApi.injectEndpoints({
         method: "GET",
       }),
     }),
+    // deactive single user
+    removeSingleUser: builder.mutation({
+      query: (userId) => ({
+        url: `/admin/remove-user/${userId}`,
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
-export const { useAdminDasboardQuery, useAdminUsersQuery } = authApi;
+export const {
+  useAdminDasboardQuery,
+  useAdminUsersQuery,
+  useRemoveSingleUserMutation,
+} = authApi;
