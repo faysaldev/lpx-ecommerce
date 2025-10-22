@@ -16,6 +16,7 @@ import { Button } from "@/components/UI/button";
 import { Badge } from "@/components/UI/badge";
 import { useGetSingleProductQuickViewMutation } from "@/redux/features/products/product";
 import VendorTruncateDetails from "../Vendors/SingleVendorView/VendorTruncateDetails";
+import Image from "next/image";
 
 interface Product {
   _id: string;
@@ -223,10 +224,12 @@ export default function ProductViewModal({
               <div className="space-y-3 sm:space-y-4">
                 {/* Main Image */}
                 <div className="aspect-square overflow-hidden rounded-xl sm:rounded-2xl bg-gray-800 border border-gray-700">
-                  <img
+                  <Image
+                    width={500}
+                    height={300}
                     src={`${process.env.NEXT_PUBLIC_BASE_URL}/${product.images[selectedImage]}`}
                     alt={product.productName}
-                    className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                    className="w-full h-full  transition-transform duration-300 hover:scale-105"
                     loading="lazy"
                   />
                 </div>
@@ -244,10 +247,10 @@ export default function ProductViewModal({
                             : "border-gray-700 hover:border-gray-600"
                         }`}
                       >
-                        <img
+                        <Image
                           src={`${process.env.NEXT_PUBLIC_BASE_URL}/${image}`}
                           alt={`${product.productName} ${index + 1}`}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full"
                           loading="lazy"
                         />
                       </button>
