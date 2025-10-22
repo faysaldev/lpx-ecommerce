@@ -417,9 +417,11 @@ export interface PaymentCards {
   _id: string;
   seller: string;
   bankName: string;
-  accountNumber: string;
   phoneNumber: string;
   createdAt: Date;
   updatedAt: Date;
+  SWIFT: string;
+  Currency: string;
+  IBAN: string;
   __v: number;
 }
