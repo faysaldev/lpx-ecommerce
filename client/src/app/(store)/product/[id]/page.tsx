@@ -393,11 +393,11 @@ const ProductDetailsPage = () => {
                       product.condition && (
                         <ConditionBadge condition={product.condition} />
                       )}
-                    {product.rarity && (
+                    {/* {product.rarity && (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                         {product.rarity}
                       </span>
-                    )}
+                    )} */}
                   </div>
 
                   {/* Tags */}
