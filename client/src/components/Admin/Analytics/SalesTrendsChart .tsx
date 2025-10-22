@@ -1,16 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
-import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/UI/card";
+import { Card, CardContent } from "@/components/UI/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -79,32 +70,6 @@ const SalesTrendsChart = ({ data }: SalesTrendsChartProps) => {
       { confirmed: 0, delivered: 0, shipped: 0, cancelled: 0 }
     );
   }, [salesData]);
-
-  // ✅ Calculate total sales and growth percentage
-  const totalSales = useMemo(() => {
-    return Object.values(totals).reduce((sum, val) => sum + val, 0);
-  }, [totals]);
-
-  // ✅ Calculate growth trend (comparing last 2 data points if available)
-  const growthPercentage = useMemo(() => {
-    if (salesData.length < 2) return 0;
-
-    const latest = salesData[salesData.length - 1];
-    const previous = salesData[salesData.length - 2];
-
-    const latestTotal =
-      latest.confirmed + latest.delivered + latest.shipped + latest.cancelled;
-    const previousTotal =
-      previous.confirmed +
-      previous.delivered +
-      previous.shipped +
-      previous.cancelled;
-
-    if (previousTotal === 0) return 0;
-
-    return ((latestTotal - previousTotal) / previousTotal) * 100;
-  }, [salesData]);
-
   return (
     <Card>
       <CardContent>

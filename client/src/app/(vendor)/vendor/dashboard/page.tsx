@@ -2,7 +2,6 @@
 "use client";
 import {
   BarChart3,
-  DollarSign,
   Eye,
   Package,
   Plus,

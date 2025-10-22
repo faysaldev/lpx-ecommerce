@@ -9,14 +9,16 @@ const myBankDetails = async (userId) => {
 
   // Fetch all bank details for the user
   const bankDetails = await BankDetails.find({ seller: userId });
-
   // Decrypt the bank details for each entry
   const decryptedBankDetails = bankDetails.map((bank) => {
     const decryptedDetails = bank.decryptBankDetails(); // Decrypt bank details
+
     return {
       ...bank.toObject(), // Convert mongoose document to plain object
       bankName: decryptedDetails.bankName, // Add decrypted bankName
-      accountNumber: decryptedDetails.accountNumber, // Add decrypted accountNumber
+      IBAN: decryptedDetails.IBAN, // Add decrypted IBAN
+      SWIFT: decryptedDetails.SWIFT, // Add decrypted SWIFT
+      Currency: decryptedDetails.Currency, // Add decrypted Currency
       phoneNumber: decryptedDetails.phoneNumber, // Add decrypted phone number
     };
   });
@@ -51,8 +53,10 @@ const getBankDetailSingle = async (bankDetailId) => {
   return {
     ...bankDetail.toObject(),
     bankName: decryptedDetails.bankName, // Add decrypted bankName
-    accountNumber: decryptedDetails.accountNumber, // Add decrypted accountNumber
-    phoneNumber: decryptedDetails.phoneNumber, // Add decrypted phoneNumber
+    IBAN: decryptedDetails.IBAN, // Add decrypted IBAN
+    SWIFT: decryptedDetails.SWIFT, // Add decrypted SWIFT
+    Currency: decryptedDetails.Currency, // Add decrypted Currency
+    phoneNumber: decryptedDetails.phoneNumber, // Add decrypted phone number
   };
 };
 

@@ -1,16 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
-import { TrendingUp } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/UI/card";
+import { Card, CardContent } from "@/components/UI/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -84,37 +75,6 @@ const ProductsTrendsChart = ({ data }: ProductsTrendsChartProps) => {
 
     return Object.values(grouped);
   }, [data, categories]);
-
-  // ✅ Calculate total sales per category
-  const totalSales = useMemo(() => {
-    const totals: Record<string, number> = {};
-
-    categories?.forEach((cat: any) => {
-      totals[cat.name] = chartData.reduce(
-        (acc, curr) => acc + (curr[cat.name] || 0),
-        0
-      );
-    });
-
-    return totals;
-  }, [chartData, categories]);
-
-  // ✅ Get date range for description
-  const dateRange = useMemo(() => {
-    if (chartData.length === 0) return "";
-
-    const startDate = new Date(chartData[0].date);
-    const endDate = new Date(chartData[chartData.length - 1].date);
-
-    return `${startDate.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    })} - ${endDate.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    })}`;
-  }, [chartData]);
 
   if (!categories?.length) {
     return (
