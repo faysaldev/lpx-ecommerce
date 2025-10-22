@@ -405,7 +405,7 @@ const ProductCard = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         <div
-          className={cn("relative", viewMode === "compact" ? "h-48" : "h-7c4")}
+          className={cn("relative", viewMode === "compact" ? "h-48" : "h-74")}
         >
           <div className="absolute inset-0 bg-muted" />
           <Link href={`/product/${productId}`}>

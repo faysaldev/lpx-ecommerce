@@ -60,7 +60,43 @@ const getAllUsers = async ({ page, limit, search, sortBy }) => {
   };
 };
 
-const deleteUserAccount = async (userId) => {};
+const deleteUserAccount = async (userId) => {
+  // Step 1: Find the user
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  // Step 2: Find the vendor linked to this user (if seller)
+  const vendor = await Vendor.findOne({ seller: userId });
+
+  // Step 3: If vendor exists, update vendor status
+  if (vendor) {
+    vendor.status = "suspended";
+    await vendor.save();
+
+    // Step 4: Update all products of this vendor
+    await Product.updateMany(
+      { vendorId: vendor._id },
+      {
+        $set: {
+          isDraft: true,
+          stockQuantity: 0,
+        },
+      }
+    );
+  }
+
+  // Step 5: Mark user as deleted (soft delete)
+  user.isDeleted = true;
+  await user.save();
+
+  return {
+    message: "User account successfully deactivated.",
+    userId: user._id,
+    vendorId: vendor?._id || null,
+  };
+};
 
 const getAllVendors = async (query) => {
   const { status, search, page = 1, limit = 10 } = query;
@@ -1479,6 +1515,7 @@ const getAnalyticsProductsTrends = async () => {
 
 module.exports = {
   getAllUsers,
+  deleteUserAccount,
   getAllVendors,
   updateVendor,
   getAdminDashboardData,

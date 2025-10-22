@@ -22,7 +22,7 @@ const getAllUsers = catchAsync(async (req, res) => {
 
 const deleteUserAccount = catchAsync(async (req, res) => {
   // Fetch filtered and sorted users from the service
-  const users = await adminService.getAllUsers(req.params.id);
+  const users = await adminService.deleteUserAccount(req.params.id);
 
   // Send the response with the user data
   res.status(httpStatus.CREATED).json(

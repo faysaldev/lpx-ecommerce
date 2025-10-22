@@ -59,7 +59,6 @@ function AllUsers() {
 
   const users = data?.data?.attributes?.users || [];
   const totalPages = data?.data?.attributes?.totalPages || 1;
-  const totalRecords = data?.data?.attributes?.totalRecords || 0;
   const currentPage = data?.data?.attributes?.currentPage || 1;
 
   const filteredAndSortedUsers = useMemo(() => {
