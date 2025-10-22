@@ -13,7 +13,7 @@ export const productSchema = z.object({
   optionalPrice: z.number().optional(),
   category: z.string().min(1, "Category is required"),
   condition: z.string().min(1, "Condition is required"),
-  rarity: z.string().min(1, "Rarity is required"),
+  // rarity: z.string().min(1, "Rarity is required"),
   brand: z.string().optional(),
   stockQuantity: z.number().min(1, "Stock must be at least 1"),
   tags: z.array(z.string()),
