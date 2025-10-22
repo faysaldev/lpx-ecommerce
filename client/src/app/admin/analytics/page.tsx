@@ -23,7 +23,6 @@ import RevenueTrendsChart from "@/components/Admin/Analytics/RevenueTrendsChart 
 import SalesTrendsChart from "@/components/Admin/Analytics/SalesTrendsChart ";
 import UsersTrendsChart from "@/components/Admin/Analytics/UsersTrendsChart ";
 import ProductsTrendsChart from "@/components/Admin/Analytics/ProductsTrendsChart ";
-import { formatNumber } from "@/lib/utils/helpers";
 
 export default function AnalyticsDashboard() {
   const { data: analyticsStats } = useGetAnalyticsStatsQuery({});
@@ -47,19 +46,6 @@ export default function AnalyticsDashboard() {
   const salesData = totalSales?.data?.attributes || [];
   const usersData = totalUsers?.data?.attributes || [];
   const productsData = totalProducts?.data?.attributes || [];
-
-  // Calculate product count by date for the products chart
-  const productCountByDate = productsData.reduce((acc: any, product: any) => {
-    const date = product.date;
-    if (!acc[date]) {
-      acc[date] = { date, productCount: 0, totalSales: 0 };
-    }
-    acc[date].productCount += 1;
-    acc[date].totalSales += product.totalSales;
-    return acc;
-  }, {});
-
-  const productsChartData = Object.values(productCountByDate);
 
   if (
     isLoadingTotalSales ||
@@ -163,14 +149,7 @@ export default function AnalyticsDashboard() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Revenue Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <RevenueTrendsChart data={revenueData} />
-            </CardContent>
-          </Card>
+          <RevenueTrendsChart data={revenueData} />
         </TabsContent>
 
         <TabsContent value="sales" className="space-y-4">
@@ -201,7 +180,7 @@ export default function AnalyticsDashboard() {
               <CardTitle>Product Analytics</CardTitle>
             </CardHeader>
             <CardContent>
-              <ProductsTrendsChart data={productsChartData} />
+              <ProductsTrendsChart data={productsData} />
             </CardContent>
           </Card>
         </TabsContent>

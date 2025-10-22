@@ -1,114 +1,116 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
+import { TrendingUp } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { Card, CardContent, CardFooter } from "@/components/UI/card";
 import {
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-} from "recharts";
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/UI/chart";
+import { useMemo } from "react";
 
 type UserTrend = {
   date: string;
   totalUsers: number;
 };
 
-const UsersTrendsChart = ({ data }: { data: UserTrend[] }) => {
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return `${date.getMonth() + 1}/${date.getDate()}`; // e.g., 10/6
-  };
+interface UsersTrendsChartProps {
+  data: UserTrend[];
+}
+
+const UsersTrendsChart = ({ data }: UsersTrendsChartProps) => {
+  console.log(data, "User Growth Data");
+
+  // ✅ Chart configuration
+  const chartConfig = {
+    totalUsers: {
+      label: "Total Users",
+      color: "hsl(271, 91%, 65%)", // violet
+    },
+  } satisfies ChartConfig;
+
+  // ✅ Calculate total users and growth percentage
+  const { totalUsers, growthPercentage } = useMemo(() => {
+    const total = data.reduce((sum, item) => sum + item.totalUsers, 0);
+
+    // Calculate growth trend (comparing last 2 data points if available)
+    let growth = 0;
+    if (data.length >= 2) {
+      const latest = data[data.length - 1].totalUsers;
+      const previous = data[data.length - 2].totalUsers;
+
+      if (previous !== 0) {
+        growth = ((latest - previous) / previous) * 100;
+      }
+    }
+
+    return { totalUsers: total, growthPercentage: growth };
+  }, [data]);
+
+  // ✅ Get date range for description
+  const dateRange = useMemo(() => {
+    if (data.length === 0) return "";
+
+    const startDate = new Date(data[0].date);
+    const endDate = new Date(data[data.length - 1].date);
+
+    return `${startDate.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    })} - ${endDate.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    })}`;
+  }, [data]);
 
   return (
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200" />
-        <XAxis
-          dataKey="date"
-          tickFormatter={formatDate}
-          className="text-xs"
-          tickMargin={10}
-        />
-        <YAxis className="text-xs" />
-        <Tooltip
-          labelFormatter={(value) => `Date: ${formatDate(value)}`}
-          formatter={(value) => [`${value} users`, "Total Users"]}
-          contentStyle={{
-            backgroundColor: "white",
-            border: "1px solid #e2e8f0",
-          }}
-        />
-        <Legend />
-        <Line
-          type="monotone"
-          dataKey="totalUsers"
-          stroke="#8b5cf6"
-          strokeWidth={3}
-          dot={{ fill: "#8b5cf6", r: 4 }}
-          name="Total Users"
-        />
-      </LineChart>
-    </ResponsiveContainer>
+    <Card>
+      <CardContent>
+        <ChartContainer config={chartConfig}>
+          <BarChart accessibilityLayer data={data}>
+            <CartesianGrid vertical={false} />
+            <XAxis
+              dataKey="date"
+              tickLine={false}
+              tickMargin={10}
+              axisLine={false}
+              tickFormatter={(value) => {
+                const date = new Date(value);
+                return date.toLocaleDateString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                });
+              }}
+            />
+            <ChartTooltip
+              cursor={false}
+              content={
+                <ChartTooltipContent
+                  hideLabel
+                  formatter={(value) => {
+                    const num =
+                      typeof value === "number"
+                        ? value
+                        : parseFloat(value as string);
+                    return `${!isNaN(num) ? num : value} users`;
+                  }}
+                />
+              }
+            />
+            <Bar
+              dataKey="totalUsers"
+              fill="var(--color-totalUsers)"
+              radius={8}
+            />
+          </BarChart>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 };
 
 export default UsersTrendsChart;
-
-// /* eslint-disable @typescript-eslint/no-explicit-any */
-// import {
-//   XAxis,
-//   YAxis,
-//   CartesianGrid,
-//   Tooltip,
-//   Legend,
-//   ResponsiveContainer,
-//   LineChart,
-//   Line,
-// } from "recharts";
-
-// const UsersTrendsChart = ({ data }: { data: any[] }) => {
-//   console.log(data, "userTrends Charts");
-//   const formatDate = (dateStr: any) => {
-//     const date = new Date(dateStr);
-//     return `${date.getMonth() + 1}/${date.getDate()}`;
-//   };
-
-//   // Users data
-//   const usersData = [
-//     { date: "2025-09-09", totalUsers: 1 },
-//     { date: "2025-09-16", totalUsers: 1 },
-//     { date: "2025-09-23", totalUsers: 2 },
-//     { date: "2025-09-30", totalUsers: 2 },
-//     { date: "2025-10-06", totalUsers: 1 },
-//     { date: "2025-10-07", totalUsers: 3 },
-//   ];
-
-//   return (
-//     <ResponsiveContainer width="100%" height={300}>
-//       <LineChart data={usersData}>
-//         <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200" />
-//         <XAxis dataKey="date" tickFormatter={formatDate} className="text-xs" />
-//         <YAxis className="text-xs" />
-//         <Tooltip
-//           contentStyle={{
-//             backgroundColor: "white",
-//             border: "1px solid #e2e8f0",
-//           }}
-//         />
-//         <Legend />
-//         <Line
-//           type="monotone"
-//           dataKey="totalUsers"
-//           stroke="#8b5cf6"
-//           strokeWidth={3}
-//           dot={{ fill: "#8b5cf6", r: 5 }}
-//           name="Total Users"
-//         />
-//       </LineChart>
-//     </ResponsiveContainer>
-//   );
-// };
-
-// export default UsersTrendsChart;

@@ -1468,7 +1468,6 @@ const getAnalyticsProductsTrends = async () => {
   // Format data to fit the Recharts format
   const formattedData = productSalesTrends.map((trend) => ({
     date: trend.date,
-    productName: trend.productName,
     category: trend.category,
     totalSales: trend.totalSales,
   }));
