@@ -295,7 +295,7 @@ const ProductCard = ({
                 alt={finalProductName}
                 fill
                 className={cn(
-                  "object-cover transition-opacity duration-300",
+                  " transition-opacity duration-300",
                   imageLoaded ? "opacity-100" : "opacity-0"
                 )}
                 onLoad={() => setImageLoaded(true)}
@@ -405,7 +405,7 @@ const ProductCard = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         <div
-          className={cn("relative", viewMode === "compact" ? "h-48" : "h-64")}
+          className={cn("relative", viewMode === "compact" ? "h-48" : "h-7c4")}
         >
           <div className="absolute inset-0 bg-muted" />
           <Link href={`/product/${productId}`}>
@@ -415,7 +415,7 @@ const ProductCard = ({
                 alt={finalProductName}
                 fill
                 className={cn(
-                  "object-cover w-full h-full  rounded-t-2xl transition-opacity duration-300",
+                  "w-full h-full  rounded-t-2xl transition-opacity duration-300",
                   imageLoaded ? "opacity-100" : "opacity-0"
                 )}
                 onLoad={() => setImageLoaded(true)}
