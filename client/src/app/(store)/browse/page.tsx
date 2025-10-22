@@ -3,7 +3,6 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-
 import { cn } from "@/lib/utils";
 import { Category, Product } from "@/lib/types";
 import { useBrowseFilters } from "@/hooks/useBrowseFilters";

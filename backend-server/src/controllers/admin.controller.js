@@ -20,6 +20,21 @@ const getAllUsers = catchAsync(async (req, res) => {
   );
 });
 
+const deleteUserAccount = catchAsync(async (req, res) => {
+  // Fetch filtered and sorted users from the service
+  const users = await adminService.getAllUsers(req.params.id);
+
+  // Send the response with the user data
+  res.status(httpStatus.CREATED).json(
+    response({
+      message: "User Account Deleted",
+      status: "OK",
+      statusCode: httpStatus.CREATED,
+      data: users,
+    })
+  );
+});
+
 const getAllVendors = catchAsync(async (req, res) => {
   console.log(req.user.type);
 
@@ -429,6 +444,7 @@ const getAdminAnalyticsTotalRevinueTrends = catchAsync(async (req, res) => {
 
 module.exports = {
   getAllUsers,
+  deleteUserAccount,
   getAllVendors,
   updateStatus,
   getAdminDashboard,

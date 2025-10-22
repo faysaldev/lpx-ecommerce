@@ -4,6 +4,9 @@ const { adminController, orderController } = require("../../controllers");
 const router = express.Router();
 
 router.route("/users").get(auth("common"), adminController.getAllUsers);
+router
+  .route("/remove-user/:id")
+  .get(auth("common"), adminController.deleteUserAccount);
 router.route("/vendors").get(auth("common"), adminController.getAllVendors);
 router
   .route("/update-vendor")

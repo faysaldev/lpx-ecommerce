@@ -60,6 +60,8 @@ const getAllUsers = async ({ page, limit, search, sortBy }) => {
   };
 };
 
+const deleteUserAccount = async (userId) => {};
+
 const getAllVendors = async (query) => {
   const { status, search, page = 1, limit = 10 } = query;
   let filter = {};
