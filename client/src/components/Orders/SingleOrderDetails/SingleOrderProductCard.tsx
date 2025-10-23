@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { getImageUrl } from "@/lib/getImageURL";
 import { Package } from "lucide-react";
 import Image from "next/image";
 
@@ -19,7 +18,7 @@ export default function SingleOrderProductCard({
       <div className="w-20 h-20 bg-muted rounded-md flex items-center justify-center flex-shrink-0 overflow-hidden">
         {hasImage ? (
           <Image
-            src={getImageUrl(productImage)}
+            src={productImage}
             alt={item.productId?.productName || "Product"}
             width={80}
             height={80}

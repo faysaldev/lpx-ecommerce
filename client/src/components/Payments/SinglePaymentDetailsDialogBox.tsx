@@ -14,7 +14,6 @@ import {
 } from "@/components/UI/dialog";
 import { useGetSinglePaymentdetailsQuery } from "@/redux/features/vendors/paymentRequest";
 import { formatCurrency, formatDate } from "@/lib/utils/helpers";
-import { getImageUrl } from "@/lib/getImageURL";
 import { SinglePaymentRequest } from "@/lib/types";
 import { Button } from "@/components/UI/button";
 
@@ -131,9 +130,7 @@ function SinglePlaymentDetailsDialogBox({
   const canDownloadInvoice = hasInvoiceImage && isPaidStatus;
 
   // Get full invoice image URL
-  const invoiceImageUrl = hasInvoiceImage
-    ? getImageUrl(seletedRequest.invoiceImage)
-    : "";
+  const invoiceImageUrl = hasInvoiceImage ? seletedRequest.invoiceImage : "";
 
   return (
     <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>

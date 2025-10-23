@@ -1,4 +1,3 @@
-import { getImageUrl } from "@/lib/getImageURL";
 import { RotateCcw, X, ZoomIn, ZoomOut } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -227,7 +226,7 @@ const SingleProductImageModal = ({
         >
           <img
             ref={imageRef}
-            src={getImageUrl(images[currentIndex])}
+            src={images[currentIndex]}
             alt={`${productName} - Image ${currentIndex + 1}`}
             className={`max-w-full max-h-full object-contain transition-transform duration-200 ${
               scale > 1 ? "cursor-grab" : "cursor-zoom-in"
@@ -263,7 +262,7 @@ const SingleProductImageModal = ({
               }`}
             >
               <img
-                src={getImageUrl(image)}
+                src={image}
                 alt={`Thumbnail ${index + 1}`}
                 className="w-full h-full object-cover"
               />

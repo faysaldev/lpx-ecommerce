@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/UI/card";
 import { Copy, Download } from "lucide-react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
-import { getImageUrl } from "@/lib/getImageURL";
 
 interface OrderHeaderProps {
   order: any;
@@ -99,7 +98,7 @@ export default function OrderHeader({
               <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center overflow-hidden">
                 {order.customer.image ? (
                   <img
-                    src={getImageUrl(order.customer.image)}
+                    src={order.customer.image}
                     alt={order.customer.name}
                     className="w-full h-full object-cover"
                   />

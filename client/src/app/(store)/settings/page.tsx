@@ -25,7 +25,6 @@ import {
   useUpdateProfileMutation,
 } from "@/redux/features/Users/userSlice";
 import { toast } from "sonner";
-import { getImageUrl } from "@/lib/getImageURL";
 import { useChangePasswordMutation } from "@/redux/features/auth/authApi";
 import Image from "next/image";
 
@@ -90,7 +89,7 @@ export default function UserSettingsProfile() {
 
       setSelectedImage(file);
       const previewUrl = URL.createObjectURL(file);
-      console.log('preview url show this section', previewUrl)
+      console.log("preview url show this section", previewUrl);
       setImagePreview(previewUrl);
       setIsEditing(true);
     }
@@ -225,9 +224,9 @@ export default function UserSettingsProfile() {
                 <div className="relative inline-block mb-4">
                   <div className="w-36 h-36 rounded-full overflow-hidden bg-gradient-to-br from-indigo-400 to-purple-500 border-4 border-white shadow-2xl">
                     <Image
-                    width={150}
-                    height={150}
-                      src={selectedImage ? imagePreview : getImageUrl(imagePreview)}
+                      width={150}
+                      height={150}
+                      src={selectedImage ? imagePreview : imagePreview}
                       alt={user?.name || "User"}
                       className="w-full h-full object-cover"
                     />
@@ -294,7 +293,7 @@ export default function UserSettingsProfile() {
                       <Image
                         height={150}
                         width={150}
-                        src={getImageUrl(vendorDetails.storePhoto)}
+                        src={vendorDetails.storePhoto}
                         alt={vendorDetails.storeName}
                         className="w-full h-full object-contain"
                       />
@@ -612,4 +611,3 @@ export default function UserSettingsProfile() {
     </PageLayout>
   );
 }
-

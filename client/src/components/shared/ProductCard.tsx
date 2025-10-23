@@ -19,7 +19,6 @@ import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import ConditionBadgeComponent from "../Vendors/SingleVendorView/ConditionBadgeComponent";
 import { useAddTocartMutation } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
-import { getImageUrl } from "@/lib/getImageURL";
 import {
   useAddNewToWishListMutation,
   useRemoveSingleProductWishlitMutation,
@@ -291,7 +290,7 @@ const ProductCard = ({
           >
             {productImages[0] ? (
               <Image
-                src={getImageUrl(productImages[0])}
+                src={productImages[0]}
                 alt={finalProductName}
                 fill
                 className={cn(
@@ -411,7 +410,7 @@ const ProductCard = ({
           <Link href={`/product/${productId}`}>
             {productImages[0] ? (
               <Image
-                src={getImageUrl(productImages[0])}
+                src={productImages[0]}
                 alt={finalProductName}
                 fill
                 className={cn(

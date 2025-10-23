@@ -18,7 +18,6 @@ import { useParams } from "next/navigation";
 import { useGetSingleProductQuery } from "@/redux/features/products/product";
 import { useBuyNowMutation } from "@/redux/features/BuyNowPyemant/BuyNowPyemant";
 import VendorTruncateDetails from "@/components/Vendors/SingleVendorView/VendorTruncateDetails";
-import { getImageUrl } from "@/lib/getImageURL";
 import {
   useAddNewToWishListMutation,
   useRemoveSingleProductWishlitMutation,
@@ -309,7 +308,7 @@ const ProductDetailsPage = () => {
                         )}
                       >
                         <Image
-                          src={image ? getImageUrl(image) : ""}
+                          src={image ? image : ""}
                           alt={`${product.name} view ${index + 1}`}
                           fill
                           className="object-cover"
