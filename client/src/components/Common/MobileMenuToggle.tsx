@@ -42,7 +42,6 @@ function MobileMenuToggle({
       <SheetContent side="right" className="w-[210px] sm:w-[300px]">
         <SheetHeader>
           <SheetTitle>Menu</SheetTitle>
-          
         </SheetHeader>
         <div className="mt-6 overflow-y-auto max-h-[90vh]">
           {/* Mobile Navigation */}

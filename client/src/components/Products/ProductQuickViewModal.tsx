@@ -227,7 +227,7 @@ export default function ProductViewModal({
                   <Image
                     width={500}
                     height={300}
-                    src={`${process.env.NEXT_PUBLIC_BASE_URL}/${product.images[selectedImage]}`}
+                    src={product.images[selectedImage]}
                     alt={product.productName}
                     className="w-full h-full  transition-transform duration-300 hover:scale-105"
                     loading="lazy"
@@ -248,7 +248,7 @@ export default function ProductViewModal({
                         }`}
                       >
                         <Image
-                          src={`${process.env.NEXT_PUBLIC_BASE_URL}/${image}`}
+                          src={image}
                           alt={`${product.productName} ${index + 1}`}
                           className="w-full h-full"
                           loading="lazy"

@@ -37,9 +37,7 @@ const s3Uploader = (folderName = "others") =>
       ) {
         cb(null, true);
       } else {
-        cb(
-          new Error("Only jpg, jpeg, png, heic, and heif formats are allowed!")
-        );
+        cb(new Error("Only jpg, png, jpeg & heic format allowed!"));
       }
     },
   });

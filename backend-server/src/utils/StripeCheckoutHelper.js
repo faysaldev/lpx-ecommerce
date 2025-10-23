@@ -1,17 +1,11 @@
 export const forMatStripeLineItems = (data) => {
-  console.log(
-    `image Url ${process.env.BACKEND_ONLINE_URL}/${data[0]?.image}, format for stripe`
-  );
   return data.map((item) => ({
     price_data: {
       currency: "aed", // Currency, can be dynamic
       product_data: {
         name: item.productName, // Product name
-        description: "Product description here", // You can replace with actual description if available
-        // images: [`${process.env.BACKEND_ONLINE_URL}/${item.image}`], // Image URL
-        images: [
-          `https://i.ibb.co.com/wNP7ty76/beardo-mariner-perfume-edp-50ml.png`,
-        ], // Image URL
+        description: "Product description ",
+        images: [item.image], // Image URL
       },
       unit_amount: item.price * 100, // Price in cents (multiplied by 100 to convert to cents)
     },

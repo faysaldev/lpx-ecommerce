@@ -27,6 +27,7 @@ import {
 import { toast } from "sonner";
 import { useChangePasswordMutation } from "@/redux/features/auth/authApi";
 import Image from "next/image";
+import ProtectedRoute from "@/Provider/ProtectedRoutes";
 
 export default function UserSettingsProfile() {
   const { data: userProfile, isLoading, refetch } = useGetUserProfileQuery({});
@@ -209,405 +210,407 @@ export default function UserSettingsProfile() {
   }
 
   return (
-    <PageLayout
-      title="Profile Settings"
-      description="Manage Your User Profile Settings"
-      breadcrumbs={[{ label: "Profile", href: "/profile" }]}
-    >
-      <div className="space-y-6">
-        <div className="grid lg:grid-cols-5 gap-6">
-          {/* Left Column - Profile Card */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Profile Picture Card */}
-            <div className="rounded-2xl shadow-lg border border-gray-100 p-6">
-              <div className="text-center">
-                <div className="relative inline-block mb-4">
-                  <div className="w-36 h-36 rounded-full overflow-hidden bg-gradient-to-br from-indigo-400 to-purple-500 border-4 border-white shadow-2xl">
-                    <Image
-                      width={150}
-                      height={150}
-                      src={selectedImage ? imagePreview : imagePreview}
-                      alt={user?.name || "User"}
-                      className="w-full h-full object-cover"
+    <ProtectedRoute allowedTypes={["admin", "customer", "seller"]}>
+      <PageLayout
+        title="Profile Settings"
+        description="Manage Your User Profile Settings"
+        breadcrumbs={[{ label: "Profile", href: "/profile" }]}
+      >
+        <div className="space-y-6">
+          <div className="grid lg:grid-cols-5 gap-6">
+            {/* Left Column - Profile Card */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Profile Picture Card */}
+              <div className="rounded-2xl shadow-lg border border-gray-100 p-6">
+                <div className="text-center">
+                  <div className="relative inline-block mb-4">
+                    <div className="w-36 h-36 rounded-full overflow-hidden bg-gradient-to-br from-indigo-400 to-purple-500 border-4 border-white shadow-2xl">
+                      <Image
+                        width={150}
+                        height={150}
+                        src={selectedImage ? imagePreview : imagePreview}
+                        alt={user?.name || "User"}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <button
+                      onClick={handleImageClick}
+                      className="absolute bottom-2 right-2 bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-110"
+                    >
+                      <Camera className="w-5 h-5" />
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
                     />
                   </div>
-                  <button
-                    onClick={handleImageClick}
-                    className="absolute bottom-2 right-2 bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-110"
-                  >
-                    <Camera className="w-5 h-5" />
-                  </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
-                  />
-                </div>
 
-                <h2 className="text-2xl font-bold text-gray-100 mb-1">
-                  {user?.name || "User"}
-                </h2>
-                <p className="text-gray-300 text-sm mb-3">{user?.email}</p>
+                  <h2 className="text-2xl font-bold text-gray-100 mb-1">
+                    {user?.name || "User"}
+                  </h2>
+                  <p className="text-gray-300 text-sm mb-3">{user?.email}</p>
 
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200">
-                  {isSeller ? (
-                    <>
-                      <Store className="w-4 h-4 text-purple-600" />
-                      <span className="text-sm font-semibold text-purple-700">
-                        Seller Account
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <User className="w-4 h-4 text-indigo-600" />
-                      <span className="text-sm font-semibold text-indigo-700">
-                        User Account
-                      </span>
-                    </>
-                  )}
-                </div>
-
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <div className="flex items-center justify-center gap-2 text-sm text-gray-200">
-                    <Calendar className="w-4 h-4" />
-                    <span>
-                      Member since{" "}
-                      {new Date(user?.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        year: "numeric",
-                      })}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Vendor Stats Card */}
-            {isSeller && vendorDetails && (
-              <div className=" rounded-2xl shadow-lg p-6 text-white">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-white/20 backdrop-blur-sm border border-white/30">
-                    {vendorDetails.storePhoto ? (
-                      <Image
-                        height={150}
-                        width={150}
-                        src={vendorDetails.storePhoto}
-                        alt={vendorDetails.storeName}
-                        className="w-full h-full object-contain"
-                      />
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200">
+                    {isSeller ? (
+                      <>
+                        <Store className="w-4 h-4 text-purple-600" />
+                        <span className="text-sm font-semibold text-purple-700">
+                          Seller Account
+                        </span>
+                      </>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Store className="w-6 h-6 text-white" />
-                      </div>
+                      <>
+                        <User className="w-4 h-4 text-indigo-600" />
+                        <span className="text-sm font-semibold text-indigo-700">
+                          User Account
+                        </span>
+                      </>
                     )}
                   </div>
-                  <div>
-                    <p className="text-purple-100 text-xs font-medium">
-                      Store Name
-                    </p>
-                    <h3 className="text-xl font-bold">
-                      {vendorDetails.storeName}
-                    </h3>
-                  </div>
-                </div>
 
-                <div className="space-y-3 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4">
-                  {/* Total Earnings Card */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 flex flex-col justify-between h-full">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="w-5 h-5 text-green-300" />
-                        <span className="text-sm font-medium">
-                          Total Earnings
-                        </span>
-                      </div>
-                      <span className="text-2xl font-bold">
-                        ${vendorDetails.totalEarnings?.toFixed(2) || "0.00"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Total Withdrawals Card */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 flex flex-col justify-between h-full">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <CreditCard className="w-5 h-5 text-blue-300" />
-                        <span className="text-sm font-medium">
-                          Total Withdrawals
-                        </span>
-                      </div>
-                      <span className="text-2xl font-bold">
-                        ${vendorDetails.totalWithDrawal?.toFixed(2) || "0.00"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Available Balance Card */}
-                  <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 flex flex-col justify-between h-full">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-5 h-5 text-yellow-300" />
-                        <span className="text-sm font-medium">
-                          Available Balance
-                        </span>
-                      </div>
-                      <span className="text-2xl font-bold text-yellow-300">
-                        $
-                        {(
-                          (vendorDetails.totalEarnings || 0) -
-                          (vendorDetails.totalWithDrawal || 0)
-                        ).toFixed(2)}
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-center gap-2 text-sm text-gray-200">
+                      <Calendar className="w-4 h-4" />
+                      <span>
+                        Member since{" "}
+                        {new Date(user?.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          year: "numeric",
+                        })}
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
-            )}
-          </div>
 
-          {/* Right Column - Forms */}
-          <div className="lg:col-span-3 space-y-6">
-            {/* Profile Information Card */}
-            <div className="rounded-2xl shadow-lg border border-gray-100 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-100">
-                    Profile Information
-                  </h3>
-                  <p className="text-gray-200 text-sm mt-1">
-                    Update your personal details
-                  </p>
-                </div>
-                {isEditing && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleCancelEdit}
-                      disabled={updaProfileLoading}
-                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors disabled:opacity-50"
-                    >
-                      <X className="w-4 h-4" />
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleSaveProfile}
-                      disabled={updaProfileLoading}
-                      className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
-                    >
-                      <Save className="w-4 h-4" />
-                      {updaProfileLoading ? "Saving..." : "Save Changes"}
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-5">
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-200 mb-2">
-                    <User className="w-4 h-4 text-indigo-600" />
-                    Full Name
-                  </label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    placeholder="Enter your full name"
-                  />
-                </div>
-
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-200 mb-2">
-                    <Mail className="w-4 h-4 text-indigo-600" />
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    value={user?.email || ""}
-                    disabled
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Email cannot be changed
-                  </p>
-                </div>
-
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-200 mb-2">
-                    <Phone className="w-4 h-4 text-indigo-600" />
-                    Phone Number
-                  </label>
-                  <input
-                    type="tel"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    placeholder="Enter your phone number"
-                  />
-                </div>
-
-                <div>
-                  <label className="flex items-center gap-2 text-sm font-semibold text-gray-200 mb-2">
-                    <MapPin className="w-4 h-4 text-indigo-600" />
-                    Address
-                  </label>
-                  <textarea
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    rows={3}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
-                    placeholder="Enter your complete address"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Password & Security Card */}
-            <div className=" rounded-2xl shadow-lg border border-gray-100 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h3 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
-                    <Lock className="w-6 h-6 text-gray-200" />
-                    Password & Security
-                  </h3>
-                  <p className="text-gray-200 text-sm mt-1">
-                    Keep your account secure with a strong password
-                  </p>
-                </div>
-                {!isChangingPassword && (
-                  <button
-                    onClick={() => setIsChangingPassword(true)}
-                    className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
-                  >
-                    Change Password
-                  </button>
-                )}
-              </div>
-
-              {isChangingPassword && (
-                <div className="space-y-4 pt-4 border-t border-gray-200">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-200 mb-2">
-                      Current Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showCurrentPassword ? "text" : "password"}
-                        name="currentPassword"
-                        value={passwordData.currentPassword}
-                        onChange={handlePasswordChange}
-                        className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-                        placeholder="Enter current password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowCurrentPassword(!showCurrentPassword)
-                        }
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        {showCurrentPassword ? (
-                          <EyeOff className="w-5 h-5" />
-                        ) : (
-                          <Eye className="w-5 h-5" />
-                        )}
-                      </button>
+              {/* Vendor Stats Card */}
+              {isSeller && vendorDetails && (
+                <div className=" rounded-2xl shadow-lg p-6 text-white">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-14 h-14 rounded-xl overflow-hidden bg-white/20 backdrop-blur-sm border border-white/30">
+                      {vendorDetails.storePhoto ? (
+                        <Image
+                          height={150}
+                          width={150}
+                          src={vendorDetails.storePhoto}
+                          alt={vendorDetails.storeName}
+                          className="w-full h-full object-contain"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Store className="w-6 h-6 text-white" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-purple-100 text-xs font-medium">
+                        Store Name
+                      </p>
+                      <h3 className="text-xl font-bold">
+                        {vendorDetails.storeName}
+                      </h3>
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-200 mb-2">
-                      New Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showNewPassword ? "text" : "password"}
-                        name="newPassword"
-                        value={passwordData.newPassword}
-                        onChange={handlePasswordChange}
-                        className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-                        placeholder="Enter new password"
-                        minLength={8}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        {showNewPassword ? (
-                          <EyeOff className="w-5 h-5" />
-                        ) : (
-                          <Eye className="w-5 h-5" />
-                        )}
-                      </button>
+                  <div className="space-y-3 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-4">
+                    {/* Total Earnings Card */}
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 flex flex-col justify-between h-full">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="w-5 h-5 text-green-300" />
+                          <span className="text-sm font-medium">
+                            Total Earnings
+                          </span>
+                        </div>
+                        <span className="text-2xl font-bold">
+                          ${vendorDetails.totalEarnings?.toFixed(2) || "0.00"}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Must be at least 8 characters long
-                    </p>
-                  </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-200 mb-2">
-                      Confirm New Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmPassword ? "text" : "password"}
-                        name="confirmPassword"
-                        value={passwordData.confirmPassword}
-                        onChange={handlePasswordChange}
-                        className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
-                        placeholder="Confirm new password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowConfirmPassword(!showConfirmPassword)
-                        }
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff className="w-5 h-5" />
-                        ) : (
-                          <Eye className="w-5 h-5" />
-                        )}
-                      </button>
+                    {/* Total Withdrawals Card */}
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 flex flex-col justify-between h-full">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="w-5 h-5 text-blue-300" />
+                          <span className="text-sm font-medium">
+                            Total Withdrawals
+                          </span>
+                        </div>
+                        <span className="text-2xl font-bold">
+                          ${vendorDetails.totalWithDrawal?.toFixed(2) || "0.00"}
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="flex gap-3 pt-2">
-                    <button
-                      onClick={handlePasswordReset}
-                      disabled={changeLoading}
-                      className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors font-medium disabled:opacity-50"
-                    >
-                      {changeLoading ? "Updating..." : "Update Password"}
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsChangingPassword(false);
-                        setPasswordData({
-                          currentPassword: "",
-                          newPassword: "",
-                          confirmPassword: "",
-                        });
-                      }}
-                      disabled={changeLoading}
-                      className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors font-medium disabled:opacity-50"
-                    >
-                      Cancel
-                    </button>
+                    {/* Available Balance Card */}
+                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 flex flex-col justify-between h-full">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-5 h-5 text-yellow-300" />
+                          <span className="text-sm font-medium">
+                            Available Balance
+                          </span>
+                        </div>
+                        <span className="text-2xl font-bold text-yellow-300">
+                          $
+                          {(
+                            (vendorDetails.totalEarnings || 0) -
+                            (vendorDetails.totalWithDrawal || 0)
+                          ).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
+
+            {/* Right Column - Forms */}
+            <div className="lg:col-span-3 space-y-6">
+              {/* Profile Information Card */}
+              <div className="rounded-2xl shadow-lg border border-gray-100 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-100">
+                      Profile Information
+                    </h3>
+                    <p className="text-gray-200 text-sm mt-1">
+                      Update your personal details
+                    </p>
+                  </div>
+                  {isEditing && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleCancelEdit}
+                        disabled={updaProfileLoading}
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        <X className="w-4 h-4" />
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSaveProfile}
+                        disabled={updaProfileLoading}
+                        className="flex items-center gap-2 px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                      >
+                        <Save className="w-4 h-4" />
+                        {updaProfileLoading ? "Saving..." : "Save Changes"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-5">
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-200 mb-2">
+                      <User className="w-4 h-4 text-indigo-600" />
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-200 mb-2">
+                      <Mail className="w-4 h-4 text-indigo-600" />
+                      Email Address
+                    </label>
+                    <input
+                      type="email"
+                      value={user?.email || ""}
+                      disabled
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 text-gray-500 cursor-not-allowed"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Email cannot be changed
+                    </p>
+                  </div>
+
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-200 mb-2">
+                      <Phone className="w-4 h-4 text-indigo-600" />
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      name="phoneNumber"
+                      value={formData.phoneNumber}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                      placeholder="Enter your phone number"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-semibold text-gray-200 mb-2">
+                      <MapPin className="w-4 h-4 text-indigo-600" />
+                      Address
+                    </label>
+                    <textarea
+                      name="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      rows={3}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
+                      placeholder="Enter your complete address"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Password & Security Card */}
+              <div className=" rounded-2xl shadow-lg border border-gray-100 p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
+                      <Lock className="w-6 h-6 text-gray-200" />
+                      Password & Security
+                    </h3>
+                    <p className="text-gray-200 text-sm mt-1">
+                      Keep your account secure with a strong password
+                    </p>
+                  </div>
+                  {!isChangingPassword && (
+                    <button
+                      onClick={() => setIsChangingPassword(true)}
+                      className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors font-medium"
+                    >
+                      Change Password
+                    </button>
+                  )}
+                </div>
+
+                {isChangingPassword && (
+                  <div className="space-y-4 pt-4 border-t border-gray-200">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-200 mb-2">
+                        Current Password
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showCurrentPassword ? "text" : "password"}
+                          name="currentPassword"
+                          value={passwordData.currentPassword}
+                          onChange={handlePasswordChange}
+                          className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                          placeholder="Enter current password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowCurrentPassword(!showCurrentPassword)
+                          }
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          {showCurrentPassword ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-200 mb-2">
+                        New Password
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showNewPassword ? "text" : "password"}
+                          name="newPassword"
+                          value={passwordData.newPassword}
+                          onChange={handlePasswordChange}
+                          className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                          placeholder="Enter new password"
+                          minLength={8}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          {showNewPassword ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Must be at least 8 characters long
+                      </p>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-200 mb-2">
+                        Confirm New Password
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showConfirmPassword ? "text" : "password"}
+                          name="confirmPassword"
+                          value={passwordData.confirmPassword}
+                          onChange={handlePasswordChange}
+                          className="w-full px-4 py-3 pr-12 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                          placeholder="Confirm new password"
+                        />
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="w-5 h-5" />
+                          ) : (
+                            <Eye className="w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={handlePasswordReset}
+                        disabled={changeLoading}
+                        className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl transition-colors font-medium disabled:opacity-50"
+                      >
+                        {changeLoading ? "Updating..." : "Update Password"}
+                      </button>
+                      <button
+                        onClick={() => {
+                          setIsChangingPassword(false);
+                          setPasswordData({
+                            currentPassword: "",
+                            newPassword: "",
+                            confirmPassword: "",
+                          });
+                        }}
+                        disabled={changeLoading}
+                        className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors font-medium disabled:opacity-50"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </PageLayout>
+      </PageLayout>
+    </ProtectedRoute>
   );
 }

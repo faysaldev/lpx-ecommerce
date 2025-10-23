@@ -47,19 +47,6 @@ const rawConditions = [
   "Poor",
 ];
 
-const rarities = [
-  "Common",
-  "Uncommon",
-  "Rare",
-  "Super Rare",
-  "Ultra Rare",
-  "Secret Rare",
-  "Legendary",
-  "Mythic",
-  "Promo",
-  "First Edition",
-];
-
 // Image Upload Section Component
 interface ImageUploadSectionProps {
   images: File[];
@@ -80,7 +67,7 @@ const ImageUploadSection = ({
     if (existingImages && existingImages.length > 0) {
       const formattedImages = existingImages.map((img) => {
         const cleanPath = img.replace(/\\/g, "/");
-        return `${process.env.NEXT_PUBLIC_BASE_URL}/${cleanPath}`;
+        return `${cleanPath}`;
       });
       setExistingPreviews(formattedImages);
     }
@@ -89,8 +76,7 @@ const ImageUploadSection = ({
   useEffect(() => {
     if (onExistingImagesChange) {
       const originalPaths = existingPreviews.map((preview) => {
-        const baseUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/`;
-        return preview.replace(baseUrl, "").replace(/\//g, "\\");
+        return preview;
       });
       onExistingImagesChange(originalPaths);
     }

@@ -97,11 +97,7 @@ function QuickActionOverview({
                 >
                   <div className="flex items-center gap-3">
                     <Image
-                      src={
-                        order.userImage
-                          ? `${process.env.NEXT_PUBLIC_BASE_URL}${order.userImage}`
-                          : ""
-                      } // changed from order.customer.avatar to order.userImage
+                      src={order.userImage ? `${order.userImage}` : ""} // changed from order.customer.avatar to order.userImage
                       alt={order.userName} // changed from order.customer.name to order.userName
                       width={32}
                       height={32}

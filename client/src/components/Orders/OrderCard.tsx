@@ -154,7 +154,7 @@ function OrderCard({ order }: { order: any; onReorder: (order: any) => void }) {
                     >
                       <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center">
                         <img
-                          src={`${process.env.NEXT_PUBLIC_BASE_URL}/${item?.productId?.images[0]})`}
+                          src={item?.productId?.images[0]}
                           className="h-8 w-8"
                         />
                       </div>

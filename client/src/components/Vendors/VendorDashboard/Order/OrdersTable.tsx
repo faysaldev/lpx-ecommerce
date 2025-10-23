@@ -172,11 +172,7 @@ export function OrdersTable() {
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Image
-                      src={
-                        order.userImage
-                          ? `${process.env.NEXT_PUBLIC_BASE_URL}${order.userImage}`
-                          : ""
-                      }
+                      src={order.userImage ? order?.userImage : ""}
                       alt={order.userName}
                       width={32}
                       height={32}

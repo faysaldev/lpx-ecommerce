@@ -579,7 +579,7 @@ export default function VendorsManagement() {
                       <div className="flex items-center gap-3">
                         <Avatar className="h-10 w-10">
                           <AvatarImage
-                            src={`${process.env.NEXT_PUBLIC_BASE_URL}${
+                            src={`${
                               vendor?.storePhoto || vendor.storeName.slice(0, 2)
                             }`}
                           />

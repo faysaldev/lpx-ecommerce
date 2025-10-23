@@ -277,9 +277,9 @@ const ProductDetailsPage = () => {
                     <ImageMagnifier
                       src={
                         product.images?.[selectedImage]
-                          ? `${process.env.NEXT_PUBLIC_BASE_URL}/${product.images[selectedImage]}`
+                          ? product.images[selectedImage]
                           : product.image
-                          ? `${process.env.NEXT_PUBLIC_BASE_URL}/${product.image}`
+                          ? product.image
                           : "/placeholder-card.jpg"
                       }
                       alt={product.name}

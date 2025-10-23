@@ -279,7 +279,7 @@ export default function VendorStorefrontPage() {
                 <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
                   {vendor.logo ? (
                     <Image
-                      src={`${process.env.NEXT_PUBLIC_BASE_URL}/${vendor.logo}`}
+                      src={vendor.logo}
                       alt={vendor.name}
                       width={80}
                       height={80}

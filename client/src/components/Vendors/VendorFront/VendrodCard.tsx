@@ -21,10 +21,7 @@ export default function VendorCard({
   vendor: Vendor;
   viewMode: "grid" | "list";
 }) {
-  const imageUrl =
-    vendor?.storePhoto && process.env.NEXT_PUBLIC_BASE_URL
-      ? `${process.env.NEXT_PUBLIC_BASE_URL}${vendor.storePhoto}`
-      : null;
+  const imageUrl = vendor?.storePhoto ? `${vendor.storePhoto}` : null;
 
   if (viewMode === "list") {
     return (
