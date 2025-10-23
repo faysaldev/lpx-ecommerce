@@ -158,17 +158,11 @@ const allVendors = async ({
     case "newest":
       sortOrder = { createdAt: -1 }; // Newest first
       break;
-    case "highToLow":
-      sortOrder = { totalSales: -1 }; // High to low sales
+    case "oldest":
+      sortOrder = { createdAt: 1 }; // Oldest first
       break;
-    case "lowToHigh":
-      sortOrder = { totalSales: 1 }; // Low to high sales
-      break;
-    case "A-Z":
-      sortOrder = { storeName: 1 }; // A-Z store names
-      break;
-    case "Z-A":
-      sortOrder = { storeName: -1 }; // Z-A store names
+    case "topVendor":
+      sortOrder = { totalEarnings: -1 }; // Top vendors by earnings (High to Low)
       break;
     case "by-ratings":
       sortOrder = { averageRating: -1 }; // Sort by average rating (high to low)
@@ -236,6 +230,7 @@ const allVendors = async ({
           status: 1,
           location: 1,
           productsCount: 1,
+          totalEarnings: 1, // Make sure to return totalEarnings to support 'topVendor' sort
         },
       },
     ]);

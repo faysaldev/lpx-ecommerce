@@ -106,7 +106,7 @@ export default function VendorCard({
 
   return (
     <Link href={`/vendor/${vendor.id}`}>
-      <div className="group rounded-lg border hover:shadow-lg transition-all  h-full flex flex-col">
+      <div className="group rounded-lg border hover:shadow-lg transition-all h-full flex flex-col">
         <div className="flex items-start justify-between mb-4 ">
           <div className="w-full">
             {imageUrl ? (

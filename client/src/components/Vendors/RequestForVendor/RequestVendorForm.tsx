@@ -44,8 +44,7 @@ function RequestVendorForm() {
   const currentUser = useAppSelector(selectCurrentUser);
 
   const [vendorCreationApplication] = useVendorCreateMutation();
-  const { data: categoriesData, isLoading: categoriesLoading } =
-    useAllCategoriesQuery({});
+  const { data: categoriesData } = useAllCategoriesQuery({});
   // Add new social media entry
   const addSocialMedia = () => {
     setSocialMedia([...socialMedia, { type: "facebook", username: "" }]);

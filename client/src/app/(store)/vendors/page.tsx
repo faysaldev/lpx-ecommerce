@@ -62,6 +62,10 @@ export default function VendorsPage() {
         return "products-count";
       case "byRatings":
         return "by-ratings";
+      case "Oldest":
+        return "oldest";
+      case "TopVendor":
+        return "topVendor";
       default:
         return "newest";
     }
