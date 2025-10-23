@@ -106,7 +106,11 @@ const getOrderSingleDetails = async (orderId) => {
 };
 
 const getOrderSingleStatusUpdate = async (orderId, status) => {
-  const order = await Order.findByIdAndUpdate(orderId, { status });
+  const order = await Order.findByIdAndUpdate(
+    orderId,
+    { status },
+    { new: true }
+  );
 
   return order;
 };
