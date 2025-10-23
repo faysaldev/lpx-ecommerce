@@ -1,12 +1,15 @@
 const express = require("express");
 const auth = require("../../middlewares/auth");
 const { productController } = require("../../controllers");
-const userFileUploadMiddleware = require("../../middlewares/fileUpload");
-const convertHeicToPngMiddleware = require("../../middlewares/converter");
+const userFileUploadMiddleware = require("../../middlewares/fileUploader");
 
-const UPLOADS_FOLDER_USERS = "./public/uploads/products";
+// const UPLOADS_FOLDER_USERS = "./public/uploads/products";
 
-const uploadUsers = userFileUploadMiddleware(UPLOADS_FOLDER_USERS);
+// const uploadUsers = userFileUploadMiddleware(UPLOADS_FOLDER_USERS);
+
+const UPLOADS_FOLDER = "products";
+
+const imageUpload = userFileUploadMiddleware(UPLOADS_FOLDER);
 
 const router = express.Router();
 
@@ -22,11 +25,9 @@ router
   .route("/add/:type")
   .post(
     auth("common"),
-    [uploadUsers.fields([{ name: "image", maxCount: 8 }])],
-    convertHeicToPngMiddleware(UPLOADS_FOLDER_USERS),
+    [imageUpload.fields([{ name: "image", maxCount: 8 }])],
     productController.addNewProducts
   );
-
 router
   .route("/remove/:id")
   .delete(auth("common"), productController.deleteProducts);
@@ -35,8 +36,7 @@ router
   .route("/edite/:id")
   .patch(
     auth("common"),
-    [uploadUsers.fields([{ name: "image", maxCount: 8 }])],
-    convertHeicToPngMiddleware(UPLOADS_FOLDER_USERS),
+    [imageUpload.fields([{ name: "image", maxCount: 8 }])],
     productController.editeProducts
   );
 

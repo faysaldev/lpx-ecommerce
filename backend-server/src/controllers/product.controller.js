@@ -31,15 +31,9 @@ const getAllProducts = catchAsync(async (req, res) => {
 });
 
 const addNewProducts = catchAsync(async (req, res) => {
-  // console.log(req.files, req.body);
-  // return;
-  const imagePaths = req?.files?.image?.map(
-    (img) => `${img.path.replace("public\\", "")}`
-  );
+  const imagePaths = req.files?.image?.map((img) => img.location);
+  const { type } = req.params;
 
-  const { type } = req.params; // The 'type' query parameter will be 'true' or 'false'
-
-  // Convert the string 'true'/'false' into a boolean
   const isDraft = type === "true"; // true if 'type' is 'true', false if 'type' is 'false'
 
   const dataFormat = {
@@ -104,15 +98,11 @@ const deleteProducts = catchAsync(async (req, res) => {
 });
 
 const editeProducts = catchAsync(async (req, res) => {
-  const imagePaths = req?.files?.image?.map(
-    (img) => `${img.path.replace("public\\", "")}`
-  );
+  const imagePaths = req.files?.image?.map((img) => img.location);
   const dataFormat = {
     images: imagePaths,
     ...req.body,
   };
-
-  console.log(dataFormat);
   const products = await productService.editeProducts(
     req.params.id,
     dataFormat
