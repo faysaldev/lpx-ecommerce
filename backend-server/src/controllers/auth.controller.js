@@ -200,8 +200,18 @@ const deleteMe = catchAsync(async (req, res) => {
 
 const resendVerification = catchAsync(async (req, res) => {
   const { email } = req.params;
-  const verification = await userService.resendVerification(email);
-
+  const user = await userService.getUserByEmail(email);
+  if (!user) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "No users found with this email"
+    );
+  }
+  const oneTimeCode =
+    Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
+  user.oneTimeCode = oneTimeCode;
+  await user.save();
+  await emailService.sendEmailVerification(email, oneTimeCode);
   res.status(httpStatus.CREATED).json(
     response({
       message: "Verification Sended to you Email",
