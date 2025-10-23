@@ -106,6 +106,12 @@ const updateUser = catchAsync(async (req, res) => {
 });
 
 const updateProfile = catchAsync(async (req, res) => {
+  // if (req.file) {
+  //   req.body.image =
+  //     req.file.location ||
+  //     "https://lpx-khalid.s3.ap-southeast-1.amazonaws.com/user.png";
+  // }
+
   if (req.file) {
     req.body.image = `/uploads/users/${req.file.filename}`;
   }

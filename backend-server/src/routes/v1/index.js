@@ -7,7 +7,6 @@ const vendorRoute = require("./vendor.routes");
 const cartsRoute = require("./cart.routes");
 const paymentRequestRoute = require("./paymentrequest.routes");
 const productsRoute = require("./product.routes");
-const draftRoute = require("./draft.routes");
 const ratingsRoute = require("./rating.routes");
 const orderRoute = require("./order.routes");
 const bankDetailsRoute = require("./bankDetails.routes");
@@ -44,10 +43,6 @@ const defaultRoutes = [
   {
     path: "/products",
     route: productsRoute,
-  },
-  {
-    path: "/drafts",
-    route: draftRoute,
   },
   {
     path: "/ratings",

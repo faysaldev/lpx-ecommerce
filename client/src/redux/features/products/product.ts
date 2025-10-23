@@ -24,14 +24,6 @@ const authApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["product"], // Add this to refresh product data after update
     }),
-
-    draftsCreate: builder.mutation({
-      query: (productInfo) => ({
-        url: "/drafts/add",
-        method: "POST",
-        body: productInfo,
-      }),
-    }),
     getSingleProduct: builder.query({
       query: (id) => ({
         url: `/products/details/${id}`,
@@ -67,7 +59,6 @@ const authApi = baseApi.injectEndpoints({
 export const {
   useProductCreateMutation,
   useProductUpdateMutation,
-  useDraftsCreateMutation,
   useGetSingleProductQuery,
   useRemoveSingleProductsMutation,
   useGetSingleProductQuickViewMutation,

@@ -13,5 +13,4 @@ module.exports.Order = require("./order.model");
 module.exports.BankDetails = require("./bankDetails.model");
 module.exports.PaymentRequest = require("./paymentrequest.model");
 module.exports.Rating = require("./rating.model");
-module.exports.Draft = require("./draft.modal");
 module.exports.General = require("./generals.model");

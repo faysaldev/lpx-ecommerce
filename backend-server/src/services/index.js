@@ -7,7 +7,6 @@ module.exports.adminService = require("./admin.service");
 module.exports.cartService = require("./cart.service");
 module.exports.paymentrequestService = require("./paymentrequest.service");
 module.exports.productService = require("./product.service");
-module.exports.draftService = require("./draft.service");
 module.exports.ratingService = require("./rating.service");
 module.exports.orderService = require("./order.service");
 module.exports.bankDetailsService = require("./bankDetails.service");

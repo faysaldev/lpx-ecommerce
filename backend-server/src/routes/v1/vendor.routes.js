@@ -1,13 +1,10 @@
 const express = require("express");
 const auth = require("../../middlewares/auth");
 const { vendorController } = require("../../controllers");
-const userFileUploadMiddleware = require("../../middlewares/fileUpload");
-const convertHeicToPngMiddleware = require("../../middlewares/converter");
 
-const UPLOADS_FOLDER_USERS = "./public/uploads/vendors";
-
-const uploadUsers = userFileUploadMiddleware(UPLOADS_FOLDER_USERS);
-
+const userFileUploadMiddleware = require("../../middlewares/fileUploader");
+const UPLOADS_FOLDER = "vendors";
+const imageUpload = userFileUploadMiddleware(UPLOADS_FOLDER);
 const router = express.Router();
 
 router.route("/my-vendors").get(auth("common"), vendorController.getVendors);
@@ -24,8 +21,7 @@ router
   .route("/request")
   .post(
     auth("common"),
-    [uploadUsers.single("image")],
-    convertHeicToPngMiddleware(UPLOADS_FOLDER_USERS),
+    [imageUpload.single("image")],
     vendorController.createVendorRequest
   );
 

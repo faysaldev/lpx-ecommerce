@@ -25,7 +25,7 @@ const userSchema = mongoose.Schema(
     },
     image: {
       type: String,
-      default: "/uploads/users/user.png",
+      default: "https://lpx-khalid.s3.ap-southeast-1.amazonaws.com/user.png",
     },
     password: {
       type: String,

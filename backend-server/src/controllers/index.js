@@ -5,7 +5,6 @@ module.exports.adminController = require("./admin.controller");
 module.exports.cartController = require("./cart.controller");
 module.exports.paymentRequestController = require("./paymentrequest.controller");
 module.exports.productController = require("./product.controller");
-module.exports.draftController = require("./draft.controller");
 module.exports.ratingController = require("./rating.controller");
 module.exports.orderController = require("./order.controller");
 module.exports.bankDetailsController = require("./bankDetails.controller");
