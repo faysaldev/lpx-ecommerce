@@ -333,9 +333,9 @@ const approvedAdminPayment = catchAsync(async (req, res) => {
     authorId: user?.id,
     sendTo: user?.id,
     transactionId: user.id,
-    title: `Your Vendor Payment Have  Been${req.body.status}`,
+    title: `Your Vendor Payment Have  Been ${req.body.status}`,
     description:
-      `Your Vendor Payment Have  Been${req.body.status} ${req.body.note}` ||
+      `Your Vendor Payment Have  Been ${req.body.status} ${req.body.note}` ||
       "No additional notes provided.",
     type: "system",
   };
