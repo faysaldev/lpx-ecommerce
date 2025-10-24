@@ -1,7 +1,12 @@
 const httpStatus = require("http-status");
 const catchAsync = require("../utils/catchAsync");
 const response = require("../config/response");
-const { orderService } = require("../services");
+const {
+  orderService,
+  userService,
+  notificationService,
+  emailService,
+} = require("../services");
 const { sendNotificationEmail } = require("../services/email.service");
 const { addNewNotification } = require("./notification.controller");
 const { Order } = require("../models");
@@ -75,16 +80,41 @@ const getOrderSingleDetails = catchAsync(async (req, res) => {
 });
 
 const getOrderSingleStatusUpdate = catchAsync(async (req, res) => {
-  const ordres = await orderService.getOrderSingleStatusUpdate(
+  const orders = await orderService.getOrderSingleStatusUpdate(
     req.params.id,
     req.query.status
   );
+  const user = await userService.getUserById(orders.customer);
+  const orderUpdatesNotification = {
+    authorId: user?.id,
+    sendTo: user?.id,
+    transactionId: user.id,
+    title: `Your Order  has been ${req.query.status}`,
+    description:
+      `Your Order ${orders.orderID} Have  Been ${req.query.status} ` ||
+      "No additional notes provided.",
+    type: "orders",
+  };
+  await notificationService.addNewNotification(orderUpdatesNotification);
+  const orderUpdateEmail = {
+    username: user?.name,
+    title: `Your Order has been ${req.query.status}`,
+    status: req.query.status,
+
+    orderId: orders.orderID,
+  };
+  await emailService.sendNotificationEmailWithDelayOrderUpdates(
+    user?.email || "admin@gmail.com",
+    orderUpdateEmail,
+    5000
+  );
+
   res.status(httpStatus.CREATED).json(
     response({
       message: "the Orders",
       status: "OK",
       statusCode: httpStatus.CREATED,
-      data: ordres,
+      data: orders,
     })
   );
 });

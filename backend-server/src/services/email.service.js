@@ -865,6 +865,7 @@ const getVendorApprovalTemplate = (notificationData) => {
 </html>`;
 };
 
+// payement request update
 const getPaymentNotificationTemplate = (notificationData) => {
   const {
     username,
@@ -1034,6 +1035,210 @@ const getPaymentNotificationTemplate = (notificationData) => {
 </html>`;
 };
 
+// order updates over here
+const getOrderUpdatesTemplate = (notificationData) => {
+  const {
+    username,
+    title,
+    orderId,
+    status,
+    timestamp = new Date().toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }),
+  } = notificationData;
+
+  // Status-specific configurations
+  const statusConfig = {
+    shipped: {
+      icon: "📦",
+      headerTitle: "Order Shipped",
+      headerColor: "linear-gradient(135deg, #2563eb 0%, #3b82f6 100%)",
+      greeting: "Good news! Your order has been shipped.",
+      statusColor: "#2563eb",
+      statusBg: "#eff6ff",
+      statusBorder: "#2563eb",
+      boxMessage:
+        "<strong>📍 Track Your Package</strong><br>Your order is on its way! Use the tracking number below to monitor your delivery progress.",
+    },
+    delivered: {
+      icon: "✅",
+      headerTitle: "Order Delivered",
+      headerColor: "linear-gradient(135deg, #059669 0%, #10b981 100%)",
+      greeting: "Your order has been successfully delivered!",
+      statusColor: "#059669",
+      statusBg: "#f0fdf4",
+      statusBorder: "#10b981",
+      boxMessage:
+        "<strong>🎉 Enjoy Your Purchase!</strong><br>Your order has been delivered. We hope you love your purchase! Please let us know if you have any issues.",
+    },
+    cancelled: {
+      icon: "❌",
+      headerTitle: "Order Cancelled",
+      headerColor: "linear-gradient(135deg, #dc2626 0%, #ef4444 100%)",
+      greeting: "Your order has been cancelled.",
+      statusColor: "#dc2626",
+      statusBg: "#fef2f2",
+      statusBorder: "#ef4444",
+      boxMessage:
+        "<strong>💰 Refund Information</strong><br>Your refund will be processed within 5-7 business days to your original payment method.",
+    },
+  };
+
+  const config = statusConfig[status.toLowerCase()] || statusConfig.shipped;
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${config.headerTitle} - LPX Collect</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: ${config.headerColor};
+            padding: 24px 30px;
+        }
+        .header .title {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+        }
+        .header .timestamp {
+            color: #e2e8f0;
+            font-size: 12px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .order-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .order-card h3 {
+            color: #1A202C;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: #718096;
+            font-size: 14px;
+        }
+        .info-value {
+            color: #1A202C;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .status-box {
+            background-color: ${config.statusBg};
+            border-left: 4px solid ${config.statusBorder};
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .status-box p {
+            color: #1A202C;
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 20px 30px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer p {
+            color: #718096;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">${config.icon} ${config.headerTitle}</div>
+            <div class="timestamp">${timestamp}</div>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                <p>Hello <strong>${username}</strong>,</p>
+                <p>${config.greeting}</p>
+            </div>
+
+            <div class="order-card">
+                <h3>${title}</h3>
+                <div class="info-row">
+                    <span class="info-label">Order ID</span>
+                    <span class="info-value">${orderId}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value" style="color: ${config.statusColor}; text-transform: capitalize;">${status}</span>
+                </div>
+            </div>
+
+            <div class="status-box">
+                <p>${config.boxMessage}</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 LPX Collect. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+};
+
 // Enhanced send function with better error handling
 const sendNotificationEmail = async (to, notificationData) => {
   try {
@@ -1170,6 +1375,44 @@ const sendNotificationEmailWithDelayVendorPayment = async (
   }
 };
 
+const sendNotificationEmailWithDelayOrderUpdates = async (
+  to,
+  notificationData,
+  delay
+) => {
+  try {
+    const subject = `🔔 ${notificationData.title} - LPX Collect`;
+    const html = getOrderUpdatesTemplate(notificationData);
+
+    const msg = {
+      from: config.email.from,
+      to,
+      subject,
+      html,
+    };
+
+    // Function to send email after a delay
+    const sendEmailWithDelay = () => {
+      return new Promise((resolve, reject) => {
+        setTimeout(async () => {
+          try {
+            await transport.sendMail(msg);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        }, delay); // Delay time in milliseconds (e.g., 2000ms = 2 seconds)
+      });
+    };
+
+    // Send the email with delay
+    await sendEmailWithDelay();
+  } catch (error) {
+    console.error("Error in sendNotificationEmailWithDelay:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   transport,
   sendEmail,
@@ -1181,4 +1424,5 @@ module.exports = {
   sendNotificationEmailWithDelay,
   sendNotificationEmailWithDelayVendor,
   sendNotificationEmailWithDelayVendorPayment,
+  sendNotificationEmailWithDelayOrderUpdates,
 };
