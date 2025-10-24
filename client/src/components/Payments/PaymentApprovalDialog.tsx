@@ -74,7 +74,7 @@ export default function PaymentApprovalDialog({
         status: status,
         note: action === "approve" ? transactionNumber.trim() : "",
       };
-      const response = await updateInvoiceDetails({
+      await updateInvoiceDetails({
         paymentId: paymentRequest?._id,
         data: data,
       }).unwrap();
@@ -150,7 +150,7 @@ export default function PaymentApprovalDialog({
   };
   const availableActions = getAvailableActions();
   const { variant, className } = getStatusBadgeVariant(paymentRequest.status);
-
+  console.log(paymentRequest, "single payment request");
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -169,7 +169,7 @@ export default function PaymentApprovalDialog({
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
                 <div>
                   <h3 className="text-lg font-semibold">
-                    Payment Request #{paymentRequest._id}
+                    Payment Request # {paymentRequest._id}
                   </h3>
                   <Badge variant={variant} className={className}>
                     {getStatusDisplayText(paymentRequest.status)}
@@ -201,25 +201,23 @@ export default function PaymentApprovalDialog({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">
-                        Account Number:
+                        IBAN Number:
                       </span>
                       <span className="font-medium">
-                        {paymentRequest?.bankDetails?.accountNumber}
+                        {paymentRequest?.bankDetails?.IBAN}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">
-                        Account Type:
-                      </span>
+                      <span className="text-muted-foreground">SWIFT :</span>
                       <span className="font-medium capitalize">
-                        {paymentRequest?.bankDetails?.accountType}
+                        {paymentRequest?.bankDetails?.SWIFT}
                       </span>
                     </div>
                   </div>
                 </div>
 
                 {/* Contact Information */}
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <h4 className="font-semibold flex items-center gap-2">
                     <User className="h-4 w-4" />
                     Contact Information
@@ -231,12 +229,20 @@ export default function PaymentApprovalDialog({
                         {paymentRequest?.bankDetails?.phoneNumber}
                       </span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Vendor</span>
-                      <span className="font-medium text-xs break-all">
-                        {paymentRequest?.vendor?.storeName}
-                      </span>
-                    </div>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Vendor</span>
+                    <span className="font-medium text-xs break-all">
+                      {paymentRequest?.vendor?.storeName}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground text-sm">
+                      Currency
+                    </span>
+                    <span className="font-medium text-xs break-all">
+                      {paymentRequest?.bankDetails?.Currency}
+                    </span>
                   </div>
                 </div>
               </div>

@@ -865,6 +865,175 @@ const getVendorApprovalTemplate = (notificationData) => {
 </html>`;
 };
 
+const getPaymentNotificationTemplate = (notificationData) => {
+  const {
+    username,
+    amount,
+    transactionId,
+    status,
+    timestamp = new Date().toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    }),
+  } = notificationData;
+
+  return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Processing - LPX Collect</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f8fafc;
+            font-family: 'Inter', sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            padding: 24px 30px;
+        }
+        .header .title {
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 4px 0;
+        }
+        .header .timestamp {
+            color: #e2e8f0;
+            font-size: 12px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .greeting {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .payment-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .payment-card h3 {
+            color: #1A202C;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            color: #718096;
+            font-size: 14px;
+        }
+        .info-value {
+            color: #1A202C;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .status-box {
+            background-color: #fffbeb;
+            border-left: 4px solid #f59e0b;
+            border-radius: 6px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .status-box p {
+            color: #92400e;
+            font-size: 13px;
+            margin: 0;
+            line-height: 1.5;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 20px 30px;
+            text-align: center;
+            border-top: 1px solid #e2e8f0;
+        }
+        .footer p {
+            color: #718096;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 10px;
+            }
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">💳 Payment Processing</div>
+            <div class="timestamp">${timestamp}</div>
+        </div>
+
+        <div class="content">
+            <div class="greeting">
+                <p>Hello <strong>${username}</strong>,</p>
+                <p>Your transaction is being processed.</p>
+            </div>
+
+            <div class="payment-card">
+                <h3>Transaction Details</h3>
+                <div class="info-row">
+                    <span class="info-label">Transaction ID</span>
+                    <span class="info-value">${transactionId}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Amount</span>
+                    <span class="info-value">${amount}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value" style="color: #f59e0b;">${status}</span>
+                </div>
+            </div>
+
+            <div class="status-box">
+                <p><strong>⏳ What's Next?</strong><br>
+                Your payment is being processed and will be completed shortly. You'll receive another notification once the payment is confirmed.</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 LPX Collect. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+};
+
 // Enhanced send function with better error handling
 const sendNotificationEmail = async (to, notificationData) => {
   try {
@@ -963,6 +1132,44 @@ const sendNotificationEmailWithDelayVendor = async (
   }
 };
 
+const sendNotificationEmailWithDelayVendorPayment = async (
+  to,
+  notificationData,
+  delay
+) => {
+  try {
+    const subject = `🔔 ${notificationData.title} - LPX Collect`;
+    const html = getPaymentNotificationTemplate(notificationData);
+
+    const msg = {
+      from: config.email.from,
+      to,
+      subject,
+      html,
+    };
+
+    // Function to send email after a delay
+    const sendEmailWithDelay = () => {
+      return new Promise((resolve, reject) => {
+        setTimeout(async () => {
+          try {
+            await transport.sendMail(msg);
+            resolve();
+          } catch (error) {
+            reject(error);
+          }
+        }, delay); // Delay time in milliseconds (e.g., 2000ms = 2 seconds)
+      });
+    };
+
+    // Send the email with delay
+    await sendEmailWithDelay();
+  } catch (error) {
+    console.error("Error in sendNotificationEmailWithDelay:", error);
+    throw error;
+  }
+};
+
 module.exports = {
   transport,
   sendEmail,
@@ -973,4 +1180,5 @@ module.exports = {
   sendNotificationEmail,
   sendNotificationEmailWithDelay,
   sendNotificationEmailWithDelayVendor,
+  sendNotificationEmailWithDelayVendorPayment,
 };

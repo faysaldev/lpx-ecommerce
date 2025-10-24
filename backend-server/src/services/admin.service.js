@@ -574,8 +574,6 @@ const getAdminAllPaymentRequests = async ({
     });
 
     const vendorIds = vendorSearch.map((vendor) => vendor._id);
-
-    // If vendor search is found, filter by vendor ID
     if (vendorIds.length > 0) {
       query.seller = { $in: vendorIds }; // Filter by vendors found in search
     }
@@ -595,10 +593,10 @@ const getAdminAllPaymentRequests = async ({
   let sortOption = {};
   switch (sortBy) {
     case "newestFirst":
-      sortOption = { requestDate: -1 }; // Sort by newest request
+      sortOption = { createdAt: -1 }; // Sort by newest request
       break;
     case "oldestFirst":
-      sortOption = { requestDate: 1 }; // Sort by oldest request
+      sortOption = { createdAt: 1 }; // Sort by oldest request
       break;
     case "highToLow":
       sortOption = { withdrawalAmount: -1 }; // Sort by high to low withdrawal amount
@@ -607,7 +605,7 @@ const getAdminAllPaymentRequests = async ({
       sortOption = { withdrawalAmount: 1 }; // Sort by low to high withdrawal amount
       break;
     default:
-      sortOption = { requestDate: -1 }; // Default to newestFirst
+      sortOption = { createdAt: -1 }; // Default to newestFirst
   }
 
   // Fetching payment requests based on the filters and sorting
@@ -621,28 +619,31 @@ const getAdminAllPaymentRequests = async ({
     })
     .populate("bankDetails"); // Ensure bankDetails are populated
 
-  // Decrypt bankName, accountNumber, and phoneNumber for each payment request
+  // Decrypt bankName, IBAN, and phoneNumber for each payment request
   const decryptedPaymentRequests = await Promise.all(
     paymentRequests.map(async (request) => {
       // Ensure bankDetails are populated and decrypt
       if (request.bankDetails) {
+        // Decrypt the bank details using the decryptData method
         const decryptedBankName = decryptData(request.bankDetails.bankName);
-        const decryptedAccountNumber = decryptData(
-          request.bankDetails.accountNumber
-        );
+        const decryptedIBAN = decryptData(request.bankDetails.IBAN);
+        const decryptedSWIFT = decryptData(request.bankDetails.SWIFT);
         const decryptedPhoneNumber = decryptData(
           request.bankDetails.phoneNumber
         );
+
+        const decryptedCurrency = decryptData(request.bankDetails.Currency);
 
         // Return the request with decrypted bank details under the bankDetails field
         return {
           ...request.toObject(), // Convert mongoose document to plain object
           bankDetails: {
-            bankName: decryptedBankName, // Add decrypted bankName
-            accountNumber: decryptedAccountNumber, // Add decrypted accountNumber
-            phoneNumber: decryptedPhoneNumber, // Add decrypted phoneNumber
-            accountType: request.bankDetails.accountType, // Keep other fields from bankDetails
+            bankName: decryptedBankName,
+            IBAN: decryptedIBAN,
+            phoneNumber: decryptedPhoneNumber,
             bankDetailsId: request.bankDetails._id, // Add bankDetailsId
+            Currency: decryptedCurrency,
+            SWIFT: decryptedSWIFT,
           },
         };
       }

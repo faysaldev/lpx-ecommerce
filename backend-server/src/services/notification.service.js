@@ -13,7 +13,7 @@ const getMyNotification = async (userId, notificationType = null) => {
     query.type = notificationType;
   }
 
-  return Notification.find(query); // Find notifications based on the query
+  return Notification.find(query).sort({ createdAt: -1 }); // Find notifications based on the query
 };
 
 const addNewNotification = async (notificationBody) => {

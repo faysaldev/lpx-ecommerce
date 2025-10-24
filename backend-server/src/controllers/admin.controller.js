@@ -308,12 +308,9 @@ const getAdminVendorSummary = catchAsync(async (req, res) => {
 });
 
 const getAdminFinancialOverview = catchAsync(async (req, res) => {
-  // Fetch data for the admin dashboard
   // if (req.user.type !== "admin") return;
   const adminPayVendorSumemries =
     await adminService.getAdminFinancialOverview();
-
-  // Return the data
 
   res.status(httpStatus.OK).json(
     response({
@@ -327,20 +324,34 @@ const getAdminFinancialOverview = catchAsync(async (req, res) => {
 
 // TODO: admin approving money
 const approvedAdminPayment = catchAsync(async (req, res) => {
-  // Fetch data for the admin dashboard
-  // if (req.user.type !== "admin") return;
-  if (req.file) {
-    req.body.invoiceImage = `/uploads/invoices/${req.file.filename}`;
-  }
   const adminApprovedPayment = await adminService.approvedAdminPayment({
     paymentId: req.params.id,
     data: req.body,
   });
-
-  // const calculateDecreaseMoney = await adminService.decreaseVendorMoney()
-
-  // Return the data
-
+  const user = await userService.getUserById(adminApprovedPayment.seller);
+  const vendorNotificationData = {
+    authorId: user?.id,
+    sendTo: user?.id,
+    transactionId: user.id,
+    title: `Your Vendor Payment Have  Been${req.body.status}`,
+    description:
+      `Your Vendor Payment Have  Been${req.body.status} ${req.body.note}` ||
+      "No additional notes provided.",
+    type: "system",
+  };
+  await notificationService.addNewNotification(vendorNotificationData);
+  const vendorApprovalPayment = {
+    username: user?.name,
+    title: `Your Vendor Payment Have  Been ${req.body.status}`,
+    amount: adminApprovedPayment.withdrawalAmount,
+    transactionId: req.body.note,
+    status: adminApprovedPayment.status,
+  };
+  await emailService.sendNotificationEmailWithDelayVendorPayment(
+    user?.email || "admin@gmail.com",
+    vendorApprovalPayment,
+    5000
+  );
   res.status(httpStatus.OK).json(
     response({
       message: "FinalCial Statitics",

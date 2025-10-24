@@ -161,7 +161,6 @@ export default function PaymentRequestTable({
               {showVendorColumn && <TableHead>Vendor</TableHead>}
               <TableHead>Bank Details</TableHead>
               <TableHead>Amount</TableHead>
-              <TableHead>Account Type</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Request Date</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -222,13 +221,6 @@ export default function PaymentRequestTable({
                       {formatCurrency(request.withdrawalAmount)}
                     </p>
                   </TableCell>
-
-                  <TableCell>
-                    <p className="font-medium capitalize">
-                      {request?.bankDetails?.accountType}
-                    </p>
-                  </TableCell>
-
                   <TableCell>
                     <Badge variant={variant} className={className}>
                       {getStatusDisplayText(request.status)}
