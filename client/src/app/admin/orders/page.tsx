@@ -2,7 +2,6 @@
 
 import {
   CheckCircle,
-  Download,
   Eye,
   MoreHorizontal,
   Package,
@@ -194,8 +193,6 @@ export default function OrdersManagement() {
     switch (currentStatus) {
       case "confirmed":
         return { label: "Mark as Shipped", status: "shipped" as const };
-      case "shipped":
-        return { label: "Mark as Delivered", status: "delivered" as const };
       case "delivered":
         return null; // No next action for delivered
       case "cancelled":
@@ -205,9 +202,9 @@ export default function OrdersManagement() {
     }
   };
 
-  // Check if cancel is allowed for the status
+  // Check if cancel is allowed for the status - only for confirmed orders
   const canCancel = (status: AdminOrder["status"]) => {
-    return status !== "delivered" && status !== "cancelled";
+    return status === "confirmed" || status === "shipped";
   };
 
   if (statsLoading || ordersLoading) {
@@ -444,9 +441,6 @@ export default function OrdersManagement() {
                                   >
                                     {nextAction.status === "shipped" && (
                                       <Truck className="mr-2 h-4 w-4" />
-                                    )}
-                                    {nextAction.status === "delivered" && (
-                                      <CheckCircle className="mr-2 h-4 w-4" />
                                     )}
                                     {nextAction.label}
                                   </DropdownMenuItem>

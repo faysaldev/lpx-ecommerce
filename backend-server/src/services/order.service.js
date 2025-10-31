@@ -1,8 +1,13 @@
 const httpStatus = require("http-status");
-const { Order } = require("../models");
+const { Order, SellProducts } = require("../models");
 const ApiError = require("../utils/ApiError");
 const PDFDocument = require("pdfkit");
 const fs = require("fs"); // For file system operations
+const {
+  cancelOrderShipment,
+  createShipmentsForOrder,
+} = require("../utils/jebbly-shipping.service");
+const mongoose = require("mongoose");
 
 const myOrders = async (
   userId,
@@ -106,13 +111,112 @@ const getOrderSingleDetails = async (orderId) => {
 };
 
 const getOrderSingleStatusUpdate = async (orderId, status) => {
-  const order = await Order.findByIdAndUpdate(
-    orderId,
-    { status },
-    { new: true }
-  );
-  return order;
+  // Start a MongoDB session to create a transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    let shipmentResponses = [];
+
+    // Handle "shipped" status: create shipments
+    if (status == "shipped") {
+      shipmentResponses = await createShipmentsForOrder(orderId); // Ensure this function returns a success response
+      if (
+        !shipmentResponses ||
+        shipmentResponses.some((response) => response.success !== "true")
+      ) {
+        throw new Error(
+          "Error during shipment creation: one or more shipments failed"
+        );
+      }
+    } else if (status === "cancelled") {
+      // Handle "cancelled" status: cancel shipments
+      const cancellationResponses = await cancelOrderShipment(orderId);
+      if (
+        !cancellationResponses ||
+        cancellationResponses.some((response) => response.success !== "true")
+      ) {
+        throw new Error(
+          "Error during shipment cancellation: one or more cancellations failed"
+        );
+      }
+    }
+
+    // Update SellProducts status in the transaction
+    const updateSellProductsResult = await SellProducts.updateMany(
+      { orderId: orderId },
+      { $set: { status: status } },
+      { session }
+    );
+
+    if (updateSellProductsResult.nModified === 0) {
+      throw new Error("No SellProducts were updated.");
+    }
+
+    // Update the Order status in the transaction
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true, session }
+    );
+
+    if (!updatedOrder) {
+      throw new Error("Failed to update order status.");
+    }
+
+    // Commit the transaction if all the operations succeed
+    await session.commitTransaction();
+    session.endSession();
+
+    console.log("Order and SellProducts updated successfully.");
+    return updatedOrder;
+  } catch (error) {
+    // Abort the transaction if any operation fails
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error("Error during status update:", error.message);
+    throw error; // Propagate the error so the caller can handle it
+  }
 };
+
+// const getOrderSingleStatusUpdate = async (orderId, status) => {
+//   if (status == "shipped") {
+//     createShipmentsForOrder(orderId)
+//       .then((responses) => {
+//         console.log("Shipment creation successful:", responses);
+//       })
+//       .catch((error) => {
+//         console.error("Error during shipment creation:", error);
+//       });
+//   } else {
+//     cancelOrderShipment(orderId)
+//       .then((responses) => {
+//         console.log("Shipment cancellation successful:", responses);
+//       })
+//       .catch((error) => {
+//         console.error("Error during shipment cancellation:", error);
+//       });
+//   }
+
+//   const result = await SellProducts.updateMany(
+//     { orderId: orderId },
+//     { $set: { status: status } }
+//   );
+
+//   if (result.nModified > 0) {
+//     console.log(`${result.nModified} documents updated successfully.`);
+//   } else {
+//     console.log("No documents were updated.");
+//   }
+
+//   const order = await Order.findByIdAndUpdate(
+//     orderId,
+//     { status },
+//     { new: true }
+//   );
+//   return order;
+// };
 
 const getOrderSingleShippingUpdates = async (orderId, status) => {
   const order = await Order.findByIdAndUpdate(

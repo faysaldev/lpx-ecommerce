@@ -80,15 +80,24 @@ const getOrderSingleDetails = catchAsync(async (req, res) => {
 });
 
 const getOrderSingleStatusUpdate = catchAsync(async (req, res) => {
+  if (!req.query.status) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "Status query parameter is required"
+    );
+  }
+
   const orders = await orderService.getOrderSingleStatusUpdate(
     req.params.id,
     req.query.status
   );
-  const user = await userService.getUserById(orders.customer);
-  if (query.query.status == "shipped") {
-    console.log(user, "user section");
-    console.log(orders, "orders over here");
+  if (!orders) {
+    throw new ApiError(
+      httpStatus.INTERNAL_SERVER_ERROR,
+      `Failed to update Make it ${req.query.status} `
+    );
   }
+  const user = await userService.getUserById(orders.customer);
   const orderUpdatesNotification = {
     authorId: user?.id,
     sendTo: user?.id,
@@ -99,12 +108,12 @@ const getOrderSingleStatusUpdate = catchAsync(async (req, res) => {
       "No additional notes provided.",
     type: "orders",
   };
+
   await notificationService.addNewNotification(orderUpdatesNotification);
   const orderUpdateEmail = {
     username: user?.name,
     title: `Your Order has been ${req.query.status}`,
     status: req.query.status,
-
     orderId: orders.orderID,
   };
   // removed the await section

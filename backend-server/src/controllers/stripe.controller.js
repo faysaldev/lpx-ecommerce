@@ -4,8 +4,10 @@ const { stripeService, orderService, generalsService } = require("../services");
 const {
   forMatOrderData,
   forMatStripeLineItems,
+  formatSellingProducts,
 } = require("../utils/StripeCheckoutHelper");
 const ApiError = require("../utils/ApiError");
+const SellProducts = require("../models/sellProducts.model");
 
 const checkOutSession = async (req, res) => {
   try {
@@ -38,22 +40,19 @@ const checkOutSession = async (req, res) => {
       orderNotes: "",
       cupon: {},
     });
-
-    console.log(orderData, "order data");
-
     const stripeItems = forMatStripeLineItems(productDetails);
-
     const orderCreate = await orderService.createOrder(orderData);
-
-    if (!orderCreate) {
+    const sellingProducts = formatSellingProducts(
+      productDetails,
+      orderCreate.id
+    );
+    const sellingItems = await SellProducts.insertMany(sellingProducts);
+    if (!orderCreate && !sellingItems) {
       throw new ApiError(
         httpStatus.INTERNAL_SERVER_ERROR,
         "Failed to create order"
       );
     }
-
-    console.log(orderCreate, "order create");
-
     const checkoutData = await stripeService.checkOutSession(
       stripeItems,
       req.user.id,
@@ -62,7 +61,6 @@ const checkOutSession = async (req, res) => {
       orderCreate.orderID,
       orderCreate?.shipping
     );
-
     res.status(httpStatus.OK).json(
       response({
         message: "Checkout session created successfully",

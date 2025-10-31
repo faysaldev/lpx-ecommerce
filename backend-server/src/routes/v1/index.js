@@ -16,6 +16,7 @@ const notificationRoute = require("./notifications.routes");
 const stripeRoute = require("./stripe.routes");
 const generalRoute = require("./generals.routes");
 const utilsRoute = require("./utils.routes");
+const jeeblyRoutes = require("./jeebly-webhook.routes");
 
 const router = express.Router();
 
@@ -80,6 +81,10 @@ const defaultRoutes = [
   {
     path: "/lpx",
     route: utilsRoute,
+  },
+  {
+    path: "/jeebly",
+    route: jeeblyRoutes,
   },
 ];
 

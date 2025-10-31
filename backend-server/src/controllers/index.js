@@ -13,3 +13,4 @@ module.exports.notificationController = require("./notification.controller");
 module.exports.stripeController = require("./stripe.controller");
 module.exports.generalsController = require("./generals.controller");
 module.exports.utilsController = require("./utils.controller");
+module.exports.jeeblyWebhookController = require("./jeebly-webhook.controller");

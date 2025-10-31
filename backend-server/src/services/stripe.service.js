@@ -11,24 +11,9 @@ const {
   sendNotificationEmail,
   sendNotificationEmailWithDelay,
 } = require("./email.service");
-const { Product, Vendor } = require("../models");
+const { Product, SellProducts } = require("../models");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-
-const makeEmailBodyHealper = async ({ name, purchase_id }) => {
-  const emailBody = {
-    username: name || "Customer",
-    title: `Order ${purchase_id} Confirmed`,
-    description: `We have successfully received your order. Our team is now processing your items, and we will begin shipping your products shortly. You will receive another notification once your order has shipped.`,
-    priority: "high",
-    type: "orders",
-    transactionId: purchase_id,
-    timestamp: new Date(),
-  };
-
-  return emailBody;
-};
-
 // Constants
 const ALLOWED_SHIPPING_COUNTRIES = ["AE", "US"];
 const CHECKOUT_MODE = "payment";
@@ -216,6 +201,7 @@ const handleCheckoutCompleted = async (checkoutSession) => {
       order_id,
       updateData
     );
+
     // Loop through each vendor and update earnings
     const vendorUpdatePromises = updatedOrder.map(async (orderItem) => {
       const { vendorId, productPrice, sellerId, quantity, productId } =
@@ -243,9 +229,19 @@ const handleCheckoutCompleted = async (checkoutSession) => {
       await notificationService.addNewNotification(vendorNotificationData);
     });
 
+    // Update status of all SellProducts for the given orderId
+    const result = await SellProducts.updateMany(
+      { orderId: order_id },
+      { $set: { status: "confirmed" } }
+    );
+
+    if (result.nModified > 0) {
+      console.log(`${result.nModified} documents updated successfully.`);
+    } else {
+      console.log("No documents were updated.");
+    }
     // Wait for all vendor updates to finish
     await Promise.all(vendorUpdatePromises);
-
     // Create notification for the customer
     const customerNotificationData = {
       authorId: customer_id,
@@ -326,7 +322,6 @@ const handlePaymentFailed = async (paymentIntent) => {
 
 // cehcking product availablity
 const checkProductAvailability = async (data) => {
-  console.log(data, "check availablity");
   const results = [];
 
   // Loop through each item in the data array
@@ -351,9 +346,8 @@ const checkProductAvailability = async (data) => {
 
       // Check if the quantity is available
       if (product.stockQuantity < quantity) {
-        // If not enough stock is available
         results.push({
-          productName: product.productName, // Return productName here
+          productName: product.productName,
           message: `Not enough stock for ${product.productName}. Only ${product.stockQuantity} available.`,
         });
         continue;

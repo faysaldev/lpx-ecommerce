@@ -51,23 +51,6 @@ const OrderSchema = new Schema(
       country: { type: String },
       deliveryInstructions: { type: String },
     },
-    totalItems: [
-      {
-        productId: {
-          type: Schema.Types.ObjectId,
-          ref: "Product",
-          required: true,
-        },
-        image: { type: String }, // Assuming an array of image URLs
-        quantity: { type: Number, required: true },
-        price: { type: Number, required: true },
-        vendorId: {
-          type: Schema.Types.ObjectId,
-          ref: "Vendor",
-          required: true,
-        },
-      },
-    ],
     total: { type: Number, required: true },
     shipping: { type: Number, required: true },
     tax: { type: Number, required: true },

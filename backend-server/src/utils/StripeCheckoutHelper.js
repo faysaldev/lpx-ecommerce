@@ -31,13 +31,6 @@ export const forMatOrderData = ({
     customer: customer, // Assuming customer is an object with _id
     status: "unpaid", // Default status
     totalAmount: totalAmount, // The total amount of the order
-    totalItems: productDetails.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      price: item.price,
-      image: item.image,
-      vendorId: item.vendorId,
-    })),
     total: totalAmount, // Total price
     shipping: shippingCost, // Shipping cost
     tax: taxCost, // Tax cost
@@ -46,4 +39,17 @@ export const forMatOrderData = ({
   };
 
   return orderData;
+};
+
+export const formatSellingProducts = (productDetails, orderId) => {
+  return productDetails.map((product) => ({
+    orderId: orderId, // Convert orderId to ObjectId
+    productId: product.productId, // Convert productId to ObjectId
+    shippingId: "", // If shippingId is not available, you can leave it empty or generate it as needed
+    image: product.image,
+    quantity: product.quantity,
+    price: product.price,
+    vendorId: product.vendorId, // Convert vendorId to ObjectId
+    status: "unpaid", // Set default status or modify as needed
+  }));
 };

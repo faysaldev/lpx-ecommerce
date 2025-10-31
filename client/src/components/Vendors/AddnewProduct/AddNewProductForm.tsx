@@ -140,8 +140,9 @@ function AddNewProductForm() {
 
       router.push("/vendor/dashboard");
     } catch (error) {
-      toast.error("An error occurred while creating the product.");
-      console.error("Error creating product:", error);
+      toast.error(
+        error?.data.message || "An error occurred while creating the product."
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -223,8 +224,6 @@ function AddNewProductForm() {
                 </p>
               )}
             </div>
-
-            
 
             <div>
               <Label htmlFor="brand">Brand/Manufacturer</Label>
