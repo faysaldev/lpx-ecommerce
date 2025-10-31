@@ -28,9 +28,6 @@ const checkOutSession = async (req, res) => {
         })
       );
     }
-
-    console.log(productDetails, "product details data");
-
     const shippingTax = await generalsService.getShippingTaxEtc();
 
     const orderData = forMatOrderData({
@@ -89,9 +86,7 @@ const checkoutComplete = async (req, res) => {
     if (!session_id) {
       throw new ApiError(httpStatus.BAD_REQUEST, "Session ID is required");
     }
-
     const completedData = await stripeService.checkoutComplete(session_id);
-
     res.status(httpStatus.OK).json(
       response({
         message: "Checkout session retrieved successfully",

@@ -111,7 +111,15 @@ const getOrderSingleStatusUpdate = async (orderId, status) => {
     { status },
     { new: true }
   );
+  return order;
+};
 
+const getOrderSingleShippingUpdates = async (orderId, status) => {
+  const order = await Order.findByIdAndUpdate(
+    orderId,
+    { status },
+    { new: true }
+  );
   return order;
 };
 
@@ -437,4 +445,5 @@ module.exports = {
   editeSingleOrder,
   getOrderSingleDetailsInvoice,
   getOrderSingleStatusUpdate,
+  getOrderSingleShippingUpdates,
 };

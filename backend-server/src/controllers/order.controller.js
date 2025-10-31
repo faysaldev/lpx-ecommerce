@@ -85,6 +85,10 @@ const getOrderSingleStatusUpdate = catchAsync(async (req, res) => {
     req.query.status
   );
   const user = await userService.getUserById(orders.customer);
+  if (query.query.status == "shipped") {
+    console.log(user, "user section");
+    console.log(orders, "orders over here");
+  }
   const orderUpdatesNotification = {
     authorId: user?.id,
     sendTo: user?.id,
@@ -103,7 +107,8 @@ const getOrderSingleStatusUpdate = catchAsync(async (req, res) => {
 
     orderId: orders.orderID,
   };
-  await emailService.sendNotificationEmailWithDelayOrderUpdates(
+  // removed the await section
+  emailService.sendNotificationEmailWithDelayOrderUpdates(
     user?.email || "admin@gmail.com",
     orderUpdateEmail,
     5000
