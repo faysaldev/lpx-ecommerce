@@ -12,12 +12,7 @@ const { addNewNotification } = require("./notification.controller");
 const { Order } = require("../models");
 
 const myOrders = catchAsync(async (req, res) => {
-  const {
-    status, // Filter by order status
-    sortBy = "newestFirst", // Sorting option: newest first by default
-    page = 1, // Default page: 1
-    limit = 10, // Default limit: 10 orders per page
-  } = req.query;
+  const { status, sortBy = "newestFirst", page = 1, limit = 10 } = req.query;
 
   // Pass parameters to the service
   const orders = await orderService.myOrders(req.user.id, {

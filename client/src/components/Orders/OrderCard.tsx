@@ -22,6 +22,7 @@ import { downloadInvoiceHealper } from "@/lib/utils/downloadInvoice";
 import { selectToken } from "@/redux/features/auth/authSlice";
 import { useAppSelector } from "@/redux/hooks";
 import { OrderStatus } from "@/lib/types";
+import Image from "next/image";
 
 const statusConfig: Record<
   OrderStatus,
@@ -143,19 +144,22 @@ function OrderCard({ order }: { order: any; onReorder: (order: any) => void }) {
           <div className="pt-4 space-y-4">
             <div>
               <h4 className="font-medium mb-3">
-                Order Items ({order.totalItems.length})
+                Order Items ({order.items.length})
               </h4>
               <div className="space-y-3">
-                {order.totalItems.map((item: any) => {
+                {order.items.map((item: any) => {
                   return (
                     <div
                       key={item._id}
                       className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg"
                     >
                       <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center">
-                        <img
-                          src={item?.productId?.images[0]}
-                          className="h-8 w-8"
+                        <Image
+                          src={item?.image}
+                          className="h-16 w-16"
+                          height={60}
+                          width={60}
+                          alt={item.productId?.productName || "Product Image"}
                         />
                       </div>
                       <div className="flex-1">

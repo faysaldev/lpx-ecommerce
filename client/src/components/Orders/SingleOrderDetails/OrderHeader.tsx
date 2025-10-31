@@ -7,16 +7,10 @@ import { Card, CardContent } from "@/components/UI/card";
 import { Copy, Download } from "lucide-react";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface OrderHeaderProps {
   order: any;
-  status: {
-    label: string;
-    icon: React.ElementType;
-    color: string;
-    bgColor: string;
-  };
-  StatusIcon: React.ElementType;
   copied: boolean;
   copyOrderNumber: () => void;
   downloadInvoice: () => void;
@@ -25,8 +19,6 @@ interface OrderHeaderProps {
 
 export default function OrderHeader({
   order,
-  status,
-  StatusIcon,
   copyOrderNumber,
   downloadInvoice,
 }: OrderHeaderProps) {
@@ -42,9 +34,6 @@ export default function OrderHeader({
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           {/* Order Info */}
           <div className="flex items-start gap-4">
-            <div className={`p-3 rounded-lg ${status.bgColor}`}>
-              <StatusIcon className={`h-6 w-6 ${status.color}`} />
-            </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h2 className="text-2xl font-bold">{order.orderID}</h2>
@@ -57,14 +46,9 @@ export default function OrderHeader({
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
+
               <div className="flex items-center gap-3 flex-wrap">
-                <Badge
-                  variant={
-                    order.status === "delivered" ? "default" : "secondary"
-                  }
-                >
-                  {status.label}
-                </Badge>
+                <Badge variant="secondary">{order.status}</Badge>
                 <span className="text-sm text-muted-foreground">
                   {mounted ? (
                     <>
@@ -97,10 +81,12 @@ export default function OrderHeader({
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center overflow-hidden">
                 {order.customer.image ? (
-                  <img
+                  <Image
                     src={order.customer.image}
                     alt={order.customer.name}
                     className="w-full h-full object-cover"
+                    width={40}
+                    height={40}
                   />
                 ) : (
                   <span className="text-lg font-semibold">

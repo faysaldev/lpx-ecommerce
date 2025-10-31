@@ -326,7 +326,8 @@ export default function UserSettingsProfile() {
                           </span>
                         </div>
                         <span className="text-2xl font-bold">
-                          ${vendorDetails.totalEarnings?.toFixed(2) || "0.00"}
+                          AED{" "}
+                          {vendorDetails.totalEarnings?.toFixed(2) || "0.00"}
                         </span>
                       </div>
                     </div>
@@ -341,7 +342,8 @@ export default function UserSettingsProfile() {
                           </span>
                         </div>
                         <span className="text-2xl font-bold">
-                          ${vendorDetails.totalWithDrawal?.toFixed(2) || "0.00"}
+                          AED{" "}
+                          {vendorDetails.totalWithDrawal?.toFixed(2) || "0.00"}
                         </span>
                       </div>
                     </div>
@@ -356,7 +358,7 @@ export default function UserSettingsProfile() {
                           </span>
                         </div>
                         <span className="text-2xl font-bold text-yellow-300">
-                          $
+                          AED
                           {(
                             (vendorDetails.totalEarnings || 0) -
                             (vendorDetails.totalWithDrawal || 0)

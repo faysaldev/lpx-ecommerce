@@ -6,6 +6,7 @@ const {
   Order,
   Cart,
   PaymentRequest,
+  SellProducts,
   Rating,
 } = require("../models");
 const ApiError = require("../utils/ApiError");
@@ -483,33 +484,56 @@ const getAllProductsAdmin = async ({
 };
 
 const getAdminOrderStats = async () => {
-  // Total Orders (excluding unpaid)
+  // Count total orders (exclude unpaid)
   const totalOrders = await Order.countDocuments({
-    status: { $ne: "unpaid" }, // Exclude orders with "unpaid" status
+    status: { $ne: "unpaid" },
   });
 
-  // Orders in Conformed status (excluding unpaid, counting shipped and delivered)
-  const conformedOrders = await Order.countDocuments({
-    status: { $in: ["shipped", "delivered"] }, // Check if status is either "shipped" or "delivered"
-  });
-
-  // Orders in Delivered status (excluding unpaid)
-  const deliveredOrders = await Order.countDocuments({
-    status: "delivered",
-    // Filter to exclude unpaid orders from the result (it's sufficient to just check for status "delivered")
-  });
-
-  // Total Sales (from completed orders, excluding unpaid)
-  const totalSales = await Order.aggregate([
-    { $match: { status: "delivered" } }, // Only include "delivered" orders
-    { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
+  // Get all related SellProducts excluding unpaid or cancelled orders
+  const sellProducts = await SellProducts.aggregate([
+    {
+      $lookup: {
+        from: "orders",
+        localField: "orderId",
+        foreignField: "_id",
+        as: "order",
+      },
+    },
+    { $unwind: "$order" },
+    {
+      $match: {
+        "order.status": { $ne: "unpaid" },
+        status: { $ne: "cancelled" },
+      },
+    },
   ]);
+
+  // Conformed (shipped + delivered)
+  const conformedOrders = await SellProducts.countDocuments({
+    status: { $in: ["shipped", "Delivered"] },
+  });
+
+  // Delivered products
+  const deliveredProducts = await SellProducts.find({
+    status: "Delivered",
+  }).populate("orderId", "status totalAmount");
+
+  // Filter only delivered items whose parent order isn’t unpaid
+  const filteredDelivered = deliveredProducts.filter(
+    (p) => p.orderId && p.orderId.status !== "unpaid"
+  );
+
+  // Total Sales (sum based on delivered SellProducts)
+  const totalSales = filteredDelivered.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
   return {
     totalOrders,
     conformedOrders,
-    deliveredOrders,
-    totalSales: totalSales[0]?.totalSales || 0, // Default to 0 if no sales are found
+    deliveredOrders: filteredDelivered.length,
+    totalSales,
   };
 };
 
@@ -517,37 +541,35 @@ const getAdminOrderStats = async () => {
 const getAllOrders = async ({ query, page, limit }) => {
   const skip = (page - 1) * limit;
 
-  // Constructing the filter query
-  const searchQuery = {
-    status: { $ne: "unpaid" }, // Exclude orders with 'unpaid' status
-  };
+  const searchQuery = { status: { $ne: "unpaid" } };
 
-  // If a 'query' parameter is passed, filter by order ID or customer name
   if (query) {
-    const queryRegEx = { $regex: query, $options: "i" }; // Case-insensitive regex search
+    const queryRegEx = { $regex: query, $options: "i" };
     searchQuery.$or = [
-      { orderID: queryRegEx }, // Check orderID
-      { "customer.name": queryRegEx }, // Check customer name
+      { orderID: queryRegEx },
+      { "customer.name": queryRegEx },
     ];
   }
 
-  // Query the database with filters and pagination
   const orders = await Order.find(searchQuery)
-    .populate("customer", "name email image") // Populate customer details
-    .select("orderID customer totalAmount status totalItems createdAt vendorId") // Select relevant fields
-    .skip(skip) // Pagination
-    .limit(Number(limit)) // Limit the number of results
-    .sort({ createdAt: -1 }) // Sort by order creation time (latest first)
-    .lean(); // Use lean to return plain JavaScript objects
+    .populate("customer", "name email image")
+    .select("orderID customer totalAmount status createdAt")
+    .skip(skip)
+    .limit(Number(limit))
+    .sort({ createdAt: -1 })
+    .lean();
 
-  // If no orders are found, throw an error
-  if (orders.length === 0) {
-    return [];
-  }
+  if (!orders.length) return [];
 
-  // Add additional details to each order (like how many items)
   for (let order of orders) {
-    order.itemsCount = order.totalItems.length; // Count how many items in the order
+    const items = await SellProducts.find({ orderId: order._id })
+      .populate("productId", "name image price")
+      .populate("vendorId", "storeName email")
+      .select("productId quantity price status vendorId image")
+      .lean();
+
+    order.items = items;
+    order.itemsCount = items.length;
   }
 
   return orders;

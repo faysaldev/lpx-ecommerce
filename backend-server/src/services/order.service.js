@@ -14,8 +14,7 @@ const myOrders = async (
   { status, sortBy = "newestFirst", page = 1, limit = 10 }
 ) => {
   const skip = (page - 1) * limit;
-  const searchQuery = { customer: userId };
-  searchQuery.status = { $ne: "unpaid" };
+  const searchQuery = { customer: userId, status: { $ne: "unpaid" } };
 
   if (status) {
     searchQuery.status = status;
@@ -41,24 +40,40 @@ const myOrders = async (
 
   try {
     const orders = await Order.find(searchQuery)
-      .select(
-        "orderID status totalAmount totalItems shippingInformation createdAt"
-      )
+      .select("orderID status totalAmount shippingInformation createdAt")
       .skip(skip)
       .limit(Number(limit))
       .sort(sortOrder)
-      .populate("totalItems.productId", "productName images")
-      .populate("totalItems.vendorId", "storeName")
+      .populate("customer", "name email image")
       .lean();
 
-    orders.forEach((order) => {
-      order.totalItems.forEach((item) => {
-        if (item.productId.images && item.productId.images.length > 0) {
+    if (!orders.length) {
+      return {
+        orders: [],
+        currentPage: page,
+        totalPages: 0,
+        totalOrders: 0,
+      };
+    }
+
+    // Fetch SellProducts for each order
+    for (let order of orders) {
+      const items = await SellProducts.find({ orderId: order._id })
+        .populate("productId", "productName")
+        .populate("vendorId", "storeName email")
+        .select("productId quantity price vendorId status image")
+        .lean();
+
+      order.items = items.map((item) => {
+        if (item.productId?.images?.length > 0) {
           const firstImage = item.productId.images[0];
           item.productId.images[0] = `${firstImage}_modified`;
         }
+        return item;
       });
-    });
+
+      order.itemsCount = order.items.length;
+    }
 
     const totalOrders = await Order.countDocuments(searchQuery);
     const totalPages = Math.ceil(totalOrders / limit);
@@ -91,36 +106,110 @@ const getOrderSingleDetails = async (orderId) => {
 
   const order = await Order.findById(orderId)
     .populate({
-      path: "customer", // Populate the customer details
-      select: "name email phoneNumber address image", // Select necessary fields for user details
+      path: "customer",
+      select: "name email phoneNumber address image",
     })
-    .populate({
-      path: "totalItems.productId", // Populate the product details
-      select: "productName description category price images", // Select the fields you want for product details
-    })
-    .populate({
-      path: "totalItems.vendorId", // Populate the vendor details
-      select: "storeName", // Only select the store name
-    });
+    .lean();
 
   if (!order) {
     throw new ApiError(httpStatus.NOT_FOUND, "Order not found");
   }
 
+  const items = await SellProducts.find({ orderId: order._id })
+    .populate("vendorId", "storeName email")
+    .select("productId vendorId quantity price status image")
+    .lean();
+
+  order.totalItems = items.map((item) => {
+    if (item.productId?.images?.length > 0) {
+      const firstImage = item.productId.images[0];
+      item.productId.images[0] = `${firstImage}`;
+    }
+    return item;
+  });
+
+  order.itemsCount = items.length;
+
   return order;
 };
+// todo:single one done
+// const getOrderSingleStatusUpdate = async (orderId, status) => {
+//   // Start a MongoDB session to create a transaction
+//   const session = await mongoose.startSession();
+//   session.startTransaction();
+
+//   try {
+//     let shipmentResponses = [];
+
+//     // Handle "shipped" status: create shipments
+//     if (status == "shipped") {
+//       shipmentResponses = await createShipmentsForOrder(orderId); // Ensure this function returns a success response
+//       if (
+//         !shipmentResponses ||
+//         shipmentResponses.some((response) => response.success !== "true")
+//       ) {
+//         throw new Error(
+//           "Error during shipment creation: one or more shipments failed"
+//         );
+//       }
+//     } else if (status === "cancelled") {
+//       // Handle "cancelled" status: cancel shipments
+//       const cancellationResponses = await cancelOrderShipment(orderId);
+//       if (
+//         !cancellationResponses ||
+//         cancellationResponses.some((response) => response.success !== "true")
+//       ) {
+//         throw new Error(
+//           "Error during shipment cancellation: one or more cancellations failed"
+//         );
+//       }
+//     }
+
+//     // Update SellProducts status in the transaction
+//     const updateSellProductsResult = await SellProducts.updateMany(
+//       { orderId: orderId },
+//       { $set: { status: status } },
+//       { session }
+//     );
+
+//     if (updateSellProductsResult.nModified === 0) {
+//       throw new Error("No SellProducts were updated.");
+//     }
+
+//     // Update the Order status in the transaction
+//     const updatedOrder = await Order.findByIdAndUpdate(
+//       orderId,
+//       { status },
+//       { new: true, session }
+//     );
+
+//     if (!updatedOrder) {
+//       throw new Error("Failed to update order status.");
+//     }
+
+//     // Commit the transaction if all the operations succeed
+//     await session.commitTransaction();
+//     session.endSession();
+
+//     console.log("Order and SellProducts updated successfully.");
+//     return updatedOrder;
+//   } catch (error) {
+//     // Abort the transaction if any operation fails
+//     await session.abortTransaction();
+//     session.endSession();
+
+//     console.error("Error during status update:", error.message);
+//     throw error; // Propagate the error so the caller can handle it
+//   }
+// };
 
 const getOrderSingleStatusUpdate = async (orderId, status) => {
-  // Start a MongoDB session to create a transaction
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     let shipmentResponses = [];
 
     // Handle "shipped" status: create shipments
-    if (status == "shipped") {
-      shipmentResponses = await createShipmentsForOrder(orderId); // Ensure this function returns a success response
+    if (status === "shipped") {
+      shipmentResponses = await createShipmentsForOrder(orderId);
       if (
         !shipmentResponses ||
         shipmentResponses.some((response) => response.success !== "true")
@@ -142,81 +231,37 @@ const getOrderSingleStatusUpdate = async (orderId, status) => {
       }
     }
 
-    // Update SellProducts status in the transaction
+    // Update SellProducts status (no transaction)
     const updateSellProductsResult = await SellProducts.updateMany(
-      { orderId: orderId },
-      { $set: { status: status } },
-      { session }
+      { orderId },
+      { $set: { status } }
     );
 
-    if (updateSellProductsResult.nModified === 0) {
-      throw new Error("No SellProducts were updated.");
+    if (
+      !updateSellProductsResult.modifiedCount &&
+      !updateSellProductsResult.nModified
+    ) {
+      console.warn(`⚠️ No SellProducts updated for order ${orderId}`);
     }
 
-    // Update the Order status in the transaction
+    // Update Order status (no transaction)
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
       { status },
-      { new: true, session }
+      { new: true }
     );
 
     if (!updatedOrder) {
       throw new Error("Failed to update order status.");
     }
 
-    // Commit the transaction if all the operations succeed
-    await session.commitTransaction();
-    session.endSession();
-
-    console.log("Order and SellProducts updated successfully.");
+    console.log("✅ Order and SellProducts updated successfully.");
     return updatedOrder;
   } catch (error) {
-    // Abort the transaction if any operation fails
-    await session.abortTransaction();
-    session.endSession();
-
-    console.error("Error during status update:", error.message);
-    throw error; // Propagate the error so the caller can handle it
+    console.error("❌ Error during status update:", error.message);
+    throw error;
   }
 };
-
-// const getOrderSingleStatusUpdate = async (orderId, status) => {
-//   if (status == "shipped") {
-//     createShipmentsForOrder(orderId)
-//       .then((responses) => {
-//         console.log("Shipment creation successful:", responses);
-//       })
-//       .catch((error) => {
-//         console.error("Error during shipment creation:", error);
-//       });
-//   } else {
-//     cancelOrderShipment(orderId)
-//       .then((responses) => {
-//         console.log("Shipment cancellation successful:", responses);
-//       })
-//       .catch((error) => {
-//         console.error("Error during shipment cancellation:", error);
-//       });
-//   }
-
-//   const result = await SellProducts.updateMany(
-//     { orderId: orderId },
-//     { $set: { status: status } }
-//   );
-
-//   if (result.nModified > 0) {
-//     console.log(`${result.nModified} documents updated successfully.`);
-//   } else {
-//     console.log("No documents were updated.");
-//   }
-
-//   const order = await Order.findByIdAndUpdate(
-//     orderId,
-//     { status },
-//     { new: true }
-//   );
-//   return order;
-// };
 
 const getOrderSingleShippingUpdates = async (orderId, status) => {
   const order = await Order.findByIdAndUpdate(
@@ -228,14 +273,86 @@ const getOrderSingleShippingUpdates = async (orderId, status) => {
 };
 
 // todo: working to stripe webhook to update all the details
+// todo: previous code commented for future reference
+// const editeSingleOrder = async (orderId, newData) => {
+//   if (!orderId) {
+//     throw new ApiError(httpStatus.BAD_REQUEST, "Order ID is required");
+//   }
+
+//   // Update data for the order
+//   const updateData = {
+//     status: newData.status || undefined, // Only update status if it's provided
+//     shippingInformation: {
+//       firstName: newData.shippingInformation?.name?.split(" ")[0] || "",
+//       lastName: newData.shippingInformation?.name?.split(" ")[1] || "",
+//       name: newData.shippingInformation?.name,
+//       email: newData.shippingInformation?.email,
+//       phoneNumber: newData.shippingInformation?.phoneNumber,
+//       streetAddress: newData.shippingInformation?.address?.line1,
+//       apartment: newData.shippingInformation?.address?.line2,
+//       city: newData.shippingInformation?.address?.city,
+//       state: newData.shippingInformation?.address?.state,
+//       zipCode: newData.shippingInformation?.address?.postal_code,
+//       country: newData.shippingInformation?.address?.country,
+//       deliveryInstructions:
+//         newData.shippingInformation?.deliveryInstructions || "",
+//     },
+//     billingInformation: {
+//       firstName: newData.billingInformation?.name?.split(" ")[0] || "",
+//       lastName: newData.billingInformation?.name?.split(" ")[1] || "",
+//       name: newData.billingInformation?.name,
+//       email: newData.billingInformation?.email,
+//       phoneNumber: newData.billingInformation?.phoneNumber,
+//       streetAddress: newData.billingInformation?.address?.line1,
+//       apartment: newData.billingInformation?.address?.line2,
+//       city: newData.billingInformation?.address?.city,
+//       state: newData.billingInformation?.address?.state,
+//       zipCode: newData.billingInformation?.address?.postal_code,
+//       country: newData.billingInformation?.address?.country,
+//       deliveryInstructions:
+//         newData.billingInformation?.deliveryInstructions || "",
+//     },
+//   };
+
+//   // Find the order by its ID and populate vendor details (including ownerName and email)
+//   const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, {
+//     new: true,
+//   }).populate({
+//     path: "totalItems.vendorId",
+//     select: "email seller ownerName", // Populate email, seller, and ownerName
+//   });
+
+//   if (!updatedOrder) {
+//     throw new ApiError(httpStatus.NOT_FOUND, "Order not found");
+//   }
+
+//   // Extract the vendor details and calculate price for each product, including productId, quantity, ownerName, and email
+//   const vendorDetails = updatedOrder.totalItems.map((item) => {
+//     // Calculate price for each item by multiplying the quantity with the price
+//     const totalPrice = item.price * item.quantity;
+
+//     return {
+//       productId: item.productId, // Product ID
+//       quantity: item.quantity, // Quantity of the product
+//       vendorId: item.vendorId._id, // Vendor ID
+//       email: item.vendorId.email, // Vendor email
+//       sellerId: item.vendorId.seller, // Seller's user ID
+//       productPrice: totalPrice, // Calculated price (price * quantity)
+//       ownerName: item.vendorId.ownerName, // Vendor owner name
+//       vendorEmail: item.vendorId.email, // Vendor email (again here for clarity)
+//     };
+//   });
+
+//   return vendorDetails;
+// };
+
 const editeSingleOrder = async (orderId, newData) => {
   if (!orderId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Order ID is required");
   }
 
-  // Update data for the order
   const updateData = {
-    status: newData.status || undefined, // Only update status if it's provided
+    status: newData.status || undefined,
     shippingInformation: {
       firstName: newData.shippingInformation?.name?.split(" ")[0] || "",
       lastName: newData.shippingInformation?.name?.split(" ")[1] || "",
@@ -268,43 +385,46 @@ const editeSingleOrder = async (orderId, newData) => {
     },
   };
 
-  // Find the order by its ID and populate vendor details (including ownerName and email)
+  // Update the order itself
   const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, {
     new: true,
-  }).populate({
-    path: "totalItems.vendorId",
-    select: "email seller ownerName", // Populate email, seller, and ownerName
-  });
+  }).lean();
 
   if (!updatedOrder) {
     throw new ApiError(httpStatus.NOT_FOUND, "Order not found");
   }
 
-  // Extract the vendor details and calculate price for each product, including productId, quantity, ownerName, and email
-  const vendorDetails = updatedOrder.totalItems.map((item) => {
-    // Calculate price for each item by multiplying the quantity with the price
+  // Fetch related SellProducts
+  const sellProducts = await SellProducts.find({ orderId })
+    .populate("vendorId", "email seller ownerName")
+    .populate("productId", "productName price")
+    .select("productId vendorId quantity price")
+    .lean();
+
+  // Prepare vendor and product detail summary
+  const vendorDetails = sellProducts.map((item) => {
     const totalPrice = item.price * item.quantity;
 
     return {
-      productId: item.productId, // Product ID
-      quantity: item.quantity, // Quantity of the product
-      vendorId: item.vendorId._id, // Vendor ID
-      email: item.vendorId.email, // Vendor email
-      sellerId: item.vendorId.seller, // Seller's user ID
-      productPrice: totalPrice, // Calculated price (price * quantity)
-      ownerName: item.vendorId.ownerName, // Vendor owner name
-      vendorEmail: item.vendorId.email, // Vendor email (again here for clarity)
+      productId: item.productId?._id,
+      productName: item.productId?.productName || "Unnamed Product",
+      quantity: item.quantity,
+      vendorId: item.vendorId?._id,
+      email: item.vendorId?.email,
+      sellerId: item.vendorId?.seller,
+      productPrice: totalPrice,
+      ownerName: item.vendorId?.ownerName,
+      vendorEmail: item.vendorId?.email,
     };
   });
 
   return vendorDetails;
 };
 
-const generateInvoicePDF = async (order) => {
+const generateInvoicePDF = async (order, items) => {
   const doc = new PDFDocument({ margin: 50 });
-
-  // Creating PDF in memory
   const chunks = [];
+
   doc.on("data", (chunk) => chunks.push(chunk));
 
   return new Promise(async (resolve, reject) => {
@@ -315,14 +435,8 @@ const generateInvoicePDF = async (order) => {
     doc.on("error", reject);
 
     try {
-      // Company Header with Logo
       const logoUrl = "https://i.ibb.co.com/kPsKmt1/LPX-01.png";
-      // Note: You'll need to fetch and add the logo image
-      // const logoResponse = await fetch(logoUrl);
-      // const logoBuffer = await logoResponse.buffer();
-      // doc.image(logoBuffer, 50, 45, { width: 80 });
 
-      // Company Info (Right side)
       doc
         .fontSize(20)
         .font("Helvetica-Bold")
@@ -336,12 +450,10 @@ const generateInvoicePDF = async (order) => {
         align: "right",
       });
 
-      // Invoice Title
       doc.fontSize(28).font("Helvetica-Bold").text("INVOICE", 50, 150);
 
-      // Invoice Details Box
-      doc.fontSize(10).font("Helvetica");
       const invoiceDetailsY = 190;
+      doc.fontSize(10).font("Helvetica");
       doc.text(`Invoice Number: INV-${order.orderID}`, 50, invoiceDetailsY);
       doc.text(
         `Invoice Date: ${new Date().toLocaleDateString()}`,
@@ -350,7 +462,6 @@ const generateInvoicePDF = async (order) => {
       );
       doc.text(`Order ID: ${order.orderID}`, 50, invoiceDetailsY + 30);
 
-      // Customer Details Box
       doc
         .fontSize(11)
         .font("Helvetica-Bold")
@@ -360,20 +471,21 @@ const generateInvoicePDF = async (order) => {
       doc.text(order.customer.email, 50, invoiceDetailsY + 93);
       doc.text(order.customer.phoneNumber, 50, invoiceDetailsY + 108);
 
-      // Shipping Address
       doc
         .fontSize(11)
         .font("Helvetica-Bold")
         .text("SHIP TO:", 320, invoiceDetailsY + 60);
       doc.fontSize(10).font("Helvetica");
       doc.text(
-        order.shippingInformation.streetAddress,
+        order.shippingInformation.streetAddress || "N/A",
         320,
         invoiceDetailsY + 78,
         { width: 200 }
       );
       doc.text(
-        `${order.shippingInformation.state}, ${order.shippingInformation.country}`,
+        `${order.shippingInformation.state || ""}, ${
+          order.shippingInformation.country || ""
+        }`,
         320,
         invoiceDetailsY + 93
       );
@@ -388,30 +500,20 @@ const generateInvoicePDF = async (order) => {
           );
       }
 
-      // Table Header
       const tableTop = invoiceDetailsY + 150;
       doc.fontSize(10).font("Helvetica-Bold");
-
-      // Draw table header background
       doc.rect(50, tableTop, 495, 25).fillAndStroke("#4A5568", "#4A5568");
-
-      // Table Headers (White text on dark background)
       doc.fillColor("#FFFFFF");
       doc.text("Item", 60, tableTop + 8, { width: 200 });
       doc.text("Qty", 270, tableTop + 8, { width: 50, align: "center" });
       doc.text("Price", 330, tableTop + 8, { width: 80, align: "right" });
       doc.text("Total", 420, tableTop + 8, { width: 80, align: "right" });
 
-      // Reset text color for table body
-      doc.fillColor("#000000");
-      doc.font("Helvetica");
-
-      // Table Rows
+      doc.fillColor("#000000").font("Helvetica");
       let currentY = tableTop + 35;
-      order.totalItems.forEach((item, index) => {
-        const itemTotal = item.price * item.quantity;
 
-        // Alternate row background
+      items.forEach((item, index) => {
+        const itemTotal = item.price * item.quantity;
         if (index % 2 === 0) {
           doc
             .rect(50, currentY - 5, 495, 25)
@@ -436,39 +538,34 @@ const generateInvoicePDF = async (order) => {
           width: 80,
           align: "right",
         });
-
         currentY += 25;
       });
 
-      // Draw bottom border of table
       doc.moveTo(50, currentY).lineTo(545, currentY).stroke("#E2E8F0");
 
-      // Order Notes (if any)
       if (order.orderNotes) {
         currentY += 20;
         doc.fontSize(9).font("Helvetica-Oblique");
         doc.text(`Notes: ${order.orderNotes}`, 60, currentY, { width: 300 });
       }
 
-      // Summary Box (Right aligned)
       const summaryX = 380;
       currentY += 40;
 
       doc.fontSize(10).font("Helvetica");
       doc.text("Subtotal:", summaryX, currentY);
-      doc.text(
-        `AED ${order.totalAmount.toFixed(2)}`,
-        summaryX + 100,
-        currentY,
-        {
-          width: 65,
-          align: "right",
-        }
+      const subtotal = items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
       );
+      doc.text(`AED ${subtotal.toFixed(2)}`, summaryX + 100, currentY, {
+        width: 65,
+        align: "right",
+      });
 
       currentY += 20;
       doc.text("Shipping:", summaryX, currentY);
-      doc.text(`$${0}`, summaryX + 100, currentY, {
+      doc.text(`AED ${order.shipping.toFixed(2)}`, summaryX + 100, currentY, {
         width: 65,
         align: "right",
       });
@@ -480,21 +577,19 @@ const generateInvoicePDF = async (order) => {
         align: "right",
       });
 
-      // Total with background
       currentY += 25;
       doc
         .rect(summaryX - 10, currentY - 5, 175, 25)
         .fillAndStroke("#4A5568", "#4A5568");
-      doc.fontSize(12).font("Helvetica-Bold").fillColor("#FFFFFF");
+      doc.fontSize(10).font("Helvetica-Bold").fillColor("#FFFFFF");
       doc.text("TOTAL:", summaryX, currentY + 3);
       doc.text(
-        `AED ${(order.totalAmount + order.shipping + order.tax).toFixed(2)}`,
+        `AED ${(subtotal + order.shipping + order.tax).toFixed(2)}`,
         summaryX + 100,
         currentY + 3,
-        { width: 65, align: "right" }
+        { width: 100, align: "right" }
       );
 
-      // Footer
       doc.fontSize(9).font("Helvetica").fillColor("#718096");
       doc.text("Thank you for your business!", 50, doc.page.height - 80, {
         align: "center",
@@ -507,7 +602,6 @@ const generateInvoicePDF = async (order) => {
         { align: "center", width: 495 }
       );
 
-      // Finalize the PDF
       doc.end();
     } catch (error) {
       reject(error);
@@ -525,20 +619,19 @@ const getOrderSingleDetailsInvoice = async (orderId) => {
       path: "customer",
       select: "name email phoneNumber address image",
     })
-    .populate({
-      path: "totalItems.productId",
-      select: "productName description category price images",
-    })
-    .populate({
-      path: "totalItems.vendorId",
-      select: "storeName",
-    });
+    .lean();
 
   if (!order) {
     throw new ApiError(httpStatus.NOT_FOUND, "Order not found");
   }
 
-  const pdfBuffer = await generateInvoicePDF(order);
+  const items = await SellProducts.find({ orderId: order._id })
+    .populate("productId", "productName description category price images")
+    .populate("vendorId", "storeName email")
+    .select("productId vendorId quantity price status image")
+    .lean();
+
+  const pdfBuffer = await generateInvoicePDF(order, items);
   return pdfBuffer;
 };
 

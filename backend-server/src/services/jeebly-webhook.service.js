@@ -1,9 +1,6 @@
-const { SellProducts, Order } = require("../models");
+const { SellProducts } = require("../models");
+const { orderWebhookUpdates } = require("../utils/orderNotifyupdates");
 
-/**
- * Handle Jeebly Webhook
- * @param {Object} payload - Incoming webhook payload from Jeebly
- */
 const handleJeeblyWebhook = async (payload) => {
   const {
     reference_no,
@@ -21,9 +18,7 @@ const handleJeeblyWebhook = async (payload) => {
     throw new Error("Missing required fields: reference_no or status");
   }
 
-  console.log(`Webhook Received for ${reference_no}: Status = ${status}`);
-
-  // Find all SellProducts with matching shippingId
+  // Find sell products linked to this shipment
   const sellProducts = await SellProducts.find({ shippingId: reference_no });
 
   if (!sellProducts.length) {
@@ -31,8 +26,8 @@ const handleJeeblyWebhook = async (payload) => {
     return `No products found for this reference_no ${reference_no}`;
   }
 
-  // Update SellProducts status
-  const updateResult = await SellProducts.updateMany(
+  // Update SellProduct(s) matching the shipping reference
+  await SellProducts.updateMany(
     { shippingId: reference_no },
     {
       $set: {
@@ -50,17 +45,33 @@ const handleJeeblyWebhook = async (payload) => {
     }
   );
 
-  // Update order status only if final states
+  // Get the related order ID
   const orderId = sellProducts[0].orderId;
-  const finalStatuses = ["Delivered", "RTO Delivered", "Cancelled"];
-  if (finalStatuses.includes(status)) {
-    await Order.findByIdAndUpdate(orderId, { status }, { new: true });
+
+  // Fetch all SellProducts for the same order
+  const allOrderProducts = await SellProducts.find({ orderId });
+
+  // Determine if every product in the order is Delivered
+  const allDelivered = allOrderProducts.every(
+    (sp) => sp.status === "Delivered"
+  );
+
+  if (allDelivered) {
+    // Only mark order delivered once *all* products delivered
+    await orderWebhookUpdates(orderId, "Delivered");
+  } else {
+    // Otherwise, update the order with the latest individual status
+    await orderWebhookUpdates(orderId, status);
   }
 
   return {
     reference_no,
-    updatedCount: updateResult.modifiedCount || 0,
+    updatedCount: sellProducts.length,
     status,
+    orderId,
+    message: allDelivered
+      ? "All products delivered. Order marked as Delivered."
+      : `Product(s) updated to ${status}`,
   };
 };
 

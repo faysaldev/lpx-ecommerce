@@ -8,6 +8,7 @@ const {
   Cart,
   Notification,
   Wishlist,
+  SellProducts,
 } = require("../models");
 const moment = require("moment");
 
@@ -359,44 +360,50 @@ const getVendorRecentOrders = async (userId, page = 1, limit = 10) => {
     throw new ApiError(httpStatus.BAD_REQUEST, "Vendor ID is required");
   }
 
-  // Fetch the vendor's ID based on the userId
   const vendor = await Vendor.findOne({ seller: userId });
-
   if (!vendor) {
     throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
   }
 
-  const vendorId = vendor._id; // Assuming the vendor ID is in vendor._id
-
+  const vendorId = vendor._id;
   const skip = (page - 1) * limit;
 
-  // Find orders where the vendorId matches any product's vendorId inside totalItems
-  const recentOrders = await Order.find({
-    "totalItems.vendorId": vendorId,
-    status: { $ne: "unpaid" },
-  })
+  // Find all sell products belonging to this vendor, excluding unpaid or cancelled orders
+  const sellProducts = await SellProducts.find({ vendorId })
+    .populate({
+      path: "orderId",
+      match: { status: { $ne: "unpaid" } },
+      populate: {
+        path: "customer",
+        select: "name image type",
+      },
+    })
+    .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit)
-    .sort({ createdAt: -1 })
-    .populate("customer", "name image type") // Populate customer details
     .lean();
 
-  const totalOrders = await Order.countDocuments({
-    "totalItems.vendorId": vendorId,
-    status: { $ne: "unpaid" },
-  }); // Count orders with the vendorId in totalItems
-  const totalPages = Math.ceil(totalOrders / limit);
+  // Filter out SellProducts without valid Order reference
+  const validSellProducts = sellProducts.filter((sp) => sp.orderId);
 
-  const formattedOrders = recentOrders.map((order) => ({
-    orderId: order.orderID,
-    userName: order.customer.name,
-    userImage: order.customer.image,
-    userType: order.customer.type,
-    totalPrice: order.totalAmount,
-    status: order.status,
-    orderDate: order.createdAt,
-    id: order._id,
+  // Collect all unique orders
+  const formattedOrders = validSellProducts.map((sp) => ({
+    orderId: sp.orderId.orderID,
+    userName: sp.orderId.customer?.name || "Unknown",
+    userImage: sp.orderId.customer?.image || null,
+    userType: sp.orderId.customer?.type || "customer",
+    totalPrice: sp.price * sp.quantity,
+    status: sp.status,
+    orderDate: sp.orderId.createdAt,
+    id: sp.orderId._id,
   }));
+
+  // Count total orders for pagination
+  const totalOrders = await SellProducts.countDocuments({
+    vendorId,
+    status: { $ne: "unpaid" },
+  });
+  const totalPages = Math.ceil(totalOrders / limit);
 
   return {
     orders: formattedOrders,

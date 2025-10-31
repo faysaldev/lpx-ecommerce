@@ -202,13 +202,15 @@ const handleCheckoutCompleted = async (checkoutSession) => {
       updateData
     );
 
+    console.log(updatedOrder);
+
     // Loop through each vendor and update earnings
     const vendorUpdatePromises = updatedOrder.map(async (orderItem) => {
       const { vendorId, productPrice, sellerId, quantity, productId } =
         orderItem;
 
       // Update vendor earnings by adding the current product price to the previous earnings
-      await vendorService.updateVendorMoneyCalculation(vendorId, {
+      vendorService.updateVendorMoneyCalculation(vendorId, {
         totalEarnings: productPrice,
       });
 

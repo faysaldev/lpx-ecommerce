@@ -29,36 +29,7 @@ import { useAppSelector } from "@/redux/hooks";
 import { selectToken } from "@/redux/features/auth/authSlice";
 import { downloadInvoiceHealper } from "@/lib/utils/downloadInvoice";
 import { OrderStatus } from "@/lib/types";
-
-const statusConfig: Record<
-  OrderStatus,
-  { label: string; icon: React.ElementType; color: string; bgColor: string }
-> = {
-  confirmed: {
-    label: "confirmed",
-    icon: RefreshCw,
-    color: "text-blue-600",
-    bgColor: "bg-blue-100 dark:bg-blue-900/30",
-  },
-  shipped: {
-    label: "Shipped",
-    icon: Truck,
-    color: "text-purple-600",
-    bgColor: "bg-purple-100 dark:bg-purple-900/30",
-  },
-  delivered: {
-    label: "Delivered",
-    icon: CheckCircle,
-    color: "text-green-600",
-    bgColor: "bg-green-100 dark:bg-green-900/30",
-  },
-  cancelled: {
-    label: "Cancelled",
-    icon: XCircle,
-    color: "text-red-600",
-    bgColor: "bg-red-100 dark:bg-red-900/30",
-  },
-};
+import ProtectedRoute from "@/Provider/ProtectedRoutes";
 
 export default function OrderDetailsPage() {
   const params = useParams();
@@ -113,9 +84,6 @@ export default function OrderDetailsPage() {
     );
   }
 
-  const status = statusConfig[order.status as OrderStatus];
-  const StatusIcon = status.icon;
-
   // Calculate subtotal from items
   const subtotal =
     order.total ||
@@ -132,83 +100,83 @@ export default function OrderDetailsPage() {
     await downloadInvoiceHealper({ token: token ?? "", orderId });
   };
 
+  console.log(order);
+
   return (
-    <PageLayout
-      title={`Order ${order.orderID}`}
-      description="View order details and track your purchase"
-      breadcrumbs={[
-        { label: "Dashboard", href: "/dashboard" },
-        { label: "Orders", href: "/orders" },
-        { label: order.orderID },
-      ]}
-    >
-      {/* Back Button */}
-      <div className="mb-6">
-        <Button variant="ghost" asChild>
-          <Link href="/orders">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Orders
-          </Link>
-        </Button>
-      </div>
-
-      {/* Order Header */}
-      <OrderHeader
-        StatusIcon={StatusIcon}
-        copied={copied}
-        copyOrderNumber={copyOrderNumber}
-        downloadInvoice={downloadInvoice}
-        handleReorder={handleReorder}
-        order={order}
-        status={status}
-        key={order._id}
-      />
-
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Order Items */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                Order Items ({order.totalItems.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {order.totalItems.map((item: any) => (
-                  <SingleOrderProductCard item={item} key={item._id} />
-                ))}
-              </div>
-
-              <Separator className="my-4" />
-
-              {/* Order Summary */}
-              <OrderSummerySingle order={order} subtotal={subtotal} />
-            </CardContent>
-          </Card>
-
-          {/* Order Timeline */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Order Timeline</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <OrderTimeline
-                status={order.status}
-                createdAt={order.createdAt}
-              />
-            </CardContent>
-          </Card>
+    <ProtectedRoute allowedTypes={["admin", "customer", "seller"]}>
+      <PageLayout
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Orders", href: "/orders" },
+          { label: order.orderID },
+        ]}
+      >
+        {/* Back Button */}
+        <div className="mb-6">
+          <Button variant="ghost" asChild>
+            <Link href="/orders">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Orders
+            </Link>
+          </Button>
         </div>
 
-        {/* Sidebar */}
-        <OrderSidebarContent
+        {/* Order Header */}
+        <OrderHeader
+          copied={copied}
+          copyOrderNumber={copyOrderNumber}
+          downloadInvoice={downloadInvoice}
+          handleReorder={handleReorder}
           order={order}
-          estimatedDelivery={estimatedDelivery}
+          key={order._id}
         />
-      </div>
-    </PageLayout>
+
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Main Content */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Order Items */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Order Items ({order.totalItems.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {order.totalItems.map((item: any) => (
+                    <SingleOrderProductCard item={item} key={item._id} />
+                  ))}
+                </div>
+
+                <Separator className="my-4" />
+
+                {/* Order Summary */}
+                <OrderSummerySingle order={order} subtotal={subtotal} />
+              </CardContent>
+            </Card>
+
+            {/* Order Timeline */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Order Timeline</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <OrderTimeline
+                  status={order.status}
+                  createdAt={order.createdAt}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar */}
+          <OrderSidebarContent
+            order={order}
+            estimatedDelivery={estimatedDelivery}
+          />
+        </div>
+      </PageLayout>
+    </ProtectedRoute>
   );
 }
