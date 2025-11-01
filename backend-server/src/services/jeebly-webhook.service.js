@@ -55,10 +55,15 @@ const handleJeeblyWebhook = async (payload) => {
   const allDelivered = allOrderProducts.every(
     (sp) => sp.status === "Delivered"
   );
+  const allCancelled = allOrderProducts.every(
+    (sp) => sp.status === "cancelled"
+  );
 
   if (allDelivered) {
     // Only mark order delivered once *all* products delivered
     await orderWebhookUpdates(orderId, "Delivered");
+  } else if (allCancelled) {
+    await orderWebhookUpdates(orderId, "Cancelled");
   } else {
     // Otherwise, update the order with the latest individual status
     await orderWebhookUpdates(orderId, status);
