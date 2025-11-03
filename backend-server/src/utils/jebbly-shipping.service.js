@@ -67,7 +67,7 @@ const createShipmentsForOrder = async (orderId) => {
     const shipmentPromises = Object.entries(groupedByVendor).map(
       async ([vendorId, vendorProducts]) => {
         const vendor = await Vendor.findById(vendorId).select(
-          "seller ownerName firstName lastName storeName email contactEmail phoneNumber location productsCount"
+          "seller ownerName firstName lastName storeName email city country contactEmail phoneNumber location productsCount"
         );
         if (!vendor) throw new Error(`Vendor not found with ID: ${vendorId}`);
 
@@ -85,6 +85,8 @@ const createShipmentsForOrder = async (orderId) => {
         const description = productDetails
           .map((p) => p?.productName || "Unnamed Product")
           .join(", ");
+
+        console.log(vendor, "vendor Information");
 
         // Construct shipment data for the vendor
         const shipmentData = {
@@ -104,13 +106,17 @@ const createShipmentsForOrder = async (orderId) => {
 
           // Origin — Seller info
           origin_address_name: vendor.storeName || vendor.ownerName,
-          origin_address_mob_no_country_code: vendor.phoneNumber.slice(0, 4),
-          origin_address_mobile_number: vendor.phoneNumber.slice(4),
-          origin_address_house_no: vendor.location || "N/A",
-          origin_address_building_name: vendor.location || "N/A",
-          origin_address_area: vendor.location || "N/A",
+          origin_address_mob_no_country_code:
+            "+971" || vendor.phoneNumber.slice(0, 4),
+          origin_address_mobile_number:
+            vendor.phoneNumber || vendor.phoneNumber.slice(4),
+          origin_address_house_no:
+            vendor.location.split(" ")[0] || vendor.location,
+          origin_address_building_name:
+            vendor.location.split(" ")[1] || vendor.location,
+          origin_address_area: vendor.location.split(" ")[2] || vendor.location,
           origin_address_landmark: "N/A",
-          origin_address_city: "Dhaka",
+          origin_address_city: vendor.city || "N/A",
           origin_address_type: "Normal",
 
           // Destination — Customer shipping info
@@ -123,9 +129,8 @@ const createShipmentsForOrder = async (orderId) => {
           destination_address_building_name: shippingInformation.streetAddress,
           destination_address_area: shippingInformation.streetAddress,
           destination_address_landmark: shippingInformation.landmark || "N/A",
-          destination_address_city: shippingInformation.state,
+          destination_address_city: shippingInformation.city || "N/A",
           destination_address_type: "Western",
-
           // Tomorrow's date
           pickup_date: new Date(Date.now() + 24 * 60 * 60 * 1000)
             .toISOString()
