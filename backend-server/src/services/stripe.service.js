@@ -12,10 +12,12 @@ const {
   sendNotificationEmailWithDelay,
 } = require("./email.service");
 const { Product, SellProducts } = require("../models");
+const { getEmirateInEnglish } = require("../utils/cityTranslator");
+const { locales } = require("moment");
 
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 // Constants
-const ALLOWED_SHIPPING_COUNTRIES = ["AE", "US"];
+const ALLOWED_SHIPPING_COUNTRIES = ["AE"];
 const CHECKOUT_MODE = "payment";
 
 const checkOutSession = async (
@@ -31,12 +33,10 @@ const checkOutSession = async (
       throw new ApiError(httpStatus.BAD_REQUEST, "Missing required parameters");
     }
 
-    // FIX: Don't use JSON.stringify - Stripe metadata accepts strings
-    // Convert ObjectId to string using .toString()
-
     const session = await stripe.checkout.sessions.create({
       line_items: stripeItems,
       mode: CHECKOUT_MODE,
+      locale: "en",
       shipping_address_collection: {
         allowed_countries: ALLOWED_SHIPPING_COUNTRIES,
       },
@@ -173,6 +173,22 @@ const handleCheckoutCompleted = async (checkoutSession) => {
       );
     }
 
+    console.log(
+      `Processing checkout customer details : ${JSON.stringify(
+        checkoutSession.customer_details
+      )}`
+    );
+
+    console.log(
+      `Processing checkout shipping details : ${JSON.stringify(
+        checkoutSession.customer_details
+      )}`
+    );
+
+    const cityEnglish = getEmirateInEnglish(address?.state);
+
+    console.log(cityEnglish, " Translated City Name");
+
     // Prepare update data for the order
     const updateData = {
       status: "confirmed",
@@ -183,7 +199,7 @@ const handleCheckoutCompleted = async (checkoutSession) => {
         address: {
           line1: address?.line1 || "",
           line2: address?.line2 || "",
-          city: address?.city || "",
+          city: cityEnglish || "",
           state: address?.state || "",
           postal_code: address?.postal_code || "",
           country: address?.country || "",
@@ -201,9 +217,6 @@ const handleCheckoutCompleted = async (checkoutSession) => {
       order_id,
       updateData
     );
-
-    console.log(updatedOrder);
-
     // Loop through each vendor and update earnings
     const vendorUpdatePromises = updatedOrder.map(async (orderItem) => {
       const { vendorId, productPrice, sellerId, quantity, productId } =

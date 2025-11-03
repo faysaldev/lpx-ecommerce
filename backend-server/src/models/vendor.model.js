@@ -37,6 +37,8 @@ const VendorSchema = new Schema(
     contactEmail: { type: String, required: true, unique: true },
     phoneNumber: { type: String },
     location: { type: String },
+    city: { type: String },
+    country: { type: String, default: "United Arab Emirates" },
     storePolicies: {
       returnPolicy: { type: String },
       shippingPolicy: { type: String },

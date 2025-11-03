@@ -49,7 +49,7 @@ const getUserById = async (id, userType) => {
   try {
     // Fetch the user based on ID
     const user = await User.findById(id).select(
-      "name email image role type address phoneNumber createdAt _id"
+      "name email image role type address city phoneNumber createdAt _id"
     );
 
     if (!user) {
@@ -67,6 +67,7 @@ const getUserById = async (id, userType) => {
       address: user.address,
       phoneNumber: user.phoneNumber,
       createdAt: user.createdAt,
+      city: user.city,
     };
 
     // If the user is a seller, check if they have an active vendor
