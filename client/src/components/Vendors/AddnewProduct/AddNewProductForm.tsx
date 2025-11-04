@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -139,7 +140,7 @@ function AddNewProductForm() {
       }
 
       router.push("/vendor/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       toast.error(
         error?.data.message || "An error occurred while creating the product."
       );
