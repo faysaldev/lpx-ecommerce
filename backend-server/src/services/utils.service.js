@@ -282,76 +282,98 @@ const getCustomerDashboard = async (userId) => {
 
 const vendorDashboardOverview = async (userId) => {
   if (!userId) {
-    return httpStatus.BAD_REQUEST, "User ID is required";
+    return { status: httpStatus.BAD_REQUEST, message: "User ID is required" };
   }
 
-  // Get vendor details
+  // Step 1: Get vendor details
   const vendor = await Vendor.findOne({ seller: userId });
   if (!vendor) {
-    return httpStatus.NOT_FOUND, "Vendor not found";
+    return { status: httpStatus.NOT_FOUND, message: "Vendor not found" };
   }
 
-  // Total Sales (Sum of totalAmount from orders, excluding 'unpaid' status)
-  const totalSales = await Order.aggregate([
+  // Step 2: Calculate total revenue (from Vendor earnings + completed orders)
+  const totalRevenue = vendor.totalEarnings;
+
+  const completedOrders = await Order.aggregate([
     {
-      $match: { "totalItems.vendorId": vendor._id, status: { $ne: "unpaid" } },
-    }, // Exclude "unpaid"
-    { $group: { _id: null, totalSales: { $sum: "$totalAmount" } } },
+      $match: {
+        vendorId: vendor._id,
+        status: { $nin: ["unpaid", "cancelled"] },
+      },
+    },
+    { $group: { _id: null, totalRevenue: { $sum: "$totalAmount" } } },
   ]);
 
-  // Total Orders (Excluding "unpaid" status)
-  const totalOrders = await Order.countDocuments({
-    "totalItems.vendorId": vendor._id,
-    status: { $ne: "unpaid" }, // Exclude "unpaid"
-  });
+  const totalOrderRevenue = completedOrders.length
+    ? completedOrders[0].totalRevenue
+    : 0;
+  const totalSales = totalRevenue + totalOrderRevenue;
 
-  // Active Products (products with stock > 0)
+  // Step 3: Get the count of active products (in stock and not a draft)
   const activeProducts = await Product.countDocuments({
     vendor: vendor._id,
-    stockQuantity: { $gt: 0 },
+    inStock: true,
+    isDraft: false,
   });
 
-  // Total Customers (number of distinct customers who have purchased from this vendor)
-  const customers = await Order.distinct("customer", {
-    "totalItems.vendorId": vendor._id,
-    status: { $ne: "unpaid" }, // Exclude "unpaid"
-  });
+  // Step 4: Total Customers (Unique Customers who bought from this vendor)
+  const customers = await SellProducts.aggregate([
+    { $match: { vendorId: vendor._id } },
+    { $group: { _id: "$orderId" } },
+    {
+      $lookup: {
+        from: "orders",
+        localField: "_id",
+        foreignField: "_id",
+        as: "orderDetails",
+      },
+    },
+    { $unwind: "$orderDetails" },
+    { $group: { _id: "$orderDetails.customer" } },
+    { $count: "totalCustomers" },
+  ]);
 
-  // Recent Orders (excluding "unpaid" orders, limit to 4)
-  const recentOrders = await Order.find({
-    "totalItems.vendorId": vendor._id,
-    status: { $ne: "unpaid" }, // Exclude "unpaid"
-  })
-    .sort({ createdAt: -1 })
-    .limit(4)
-    .populate({
-      path: "customer",
-      select: "name image", // Get user details
-    })
-    .lean();
+  const totalCustomers = customers[0]?.totalCustomers || 0;
 
-  console.log(recentOrders);
+  // Step 5: Get the 4 most recent orders from the vendor (using SellProducts model)
+  const recentOrders = await SellProducts.aggregate([
+    {
+      $match: { vendorId: vendor._id },
+    },
+    {
+      $lookup: {
+        from: "orders",
+        localField: "orderId",
+        foreignField: "_id",
+        as: "orderDetails",
+      },
+    },
+    { $unwind: "$orderDetails" },
+    { $sort: { "orderDetails.createdAt": -1 } },
+    { $limit: 4 },
+    {
+      $project: {
+        orderId: "$orderDetails.orderID",
+        orderMongoId: "$orderDetails._id",
+        userName: "$orderDetails.customer.name",
+        userImage: "$orderDetails.customer.image",
+        price: "$orderDetails.totalAmount",
+        status: "$orderDetails.status",
+        orderDate: "$orderDetails.createdAt",
+      },
+    },
+  ]);
 
-  // Format recent orders
-  const formattedRecentOrders = recentOrders.map((order) => ({
-    orderId: order.orderID,
-    orderMongoId: order._id,
-    userName: order.customer.name,
-    userImage: order.customer.image,
-    price: order.totalAmount,
-    status: order.status,
-    orderDate: order.createdAt,
-  }));
-
+  // Step 6: Return the dashboard overview data
   return {
     stats: {
-      totalSales: totalSales[0]?.totalSales || 0,
-      totalOrders,
-      activeProducts,
-      totalCustomers: customers.length,
+      totalSales: totalSales,
+      totalOrders: recentOrders.length, // Number of recent orders
+      activeProducts: activeProducts,
+      totalCustomers: totalCustomers,
       storeStatus: vendor.status,
     },
-    recentOrders: formattedRecentOrders,
+    recentOrders,
   };
 };
 
@@ -499,17 +521,15 @@ const getVendorTopSellingProducts = async (userId) => {
   }
 
   // Step 2: Build the search query for products associated with the vendor
-  const searchQuery = { vendor: vendor._id };
+  const searchQuery = { vendorId: vendor._id, status: "Delivered" }; // Filter for "delivered" status
 
-  // Step 3: Aggregate the sales data from orders for the top-selling products
-  const topSellingProducts = await Order.aggregate([
-    { $match: { "totalItems.vendorId": vendor._id, status: "delivered" } }, // Match orders delivered by the vendor
-    { $unwind: "$totalItems" }, // Unwind the totalItems array
-    { $match: { "totalItems.vendorId": vendor._id } }, // Filter items belonging to the vendor
+  // Step 3: Aggregate the sales data from SellProducts for the top-selling products
+  const topSellingProducts = await SellProducts.aggregate([
+    { $match: searchQuery }, // Match products sold by the vendor with "Delivered" status
     {
       $group: {
-        _id: "$totalItems.productId", // Group by productId
-        totalSales: { $sum: "$totalItems.quantity" }, // Sum the quantities sold for each product
+        _id: "$productId", // Group by productId
+        totalSales: { $sum: "$quantity" }, // Sum the quantities sold for each product
       },
     },
     { $sort: { totalSales: -1 } }, // Sort by total sales in descending order
@@ -517,7 +537,7 @@ const getVendorTopSellingProducts = async (userId) => {
     {
       $lookup: {
         from: "products", // Join with the products collection
-        localField: "_id", // Match productId from totalItems
+        localField: "_id", // Match productId from SellProducts
         foreignField: "_id", // Match the _id of products
         as: "productDetails", // Alias the resulting product data
       },

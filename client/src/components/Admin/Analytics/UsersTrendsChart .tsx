@@ -68,6 +68,7 @@ const UsersTrendsChart = ({ data }: UsersTrendsChartProps) => {
               dataKey="totalUsers"
               fill="var(--color-totalUsers)"
               radius={8}
+              maxBarSize={20}
             />
           </BarChart>
         </ChartContainer>

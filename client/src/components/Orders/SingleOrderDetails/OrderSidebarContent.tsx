@@ -138,55 +138,6 @@ export default function OrderSidebarContent({
           </CardContent>
         </Card>
       )}
-
-      {/* Order Summary */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Package className="h-5 w-5" />
-            Order Summary
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Items</span>
-              <span className="font-medium">{order.totalItems.length}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium">
-                AED {Number(order.total || 0).toFixed(2)}
-              </span>
-            </div>
-            {order.shipping !== undefined && (
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Shipping</span>
-                <span className="font-medium">
-                  {order.shipping === 0 ? (
-                    <span className="text-green-600">FREE</span>
-                  ) : (
-                    `AED ${Number(order.shipping).toFixed(2)}`
-                  )}
-                </span>
-              </div>
-            )}
-
-            {order.coupon?.isValid && order.coupon?.discountAmount && (
-              <div className="flex justify-between text-green-600">
-                <span>Discount</span>
-                <span className="font-medium">
-                  -AED {Number(order.coupon.discountAmount).toFixed(2)}
-                </span>
-              </div>
-            )}
-            <div className="flex justify-between font-bold pt-2 border-t">
-              <span>Total</span>
-              <span>AED {Number(order.totalAmount || 0).toFixed(2)}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }

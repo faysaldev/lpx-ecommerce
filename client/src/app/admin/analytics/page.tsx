@@ -143,7 +143,7 @@ export default function AnalyticsDashboard() {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList>
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="sales">Sales</TabsTrigger>
+          {/* <TabsTrigger value="sales">Sales</TabsTrigger> */}
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="products">Products</TabsTrigger>
         </TabsList>
@@ -152,7 +152,8 @@ export default function AnalyticsDashboard() {
           <RevenueTrendsChart data={revenueData} />
         </TabsContent>
 
-        <TabsContent value="sales" className="space-y-4">
+        {/* sales tab hidden for now */}
+        {/* <TabsContent value="sales" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Sales Performance</CardTitle>
@@ -161,7 +162,7 @@ export default function AnalyticsDashboard() {
               <SalesTrendsChart data={salesData} />
             </CardContent>
           </Card>
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="users" className="space-y-4">
           <Card>

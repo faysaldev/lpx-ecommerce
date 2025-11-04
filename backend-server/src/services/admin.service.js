@@ -124,46 +124,44 @@ const getAllVendors = async (query) => {
       .limit(limit)
       .sort({ createdAt: -1 })
       .populate({
-        path: "seller", // Populate seller details for vendor
+        path: "seller",
         select: "name email image",
       })
-      .lean(); // Convert documents to plain JavaScript objects
+      .lean();
 
-    // Populate and aggregate additional details
     for (let vendor of vendors) {
-      // Get the total products count for each vendor
+      // Count products for the vendor
       const productCount = await Product.countDocuments({ vendor: vendor._id });
 
-      // Get total sales from the Order model based on the vendor's products
-      const totalSales = await Order.aggregate([
+      // Calculate total sales and sales count from the SellProducts model
+      const totalSalesResult = await SellProducts.aggregate([
         {
           $match: {
-            "totalItems.vendorId": vendor._id,
-            status: { $ne: "unpaid" },
+            status: { $nin: ["unpaid", "cancelled"] }, // Exclude "unpaid" and "cancelled" statuses
+            vendorId: vendor._id,
           },
         },
-        { $unwind: "$totalItems" },
-        { $match: { "totalItems.vendorId": vendor._id } },
         {
           $group: {
-            _id: "$totalItems.vendorId",
-            totalSales: { $sum: "$totalItems.price" },
+            _id: "$vendorId",
+            totalSales: { $sum: { $multiply: ["$price", "$quantity"] } },
+            totalCount: { $sum: 1 },
           },
         },
       ]);
 
-      // Calculate the average ratings from the Rating model
+      // Get average rating for the vendor
       const ratingsAggregation = await Rating.aggregate([
         {
           $match: {
-            referenceId: vendor._id, // Match ratings for the vendor
-            ratingType: "vendor", // We assume "vendor" is the rating type for vendor ratings
+            referenceId: vendor._id,
+            ratingType: "vendor",
           },
         },
         {
           $group: {
             _id: null,
-            averageRating: { $avg: "$rating" }, // Calculate the average rating
+            averageRating: { $avg: "$rating" },
           },
         },
       ]);
@@ -171,9 +169,12 @@ const getAllVendors = async (query) => {
       const avgRating =
         ratingsAggregation.length > 0 ? ratingsAggregation[0].averageRating : 0;
 
-      // Add the aggregated data to the vendor object
+      // Add calculated fields to the vendor object
       vendor.productCount = productCount;
-      vendor.totalSales = totalSales.length > 0 ? totalSales[0].totalSales : 0;
+      vendor.totalSales =
+        totalSalesResult.length > 0 ? totalSalesResult[0].totalSales : 0;
+      vendor.salesCount =
+        totalSalesResult.length > 0 ? totalSalesResult[0].totalCount : 0; // Sales count
       vendor.averageRating = avgRating.toFixed(2); // Limit rating to 2 decimal places
     }
 
@@ -507,7 +508,6 @@ const getAdminOrderStats = async () => {
       },
     },
   ]);
-
   // Conformed (shipped + delivered)
   const conformedOrders = await SellProducts.countDocuments({
     status: { $in: ["shipped", "Delivered"] },
@@ -524,7 +524,7 @@ const getAdminOrderStats = async () => {
   );
 
   // Total Sales (sum based on delivered SellProducts)
-  const totalSales = filteredDelivered.reduce(
+  const totalSales = sellProducts.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
@@ -729,54 +729,66 @@ const getAdminVendorSummary = async ({ page = 1, limit = 10 }) => {
 
   const vendorSummaries = [];
 
-  // For each vendor, calculate the required metrics
+  // For each vendor, calculate the required metrics directly using aggregation
   for (const vendor of vendors) {
     const vendorId = vendor._id;
 
-    // Total earnings and total withdrawal amount
-    const totalEarnings = vendor.totalEarnings;
-    const totalWithdrawal = vendor.totalWithDrawal;
-
-    // Get total paid and pending amounts from PaymentRequests
-    const paidPayments = await PaymentRequest.aggregate([
-      { $match: { seller: vendorId, status: "paid" } },
-      { $group: { _id: null, totalPaid: { $sum: "$withdrawalAmount" } } },
+    // Calculate total paid amount and total pending amount from PaymentRequests
+    const paymentSummary = await PaymentRequest.aggregate([
+      { $match: { seller: vendorId } },
+      {
+        $group: {
+          _id: null,
+          totalPaid: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "paid"] }, "$withdrawalAmount", 0],
+            },
+          },
+          totalPending: {
+            $sum: {
+              $cond: [{ $eq: ["$status", "pending"] }, "$withdrawalAmount", 0],
+            },
+          },
+        },
+      },
     ]);
-    const pendingPayments = await PaymentRequest.aggregate([
-      { $match: { seller: vendorId, status: "pending" } },
-      { $group: { _id: null, totalPending: { $sum: "$withdrawalAmount" } } },
-    ]);
 
-    const totalPaidAmount = paidPayments.length ? paidPayments[0].totalPaid : 0;
-    const totalPendingAmount = pendingPayments.length
-      ? pendingPayments[0].totalPending
+    const totalPaidAmount = paymentSummary.length
+      ? paymentSummary[0].totalPaid
+      : 0;
+    const totalPendingAmount = paymentSummary.length
+      ? paymentSummary[0].totalPending
       : 0;
 
-    // Get total orders for the vendor
+    // Get total orders for the vendor (excluding unpaid orders)
     const totalOrders = await Order.countDocuments({
       "totalItems.vendorId": vendorId,
-      status: { $ne: "unpaid" }, // Exclude orders with status "unpaid"
+      status: { $ne: "unpaid" },
     });
 
-    // Calculate the average order value
+    // Calculate the total order value and average order value
     const totalOrderValue = await Order.aggregate([
-      { $match: { "totalItems.vendorId": vendorId } },
+      {
+        $match: { "totalItems.vendorId": vendorId, status: { $ne: "unpaid" } },
+      },
       { $group: { _id: null, totalOrderValue: { $sum: "$totalAmount" } } },
     ]);
+
     const avgOrderValue = totalOrders
       ? totalOrderValue[0]?.totalOrderValue / totalOrders
       : 0;
 
-    // Get the last payment date
+    // Get the last payment date for the vendor (latest payment)
     const lastPayment = await PaymentRequest.findOne({ seller: vendorId })
       .sort({ requestDate: -1 })
       .limit(1);
 
+    // Push the summary for the current vendor
     vendorSummaries.push({
       vendorId,
       storeName: vendor.storeName,
-      totalEarnings,
-      totalWithdrawal,
+      totalEarnings: vendor.totalEarnings,
+      totalWithdrawal: vendor.totalWithDrawal,
       totalPaidAmount,
       totalPendingAmount,
       totalOrders,
@@ -855,8 +867,10 @@ const getAdminFinancialOverview = async () => {
         ...request.toObject(), // Convert mongoose document to plain object
         bankDetails: {
           bankName: decryptedDetails.bankName, // Add decrypted bankName
-          accountNumber: decryptedDetails.accountNumber, // Add decrypted accountNumber
-          accountType: request.bankDetails.accountType, // Add account type
+          IBAN: decryptedDetails.IBAN, // Add decrypted IBAN
+          SWIFT: decryptedDetails.SWIFT, // Add decrypted SWIFT
+          Currency: decryptedDetails.Currency, // Add decrypted Currency
+          phoneNumber: decryptedDetails.phoneNumber, // Add decrypted phoneNumber
         },
       };
     })
@@ -973,7 +987,7 @@ const getAdminAnalyticsDashboardStats = async () => {
     const result = await Order.aggregate([
       {
         $match: {
-          status: "delivered",
+          status: { $nin: ["unpaid", "cancelled"] }, // Exclude "unpaid" and "cancelled" statuses
           createdAt: { $gte: startDate, $lt: endDate },
         },
       },
@@ -999,15 +1013,21 @@ const getAdminAnalyticsDashboardStats = async () => {
   );
 
   // Get total sales (orders) for current and previous month
-  const totalSalesCurrentMonth = await Order.countDocuments({
-    status: "delivered",
-    createdAt: { $gte: currentMonthStart, $lt: lastMonthEnd },
-  });
+  const getTotalSales = async (startDate, endDate) => {
+    return await Order.countDocuments({
+      status: { $nin: ["unpaid", "cancelled"] }, // Exclude "unpaid" and "cancelled" statuses
+      createdAt: { $gte: startDate, $lt: endDate },
+    });
+  };
 
-  const totalSalesPreviousMonth = await Order.countDocuments({
-    status: "delivered",
-    createdAt: { $gte: lastMonthStart, $lt: currentMonthStart },
-  });
+  const totalSalesCurrentMonth = await getTotalSales(
+    currentMonthStart,
+    lastMonthEnd
+  );
+  const totalSalesPreviousMonth = await getTotalSales(
+    lastMonthStart,
+    currentMonthStart
+  );
 
   // Calculate sales change
   const salesChange = calculateChange(
@@ -1019,7 +1039,7 @@ const getAdminAnalyticsDashboardStats = async () => {
   const getActiveUsersCount = async (startDate, endDate) => {
     const users = await Order.distinct("customer", {
       createdAt: { $gte: startDate, $lt: endDate },
-      status: "delivered",
+      status: { $nin: ["unpaid", "cancelled"] }, // Exclude "unpaid" and "cancelled" statuses
     });
     return await User.countDocuments({ _id: { $in: users } });
   };
@@ -1076,29 +1096,33 @@ const getAdminAnalyticsDashboardStats = async () => {
 
 // remaing api start
 const getAdminTopCategoriesBySales = async () => {
-  // Aggregating the sales by category based on orders
-  const topCategories = await Order.aggregate([
-    { $unwind: "$totalItems" }, // Flatten the totalItems array
+  // Aggregating the sales by category based on SellProducts
+  const topCategories = await SellProducts.aggregate([
+    {
+      $match: {
+        status: { $nin: ["unpaid", "cancelled"] }, // Exclude 'unpaid' and 'cancelled' statuses
+      },
+    },
     {
       $lookup: {
-        from: "products",
-        localField: "totalItems.productId",
-        foreignField: "_id",
-        as: "product",
+        from: "products", // Lookup the products collection
+        localField: "productId", // Match productId from SellProducts
+        foreignField: "_id", // Match to _id in Products
+        as: "product", // Alias for the resulting product data
       },
     },
-    { $unwind: "$product" }, // Unwind the product data
+    { $unwind: "$product" }, // Unwind the product data to access fields
     {
       $group: {
-        _id: "$product.category", // Group by category
-        totalSales: { $sum: 1 }, // Count the total sales per category
+        _id: "$product.category", // Group by product category
+        totalSales: { $sum: "$quantity" }, // Sum the total quantity sold for each category
       },
     },
-    { $sort: { totalSales: -1 } }, // Sort by the highest sales count
+    { $sort: { totalSales: -1 } }, // Sort categories by total sales, highest first
     {
       $project: {
         category: "$_id", // Rename the field to 'category'
-        totalSales: 1,
+        totalSales: 1, // Include total sales for the category
         _id: 0, // Exclude the internal _id field
       },
     },
@@ -1272,27 +1296,22 @@ const getAnalyticsTotalReviewTrends = async () => {
   const endOfMonth = moment().endOf("month").toDate();
 
   // Aggregating total revenue by day and category (grouped by product category)
-  const revenueTrends = await Order.aggregate([
+  const revenueTrends = await SellProducts.aggregate([
     {
       $match: {
         createdAt: { $gte: startOfMonth, $lt: endOfMonth },
-        status: "delivered", // Only consider completed sales
+        status: { $nin: ["unpaid", "cancelled"] }, // Exclude 'unpaid' and 'cancelled' statuses
       },
-    },
-    {
-      $unwind: "$totalItems", // Unwind the totalItems array to access each product
     },
     {
       $lookup: {
         from: "products", // Lookup products collection
-        localField: "totalItems.productId", // Match productId from totalItems
+        localField: "productId", // Match productId from SellProducts
         foreignField: "_id", // Match with _id in products collection
         as: "productDetails", // Alias for the resulting product data
       },
     },
-    {
-      $unwind: "$productDetails", // Unwind the productDetails array to access product fields
-    },
+    { $unwind: "$productDetails" }, // Unwind the productDetails array to access product fields
     {
       $group: {
         _id: {
@@ -1302,13 +1321,11 @@ const getAnalyticsTotalReviewTrends = async () => {
           category: "$productDetails.category", // Group by product category
         },
         totalRevenue: {
-          $sum: { $multiply: ["$totalItems.quantity", "$totalItems.price"] },
-        }, // Sum of the total sales (quantity * price)
+          $sum: { $multiply: ["$quantity", "$price"] }, // Sum of the total revenue (quantity * price)
+        },
       },
     },
-    {
-      $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 },
-    },
+    { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } }, // Sort by date
     {
       $project: {
         date: {
@@ -1322,7 +1339,7 @@ const getAnalyticsTotalReviewTrends = async () => {
         },
         category: "$_id.category", // Include the category
         totalRevenue: 1, // Include total revenue
-        _id: 0,
+        _id: 0, // Exclude _id field from output
       },
     },
   ]);
@@ -1341,60 +1358,98 @@ const getAnalyticsTotalSalesTrends = async () => {
   const startOfMonth = moment().startOf("month").toDate();
   const endOfMonth = moment().endOf("month").toDate();
 
-  // Aggregating sales by day and status (excluding "unpaid" status)
-  const salesTrends = await Order.aggregate([
+  // Aggregating sales by day and status (excluding "unpaid" and "cancelled" statuses from Order)
+  const salesTrends = await SellProducts.aggregate([
     {
       $match: {
         createdAt: { $gte: startOfMonth, $lt: endOfMonth },
-        status: { $ne: "unpaid" }, // Exclude "unpaid" status
+      },
+    },
+    {
+      // Optional: Lookup to the Order model to include status (if needed, if SellProducts contains an order reference)
+      $lookup: {
+        from: "orders", // Assuming the collection name is "orders"
+        localField: "orderId", // Assuming "orderId" links SellProducts to an order
+        foreignField: "_id",
+        as: "orderDetails",
+      },
+    },
+    {
+      $unwind: {
+        path: "$orderDetails",
+        preserveNullAndEmptyArrays: true, // Keep SellProducts without corresponding orders
+      },
+    },
+    {
+      $match: {
+        // Ensure we only consider orders with non "unpaid" and "cancelled" status
+        "orderDetails.status": { $nin: ["unpaid", "cancelled"] },
       },
     },
     {
       $group: {
         _id: {
-          day: { $dayOfMonth: "$createdAt" },
-          month: { $month: "$createdAt" },
-          year: { $year: "$createdAt" },
+          day: { $dayOfMonth: "$createdAt" }, // Group by day of the month
+          month: { $month: "$createdAt" }, // Group by month
+          year: { $year: "$createdAt" }, // Group by year
         },
-        conformSales: {
+        confirmedSales: {
           $sum: {
-            $cond: [{ $eq: ["$status", "confirmed"] }, "$totalAmount", 0],
+            $cond: [
+              { $eq: ["$orderDetails.status", "confirmed"] },
+              { $multiply: ["$quantity", "$price"] },
+              0,
+            ],
           },
         },
         deliveredSales: {
           $sum: {
-            $cond: [{ $eq: ["$status", "delivered"] }, "$totalAmount", 0],
+            $cond: [
+              { $eq: ["$orderDetails.status", "delivered"] },
+              { $multiply: ["$quantity", "$price"] },
+              0,
+            ],
+          },
+        },
+        shippedSales: {
+          $sum: {
+            $cond: [
+              { $eq: ["$orderDetails.status", "shipped"] },
+              { $multiply: ["$quantity", "$price"] },
+              0,
+            ],
           },
         },
         cancelledSales: {
           $sum: {
-            $cond: [{ $eq: ["$status", "cancelled"] }, "$totalAmount", 0],
+            $cond: [
+              { $eq: ["$orderDetails.status", "cancelled"] },
+              { $multiply: ["$quantity", "$price"] },
+              0,
+            ],
           },
-        },
-        shippedSales: {
-          $sum: { $cond: [{ $eq: ["$status", "shipped"] }, "$totalAmount", 0] },
         },
       },
     },
     {
-      $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 },
+      $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 }, // Sort by date
     },
     {
       $project: {
         date: {
           $concat: [
-            { $toString: "$_id.year" },
+            { $toString: "$_id.year" }, // Year
             "-",
-            { $toString: "$_id.month" },
+            { $toString: "$_id.month" }, // Month
             "-",
-            { $toString: "$_id.day" },
+            { $toString: "$_id.day" }, // Day
           ],
         },
-        conformSales: 1,
-        deliveredSales: 1,
-        cancelledSales: 1,
-        shippedSales: 1,
-        _id: 0,
+        confirmedSales: 1, // Confirmed sales
+        deliveredSales: 1, // Delivered sales
+        cancelledSales: 1, // Cancelled sales
+        shippedSales: 1, // Shipped sales
+        _id: 0, // Exclude internal _id field
       },
     },
   ]);
@@ -1402,7 +1457,7 @@ const getAnalyticsTotalSalesTrends = async () => {
   // Format the result to fit the Recharts chart format
   const formattedData = salesTrends.map((trend) => ({
     date: trend.date,
-    conformSales: trend.conformSales,
+    confirmedSales: trend.confirmedSales,
     deliveredSales: trend.deliveredSales,
     cancelledSales: trend.cancelledSales,
     shippedSales: trend.shippedSales,
@@ -1466,21 +1521,18 @@ const getAnalyticsProductsTrends = async () => {
   const endOfMonth = moment().endOf("month").toDate();
 
   // Aggregating product trends by day (count of products sold)
-  const productSalesTrends = await Order.aggregate([
+  const productSalesTrends = await SellProducts.aggregate([
     {
       $match: {
-        createdAt: { $gte: startOfMonth, $lt: endOfMonth },
-        status: "delivered", // Only consider completed sales
+        createdAt: { $gte: startOfMonth, $lt: endOfMonth }, // Filter by date range
+        status: { $nin: ["unpaid", "cancelled"] }, // Exclude 'unpaid' and 'cancelled' statuses
       },
-    },
-    {
-      $unwind: "$totalItems", // Unwind totalItems to separate each item
     },
     {
       $lookup: {
         from: "products", // Lookup products collection
-        localField: "totalItems.productId", // Match productId from totalItems
-        foreignField: "_id", // Match with the _id field in products
+        localField: "productId", // Match productId in SellProducts to _id in Products
+        foreignField: "_id",
         as: "productDetails", // Alias for the resulting product data
       },
     },
@@ -1490,18 +1542,18 @@ const getAnalyticsProductsTrends = async () => {
     {
       $group: {
         _id: {
-          day: { $dayOfMonth: "$createdAt" },
-          month: { $month: "$createdAt" },
-          year: { $year: "$createdAt" },
-          productId: "$totalItems.productId",
+          day: { $dayOfMonth: "$createdAt" }, // Extract the day from createdAt
+          month: { $month: "$createdAt" }, // Extract the month
+          year: { $year: "$createdAt" }, // Extract the year
+          productId: "$productId", // Group by productId
         },
-        totalSales: { $sum: "$totalItems.quantity" },
+        totalSales: { $sum: "$quantity" }, // Sum up total quantity of each product sold
         productName: { $first: "$productDetails.productName" }, // Get the product name
-        category: { $first: "$productDetails.category" }, // Get the product category
+        category: { $first: "$productDetails.category" }, // Get the category
       },
     },
     {
-      $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 },
+      $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 }, // Sort by date
     },
     {
       $project: {
@@ -1514,10 +1566,10 @@ const getAnalyticsProductsTrends = async () => {
             { $toString: "$_id.day" },
           ], // Format date as YYYY-MM-DD
         },
-        productName: 1, // Include the product name
-        category: 1, // Include the category
-        totalSales: 1, // Include the total sales count
-        _id: 0,
+        productName: 1, // Include product name
+        category: 1, // Include product category
+        totalSales: 1, // Include total sales count
+        _id: 0, // Remove _id from the output
       },
     },
   ]);
@@ -1527,6 +1579,7 @@ const getAnalyticsProductsTrends = async () => {
     date: trend.date,
     category: trend.category,
     totalSales: trend.totalSales,
+    productName: trend.productName, // Include product name for better data structure
   }));
 
   return formattedData;

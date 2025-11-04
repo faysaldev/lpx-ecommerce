@@ -103,7 +103,7 @@ const VendorDashboardPage = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="overview">
               <TrendingUp className="h-4 w-4 mr-2" />
               Overview
@@ -116,10 +116,11 @@ const VendorDashboardPage = () => {
               <Package className="h-4 w-4 mr-2" />
               Products
             </TabsTrigger>
-            <TabsTrigger value="analytics">
+            {/* TODO:analytics hide for now */}
+            {/* <TabsTrigger value="analytics">
               <BarChart3 className="h-4 w-4 mr-2" />
               Analytics
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -149,10 +150,11 @@ const VendorDashboardPage = () => {
 
           {/* TODO: products section */}
           <VendorProductSection />
-
+          {/* TODO: analytics hide for now */}
+          {/* 
           <TabsContent value="analytics" className="space-y-6">
             <AnalysisSection />
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </PageLayout>
     </ProtectedRoute>

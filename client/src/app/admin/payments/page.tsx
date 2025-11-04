@@ -103,17 +103,18 @@ export default function AdminPaymentManagementPage() {
 
       {/* Main Content */}
       <Tabs defaultValue="requests" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="requests">Payment Requests</TabsTrigger>
           <TabsTrigger value="vendors">Vendor Summaries</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          {/* TODO: hiding analytics for now */}
+          {/* <TabsTrigger value="analytics">Analytics</TabsTrigger> */}
         </TabsList>
 
         <AdminPaymentRequest handleViewRequest={handleViewRequest} />
 
         {/* vendor request analysis */}
         <PaymentVendorAnalysis />
-
+        {/* TODO: hiding the payments analytics */}
         <AdminPaymentAnalytics />
       </Tabs>
 

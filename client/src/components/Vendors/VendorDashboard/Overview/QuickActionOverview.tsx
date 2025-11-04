@@ -96,13 +96,6 @@ function QuickActionOverview({
                   className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <Image
-                      src={order.userImage ? `${order.userImage}` : ""} // changed from order.customer.avatar to order.userImage
-                      alt={order.userName} // changed from order.customer.name to order.userName
-                      width={32}
-                      height={32}
-                      className="w-8 h-8 rounded-full"
-                    />
                     <div>
                       <p className="font-medium text-sm">
                         {order.userName}{" "}

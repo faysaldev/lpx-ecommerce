@@ -135,6 +135,7 @@ const ProductsTrendsChart = ({ data }: ProductsTrendsChartProps) => {
                 dataKey={cat.name}
                 fill={categoryColors[cat.name]}
                 radius={4}
+                maxBarSize={20}
               />
             ))}
           </BarChart>

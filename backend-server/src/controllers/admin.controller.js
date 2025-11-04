@@ -41,8 +41,6 @@ const deleteUserAccount = catchAsync(async (req, res) => {
 });
 
 const getAllVendors = catchAsync(async (req, res) => {
-  console.log(req.user.type);
-
   if (req.user.type === "customer" || req.user.type == "seller") {
     res.status(httpStatus.CREATED).json(
       response({
@@ -150,9 +148,6 @@ const getAdminProductStats = catchAsync(async (req, res) => {
   // Fetch data for the admin dashboard
   if (req.user.type !== "admin") return;
   const dashboardProductStats = await adminService.getAdminProductStats();
-
-  // Return the data
-
   res.status(httpStatus.OK).json(
     response({
       message: "Admin Dashboard data fetched successfully",
@@ -288,7 +283,7 @@ const getAdminPaymentRequestStats = catchAsync(async (req, res) => {
 
 const getAdminVendorSummary = catchAsync(async (req, res) => {
   // Fetch data for the admin dashboard
-  // if (req.user.type !== "admin") return;
+  if (req.user.type !== "admin") return;
   const { limit, page } = req.query;
   const adminPayVendorSumemries = await adminService.getAdminVendorSummary({
     page,
@@ -308,7 +303,7 @@ const getAdminVendorSummary = catchAsync(async (req, res) => {
 });
 
 const getAdminFinancialOverview = catchAsync(async (req, res) => {
-  // if (req.user.type !== "admin") return;
+  if (req.user.type !== "admin") return;
   const adminPayVendorSumemries =
     await adminService.getAdminFinancialOverview();
 
@@ -365,7 +360,7 @@ const approvedAdminPayment = catchAsync(async (req, res) => {
 // TODO: admin analytics seciton
 const getAdminAnalyticsDashboardStats = catchAsync(async (req, res) => {
   // Fetch data for the admin dashboard
-  // if (req.user.type !== "admin") return;
+  if (req.user.type !== "admin") return;
 
   const adminAnalyticsStats =
     await adminService.getAdminAnalyticsDashboardStats();
@@ -386,7 +381,7 @@ const getAdminAnalyticsDashboardStats = catchAsync(async (req, res) => {
 
 const getAdminTopCategoriesBySales = catchAsync(async (req, res) => {
   // Fetch data for the admin dashboard
-  // if (req.user.type !== "admin") return;
+  if (req.user.type !== "admin") return;
 
   const topSellingCategories =
     await adminService.getAdminTopCategoriesBySales();
@@ -424,12 +419,9 @@ const getAdminRecentAnalyticsTrends = catchAsync(async (req, res) => {
 
 const getAdminAnalyticsTotalSales = catchAsync(async (req, res) => {
   // Fetch data for the admin dashboard
-  // if (req.user.type !== "admin") return;
+  if (req.user.type !== "admin") return;
 
   const adminTotalSales = await adminService.getAnalyticsTotalSalesTrends();
-
-  // Return the data
-
   res.status(httpStatus.OK).json(
     response({
       message: "FinalCial Statitics",
@@ -460,7 +452,7 @@ const getAdminAnalyticsTotalUserTrends = catchAsync(async (req, res) => {
 
 const getAdminAnalyticsTotalProductTrends = catchAsync(async (req, res) => {
   // Fetch data for the admin dashboard
-  // if (req.user.type !== "admin") return;
+  if (req.user.type !== "admin") return;
 
   const adminTotalProducts = await adminService.getAnalyticsProductsTrends();
 
@@ -478,7 +470,7 @@ const getAdminAnalyticsTotalProductTrends = catchAsync(async (req, res) => {
 
 const getAdminAnalyticsTotalRevinueTrends = catchAsync(async (req, res) => {
   // Fetch data for the admin dashboard
-  // if (req.user.type !== "admin") return;
+  if (req.user.type !== "admin") return;
 
   const adminTotalRevinue = await adminService.getAnalyticsTotalReviewTrends();
 
