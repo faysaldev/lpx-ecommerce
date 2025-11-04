@@ -30,8 +30,6 @@ import {
   useAddNewConditionMutation,
   useRemoveConditionMutation,
 } from "@/redux/features/admin/adminGeneral";
-import ProtectedRoute from "@/Provider/ProtectedRoutes";
-
 type Category = {
   _id: string;
   name: string;
@@ -676,42 +674,38 @@ function GeneralSettingsManagement() {
 // ==================== Main Page Component ====================
 export default function GeneralSettingsPage() {
   return (
-    <ProtectedRoute allowedTypes={["admin"]}>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            General Settings
-          </h1>
-          <p className="text-muted-foreground">
-            Manage categories, coupons, conditions, and platform settings
-          </p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight">General Settings</h1>
+        <p className="text-muted-foreground">
+          Manage categories, coupons, conditions, and platform settings
+        </p>
+      </div>
 
-        <Tabs defaultValue="categories" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-2">
-            <TabsTrigger value="categories">Categories</TabsTrigger>
-            {/* <TabsTrigger value="coupons">Coupons</TabsTrigger> */}
-            {/* <TabsTrigger value="conditions">Conditions</TabsTrigger> */}
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+      <Tabs defaultValue="categories" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-2 lg:grid-cols-2">
+          <TabsTrigger value="categories">Categories</TabsTrigger>
+          {/* <TabsTrigger value="coupons">Coupons</TabsTrigger> */}
+          {/* <TabsTrigger value="conditions">Conditions</TabsTrigger> */}
+          <TabsTrigger value="settings">Settings</TabsTrigger>
+        </TabsList>
 
-          <TabsContent value="categories">
-            <CategoriesManagement />
-          </TabsContent>
+        <TabsContent value="categories">
+          <CategoriesManagement />
+        </TabsContent>
 
-          {/* <TabsContent value="coupons">
+        {/* <TabsContent value="coupons">
           <CouponsManagement />
         </TabsContent> */}
 
-          {/* <TabsContent value="conditions">
+        {/* <TabsContent value="conditions">
           <ConditionsManagement />
         </TabsContent> */}
 
-          <TabsContent value="settings">
-            <GeneralSettingsManagement />
-          </TabsContent>
-        </Tabs>
-      </div>
-    </ProtectedRoute>
+        <TabsContent value="settings">
+          <GeneralSettingsManagement />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 }
