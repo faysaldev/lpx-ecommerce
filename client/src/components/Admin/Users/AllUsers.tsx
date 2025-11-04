@@ -345,7 +345,7 @@ function AllUsers() {
                                     className="text-red-400 hover:text-red-300 hover:bg-gray-700 cursor-pointer"
                                   >
                                     <Trash2 className="mr-2 h-4 w-4" />
-                                    Delete User
+                                    Suspense User
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>

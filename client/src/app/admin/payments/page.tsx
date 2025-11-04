@@ -10,6 +10,7 @@ import PaymentVendorAnalysis from "@/components/Admin/Payments/PaymentVendorAnal
 import AdminPaymentRequest from "@/components/Admin/Payments/AdminPaymentRequest";
 import AdminPaymentLoader from "@/components/Admin/Payments/AdminPaymentLoader";
 import { useAdminPaymentStatsQuery } from "@/redux/features/admin/adminPaymentrequest";
+import ProtectedRoute from "@/Provider/ProtectedRoutes";
 
 export default function AdminPaymentManagementPage() {
   const [selectedRequest, setSelectedRequest] = useState<PaymentRequest | null>(
@@ -66,68 +67,70 @@ export default function AdminPaymentManagementPage() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Payment Management
-          </h1>
-          <p className="text-muted-foreground">
-            Manage vendor payment requests and process payments
-          </p>
-        </div>
-        {/* <Button variant="outline" onClick={handleExportData}>
+    <ProtectedRoute allowedTypes={["admin"]}>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Payment Management
+            </h1>
+            <p className="text-muted-foreground">
+              Manage vendor payment requests and process payments
+            </p>
+          </div>
+          {/* <Button variant="outline" onClick={handleExportData}>
           <Download className="mr-2 h-4 w-4" />
           Export Data
         </Button> */}
-      </div>
+        </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {dashboardStats.map((stat, _index) => (
-          <Card key={_index}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {stat.title}
-                  </p>
-                  <p className="text-2xl font-bold">{stat.value}</p>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {dashboardStats.map((stat, _index) => (
+            <Card key={_index}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {stat.title}
+                    </p>
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                  </div>
+                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
                 </div>
-                <stat.icon className={`h-8 w-8 ${stat.color}`} />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Main Content */}
+        <Tabs defaultValue="requests" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="requests">Payment Requests</TabsTrigger>
+            <TabsTrigger value="vendors">Vendor Summaries</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
+
+          <AdminPaymentRequest handleViewRequest={handleViewRequest} />
+
+          {/* vendor request analysis */}
+          <PaymentVendorAnalysis />
+
+          <AdminPaymentAnalytics />
+        </Tabs>
+
+        {/* Payment Approval Dialog */}
+        <PaymentApprovalDialog
+          paymentRequest={selectedRequest}
+          isOpen={showApprovalDialog}
+          onClose={() => {
+            setShowApprovalDialog(false);
+            setSelectedRequest(null);
+          }}
+          onUpdate={handleApprovalUpdate}
+        />
       </div>
-
-      {/* Main Content */}
-      <Tabs defaultValue="requests" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="requests">Payment Requests</TabsTrigger>
-          <TabsTrigger value="vendors">Vendor Summaries</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
-
-        <AdminPaymentRequest handleViewRequest={handleViewRequest} />
-
-        {/* vendor request analysis */}
-        <PaymentVendorAnalysis />
-
-        <AdminPaymentAnalytics />
-      </Tabs>
-
-      {/* Payment Approval Dialog */}
-      <PaymentApprovalDialog
-        paymentRequest={selectedRequest}
-        isOpen={showApprovalDialog}
-        onClose={() => {
-          setShowApprovalDialog(false);
-          setSelectedRequest(null);
-        }}
-        onUpdate={handleApprovalUpdate}
-      />
-    </div>
+    </ProtectedRoute>
   );
 }

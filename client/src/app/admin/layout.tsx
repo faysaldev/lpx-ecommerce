@@ -32,6 +32,7 @@ import { cn } from "@/lib/utils";
 import { useAllCategoriesQuery } from "@/redux/features/BrowseCollectibles/BrowseCollectibles";
 import { useAppDispatch } from "@/redux/hooks";
 import { setAllCategories } from "@/redux/features/Common/CommonSlice";
+import ProtectedRoute from "@/Provider/ProtectedRoutes";
 
 const adminNavItems = [
   {
@@ -268,8 +269,8 @@ function AdminLayoutContent({ children }: { children: ReactNode }) {
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
-    // <ProtectedRoute requiredRole="admin" redirectTo="/sign-in">
-    <AdminLayoutContent>{children}</AdminLayoutContent>
-    // </ProtectedRoute>
+    <ProtectedRoute allowedTypes={["admin"]}>
+      <AdminLayoutContent>{children}</AdminLayoutContent>
+    </ProtectedRoute>
   );
 }

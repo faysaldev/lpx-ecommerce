@@ -36,6 +36,7 @@ import TagInput from "@/components/Vendors/AddnewProduct/TagInput";
 import { Alert, AlertDescription } from "@/components/UI/alert";
 import Image from "next/image";
 import { useSelector } from "react-redux";
+import ProtectedRoute from "@/Provider/ProtectedRoutes";
 
 const rawConditions = [
   "Mint",
@@ -586,343 +587,347 @@ const NewProductPage = () => {
   }
 
   return (
-    <PageLayout
-      title="Edit Product"
-      description={`Edit "${singleData.productName}"`}
-      breadcrumbs={[
-        { label: "Dashboard", href: "/vendor/dashboard" },
-        { label: "Products", href: "/vendor/dashboard" },
-        { label: "Edit Product" },
-      ]}
-    >
-      {!singleData.isDraft && (
-        <Alert className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            This product is currently live and visible to buyers. Changes will
-            take effect immediately after saving.
-            <Button asChild variant="link" className="p-0 ml-2 h-auto">
-              <a
-                href={`/product/${singleData._id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1"
-              >
-                View live listing <ExternalLink className="h-3 w-3" />
-              </a>
-            </Button>
-          </AlertDescription>
-        </Alert>
-      )}
+    <ProtectedRoute allowedTypes={["seller", "admin"]}>
+      <PageLayout
+        title="Edit Product"
+        description={`Edit "${singleData.productName}"`}
+        breadcrumbs={[
+          { label: "Dashboard", href: "/vendor/dashboard" },
+          { label: "Products", href: "/vendor/dashboard" },
+          { label: "Edit Product" },
+        ]}
+      >
+        {!singleData.isDraft && (
+          <Alert className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              This product is currently live and visible to buyers. Changes will
+              take effect immediately after saving.
+              <Button asChild variant="link" className="p-0 ml-2 h-auto">
+                <a
+                  href={`/product/${singleData._id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1"
+                >
+                  View live listing <ExternalLink className="h-3 w-3" />
+                </a>
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
 
-      <div className="space-y-8">
-        {/* Images Section */}
-        <ImageUploadSection
-          images={images}
-          onImagesChange={setImages}
-          existingImages={singleData.images}
-          onExistingImagesChange={setExistingImages}
-        />
+        <div className="space-y-8">
+          {/* Images Section */}
+          <ImageUploadSection
+            images={images}
+            onImagesChange={setImages}
+            existingImages={singleData.images}
+            onExistingImagesChange={setExistingImages}
+          />
 
-        {/* Basic Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              Basic Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <Label htmlFor="productName">Product Name *</Label>
-                <Input
-                  id="productName"
-                  value={productName}
-                  onChange={(e) => setProductName(e.target.value)}
-                  placeholder="e.g., Charizard Base Set Holo"
-                  className="mt-1"
-                />
-                {errors.productName && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.productName}
-                  </p>
-                )}
-              </div>
+          {/* Basic Information */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5" />
+                Basic Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="md:col-span-2">
+                  <Label htmlFor="productName">Product Name *</Label>
+                  <Input
+                    id="productName"
+                    value={productName}
+                    onChange={(e) => setProductName(e.target.value)}
+                    placeholder="e.g., Charizard Base Set Holo"
+                    className="mt-1"
+                  />
+                  {errors.productName && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.productName}
+                    </p>
+                  )}
+                </div>
 
-              <div className="md:col-span-2">
-                <Label htmlFor="description">Description *</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe your product in detail. Include condition, authenticity, provenance, and any special features."
-                  className="mt-1 min-h-[120px]"
-                />
-                {errors.description && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.description}
-                  </p>
-                )}
-              </div>
+                <div className="md:col-span-2">
+                  <Label htmlFor="description">Description *</Label>
+                  <Textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Describe your product in detail. Include condition, authenticity, provenance, and any special features."
+                    className="mt-1 min-h-[120px]"
+                  />
+                  {errors.description && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.description}
+                    </p>
+                  )}
+                </div>
 
-              <div>
-                <Label htmlFor="category">Category *</Label>
-                <Select value={category} onValueChange={setCategory}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories?.map((cat: any) => (
-                      <SelectItem key={cat._id} value={cat._id}>
-                        {cat?.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.category && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.category}
-                  </p>
-                )}
-              </div>
-              <div>
-                <Label htmlFor="brand">Brand/Manufacturer</Label>
-                <Input
-                  id="brand"
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                  placeholder="e.g., Topps, Wizards of the Coast"
-                  className="mt-1"
-                />
-              </div>
+                <div>
+                  <Label htmlFor="category">Category *</Label>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories?.map((cat: any) => (
+                        <SelectItem key={cat._id} value={cat._id}>
+                          {cat?.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.category && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.category}
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <Label htmlFor="brand">Brand/Manufacturer</Label>
+                  <Input
+                    id="brand"
+                    value={brand}
+                    onChange={(e) => setBrand(e.target.value)}
+                    placeholder="e.g., Topps, Wizards of the Coast"
+                    className="mt-1"
+                  />
+                </div>
 
-              <div className="md:col-span-2">
-                <Label htmlFor="condition">Condition *</Label>
-                <Select value={condition} onValueChange={setCondition}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select condition" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {rawConditions?.map((c: any) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.condition && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.condition}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <Label>Tags (optional)</Label>
-              <p className="text-sm text-muted-foreground mb-2">
-                Add tags to help buyers find your product (max 10)
-              </p>
-              <TagInput tags={tags} onTagsChange={setTags} />
-            </div>
-          </CardContent>
-        </Card>
-        {/* Pricing & Inventory */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Pricing & Inventory
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="optionalPrice">Original Price *</Label>
-                <Input
-                  id="optionalPrice"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={optionalPrice}
-                  onChange={(e) => {
-                    const originalPrice = e.target.value;
-                    setOptionalPrice(originalPrice);
-
-                    // Calculate price based on original price and discount
-                    if (originalPrice && discountPercentage) {
-                      const original = parseFloat(originalPrice);
-                      const discount = parseFloat(discountPercentage);
-                      const discountedPrice =
-                        original - (original * discount) / 100;
-                      setPrice(discountedPrice.toFixed(2));
-                    } else if (originalPrice) {
-                      setPrice(originalPrice);
-                    }
-                  }}
-                  placeholder="0.00"
-                  className="mt-1"
-                />
-                {errors.optionalPrice && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.optionalPrice}
-                  </p>
-                )}
+                <div className="md:col-span-2">
+                  <Label htmlFor="condition">Condition *</Label>
+                  <Select value={condition} onValueChange={setCondition}>
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Select condition" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {rawConditions?.map((c: any) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.condition && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.condition}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div>
-                <Label htmlFor="discountPercentage">Discount Percentage</Label>
-                <Input
-                  id="discountPercentage"
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={discountPercentage}
-                  onChange={(e) => {
-                    const discount = e.target.value;
-                    setDiscountPercentage(discount);
-
-                    // Calculate price based on original price and discount
-                    if (optionalPrice && discount) {
-                      const original = parseFloat(optionalPrice);
-                      const discountPercent = parseFloat(discount);
-                      const discountedPrice =
-                        original - (original * discountPercent) / 100;
-                      setPrice(discountedPrice.toFixed(2));
-                    } else if (optionalPrice && !discount) {
-                      // If discount is removed, set price back to original
-                      setPrice(optionalPrice);
-                    }
-                  }}
-                  placeholder="0"
-                  className="mt-1"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Percentage discount (0-100)
+                <Label>Tags (optional)</Label>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Add tags to help buyers find your product (max 10)
                 </p>
+                <TagInput tags={tags} onTagsChange={setTags} />
               </div>
+            </CardContent>
+          </Card>
+          {/* Pricing & Inventory */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5" />
+                Pricing & Inventory
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="optionalPrice">Original Price *</Label>
+                  <Input
+                    id="optionalPrice"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={optionalPrice}
+                    onChange={(e) => {
+                      const originalPrice = e.target.value;
+                      setOptionalPrice(originalPrice);
 
-              <div>
-                <Label htmlFor="price">Final Price *</Label>
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  value={price}
-                  onChange={(e) => setPrice(e.target.value)}
-                  placeholder="0.00"
-                  className="mt-1 bg-muted"
-                  readOnly
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Calculated automatically
-                </p>
-                {errors.price && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.price}
+                      // Calculate price based on original price and discount
+                      if (originalPrice && discountPercentage) {
+                        const original = parseFloat(originalPrice);
+                        const discount = parseFloat(discountPercentage);
+                        const discountedPrice =
+                          original - (original * discount) / 100;
+                        setPrice(discountedPrice.toFixed(2));
+                      } else if (originalPrice) {
+                        setPrice(originalPrice);
+                      }
+                    }}
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                  {errors.optionalPrice && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.optionalPrice}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="discountPercentage">
+                    Discount Percentage
+                  </Label>
+                  <Input
+                    id="discountPercentage"
+                    type="number"
+                    min="0"
+                    max="100"
+                    value={discountPercentage}
+                    onChange={(e) => {
+                      const discount = e.target.value;
+                      setDiscountPercentage(discount);
+
+                      // Calculate price based on original price and discount
+                      if (optionalPrice && discount) {
+                        const original = parseFloat(optionalPrice);
+                        const discountPercent = parseFloat(discount);
+                        const discountedPrice =
+                          original - (original * discountPercent) / 100;
+                        setPrice(discountedPrice.toFixed(2));
+                      } else if (optionalPrice && !discount) {
+                        // If discount is removed, set price back to original
+                        setPrice(optionalPrice);
+                      }
+                    }}
+                    placeholder="0"
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Percentage discount (0-100)
                   </p>
-                )}
-              </div>
+                </div>
 
-              <div>
-                <Label htmlFor="stockQuantity">Stock Quantity *</Label>
-                <Input
-                  id="stockQuantity"
-                  type="number"
-                  min="1"
-                  value={stockQuantity}
-                  onChange={(e) => setStockQuantity(e.target.value)}
-                  placeholder="1"
-                  className="mt-1"
-                />
-                {errors.stockQuantity && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.stockQuantity}
+                <div>
+                  <Label htmlFor="price">Final Price *</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    placeholder="0.00"
+                    className="mt-1 bg-muted"
+                    readOnly
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Calculated automatically
                   </p>
-                )}
+                  {errors.price && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.price}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="stockQuantity">Stock Quantity *</Label>
+                  <Input
+                    id="stockQuantity"
+                    type="number"
+                    min="1"
+                    value={stockQuantity}
+                    onChange={(e) => setStockQuantity(e.target.value)}
+                    placeholder="1"
+                    className="mt-1"
+                  />
+                  {errors.stockQuantity && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.stockQuantity}
+                    </p>
+                  )}
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Shipping */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Shipping Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-3 gap-4">
-              <div className="hidden">
-                <Label htmlFor="shippingCost">Shipping Cost</Label>
-                <Input
-                  id="shippingCost"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={shippingCost}
-                  onChange={(e) => setShippingCost(e.target.value)}
-                  placeholder="0.00"
-                  className="mt-1"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Set to 0 for free shipping
-                </p>
+          {/* Shipping */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Shipping Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="hidden">
+                  <Label htmlFor="shippingCost">Shipping Cost</Label>
+                  <Input
+                    id="shippingCost"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={shippingCost}
+                    onChange={(e) => setShippingCost(e.target.value)}
+                    placeholder="0.00"
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Set to 0 for free shipping
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="weight">Weight (oz)</Label>
+                  <Input
+                    id="weight"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={weight}
+                    onChange={(e) => setWeight(e.target.value)}
+                    placeholder="e.g., 0.5"
+                    className="mt-1"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="dimensions">Dimensions</Label>
+                  <Input
+                    id="dimensions"
+                    value={dimensions}
+                    onChange={(e) => setDimensions(e.target.value)}
+                    placeholder="e.g., 3.5 x 2.5 x 0.1 in"
+                    className="mt-1"
+                  />
+                </div>
               </div>
+            </CardContent>
+          </Card>
 
-              <div>
-                <Label htmlFor="weight">Weight (oz)</Label>
-                <Input
-                  id="weight"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  value={weight}
-                  onChange={(e) => setWeight(e.target.value)}
-                  placeholder="e.g., 0.5"
-                  className="mt-1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="dimensions">Dimensions</Label>
-                <Input
-                  id="dimensions"
-                  value={dimensions}
-                  onChange={(e) => setDimensions(e.target.value)}
-                  placeholder="e.g., 3.5 x 2.5 x 0.1 in"
-                  className="mt-1"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Action Buttons */}
-        <div className="flex justify-between items-center pt-6 border-t">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.push("/vendor/dashboard")}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
-
-          <div className="flex gap-3">
+          {/* Action Buttons */}
+          <div className="flex justify-between items-center pt-6 border-t">
             <Button
               type="button"
-              onClick={handleUpdateProduct}
+              variant="outline"
+              onClick={() => router.push("/vendor/dashboard")}
               disabled={isSubmitting}
             >
-              <Save className="mr-2 h-4 w-4" />
-              {isSubmitting ? "Updating..." : "Update Product"}
+              Cancel
             </Button>
+
+            <div className="flex gap-3">
+              <Button
+                type="button"
+                onClick={handleUpdateProduct}
+                disabled={isSubmitting}
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isSubmitting ? "Updating..." : "Update Product"}
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
-    </PageLayout>
+      </PageLayout>
+    </ProtectedRoute>
   );
 };
 export default NewProductPage;

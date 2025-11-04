@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-
-import { Filter } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -9,7 +7,6 @@ import { cn } from "@/lib/utils/index";
 import { Category, Product } from "@/lib/types";
 import { useBrowseFilters } from "@/hooks/useBrowseFilters";
 import PageLayout from "@/components/layout/PageLayout";
-import { MobileFilterSheet } from "@/components/Browse/FilterSidebar";
 import { VendorStyleFilterBar } from "@/components/Browse/VendorStyleFilterBar";
 import { ProductGrid } from "@/components/Browse/ProductGrid";
 import { CONDITIONS } from "@/lib/browse-utils";
@@ -247,22 +244,6 @@ export default function CategoryPage() {
       </PageLayout>
     );
   }
-
-  // if (!categorySlug) {
-  //   return (
-  //     <PageLayout>
-  //       <EmptyStates.Error
-  //         onRetry={() => window.location.reload()}
-  //         title="Category Not Found"
-  //         description="The category you're looking for doesn't exist or has been removed."
-  //         actionLabel="Browse All Products"
-  //         actionHref="/browse"
-  //       />
-  //     </PageLayout>
-  //   );
-  // }
-
-  // Loading state
   const isLoading = productsLoading || categoriesLoading || productsFetching;
 
   return (

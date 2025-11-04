@@ -17,6 +17,7 @@ import { useAllUserOrdersQuery } from "@/redux/features/Orders/Orders";
 import OrderCard from "@/components/Orders/OrderCard";
 import OrderLoader from "@/components/Orders/OrderLoader";
 import { ChevronDown } from "lucide-react";
+import ProtectedRoute from "@/Provider/ProtectedRoutes";
 
 export default function OrdersPage() {
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -71,89 +72,91 @@ export default function OrdersPage() {
   }
 
   return (
-    <PageLayout
-      title="Order History"
-      description="View and manage your past orders"
-      breadcrumbs={[
-        { label: "Dashboard", href: "/dashboard" },
-        { label: "Order History" },
-      ]}
-    >
-      {/* Header Actions */}
-      <div className="flex justify-end -mt-16 mb-8">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="w-[140px] justify-between">
-              {sortBy === "newestFirst" && "Newest First"}
-              {sortBy === "oldestFirst" && "Oldest First"}
-              {sortBy === "highToLow" && "Highest Value"}
-              {sortBy === "lowToHigh" && "Lowest Value"}
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-[140px]">
-            <DropdownMenuItem onClick={() => setSortBy("newestFirst")}>
-              Newest First
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortBy("oldestFirst")}>
-              Oldest First
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortBy("highToLow")}>
-              Highest Value
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setSortBy("lowToHigh")}>
-              Lowest Value
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
-      {/* Filters */}
-      <Tabs
-        value={filterStatus}
-        onValueChange={setFilterStatus}
-        className="mb-6"
+    <ProtectedRoute allowedTypes={["admin", "seller", "customer"]}>
+      <PageLayout
+        title="Order History"
+        description="View and manage your past orders"
+        breadcrumbs={[
+          { label: "Dashboard", href: "/dashboard" },
+          { label: "Order History" },
+        ]}
       >
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
-          <TabsTrigger value="all">
-            All Orders ({getOrderCountByStatus("all")})
-          </TabsTrigger>
-          <TabsTrigger value="confirmed">
-            Confirmed ({getOrderCountByStatus("confirmed")})
-          </TabsTrigger>
-          <TabsTrigger value="shipped">
-            Shipped ({getOrderCountByStatus("shipped")})
-          </TabsTrigger>
-          <TabsTrigger value="delivered">
-            Delivered ({getOrderCountByStatus("delivered")})
-          </TabsTrigger>
-          <TabsTrigger value="cancelled">
-            Cancelled ({getOrderCountByStatus("cancelled")})
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
-
-      {/* Orders List */}
-      {orders.length === 0 ? (
-        <EmptyStates.NoOrders />
-      ) : (
-        <div className="space-y-4">
-          {orders.map((order: any) => (
-            <OrderCard
-              key={order._id}
-              order={order}
-              onReorder={handleReorder}
-            />
-          ))}
+        {/* Header Actions */}
+        <div className="flex justify-end -mt-16 mb-8">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-[140px] justify-between">
+                {sortBy === "newestFirst" && "Newest First"}
+                {sortBy === "oldestFirst" && "Oldest First"}
+                {sortBy === "highToLow" && "Highest Value"}
+                {sortBy === "lowToHigh" && "Lowest Value"}
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[140px]">
+              <DropdownMenuItem onClick={() => setSortBy("newestFirst")}>
+                Newest First
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("oldestFirst")}>
+                Oldest First
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("highToLow")}>
+                Highest Value
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("lowToHigh")}>
+                Lowest Value
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      )}
 
-      {/* Pagination Info */}
-      {orders.length > 0 && (
-        <div className="mt-6 text-center text-sm text-muted-foreground">
-          Showing {orders.length} of {totalOrders} orders
-        </div>
-      )}
-    </PageLayout>
+        {/* Filters */}
+        <Tabs
+          value={filterStatus}
+          onValueChange={setFilterStatus}
+          className="mb-6"
+        >
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5">
+            <TabsTrigger value="all">
+              All Orders ({getOrderCountByStatus("all")})
+            </TabsTrigger>
+            <TabsTrigger value="confirmed">
+              Confirmed ({getOrderCountByStatus("confirmed")})
+            </TabsTrigger>
+            <TabsTrigger value="shipped">
+              Shipped ({getOrderCountByStatus("shipped")})
+            </TabsTrigger>
+            <TabsTrigger value="delivered">
+              Delivered ({getOrderCountByStatus("delivered")})
+            </TabsTrigger>
+            <TabsTrigger value="cancelled">
+              Cancelled ({getOrderCountByStatus("cancelled")})
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {/* Orders List */}
+        {orders.length === 0 ? (
+          <EmptyStates.NoOrders />
+        ) : (
+          <div className="space-y-4">
+            {orders.map((order: any) => (
+              <OrderCard
+                key={order._id}
+                order={order}
+                onReorder={handleReorder}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Pagination Info */}
+        {orders.length > 0 && (
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            Showing {orders.length} of {totalOrders} orders
+          </div>
+        )}
+      </PageLayout>
+    </ProtectedRoute>
   );
 }

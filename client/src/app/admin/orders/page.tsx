@@ -39,6 +39,7 @@ import {
   useSearchAdminOrdersQuery,
   useUpdateOrderStatusMutation,
 } from "@/redux/features/admin/AdminOrders";
+import ProtectedRoute from "@/Provider/ProtectedRoutes";
 
 // Updated types based on API response
 export interface AdminOrder {
@@ -241,240 +242,251 @@ export default function OrdersManagement() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Order Management
-          </h1>
-          <p className="text-muted-foreground">
-            Monitor and manage all customer orders across the platform
-          </p>
-        </div>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalOrders}</div>
-            <p className="text-xs text-muted-foreground">All platform orders</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">
-              Confirmed Orders
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              {stats.conformedOrders}
-            </div>
-            <p className="text-xs text-muted-foreground">Require attention</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Delivered</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {stats.deliveredOrders}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Successfully delivered
+    <ProtectedRoute allowedTypes={["admin"]}>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Order Management
+            </h1>
+            <p className="text-muted-foreground">
+              Monitor and manage all customer orders across the platform
             </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xl font-bold">
-              AED {stats.totalSales.toLocaleString()}
-            </div>
-            <p className="text-xs text-muted-foreground">Platform revenue</p>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </div>
 
-      {/* Orders Table */}
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <CardTitle>All Orders</CardTitle>
-            <div className="flex items-center gap-2">
-              <div className="relative w-full sm:w-auto">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search orders..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8 w-full sm:w-[300px]"
-                />
+        {/* Stats Grid */}
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Orders
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalOrders}</div>
+              <p className="text-xs text-muted-foreground">
+                All platform orders
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">
+                Confirmed Orders
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-600">
+                {stats.conformedOrders}
+              </div>
+              <p className="text-xs text-muted-foreground">Require attention</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">Delivered</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">
+                {stats.deliveredOrders}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Successfully delivered
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium">
+                Total Revenue
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xl font-bold">
+                AED {stats.totalSales.toLocaleString()}
+              </div>
+              <p className="text-xs text-muted-foreground">Platform revenue</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Orders Table */}
+        <Card>
+          <CardHeader>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <CardTitle>All Orders</CardTitle>
+              <div className="flex items-center gap-2">
+                <div className="relative w-full sm:w-auto">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search orders..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-8 w-full sm:w-[300px]"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Order ID</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredOrders.length === 0 ? (
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8">
-                      <div className="text-muted-foreground">
-                        <ShoppingCart className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p>No orders found</p>
-                        <p className="text-sm">
-                          {searchQuery
-                            ? "Try adjusting your search"
-                            : "Orders will appear here as customers place them"}
-                        </p>
-                      </div>
-                    </TableCell>
+                    <TableHead>Order ID</TableHead>
+                    <TableHead>Customer</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Items</TableHead>
+                    <TableHead>Total</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
-                ) : (
-                  filteredOrders.map((order) => {
-                    const nextAction = getNextStatusAction(order.status);
-                    const allowCancel = canCancel(order.status);
+                </TableHeader>
+                <TableBody>
+                  {filteredOrders.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        <div className="text-muted-foreground">
+                          <ShoppingCart className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                          <p>No orders found</p>
+                          <p className="text-sm">
+                            {searchQuery
+                              ? "Try adjusting your search"
+                              : "Orders will appear here as customers place them"}
+                          </p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredOrders.map((order) => {
+                      const nextAction = getNextStatusAction(order.status);
+                      const allowCancel = canCancel(order.status);
 
-                    return (
-                      <TableRow key={order._id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium text-sm">
-                              {order.orderID}
-                            </p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <Avatar className="h-8 w-8">
-                              <AvatarImage
-                                src={
-                                  order?.customer?.image ||
-                                  "/uploads/users/user.png"
-                                }
-                                alt={order?.customer?.name}
-                              />
-                              <AvatarFallback>
-                                <User className="h-4 w-4" />
-                              </AvatarFallback>
-                            </Avatar>
+                      return (
+                        <TableRow key={order._id}>
+                          <TableCell>
                             <div>
                               <p className="font-medium text-sm">
-                                {order?.customer?.name}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                {order?.customer?.email}
+                                {order.orderID}
                               </p>
                             </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-sm">
-                          {formatDate(order.createdAt)}
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-medium">
-                            {order.itemsCount}
-                          </span>{" "}
-                          item{order.itemsCount !== 1 ? "s" : ""}
-                        </TableCell>
-                        <TableCell className="font-medium text-sm">
-                          AED {order.totalAmount.toLocaleString()}
-                        </TableCell>
-                        <TableCell>{getStatusBadge(order.status)}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                disabled={isUpdating}
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuSeparator />
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage
+                                  src={
+                                    order?.customer?.image ||
+                                    "/uploads/users/user.png"
+                                  }
+                                  alt={order?.customer?.name}
+                                />
+                                <AvatarFallback>
+                                  <User className="h-4 w-4" />
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <p className="font-medium text-sm">
+                                  {order?.customer?.name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {order?.customer?.email}
+                                </p>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm">
+                            {formatDate(order.createdAt)}
+                          </TableCell>
+                          <TableCell>
+                            <span className="font-medium">
+                              {order.itemsCount}
+                            </span>{" "}
+                            item{order.itemsCount !== 1 ? "s" : ""}
+                          </TableCell>
+                          <TableCell className="font-medium text-sm">
+                            AED {order.totalAmount.toLocaleString()}
+                          </TableCell>
+                          <TableCell>{getStatusBadge(order.status)}</TableCell>
+                          <TableCell className="text-right">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  disabled={isUpdating}
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
 
-                              {/* View Details - Always available */}
-                              <DropdownMenuItem
-                                onClick={() => handleViewOrder(order._id)}
-                              >
-                                <Eye className="mr-2 h-4 w-4" />
-                                View Details
-                              </DropdownMenuItem>
+                                {/* View Details - Always available */}
+                                <DropdownMenuItem
+                                  onClick={() => handleViewOrder(order._id)}
+                                >
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  View Details
+                                </DropdownMenuItem>
 
-                              {/* Next Status Action - Available based on current status */}
-                              {nextAction && (
-                                <>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    className="text-white"
-                                    onClick={() =>
-                                      handleUpdateStatus(
-                                        order._id,
-                                        nextAction.status
-                                      )
-                                    }
-                                    disabled={isUpdating}
-                                  >
-                                    {nextAction.status === "shipped" && (
-                                      <Truck className="mr-2 h-4 w-4" />
-                                    )}
-                                    {nextAction.label}
-                                  </DropdownMenuItem>
-                                </>
-                              )}
+                                {/* Next Status Action - Available based on current status */}
+                                {nextAction && (
+                                  <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      className="text-white"
+                                      onClick={() =>
+                                        handleUpdateStatus(
+                                          order._id,
+                                          nextAction.status
+                                        )
+                                      }
+                                      disabled={isUpdating}
+                                    >
+                                      {nextAction.status === "shipped" && (
+                                        <Truck className="mr-2 h-4 w-4" />
+                                      )}
+                                      {nextAction.label}
+                                    </DropdownMenuItem>
+                                  </>
+                                )}
 
-                              {/* Cancel Order - Available for conformed and shipped */}
-                              {allowCancel && (
-                                <>
-                                  <DropdownMenuSeparator />
-                                  <DropdownMenuItem
-                                    className="text-destructive"
-                                    onClick={() =>
-                                      handleUpdateStatus(order._id, "cancelled")
-                                    }
-                                    disabled={isUpdating}
-                                  >
-                                    <XCircle className="mr-2 h-4 w-4" />
-                                    Cancel Order
-                                  </DropdownMenuItem>
-                                </>
-                              )}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+                                {/* Cancel Order - Available for conformed and shipped */}
+                                {allowCancel && (
+                                  <>
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem
+                                      className="text-destructive"
+                                      onClick={() =>
+                                        handleUpdateStatus(
+                                          order._id,
+                                          "cancelled"
+                                        )
+                                      }
+                                      disabled={isUpdating}
+                                    >
+                                      <XCircle className="mr-2 h-4 w-4" />
+                                      Cancel Order
+                                    </DropdownMenuItem>
+                                  </>
+                                )}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </ProtectedRoute>
   );
 }

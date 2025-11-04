@@ -37,6 +37,7 @@ import {
   selectSelectedVendor,
   setVendorDetails,
 } from "@/redux/features/Common/CommonSlice";
+import ProtectedRoute from "@/Provider/ProtectedRoutes";
 
 const VendorDashboardPage = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -73,88 +74,88 @@ const VendorDashboardPage = () => {
   const vendor = useAppSelector(selectSelectedVendor);
 
   return (
-    // <ProtectedRoute>
-    <PageLayout
-      title="Vendor Dashboard"
-      description="Welcome back! Here's what's happening with your store today."
-      breadcrumbs={[{ label: "Vendor" }, { label: "Dashboard" }]}
-    >
-      {/* Action Buttons */}
-      <div className="flex justify-end gap-3 mb-6">
-        <Button variant="outline" asChild>
-          <Link href="/vendor/payment-requests">
-            <span>AED </span>
-            Payment Requests
-          </Link>
-        </Button>
-        <Button variant="outline" asChild>
-          <Link href="/vendor/products/new">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Product
-          </Link>
-        </Button>
-        <Button asChild>
-          <Link href={`/vendor/${vendor?.vendorId}`}>
-            <Eye className="h-4 w-4 mr-2" />
-            View Store
-          </Link>
-        </Button>
-      </div>
+    <ProtectedRoute allowedTypes={["seller", "admin"]}>
+      <PageLayout
+        title="Vendor Dashboard"
+        description="Welcome back! Here's what's happening with your store today."
+        breadcrumbs={[{ label: "Vendor" }, { label: "Dashboard" }]}
+      >
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-3 mb-6">
+          <Button variant="outline" asChild>
+            <Link href="/vendor/payment-requests">
+              <span>AED </span>
+              Payment Requests
+            </Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/vendor/products/new">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Product
+            </Link>
+          </Button>
+          <Button asChild>
+            <Link href={`/vendor/${vendor?.vendorId}`}>
+              <Eye className="h-4 w-4 mr-2" />
+              View Store
+            </Link>
+          </Button>
+        </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">
-            <TrendingUp className="h-4 w-4 mr-2" />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="orders">
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            Orders
-          </TabsTrigger>
-          <TabsTrigger value="products">
-            <Package className="h-4 w-4 mr-2" />
-            Products
-          </TabsTrigger>
-          <TabsTrigger value="analytics">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Analytics
-          </TabsTrigger>
-        </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="orders">
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              Orders
+            </TabsTrigger>
+            <TabsTrigger value="products">
+              <Package className="h-4 w-4 mr-2" />
+              Products
+            </TabsTrigger>
+            <TabsTrigger value="analytics">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Analytics
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          <StatsOverview AllStats={AllStats} />
+          <TabsContent value="overview" className="space-y-6">
+            <StatsOverview AllStats={AllStats} />
 
-          {/* Quick Actions */}
-          <QuickActionOverview
-            AllStats={AllStats}
-            AllRecentOrders={AllRecentOrders}
-            setActiveTab={setActiveTab}
-          />
-          {/* Recent Orders Full Width */}
-          <RecentOrderOverview allTopSelling={allTopSelling} />
-        </TabsContent>
+            {/* Quick Actions */}
+            <QuickActionOverview
+              AllStats={AllStats}
+              AllRecentOrders={AllRecentOrders}
+              setActiveTab={setActiveTab}
+            />
+            {/* Recent Orders Full Width */}
+            <RecentOrderOverview allTopSelling={allTopSelling} />
+          </TabsContent>
 
-        <TabsContent value="orders" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Orders</CardTitle>
-              <CardDescription>Latest customer orders</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <OrdersTable />
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="orders" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Orders</CardTitle>
+                <CardDescription>Latest customer orders</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <OrdersTable />
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        {/* TODO: products section */}
-        <VendorProductSection />
+          {/* TODO: products section */}
+          <VendorProductSection />
 
-        <TabsContent value="analytics" className="space-y-6">
-          <AnalysisSection />
-        </TabsContent>
-      </Tabs>
-    </PageLayout>
-    // </ProtectedRoute>
+          <TabsContent value="analytics" className="space-y-6">
+            <AnalysisSection />
+          </TabsContent>
+        </Tabs>
+      </PageLayout>
+    </ProtectedRoute>
   );
 };
 
