@@ -1,10 +1,3 @@
-// const {
-//   emailService,
-//   notificationService,
-//   orderService,
-//   userService,
-// } = require("../services");
-
 const {
   orderService,
   userService,
@@ -13,15 +6,10 @@ const {
 } = require("../services");
 
 const orderWebhookUpdates = async (orderId, orderStatus) => {
-  console.log(orderId, orderStatus, "order ides");
-
   const orders = await orderService.getOrderSingleStatusUpdate(
     orderId,
     orderStatus
   );
-
-  console.log(orders, "order data over here");
-
   if (!orders) {
     throw new ApiError(
       httpStatus.INTERNAL_SERVER_ERROR,
@@ -29,8 +17,6 @@ const orderWebhookUpdates = async (orderId, orderStatus) => {
     );
   }
   const user = await userService.getUserById(orders.customer);
-  console.log(user, "user data over here");
-
   const orderUpdatesNotification = {
     authorId: user?.id,
     sendTo: user?.id,

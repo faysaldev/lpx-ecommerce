@@ -5,7 +5,7 @@ const jeeblyWebhook = async (req, res) => {
     const apiKey = req.headers["x-api-key"];
 
     // Verify API Key for security
-    if (!apiKey || apiKey !== process.env.JEEBLY_X_API_KEY) {
+    if (!apiKey || apiKey !== process.env.JEEBLY_X_API_KEY_OUR_SIDE) {
       return res.status(403).json({ message: "Invalid or missing API key" });
     }
 

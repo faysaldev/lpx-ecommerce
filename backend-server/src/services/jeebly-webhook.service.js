@@ -22,7 +22,6 @@ const handleJeeblyWebhook = async (payload) => {
   const sellProducts = await SellProducts.find({ shippingId: reference_no });
 
   if (!sellProducts.length) {
-    console.warn(`⚠️ No SellProducts found for reference_no: ${reference_no}`);
     return `No products found for this reference_no ${reference_no}`;
   }
 

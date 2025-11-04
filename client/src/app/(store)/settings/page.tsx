@@ -43,7 +43,7 @@ const UAE_CITIES = [
   "Fujairah",
   "Ras Al Khaimah",
   "Sharjah",
-  "Umm Al Quwain",
+  "Umm Al-Quwain",
 ];
 
 export default function UserSettingsProfile() {
