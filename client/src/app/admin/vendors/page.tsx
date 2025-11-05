@@ -610,7 +610,9 @@ export default function VendorsManagement() {
                       <span className="font-medium">{vendor.productCount}</span>
                     </TableCell>
                     <TableCell>
-                      <span className="font-medium">{vendor.totalSales}</span>
+                      <span className="font-medium">
+                        {vendor.totalSales.toFixed(1)}
+                      </span>
                     </TableCell>
                     <TableCell>
                       {Number(vendor.averageRating) > 0 ? (

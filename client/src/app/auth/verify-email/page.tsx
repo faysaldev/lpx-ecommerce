@@ -199,47 +199,6 @@ function VerifyEmailForm() {
     );
   };
 
-  // if (success) {
-  //   return (
-  //     <div className="flex items-center justify-center min-h-screen bg-background p-4">
-  //       <div className="w-full max-w-md">
-  //         <div className="text-center mb-8">
-  //           <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
-  //           <h1 className="text-2xl font-bold tracking-tight">
-  //             Email Verified!
-  //           </h1>
-  //           <p className="text-muted-foreground mt-2">
-  //             Your email has been successfully verified
-  //           </p>
-  //         </div>
-
-  //         <Card className="shadow-xl border-0">
-  //           <CardHeader className="space-y-1">
-  //             <CardTitle className="text-2xl text-center">Success</CardTitle>
-  //             <CardDescription className="text-center">
-  //               Redirecting you to your dashboard...
-  //             </CardDescription>
-  //           </CardHeader>
-  //           <CardContent className="space-y-4">
-  //             <Alert>
-  //               <CheckCircle className="h-4 w-4" />
-  //               <AlertDescription>
-  //                 <strong>Verification Complete:</strong> Your email {email} has
-  //                 been verified. You will be redirected to your dashboard
-  //                 shortly.
-  //               </AlertDescription>
-  //             </Alert>
-
-  //             <div className="flex justify-center">
-  //               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-  //             </div>
-  //           </CardContent>
-  //         </Card>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <div className="w-full max-w-md">
@@ -343,16 +302,6 @@ function VerifyEmailForm() {
                   </Link>
                 </p>
               </div>
-            </div>
-
-            {/* Demo mode notice */}
-            <div className="mt-4 p-4 bg-muted rounded-lg">
-              <p className="text-xs text-muted-foreground text-center">
-                <strong>Demo Mode:</strong> This is a demonstration of email
-                verification. Use any of the demo codes above to test the
-                verification process. In a real application, you would receive
-                an actual verification code via email.
-              </p>
             </div>
           </CardContent>
         </Card>

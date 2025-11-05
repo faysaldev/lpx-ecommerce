@@ -4,7 +4,7 @@ const userService = require("./user.service");
 const Token = require("../models/token.model");
 const ApiError = require("../utils/ApiError");
 const { tokenTypes } = require("../config/tokens");
-
+const bcrypt = require("bcryptjs/dist/bcrypt");
 
 const loginUserWithEmailAndPassword = async (email, password, fcmToken) => {
   const user = await userService?.getUserByEmail(email);
@@ -15,7 +15,6 @@ const loginUserWithEmailAndPassword = async (email, password, fcmToken) => {
   await user.save();
   return user;
 };
-
 
 const logout = async (refreshToken) => {
   const refreshTokenDoc = await Token.findOne({
@@ -28,7 +27,6 @@ const logout = async (refreshToken) => {
   }
   await refreshTokenDoc.deleteOne();
 };
-
 
 const refreshAuth = async (refreshToken) => {
   try {
@@ -47,22 +45,28 @@ const refreshAuth = async (refreshToken) => {
   }
 };
 
-
 const resetPassword = async (newPassword, email) => {
   const user = await userService.getUserByEmail(email);
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  if (user.oneTimeCode !== null || user.isResetPassword !== true) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Please verify your email first");
-  }
-
+  // Check if the new password is the same as the old password
   if (await user.isPasswordMatch(newPassword)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "You have previously used this password. Please choose a different one. Try again with a new password.");
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      "You have previously used this password. Please choose a different one. Try again with a new password."
+    );
   }
 
-  await userService.updateUserById(user.id, { password: newPassword, isResetPassword: false });
+  // Encrypt the new password before saving
+  const hashedPassword = await bcrypt.hash(newPassword, 8);
+
+  // Update the user's password and reset the reset flag
+  await userService.updateUserById(user.id, {
+    password: hashedPassword, // Save the encrypted password
+    isResetPassword: false, // Reset the password reset flag
+  });
 
   return user;
 };
@@ -92,7 +96,7 @@ const verifyEmail = async (reqBody, reqQuery) => {
   console.log("reqBody", email);
   console.log("reqQuery", oneTimeCode);
   const user = await userService.getUserByEmail(email);
-  
+
   // if(user.oneTimeCode === 'verified'){
   //   throw new ApiError(
   //     httpStatus.BAD_REQUEST,
