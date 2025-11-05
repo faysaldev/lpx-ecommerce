@@ -40,7 +40,6 @@ const getAllUsers = async ({ page, limit, search, sortBy }) => {
       sortOption = { createdAt: -1 }; // Default to newest
   }
 
-  // Fetching the users based on the query, sorting, and pagination
   const users = await User.find(query)
     .skip(skip)
     .limit(Number(limit))

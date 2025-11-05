@@ -115,7 +115,6 @@ const webHookPaymentLoad = async (req, res) => {
     );
   } catch (error) {
     console.error("Webhook error:", error);
-    // Return 200 to Stripe to prevent retries for validation errors
     res.status(httpStatus.OK).json(
       response({
         message: "Webhook received",

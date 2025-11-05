@@ -82,7 +82,6 @@ const updateUser = catchAsync(async (req, res) => {
     req.body.interest = parsedInterest;
   }
   const image = {};
-  console.log(req.file);
   if (req.file) {
     image.url = "/uploads/users/" + req.file.filename;
     image.path = req.file.path;
@@ -90,8 +89,6 @@ const updateUser = catchAsync(async (req, res) => {
   if (req.file) {
     req.body.image = image;
   }
-
-  console.log(req.body, "controler");
 
   const user = await userService.updateUserById(req.params.userId, req.body);
 

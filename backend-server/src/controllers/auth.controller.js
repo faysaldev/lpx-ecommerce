@@ -71,7 +71,6 @@ const login = catchAsync(async (req, res) => {
       user.oneTimeCode = null;
       user.isResetPassword = false;
       await user.save();
-      console.log("oneTimeCode reset to null after 3 minute");
     } catch (error) {
       ApiError;
       console.error("Error updating oneTimeCode:", error);
@@ -113,13 +112,6 @@ const forgotPassword = catchAsync(async (req, res) => {
       "No users found with this email"
     );
   }
-  // if(user.oneTimeCode === 'verified'){
-  //   throw new ApiError(
-  //     httpStatus.BAD_REQUEST,
-  //     "try 3 minute later"
-  //   );
-  // }
-  // Generate OTC (One-Time Code)
   const oneTimeCode =
     Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
 
@@ -127,8 +119,6 @@ const forgotPassword = catchAsync(async (req, res) => {
   user.oneTimeCode = oneTimeCode;
   user.isResetPassword = true;
   await user.save();
-
-  //console.log("oneTimeCode", user);
   await emailService.sendResetPasswordEmail(req.body.email, oneTimeCode);
   res.status(httpStatus.OK).json(
     response({

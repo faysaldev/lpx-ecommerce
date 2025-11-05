@@ -4,8 +4,8 @@ const { Order, SellProducts, Product, Vendor } = require("../models");
 const createShipment = async (data) => {
   const url = "https://demo.jeebly.com/customer/create_shipment";
   const headers = {
-    "X-API-KEY": "JjEeEeBbLlYy1200", //process.env.JEEBLY_X_API_KEY,
-    client_key: "1118X251014011357Y4b68616c6564456c736164656b", //process.env.JEEBLY_CLIENT_KEY,
+    "X-API-KEY": process.env.JEEBLY_X_API_KEY, // "JjEeEeBbLlYy1200",
+    client_key: process.env.JEEBLY_CLIENT_KEY, //"1118X251014011357Y4b68616c6564456c736164656b"
     "Content-Type": "application/json",
   };
 
@@ -24,8 +24,8 @@ const createShipment = async (data) => {
 const cancelShipment = async (reference_number) => {
   const url = "https://demo.jeebly.com/customer/cancel_shipment";
   const headers = {
-    "X-API-KEY": "JjEeEeBbLlYy1200", //process.env.JEEBLY_X_API_KEY,
-    client_key: "1118X251014011357Y4b68616c6564456c736164656b", //process.env.JEEBLY_CLIENT_KEY,
+    "X-API-KEY": process.env.JEEBLY_X_API_KEY, // "JjEeEeBbLlYy1200",
+    client_key: process.env.JEEBLY_CLIENT_KEY, //"1118X251014011357Y4b68616c6564456c736164656b"
     "Content-Type": "application/json",
   };
   const data = { reference_number };

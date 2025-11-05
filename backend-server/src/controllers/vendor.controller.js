@@ -51,12 +51,12 @@ const searchSingleOwnerShop = catchAsync(async (req, res) => {
 
 const allVendors = catchAsync(async (req, res) => {
   const {
-    page = 1, // Default page: 1
-    limit = 10, // Default limit: 10
+    page = 1,
+    limit = 10,
     search = "", // Search term for store name, description
-    sortBy = "createdAt", // Default sort: newest first
-    category = "", // Category filter
-    ratingFilter = "", // Rating filter (optional)
+    sortBy = "createdAt",
+    category = "",
+    ratingFilter = "",
   } = req.query;
 
   const vendors = await vendorService.allVendors({
@@ -128,12 +128,12 @@ const approvedVendorRequest = catchAsync(async (req, res) => {
   const user = await userService.getUserById(req.body.sellerId);
   console.log(user, "user data");
   const vendorNotificationData = {
-    authorId: user?.id, // The seller is the author of the notification
-    sendTo: user?.id, // Send the notification to the seller
-    transactionId: approved.id, // Use the approved vendor's id as the transactionId
-    title: "Your Vendor Has Been Approved", // Change the title to reflect the approval
-    description: approved.notes || "No additional notes provided.", // Use the vendor's notes as the description. If no notes, provide a default message.
-    type: "vendor", // The type of notification
+    authorId: user?.id,
+    sendTo: user?.id,
+    transactionId: approved.id,
+    title: "Your Vendor Has Been Approved",
+    description: approved.notes || "No additional notes provided.",
+    type: "vendor",
   };
 
   const notification = await notificationService.addNewNotification(
@@ -146,7 +146,7 @@ const approvedVendorRequest = catchAsync(async (req, res) => {
     description:
       approved?.notes ||
       "Your vendor application has been reviewed and approved. You can now start selling on our platform.",
-    transactionId: approved?.id || "VENDOR_12345", // This would be the approved.id
+    transactionId: approved?.id || "VENDOR_12345",
     timestamp: new Date().toLocaleString("en-US", {
       year: "numeric",
       month: "long",

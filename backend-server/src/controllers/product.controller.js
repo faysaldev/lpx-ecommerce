@@ -17,9 +17,6 @@ const getMyProducts = catchAsync(async (req, res) => {
 
 const getAllProducts = catchAsync(async (req, res) => {
   const products = await productService.getAllProducts();
-
-  console.log(products);
-
   res.status(httpStatus.CREATED).json(
     response({
       message: "All the products",
@@ -123,9 +120,9 @@ const searchProducts = catchAsync(async (req, res) => {
     minPrice,
     maxPrice,
     condition,
-    sortBy = "newestFirst", // Default sort: newestFirst
-    page = 1, // Default page: 1
-    limit = 20, // Default limit: 20
+    sortBy = "newestFirst",
+    page = 1,
+    limit = 20,
     category,
   } = req.query;
 

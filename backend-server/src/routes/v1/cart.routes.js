@@ -5,8 +5,6 @@ const { cartController } = require("../../controllers");
 const router = express.Router();
 
 router.route("/my-carts").get(auth("common"), cartController.myCartList);
-
-// router.route("/my-wishlist").get(auth("common"), cartController.myWishList);
 router.route("/add").post(auth("common"), cartController.addToCartlist);
 router
   .route("/remove/:id")
