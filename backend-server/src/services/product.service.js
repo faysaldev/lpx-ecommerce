@@ -81,8 +81,6 @@ const productSingleQuickDetails = async (productsId) => {
 };
 
 const editeProducts = async (productsId, productsData) => {
-  console.log(productsId, productsData);
-
   if (!productsId) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
   }

@@ -25,7 +25,6 @@ import {
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/UI/select";
@@ -34,6 +33,7 @@ import NoProductsInVendor from "./NoProductsInVendor";
 import { useState } from "react";
 import { Input } from "@/components/UI/input";
 import { useProductUpdateMutation } from "@/redux/features/products/product";
+import { toast } from "sonner";
 
 interface Vendor {
   _id: string;
@@ -158,7 +158,7 @@ export function ProductTable({
       if (Object.keys(data).length > 0) {
         try {
           await updatingProduct({ id: product._id, data }).unwrap();
-          console.log("Product updated successfully");
+          toast.success("Product updated successfully");
         } catch (error) {
           console.error("Failed to update product:", error);
         }

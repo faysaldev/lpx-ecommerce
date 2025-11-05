@@ -84,9 +84,6 @@ export default function VendorStorefrontPage() {
   } = useVendorSingleDetailsGetsQuery(vendorId!, {
     skip: !vendorId,
   });
-
-  console.log("vendor data show this section page ", vendorSingleDetails);
-
   // Fetch vendor products with filters
   const { data: vendorProductsData, isLoading: isProductsLoading } =
     useSearchSingleVendorProductsQuery(
@@ -211,7 +208,6 @@ export default function VendorStorefrontPage() {
 
   const handleBuyNow = (product: Product) => {
     toast.info("Buy now functionality coming soon!");
-    console.log(product);
   };
 
   const handleShare = (product: Product) => {

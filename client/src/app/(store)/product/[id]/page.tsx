@@ -206,8 +206,6 @@ const ProductDetailsPage = () => {
       quantity: quantity,
       price: product?.price,
     };
-    console.log(data);
-
     await addtoCartProduct(data);
     toast("Added to Cart");
   };

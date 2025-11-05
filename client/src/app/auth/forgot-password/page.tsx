@@ -35,8 +35,6 @@ function ForgotPasswordForm() {
     e.preventDefault();
     setError("");
     setIsLoading(true);
-
-    console.log("Im calling");
     try {
       // Basic email validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -47,7 +45,6 @@ function ForgotPasswordForm() {
 
       if (!showPassword) {
         const response = await forgorPasswordMutations({ email }).unwrap();
-        console.log(response, "this is the response");
         if (!response?.data) {
           setError(
             "No account found with this email address. Please check your email or create a new account."

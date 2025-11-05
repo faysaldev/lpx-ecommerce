@@ -124,9 +124,7 @@ const approvedVendorRequest = catchAsync(async (req, res) => {
     req.body.vendorId,
     req.body.sellerId
   );
-
   const user = await userService.getUserById(req.body.sellerId);
-  console.log(user, "user data");
   const vendorNotificationData = {
     authorId: user?.id,
     sendTo: user?.id,

@@ -18,7 +18,6 @@ export default function VendorReviewSection() {
     vendorId: string;
   }) => {
     // Your API call to submit the review
-    console.log("Submitting review:", review);
     // await submitReview(review);
   };
 

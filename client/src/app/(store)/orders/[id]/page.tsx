@@ -97,9 +97,6 @@ export default function OrderDetailsPage() {
       await downloadInvoiceHealper({ token, orderId });
     }
   };
-
-  console.log(order);
-
   return (
     <ProtectedRoute allowedTypes={["admin", "customer", "seller"]}>
       <PageLayout

@@ -21,10 +21,11 @@ const ReviewAndRatingsProduct = ({ idtype }: any) => {
   const { data } = useGetHasUserPurschedQuery({ id, type });
   const hasUser = data?.data;
 
-  const { data: Review, refetch } = useGetProductsOrVendorRatingQuery({ id, type });
+  const { data: Review, refetch } = useGetProductsOrVendorRatingQuery({
+    id,
+    type,
+  });
   const ReviewData = Review?.data?.attributes;
-  console.log("Rating data:", ReviewData);
-
   const [AddNewRatings] = useAddNewratingsMutation();
 
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -41,9 +42,8 @@ const ReviewAndRatingsProduct = ({ idtype }: any) => {
       rating: rating,
     };
     const res = await AddNewRatings(data).unwrap();
-    console.log("Review submitted:", res);
     if (res?.data?.code === 201) {
-      refetch()
+      refetch();
       setIsReviewModalOpen(false);
     }
   };

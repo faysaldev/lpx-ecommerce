@@ -161,7 +161,6 @@ function VerifyEmailForm() {
     try {
       // Simulate API call delay
       const response = await resendVerification({ email }).unwrap();
-      console.log(response, "resend email code"); // Log the response data
       // Show success message
       toast("Verification email sent! Check your inbox");
     } catch (_err) {

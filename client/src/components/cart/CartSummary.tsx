@@ -80,7 +80,6 @@ export default function CartSummary({
         }
       }
     } catch (error) {
-      console.log("Error occurred during checkout:", error);
       toast("An error occurred while processing the checkout.");
     }
   };

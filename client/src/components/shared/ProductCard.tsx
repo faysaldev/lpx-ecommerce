@@ -236,7 +236,6 @@ const ProductCard = ({
   const optionData = new Intl.NumberFormat("en-US").format(optionalPrice);
 
   const byNowHandler = async () => {
-    console.log(product, "product");
     const data = [
       {
         productId: product?.id || product?._id,
@@ -245,8 +244,6 @@ const ProductCard = ({
         vendorId: product?.vendorId,
       },
     ];
-
-    console.log(data, "format data");
     try {
       const res = await payment(data);
       if (res?.data?.code === 200) {

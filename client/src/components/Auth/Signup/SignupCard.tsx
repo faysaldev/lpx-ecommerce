@@ -83,7 +83,6 @@ function SignupCard() {
       }, 1000);
     } catch (err: any) {
       // Catch other errors (network issues, etc.)
-      console.log(err, "Error section");
       toast(
         err?.response?.data?.message ||
           "Something went wrong. Please try again."

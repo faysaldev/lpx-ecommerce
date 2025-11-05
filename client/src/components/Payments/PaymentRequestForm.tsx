@@ -39,9 +39,6 @@ export default function PaymentRequestForm({
 }: PaymentRequestFormProps) {
   const { data: eligableWithDrawl, isLoading: withdrawlLoading } =
     useGetPaymentWithDrawlElgbleQuery({});
-
-  console.log(payMathods, "paymentod from dialog");
-
   // Extract available withdrawal amount
   const availableAmount =
     eligableWithDrawl?.data?.attributes?.availableWithdrawl || 0;

@@ -47,7 +47,6 @@ export default function VendorsPage() {
   const itemsPerPage = 24;
 
   const categoriesData = useAppSelector(selectCategories);
-  console.log("categoriesData", categoriesData);
 
   // Transform sortBy to match API expected values
   const getApiSortBy = (sortOption: SortOption): string => {

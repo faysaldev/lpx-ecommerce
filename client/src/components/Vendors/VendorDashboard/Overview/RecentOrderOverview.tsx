@@ -10,8 +10,6 @@ import { Package } from "lucide-react";
 import React from "react";
 
 function RecentOrderOverview({ allTopSelling }: { allTopSelling: any[] }) {
-  console.log(allTopSelling);
-
   return (
     <Card>
       <CardHeader>

@@ -13,6 +13,7 @@ import {
   useAllGetWishListQuery,
 } from "@/redux/features/GetWishList/GetWishList";
 import ProtectedRoute from "@/Provider/ProtectedRoutes";
+import { toast } from "sonner";
 
 const WishlistContent = () => {
   const { data } = useAllGetWishListQuery({});
@@ -24,7 +25,7 @@ const WishlistContent = () => {
     try {
       const res = await DeleteAllWish("");
       if (res?.data?.code === 200) {
-        console.log("Delete sucessfull");
+        toast.success("Delete sucessfull");
       }
     } catch (error) {
       console.log(error);

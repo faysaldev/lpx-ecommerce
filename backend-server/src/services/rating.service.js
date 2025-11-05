@@ -20,8 +20,6 @@ const getMyratings = async (Id, ratingType) => {
 };
 
 const addNewRatings = async (ratingBody) => {
-  console.log(ratingBody);
-
   // Ensure that the ratingBody is valid
   if (!ratingBody) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User is not authenticated");
@@ -77,8 +75,6 @@ const updateRatings = async (ratingData) => {
   if (!ratingData) {
     throw new ApiError(httpStatus.BAD_REQUEST, "User Is not Authenticate");
   }
-  console.log(ratingData);
-
   return Rating.findByIdAndUpdate(
     ratingData?.id,
     {

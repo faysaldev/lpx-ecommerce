@@ -16,8 +16,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/UI/chart";
-import { selectCategories } from "@/redux/features/Common/CommonSlice";
-import { useAppSelector } from "@/redux/hooks";
 
 interface RevenueData {
   date: string;
@@ -30,10 +28,6 @@ interface RevenueTrendsChartProps {
 }
 
 const RevenueTrendsChart = ({ data }: RevenueTrendsChartProps) => {
-  const categories = useAppSelector(selectCategories);
-
-  console.log(data, "over view selling");
-
   // 🔹 Format number to show max 1 decimal place
   const formatNumber = (value: number): string => {
     // Remove decimal if it's .0, otherwise show 1 decimal place
@@ -60,7 +54,6 @@ const RevenueTrendsChart = ({ data }: RevenueTrendsChartProps) => {
     });
 
     const result = Object.values(grouped);
-    console.log("Chart data:", result);
     return result;
   }, [data]);
 

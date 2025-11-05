@@ -133,75 +133,6 @@ const getOrderSingleDetails = async (orderId) => {
   return order;
 };
 // todo:single one done
-// const getOrderSingleStatusUpdate = async (orderId, status) => {
-//   // Start a MongoDB session to create a transaction
-//   const session = await mongoose.startSession();
-//   session.startTransaction();
-
-//   try {
-//     let shipmentResponses = [];
-
-//     // Handle "shipped" status: create shipments
-//     if (status == "shipped") {
-//       shipmentResponses = await createShipmentsForOrder(orderId); // Ensure this function returns a success response
-//       if (
-//         !shipmentResponses ||
-//         shipmentResponses.some((response) => response.success !== "true")
-//       ) {
-//         throw new Error(
-//           "Error during shipment creation: one or more shipments failed"
-//         );
-//       }
-//     } else if (status === "cancelled") {
-//       // Handle "cancelled" status: cancel shipments
-//       const cancellationResponses = await cancelOrderShipment(orderId);
-//       if (
-//         !cancellationResponses ||
-//         cancellationResponses.some((response) => response.success !== "true")
-//       ) {
-//         throw new Error(
-//           "Error during shipment cancellation: one or more cancellations failed"
-//         );
-//       }
-//     }
-
-//     // Update SellProducts status in the transaction
-//     const updateSellProductsResult = await SellProducts.updateMany(
-//       { orderId: orderId },
-//       { $set: { status: status } },
-//       { session }
-//     );
-
-//     if (updateSellProductsResult.nModified === 0) {
-//       throw new Error("No SellProducts were updated.");
-//     }
-
-//     // Update the Order status in the transaction
-//     const updatedOrder = await Order.findByIdAndUpdate(
-//       orderId,
-//       { status },
-//       { new: true, session }
-//     );
-
-//     if (!updatedOrder) {
-//       throw new Error("Failed to update order status.");
-//     }
-
-//     // Commit the transaction if all the operations succeed
-//     await session.commitTransaction();
-//     session.endSession();
-
-//     console.log("Order and SellProducts updated successfully.");
-//     return updatedOrder;
-//   } catch (error) {
-//     // Abort the transaction if any operation fails
-//     await session.abortTransaction();
-//     session.endSession();
-
-//     console.error("Error during status update:", error.message);
-//     throw error; // Propagate the error so the caller can handle it
-//   }
-// };
 
 const getOrderSingleStatusUpdate = async (orderId, status) => {
   try {
@@ -254,8 +185,6 @@ const getOrderSingleStatusUpdate = async (orderId, status) => {
     if (!updatedOrder) {
       throw new Error("Failed to update order status.");
     }
-
-    console.log("✅ Order and SellProducts updated successfully.");
     return updatedOrder;
   } catch (error) {
     console.error("❌ Error during status update:", error.message);
@@ -271,80 +200,6 @@ const getOrderSingleShippingUpdates = async (orderId, status) => {
   );
   return order;
 };
-
-// todo: working to stripe webhook to update all the details
-// todo: previous code commented for future reference
-// const editeSingleOrder = async (orderId, newData) => {
-//   if (!orderId) {
-//     throw new ApiError(httpStatus.BAD_REQUEST, "Order ID is required");
-//   }
-
-//   // Update data for the order
-//   const updateData = {
-//     status: newData.status || undefined, // Only update status if it's provided
-//     shippingInformation: {
-//       firstName: newData.shippingInformation?.name?.split(" ")[0] || "",
-//       lastName: newData.shippingInformation?.name?.split(" ")[1] || "",
-//       name: newData.shippingInformation?.name,
-//       email: newData.shippingInformation?.email,
-//       phoneNumber: newData.shippingInformation?.phoneNumber,
-//       streetAddress: newData.shippingInformation?.address?.line1,
-//       apartment: newData.shippingInformation?.address?.line2,
-//       city: newData.shippingInformation?.address?.city,
-//       state: newData.shippingInformation?.address?.state,
-//       zipCode: newData.shippingInformation?.address?.postal_code,
-//       country: newData.shippingInformation?.address?.country,
-//       deliveryInstructions:
-//         newData.shippingInformation?.deliveryInstructions || "",
-//     },
-//     billingInformation: {
-//       firstName: newData.billingInformation?.name?.split(" ")[0] || "",
-//       lastName: newData.billingInformation?.name?.split(" ")[1] || "",
-//       name: newData.billingInformation?.name,
-//       email: newData.billingInformation?.email,
-//       phoneNumber: newData.billingInformation?.phoneNumber,
-//       streetAddress: newData.billingInformation?.address?.line1,
-//       apartment: newData.billingInformation?.address?.line2,
-//       city: newData.billingInformation?.address?.city,
-//       state: newData.billingInformation?.address?.state,
-//       zipCode: newData.billingInformation?.address?.postal_code,
-//       country: newData.billingInformation?.address?.country,
-//       deliveryInstructions:
-//         newData.billingInformation?.deliveryInstructions || "",
-//     },
-//   };
-
-//   // Find the order by its ID and populate vendor details (including ownerName and email)
-//   const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, {
-//     new: true,
-//   }).populate({
-//     path: "totalItems.vendorId",
-//     select: "email seller ownerName", // Populate email, seller, and ownerName
-//   });
-
-//   if (!updatedOrder) {
-//     throw new ApiError(httpStatus.NOT_FOUND, "Order not found");
-//   }
-
-//   // Extract the vendor details and calculate price for each product, including productId, quantity, ownerName, and email
-//   const vendorDetails = updatedOrder.totalItems.map((item) => {
-//     // Calculate price for each item by multiplying the quantity with the price
-//     const totalPrice = item.price * item.quantity;
-
-//     return {
-//       productId: item.productId, // Product ID
-//       quantity: item.quantity, // Quantity of the product
-//       vendorId: item.vendorId._id, // Vendor ID
-//       email: item.vendorId.email, // Vendor email
-//       sellerId: item.vendorId.seller, // Seller's user ID
-//       productPrice: totalPrice, // Calculated price (price * quantity)
-//       ownerName: item.vendorId.ownerName, // Vendor owner name
-//       vendorEmail: item.vendorId.email, // Vendor email (again here for clarity)
-//     };
-//   });
-
-//   return vendorDetails;
-// };
 
 const editeSingleOrder = async (orderId, newData) => {
   if (!orderId) {

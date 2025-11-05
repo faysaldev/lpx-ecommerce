@@ -8,8 +8,6 @@ import React from "react";
 import { toast } from "sonner";
 
 function PaymentMethods({ payMathods }: { payMathods: PaymentCards[] }) {
-  console.log(payMathods);
-
   const [deletePayMethods] = useRemoveBankCardMutation();
   const [addNewPayMethods] = useAddBankCardMutation();
 
@@ -23,10 +21,9 @@ function PaymentMethods({ payMathods }: { payMathods: PaymentCards[] }) {
       IBAN: formData.get("IBAN") as string,
       SWIFT: formData.get("SWIFT") as string,
     };
-    
+
     try {
-     const res  =   await addNewPayMethods(data);
-     console.log( "consele data show this page addnewpayMethods", res)
+      const res = await addNewPayMethods(data);
       const formSection = document.getElementById("add-card-form");
       if (formSection) {
         formSection.style.display = "none";

@@ -120,7 +120,6 @@ export default function OrdersManagement() {
     newStatus: AdminOrder["status"]
   ) => {
     try {
-      console.log(orderId);
       await updateOrderStatus({ id: orderId, status: newStatus }).unwrap();
       refetchOrders();
       refetchStats();

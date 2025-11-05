@@ -85,9 +85,6 @@ const createShipmentsForOrder = async (orderId) => {
         const description = productDetails
           .map((p) => p?.productName || "Unnamed Product")
           .join(", ");
-
-        console.log(vendor, "vendor Information");
-
         // Construct shipment data for the vendor
         const shipmentData = {
           delivery_type: "Next Day",
@@ -138,7 +135,6 @@ const createShipmentsForOrder = async (orderId) => {
         };
 
         // Step 5: Call Jeebly API
-        console.log("Shipment Data:", shipmentData);
         const response = await createShipment(shipmentData);
 
         if (response.success === "true") {

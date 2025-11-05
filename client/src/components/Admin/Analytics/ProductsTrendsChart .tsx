@@ -24,7 +24,6 @@ interface ProductsTrendsChartProps {
 
 const ProductsTrendsChart = ({ data }: ProductsTrendsChartProps) => {
   const categories = useAppSelector(selectCategories);
-  console.log(data, "Products Trends Charts");
 
   // ✅ Assign consistent colors for each category
   const colorPalette = [

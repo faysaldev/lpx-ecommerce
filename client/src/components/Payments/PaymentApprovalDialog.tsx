@@ -150,7 +150,6 @@ export default function PaymentApprovalDialog({
   };
   const availableActions = getAvailableActions();
   const { variant, className } = getStatusBadgeVariant(paymentRequest.status);
-  console.log(paymentRequest, "single payment request");
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">

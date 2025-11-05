@@ -10,9 +10,6 @@ function PaymentRequestSummary({
   paymentRequestStats: any;
 }) {
   const stats = paymentRequestStats?.attributes || {}; // Ensure we use the correct data from props
-
-  console.log(paymentRequestStats, "summery page stats");
-
   return (
     <TabsContent value="summary" className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

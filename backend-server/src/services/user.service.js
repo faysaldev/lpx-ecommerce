@@ -101,9 +101,6 @@ const getUserByEmail = async (email) => {
 
 const updateUserById = async (userId, updateBody, files) => {
   const user = await getUserById(userId);
-  console.log(user);
-  console.log(updateBody);
-
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User not found");
   }

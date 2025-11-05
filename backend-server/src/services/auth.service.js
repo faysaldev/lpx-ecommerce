@@ -93,16 +93,7 @@ const changePassword = async (reqUser, reqBody) => {
 
 const verifyEmail = async (reqBody, reqQuery) => {
   const { email, code: oneTimeCode } = reqBody;
-  console.log("reqBody", email);
-  console.log("reqQuery", oneTimeCode);
   const user = await userService.getUserByEmail(email);
-
-  // if(user.oneTimeCode === 'verified'){
-  //   throw new ApiError(
-  //     httpStatus.BAD_REQUEST,
-  //     "try 3 minute later"
-  //   );
-  // }
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, "User does not exist");
   } else if (user.oneTimeCode === null) {
@@ -121,8 +112,6 @@ const verifyEmail = async (reqBody, reqQuery) => {
 };
 
 const verifyNumber = async (phoneNumber, otpCode, email) => {
-  console.log("reqBody", email);
-  console.log("reqQuery", otpCode);
   const user = await userService.getUserByEmail(email);
 
   if (!user) {

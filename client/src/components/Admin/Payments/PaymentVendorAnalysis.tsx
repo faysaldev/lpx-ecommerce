@@ -32,9 +32,6 @@ function PaymentVendorAnalysis() {
   const totalVendors = vendorSummeries?.data?.attributes?.totalVendors || 0;
   const currentPageFromApi =
     vendorSummeries?.data?.attributes?.currentPage || 1;
-
-  console.log("Vendor Summaries:", vendorSummeries?.data);
-
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };

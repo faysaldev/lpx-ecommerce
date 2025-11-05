@@ -517,14 +517,12 @@ const NewProductPage = () => {
       formData.append("inStock", String(parseInt(stockQuantity) > 0));
 
       // Debug: Log FormData
-      console.log("FormData entries:");
       for (const [key, value] of formData.entries()) {
         console.log(key, value);
       }
 
       // Send update request
       const res = await UpdateProducts({ id, data: formData });
-      console.log("Update response:", res);
 
       if (res.error) {
         toast.error("Failed to update product. Please try again.");

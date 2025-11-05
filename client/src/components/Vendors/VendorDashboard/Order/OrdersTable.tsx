@@ -35,9 +35,6 @@ export function OrdersTable() {
     page,
     limit,
   });
-
-  console.log(data?.data, "datas");
-
   const allOrders = data?.data?.attributes?.orders || [];
   const totalPages = data?.data?.attributes?.totalPages || 1;
   const currentPage = page;

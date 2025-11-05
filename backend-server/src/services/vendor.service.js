@@ -308,8 +308,6 @@ const updateVendorMoneyCalculation = async (id, data) => {
   // TODO: taking 5 parcentage from the vendor payment
   const general = await General.findOne();
   const platformCharge = general ? general : [];
-
-  console.log(platformCharge.platformCharge, "platform Charge");
   const percentage = 5;
   const remainingAmount = data.totalEarnings * (1 - percentage / 100);
 

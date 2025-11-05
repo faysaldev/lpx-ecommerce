@@ -46,7 +46,6 @@ const CartPage = () => {
   const [deleteAllCart] = useAllDeleteCartMutation();
   // const [updateCartItem] = useUpdateCartItemMutation();
   const { data: platformInformation } = useLpxtaxEtcDetailsQuery({});
-  console.log(platformInformation, "platformInformation");
 
   // Local state for optimistic updates
   const [localCartItems, setLocalCartItems] = useState<

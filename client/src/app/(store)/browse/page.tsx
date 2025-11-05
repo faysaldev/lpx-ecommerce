@@ -102,7 +102,6 @@ function BrowsePageContent() {
       );
 
       setCategories(transformedCategories);
-      // console.log('Transformed Categories:', transformedCategories);
     }
   }, [categoriesData]);
 
@@ -110,7 +109,6 @@ function BrowsePageContent() {
   useEffect(() => {
     if (productsData?.data) {
       setProducts(productsData.data);
-      // console.log('Backend filtered products:', productsData);
     }
   }, [productsData]);
 

@@ -5,8 +5,6 @@ import { DollarSign, Package, ShoppingCart, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/UI/card";
 
 export function StatsOverview({ AllStats }: any) {
-  console.log("all stats show this console page ", AllStats);
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-AE", {
       style: "currency",
@@ -43,9 +41,7 @@ export function StatsOverview({ AllStats }: any) {
               <p className="text-sm font-medium text-muted-foreground">
                 Orders
               </p>
-              <p className="text-2xl font-bold">
-                {AllStats?.totalOrders || 0}
-              </p>
+              <p className="text-2xl font-bold">{AllStats?.totalOrders || 0}</p>
             </div>
             <ShoppingCart className="h-8 w-8 text-blue-600" />
           </div>
