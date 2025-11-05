@@ -300,8 +300,8 @@ const generateInvoicePDF = async (order, items) => {
         .fontSize(10)
         .font("Helvetica")
         .text("Dubai, Abu Dhabi", 400, 75, { align: "right" });
-      doc.text("Phone: +971 29873497234", 400, 90, { align: "right" });
-      doc.text("Email: faysalworkspace@gmail.com", 400, 105, {
+      doc.text("Phone: +971 52 472 6662", 400, 90, { align: "right" });
+      doc.text("Email: khaled@lpx.ae", 400, 105, {
         align: "right",
       });
 
@@ -440,7 +440,7 @@ const generateInvoicePDF = async (order, items) => {
       doc.text("TOTAL:", summaryX, currentY + 3);
       doc.text(
         `AED ${(subtotal + order.shipping + order.tax).toFixed(2)}`,
-        summaryX + 100,
+        summaryX + 60,
         currentY + 3,
         { width: 100, align: "right" }
       );
@@ -451,7 +451,7 @@ const generateInvoicePDF = async (order, items) => {
         width: 495,
       });
       doc.text(
-        "For any questions, please contact us at faysalworkspace@gmail.com",
+        "For any questions, please contact us at khaled@lpx.ae",
         50,
         doc.page.height - 65,
         { align: "center", width: 495 }
