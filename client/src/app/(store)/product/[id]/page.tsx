@@ -130,7 +130,6 @@ const ProductDetailsPage = () => {
           Brand: allData.brand,
           Category: allData.category,
           Condition: allData.condition,
-          Rarity: allData.rarity,
           ...(allData.shipping?.weight && {
             Weight: `${allData.shipping.weight} lbs`,
           }),

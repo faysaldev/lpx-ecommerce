@@ -532,6 +532,9 @@ function GeneralSettingsManagement() {
     const formData = new FormData(form);
 
     const shippingCharge = parseFloat(formData.get("shippingCharge") as string);
+    const shippingChargeVendor = parseFloat(
+      formData.get("shippingChargeVendor") as string
+    );
     const platformCharge = parseFloat(formData.get("platformCharge") as string);
     const estimatedTax = parseFloat(formData.get("estimatedTax") as string);
 
@@ -539,6 +542,7 @@ function GeneralSettingsManagement() {
       await updateSettings({
         shippingCharge,
         platformCharge,
+        shippingChargeVendor,
         estimatedTax,
       }).unwrap();
       toast.success("Settings updated successfully");
@@ -569,9 +573,11 @@ function GeneralSettingsManagement() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <Label htmlFor="shippingCharge">Shipping Charge (AED)</Label>
+              <Label htmlFor="shippingCharge">
+                Shipping Charge Customer (AED)
+              </Label>
               <Input
                 id="shippingCharge"
                 name="shippingCharge"
@@ -579,6 +585,21 @@ function GeneralSettingsManagement() {
                 step="0.01"
                 min="0"
                 defaultValue={settings?.shippingCharge || 0}
+                disabled={isUpdating}
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="shippingChargeVendor">
+                Shipping Charge Vendor (AED)
+              </Label>
+              <Input
+                id="shippingChargeVendor"
+                name="shippingChargeVendor"
+                type="number"
+                step="0.01"
+                min="0"
+                defaultValue={settings?.shippingChargeVendor || 0}
                 disabled={isUpdating}
               />
             </div>

@@ -305,31 +305,43 @@ const getVendorByUserId = async (id) => {
 
 // venorder ordercomplete money added
 const updateVendorMoneyCalculation = async (id, data) => {
-  // TODO: taking 5 parcentage from the vendor payment
-  const general = await General.findOne();
-  const platformCharge = general ? general : [];
-  const percentage = 5;
-  const remainingAmount = data.totalEarnings * (1 - percentage / 100);
+  try {
+    const general = await General.findOne();
+    if (!general) {
+      throw new ApiError(httpStatus.NOT_FOUND, "General data not found");
+    }
 
-  // Find the vendor by ID
-  const vendor = await Vendor.findById(id);
+    // Extract necessary values from the general settings
+    const { platformCharge = 0, shippingChargeVendor = 0 } = general;
 
-  // If vendor doesn't exist, throw an error
-  if (!vendor) {
-    throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
+    // Calculate remaining amount after deducting shipping and platform charge
+    const remainingAmount =
+      (data.totalEarnings - shippingChargeVendor) * (1 - platformCharge / 100);
+
+    // Find vendor by ID
+    const vendor = await Vendor.findById(id);
+    if (!vendor) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Vendor not found");
+    }
+
+    // Update the vendor's earnings and available withdrawal
+    const updatedEarnings = vendor.totalEarnings + remainingAmount;
+    const updatedAvailableWithDrawl =
+      vendor.availableWithdrawl + remainingAmount;
+
+    // Return updated vendor details
+    return Vendor.findByIdAndUpdate(
+      id,
+      {
+        totalEarnings: updatedEarnings,
+        availableWithdrawl: updatedAvailableWithDrawl,
+      },
+      { new: true }
+    );
+  } catch (error) {
+    // Handle any unexpected errors
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
   }
-  // Add the new earnings to the previous totalEarnings
-  const updatedEarnings = vendor.totalEarnings + remainingAmount;
-  const updatedAvailableWithDrawl = vendor.availableWithdrawl + remainingAmount;
-  // Update the vendor's totalEarnings with the new value
-  return Vendor.findByIdAndUpdate(
-    id,
-    {
-      totalEarnings: updatedEarnings,
-      availableWithdrawl: updatedAvailableWithDrawl,
-    },
-    { new: true }
-  );
 };
 
 module.exports = {

@@ -29,6 +29,11 @@ const GeneralSchema = new Schema(
       required: true,
       default: 0,
     },
+    shippingChargeVendor: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
 
     platformCharge: {
       type: Number,
