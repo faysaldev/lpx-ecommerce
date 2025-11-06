@@ -311,7 +311,7 @@ export default function Home() {
                   size="lg"
                   className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-8 h-12"
                 >
-                  <Link href="/register">
+                  <Link href="/auth/signup">
                     Create Free Account
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
