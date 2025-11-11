@@ -2,7 +2,8 @@
 
 A fully functional multi-vendor ecommerce application with complete marketplace features including vendor management, product listings, shopping cart, Stripe payments, order management, and admin controls.
 
-![LPX Ecommerce Preview](https://drive.google.com/drive/folders/1FAhuMT1DzQ5MzLyM8QqfckQ4Ty0X1g9C?usp=sharing)
+[Photos Preview](https://drive.google.com/drive/folders/1FAhuMT1DzQ5MzLyM8QqfckQ4Ty0X1g9C?usp=sharing)
+
 
 ## 🚀 Features
 
