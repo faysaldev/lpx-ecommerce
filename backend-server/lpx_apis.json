@@ -1,0 +1,5415 @@
+{
+	"info": {
+		"_postman_id": "de1ef932-02d8-48c0-b2f9-f7ff9ab73162",
+		"name": "Backend Section",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47777491",
+		"_collection_link": "https://info-faysalspace-234982.postman.co/workspace/E-comerce-multivendor~da54f8ba-9237-4b0a-9ece-bb20bb0c26ed/collection/47777491-de1ef932-02d8-48c0-b2f9-f7ff9ab73162?action=share&source=collection_link&creator=47777491"
+	},
+	"item": [
+		{
+			"name": "common",
+			"item": [
+				{
+					"name": "Auth",
+					"item": [
+						{
+							"name": "Ragistation",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"Faysal Mridha Admin\",\r\n    \"email\": \"faysalworkspace@gmail.com\",\r\n    \"password\": \"1qazxsw2\",\r\n    \"role\": \"user\",\r\n    \"type\":\"admin\",\r\n    \"phoneNumber\":\"+8801827152016\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/auth/register",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"firstName\": \"Md. Shadat\",\r\n    \"lastName\": \"Hossain\",\r\n    \"email\": \"shadathossan3500@gmail.com\",\r\n    \"password\": \"1qazxsw2\",\r\n    \"role\": \"user\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/auth/register",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"register"
+											]
+										}
+									},
+									"status": "Created",
+									"code": 201,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "101"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"65-w8K9sef3s2f1jZeAnQgMnuKWxNE\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sat, 15 Feb 2025 11:53:36 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 201,\n    \"message\": \"Thank you for registering. Please verify your email\",\n    \"data\": {\n        \"attributes\": {}\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Verify Email",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"faysalworkspace@gmail.com\",\r\n    \"code\": \"997149\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/auth/verify-email",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"verify-email"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"email\": \"shadathossan3500@gmail.com\",\r\n    \"code\": \"177528\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/auth/verify-email",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"verify-email"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1012"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"3f4-QE6n6tT+ETl62FvZZUVTA14N1sY\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 16 Feb 2025 04:24:34 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 200,\n    \"message\": \"Email Verified\",\n    \"data\": {\n        \"attributes\": {\n            \"user\": {\n                \"firstName\": \"Md. Shadat\",\n                \"lastName\": \"Hossain\",\n                \"fullName\": \"Md. Shadat Hossain\",\n                \"email\": \"shadathossan3500@gmail.com\",\n                \"image\": \"/uploads/users/user.png\",\n                \"role\": \"user\",\n                \"callingCode\": null,\n                \"phoneNumber\": null,\n                \"nidNumber\": null,\n                \"isNIDVerified\": null,\n                \"dataOfBirth\": null,\n                \"address\": null,\n                \"oneTimeCode\": null,\n                \"isProfileCompleted\": false,\n                \"createdAt\": \"2025-02-16T04:16:58.879Z\",\n                \"id\": \"67b166ba89ff5ba8358f3f07\"\n            },\n            \"tokens\": {\n                \"access\": {\n                    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2N2IxNjZiYTg5ZmY1YmE4MzU4ZjNmMDciLCJpYXQiOjE3Mzk2Nzk4NzQsImV4cCI6MTc0MzIxOTU1NDE5MCwidHlwZSI6ImFjY2VzcyJ9.KzXaCXQpHPZAHZR4pxKAb4wCDMigYPi9nkd2M75exwI\",\n                    \"expires\": \"2025-03-09T00:24:34.316Z\"\n                },\n                \"refresh\": {\n                    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMTA3LTA0LTA4VDA0OjI0OjM0LjMyNloiLCJpYXQiOjE3Mzk2Nzk4NzQsImV4cCI6MTczOTY3OTg3NCwiYWN0aXZpdHkiOiI2N2IxNjZiYTg5ZmY1YmE4MzU4ZjNmMDcifQ.SW-EqfntCa1Ug1VCfTqHkiRwRe6LUR_pW4-IIBJqOv4\",\n                    \"expires\": \"2107-04-08T04:24:34.326Z\"\n                }\n            }\n        }\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Login",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// Parse the JSON response body\r",
+											"let response = pm.response.json();\r",
+											"\r",
+											"// Check if the response code is 200 (Login Successful)\r",
+											"if (response.code === 200) {\r",
+											"    // Extract the access token\r",
+											"    let accessToken = response.data.attributes.tokens.access.token;\r",
+											"    \r",
+											"    // Set the access token in a global variable\r",
+											"    pm.globals.set(\"accessToken\", accessToken);\r",
+											"    \r",
+											"    console.log(\"Access token set in global variable: userAccessToken\");\r",
+											"} else {\r",
+											"    console.log(\"Login failed: \" + response.message);\r",
+											"}\r",
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript",
+										"packages": {},
+										"requests": {}
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"khaled@lpx.ae\",\r\n    \"password\": \"Luda9155$\",\r\n    \"fcmToken\": \"The new Auth FMC token\" // // onlly uee for push notification / mobile focus *\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/auth/login",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"email\": \"shadathossan3500@gmail.com\",\r\n    \"password\": \"1qazxsw2\",\r\n    \"fcmToken\": \"The firebase FCM token\" // // onlly uee for push notification / mobile focus *\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/auth/login",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"login"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "1014"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"3f6-H96aeXQd4i7LPbkvF5oVxkzloXM\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 16 Feb 2025 04:25:18 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 200,\n    \"message\": \"Login Successful\",\n    \"data\": {\n        \"attributes\": {\n            \"user\": {\n                \"firstName\": \"Md. Shadat\",\n                \"lastName\": \"Hossain\",\n                \"fullName\": \"Md. Shadat Hossain\",\n                \"email\": \"shadathossan3500@gmail.com\",\n                \"image\": \"/uploads/users/user.png\",\n                \"role\": \"user\",\n                \"callingCode\": null,\n                \"phoneNumber\": null,\n                \"nidNumber\": null,\n                \"isNIDVerified\": null,\n                \"dataOfBirth\": null,\n                \"address\": null,\n                \"oneTimeCode\": null,\n                \"isProfileCompleted\": false,\n                \"createdAt\": \"2025-02-16T04:16:58.879Z\",\n                \"id\": \"67b166ba89ff5ba8358f3f07\"\n            },\n            \"tokens\": {\n                \"access\": {\n                    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2N2IxNjZiYTg5ZmY1YmE4MzU4ZjNmMDciLCJpYXQiOjE3Mzk2Nzk5MTgsImV4cCI6MTc0MzIxOTU5ODkxMiwidHlwZSI6ImFjY2VzcyJ9.P_SNm_ml5_pQq-wTKxxaoqLXwUJcEk31JlSRCv_H610\",\n                    \"expires\": \"2025-03-09T00:25:18.994Z\"\n                },\n                \"refresh\": {\n                    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMTA3LTA0LTA4VDA0OjI1OjE4Ljk5NVoiLCJpYXQiOjE3Mzk2Nzk5MTgsImV4cCI6MTczOTY3OTkxOCwiYWN0aXZpdHkiOiI2N2IxNjZiYTg5ZmY1YmE4MzU4ZjNmMDcifQ.7Q9XnI_udHwjy6H3vnXNRMzOXuwD-3IC2GoD5bn4BwQ\",\n                    \"expires\": \"2107-04-08T04:25:18.995Z\"\n                }\n            }\n        }\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Forgot Password",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"info.faysalspace@gmail.com\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/auth/forgot-password",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"forgot-password"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"email\": \"shadathossan3500@gmail.com\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/auth/forgot-password",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"forgot-password"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "60"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"3c-JjH9JaUcWLcq5zsoboss1AWrZsE\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 16 Feb 2025 04:30:01 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 200,\n    \"message\": \"Email Sent\",\n    \"data\": {\n        \"attributes\": {}\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Reset Password",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"info.faysalspace@gmail.com\",\r\n    \"password\": \"2wsxzaq1\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/auth/reset-password",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"reset-password"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "200 Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"email\": \"shadathossan3500@gmail.com\",\r\n    \"password\": \"2wsxzaq1\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/auth/reset-password",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"reset-password"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "75"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"4b-k/SAidJMdC6nc5lf59RR8Svpiwk\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 16 Feb 2025 04:50:37 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 200,\n    \"message\": \"Password Reset Successful\",\n    \"data\": {\n        \"attributes\": {}\n    }\n}"
+								},
+								{
+									"name": "400 Error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"email\": \"shadathossan3500@gmail.com\",\r\n    \"password\": \"1qazxsw2\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/auth/reset-password",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"reset-password"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "452"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"1c4-NwiUkV4CUnBaaRpeIRoJzqFIEhU\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 16 Feb 2025 04:49:24 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 400,\n    \"message\": \"You have previously used this password. Please choose a different one. Try again with a new password.\",\n    \"stack\": \"Error: You have previously used this password. Please choose a different one. Try again with a new password.\\n    at Object.resetPassword (D:\\\\Md. Shadat Hossain\\\\Backend Tamplat\\\\src\\\\services\\\\auth.service.js:62:11)\\n    at async D:\\\\Md. Shadat Hossain\\\\Backend Tamplat\\\\src\\\\controllers\\\\auth.controller.js:140:3\"\n}"
+								}
+							]
+						},
+						{
+							"name": "Change Password",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"oldPassword\": \"2wsxzaq1\",\r\n    \"newPassword\": \"1qazxsw2\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/auth/change-password",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"change-password"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"oldPassword\": \"2wsxzaq1\",\r\n    \"newPassword\": \"1qazxsw2\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/auth/change-password",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"change-password"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "76"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"4c-dv1PzKntj1NeU8trqUcaAbeaKSY\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 16 Feb 2025 05:18:04 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 200,\n    \"message\": \"Password Change Successful\",\n    \"data\": {\n        \"attributes\": {}\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "logout",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMTA3LTA0LTA4VDA1OjIzOjQxLjYzNFoiLCJpYXQiOjE3Mzk2ODM0MjEsImV4cCI6MTczOTY4MzQyMSwiYWN0aXZpdHkiOiI2N2IxNjZiYTg5ZmY1YmE4MzU4ZjNmMDcifQ.TgJ4poj6MmvUCNzZwItXggZdqdJqxSyxs8V0XaYcMCY\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/auth/logout",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"logout"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyMTA3LTA0LTA4VDA1OjIzOjQxLjYzNFoiLCJpYXQiOjE3Mzk2ODM0MjEsImV4cCI6MTczOTY4MzQyMSwiYWN0aXZpdHkiOiI2N2IxNjZiYTg5ZmY1YmE4MzU4ZjNmMDcifQ.TgJ4poj6MmvUCNzZwItXggZdqdJqxSyxs8V0XaYcMCY\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/auth/logout",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"logout"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "52"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"34-Lw0jqmbooNm5QRsnUBg64u4pJW4\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 16 Feb 2025 05:24:00 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 200,\n    \"message\": \"LogOut Successful\",\n    \"data\": {}\n}"
+								}
+							]
+						},
+						{
+							"name": "Resend-verification",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\":\"faysal\",\r\n    \"email\": \"info.faysalspace@gmail.com\",\r\n    \"password\": \"1qazxsw2\",\r\n    \"role\": \"user\",\r\n    \"type\":\"customer\"\r\n}"
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/auth/resend-verification/bivejet852@camjoint.com",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"resend-verification",
+										"bivejet852@camjoint.com"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Check User Exist",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/auth//check-user/bivejet852@camjoint.com",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"",
+										"check-user",
+										"bivejet852@camjoint.com"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Profile",
+					"item": [
+						{
+							"name": "Get Profile",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/users/self/in",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"self",
+										"in"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{url}}/api/v1/users/self/in",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users",
+												"self",
+												"in"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "547"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"223-RuRHrSaSO8SmMJMBe3oLiHS4iA4\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 16 Feb 2025 05:44:58 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 200,\n    \"message\": \"User Profile\",\n    \"data\": {\n        \"attributes\": {\n            \"user\": {\n                \"firstName\": \"Md. Shadat\",\n                \"lastName\": \"Hossain\",\n                \"fullName\": \"Md. Shadat Hossain\",\n                \"email\": \"shadathossan3500@gmail.com\",\n                \"image\": \"/uploads/users/user.png\",\n                \"role\": \"user\",\n                \"callingCode\": null,\n                \"phoneNumber\": null,\n                \"nidNumber\": null,\n                \"isNIDVerified\": null,\n                \"dataOfBirth\": null,\n                \"address\": null,\n                \"oneTimeCode\": null,\n                \"isProfileCompleted\": false,\n                \"createdAt\": \"2025-02-16T04:16:58.879Z\",\n                \"id\": \"67b166ba89ff5ba8358f3f07\"\n            },\n            \"securitySettings\": {\n                \"recoveryEmail\": null,\n                \"recoveryPhone\": null,\n                \"securityQuestion\": null\n            }\n        }\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Profile Update",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "firstName",
+											"value": "Md. Shadat",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "lastName",
+											"value": "Hossain",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "callingCode",
+											"value": "+880",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "phoneNumber",
+											"value": "1757054846",
+											"type": "text"
+										},
+										{
+											"key": "nidNumber",
+											"value": "4678972377",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "dataOfBirth",
+											"value": "2000-07-27",
+											"type": "text",
+											"disabled": true
+										},
+										{
+											"key": "address",
+											"value": "Dhaka, Bangladesh",
+											"type": "text"
+										},
+										{
+											"key": "image",
+											"type": "file",
+											"src": "/C:/Users/Faysal/Downloads/Parachute-Hair-Oil-Advansed-Beliphool-Multivitamin-200ml.png"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/users/self/update",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"self",
+										"update"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "firstName",
+													"value": "Md. Shadat",
+													"type": "text"
+												},
+												{
+													"key": "lastName",
+													"value": "Hossain",
+													"type": "text"
+												},
+												{
+													"key": "callingCode",
+													"value": "+880",
+													"type": "text"
+												},
+												{
+													"key": "phoneNumber",
+													"value": "1757054846",
+													"type": "text"
+												},
+												{
+													"key": "nidNumber",
+													"value": "4678972377",
+													"type": "text"
+												},
+												{
+													"key": "dateOfBirth",
+													"value": "2000-27-07",
+													"type": "text"
+												},
+												{
+													"key": "address",
+													"value": "Dhaka, Bangladesh",
+													"type": "text"
+												},
+												{
+													"key": "image",
+													"type": "file",
+													"src": "/C:/Users/bdCalling/Downloads/colleagues.JPG"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/users/self/update",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users",
+												"self",
+												"update"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "481"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"1e1-c6NlGzmQFNS8D6Uxer9EDjM2XtM\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 16 Feb 2025 06:12:18 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 200,\n    \"message\": \"User Updated\",\n    \"data\": {\n        \"attributes\": {\n            \"firstName\": \"Md. Shadat\",\n            \"lastName\": \"Hossain\",\n            \"fullName\": \"Md. Shadat Hossain\",\n            \"email\": \"shadathossan3500@gmail.com\",\n            \"image\": \"/uploads/users/colleagues-1739686338668.JPG\",\n            \"role\": \"user\",\n            \"callingCode\": \"+880\",\n            \"phoneNumber\": 1757054846,\n            \"nidNumber\": 4678972377,\n            \"isNIDVerified\": null,\n            \"dataOfBirth\": null,\n            \"address\": \"Dhaka, Bangladesh\",\n            \"isProfileCompleted\": false,\n            \"createdAt\": \"2025-02-16T04:16:58.879Z\",\n            \"id\": \"67b166ba89ff5ba8358f3f07\"\n        }\n    }\n}"
+								}
+							]
+						},
+						{
+							"name": "Delete Profile",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"password\": \"1qazxsw2\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/auth/delete-me",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"delete-me"
+									]
+								}
+							},
+							"response": [
+								{
+									"name": "Success",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"password\": \"1qazxsw2\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/auth/delete-me",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"delete-me"
+											]
+										}
+									},
+									"status": "OK",
+									"code": 200,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "493"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"1ed-u7JnPShK/A6+D2ekzs6kj4NCrRk\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 16 Feb 2025 06:17:48 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 200,\n    \"message\": \"Account Deleted\",\n    \"data\": {\n        \"attributes\": {\n            \"user\": {\n                \"firstName\": \"Md. Shadat\",\n                \"lastName\": \"Hossain\",\n                \"fullName\": \"Md. Shadat Hossain\",\n                \"email\": \"shadathossan3500@gmail.com\",\n                \"image\": \"/uploads/users/colleagues-1739686338668.JPG\",\n                \"role\": \"user\",\n                \"callingCode\": \"+880\",\n                \"phoneNumber\": 1757054846,\n                \"nidNumber\": 4678972377,\n                \"isNIDVerified\": null,\n                \"dataOfBirth\": null,\n                \"address\": \"Dhaka, Bangladesh\",\n                \"isProfileCompleted\": false,\n                \"createdAt\": \"2025-02-16T04:16:58.879Z\",\n                \"id\": \"67b166ba89ff5ba8358f3f07\"\n            }\n        }\n    }\n}"
+								},
+								{
+									"name": "Error",
+									"originalRequest": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n    \"password\": \"2wsxzaq1\"\r\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/auth/delete-me",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"auth",
+												"delete-me"
+											]
+										}
+									},
+									"status": "Bad Request",
+									"code": 400,
+									"_postman_previewlanguage": "json",
+									"header": [
+										{
+											"key": "Content-Security-Policy",
+											"value": "default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action 'self';frame-ancestors 'self';img-src 'self' data:;object-src 'none';script-src 'self';script-src-attr 'none';style-src 'self' https: 'unsafe-inline';upgrade-insecure-requests"
+										},
+										{
+											"key": "Cross-Origin-Opener-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Cross-Origin-Resource-Policy",
+											"value": "same-origin"
+										},
+										{
+											"key": "Origin-Agent-Cluster",
+											"value": "?1"
+										},
+										{
+											"key": "Referrer-Policy",
+											"value": "no-referrer"
+										},
+										{
+											"key": "Strict-Transport-Security",
+											"value": "max-age=15552000; includeSubDomains"
+										},
+										{
+											"key": "X-Content-Type-Options",
+											"value": "nosniff"
+										},
+										{
+											"key": "X-DNS-Prefetch-Control",
+											"value": "off"
+										},
+										{
+											"key": "X-Download-Options",
+											"value": "noopen"
+										},
+										{
+											"key": "X-Frame-Options",
+											"value": "SAMEORIGIN"
+										},
+										{
+											"key": "X-Permitted-Cross-Domain-Policies",
+											"value": "none"
+										},
+										{
+											"key": "X-XSS-Protection",
+											"value": "0"
+										},
+										{
+											"key": "Access-Control-Allow-Origin",
+											"value": "*"
+										},
+										{
+											"key": "Content-Type",
+											"value": "application/json; charset=utf-8"
+										},
+										{
+											"key": "Content-Length",
+											"value": "283"
+										},
+										{
+											"key": "ETag",
+											"value": "W/\"11b-KNE1BkIA18KJdfWitkn2ws0xA3Q\""
+										},
+										{
+											"key": "Vary",
+											"value": "Accept-Encoding"
+										},
+										{
+											"key": "Date",
+											"value": "Sun, 16 Feb 2025 06:19:20 GMT"
+										},
+										{
+											"key": "Connection",
+											"value": "keep-alive"
+										},
+										{
+											"key": "Keep-Alive",
+											"value": "timeout=5"
+										}
+									],
+									"cookie": [],
+									"body": "{\n    \"code\": 400,\n    \"message\": \"Incorrect password\",\n    \"stack\": \"Error: Incorrect password\\n    at Object.deleteMe (D:\\\\Md. Shadat Hossain\\\\Backend Tamplat\\\\src\\\\services\\\\auth.service.js:146:11)\\n    at async D:\\\\Md. Shadat Hossain\\\\Backend Tamplat\\\\src\\\\controllers\\\\auth.controller.js:192:16\"\n}"
+								}
+							]
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Landing Page Statitics",
+			"item": [
+				{
+					"name": "Get Fetures Collection",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/lpx/fetures-products",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"lpx",
+								"fetures-products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Landing Page Statics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/lpx/statitics",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"lpx",
+								"statitics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "hasUserPursched",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/lpx/has-user-purchased?id=68d4c54fd4a487006236fabc&type=vendor",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"lpx",
+								"has-user-purchased"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "68d4c54fd4a487006236fabc"
+								},
+								{
+									"key": "type",
+									"value": "vendor",
+									"description": "//vendor // product"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Header Statitics",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/lpx/header-statitics",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"lpx",
+								"header-statitics"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Vendor 🏬",
+			"item": [
+				{
+					"name": "Vendors Intials",
+					"item": [
+						{
+							"name": "Become A Seller",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"firstName\": \"John\",\r\n  \"lastName\": \"Doe\",\r\n  \"storeName\": \"John's Store\",\r\n  \"email\": \"john.doe@example.com\",\r\n  \"description\": \"A store specializing in rare collectibles.\",\r\n  \"category\": \"Collectibles\",\r\n  \"website\": \"https://www.johnsstore.com\",\r\n\"socialLinks\": [\r\n  {\r\n    \"type\": \"Twitter\",\r\n    \"username\": \"johnsstore\"\r\n  },\r\n  {\r\n    \"type\": \"Instagram\",\r\n    \"username\": \"johnsstore\"\r\n  }\r\n]\r\n,\r\n  \"experiences\": \"Over 10 years in the collectibles industry.\",\r\n  \"logo\": \"https://www.johnsstore.com/logo.png\",\r\n  \"status\": \"pending\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/vendors/request",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"vendors",
+										"request"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Seller Vendors",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/vendors/my-vendors",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"vendors",
+										"my-vendors"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Approved As a seller ✅",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"vendorId\": \"68ce3947aa3b2c0748ddf305\",\r\n\"sellerId\": \"this is the seller id\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/vendors/approved",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"vendors",
+										"approved"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Search Vendors 🔍",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/vendors/search?search=&page=1&limit=24&category=&sortBy=by-ratings&ratingFilter=",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"vendors",
+										"search"
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": ""
+										},
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "24"
+										},
+										{
+											"key": "category",
+											"value": ""
+										},
+										{
+											"key": "sortBy",
+											"value": "by-ratings"
+										},
+										{
+											"key": "ratingFilter",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Single Vendor Details",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/vendors/single/68d7b280192d5b574ea6f1f2",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"vendors",
+										"single",
+										"68d7b280192d5b574ea6f1f2"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "New Request",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/vendors/single-owner/68d7b280192d5b574ea6f1f2?query=ess&category=Fashion %26 Sneakers&sortBy=newest&page=1&limit=10",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"vendors",
+										"single-owner",
+										"68d7b280192d5b574ea6f1f2"
+									],
+									"query": [
+										{
+											"key": "query",
+											"value": "ess"
+										},
+										{
+											"key": "category",
+											"value": "Fashion & Sneakers"
+										},
+										{
+											"key": "sortBy",
+											"value": "newest",
+											"description": "// mostPopular //highToLow// lowToHigh//newest"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Products",
+					"item": [
+						{
+							"name": "My All Products",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/products/my-products",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"products",
+										"my-products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add New Products",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "image",
+											"type": "file",
+											"src": [
+												"/C:/Users/Faysal/Downloads/images.jpg",
+												"/C:/Users/Faysal/Downloads/Star Tech - 1758193005.png"
+											]
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/products/add",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"products",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Single Products Details",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"vendor\": \"68ce3947aa3b2c0748ddf305\",  // Replace with actual vendor ID\r\n  \"productName\": \"Rare Pokémon Card\",\r\n  \"description\": \"A rare first edition holographic Charizard card in excellent condition.\",\r\n  \"category\": \"Collectibles\",\r\n  \"condition\": \"Near Mint\",\r\n  \"rarity\": \"Rare\",\r\n  \"tags\": [\"Pokémon\", \"Card\", \"Rare\", \"Collectible\"],\r\n  \"price\": 199.99,\r\n  \"optionalPrice\": 250.00,\r\n  \"stockQuantity\": 5,\r\n  \"images\": [\r\n    \"https://example.com/images/charizard1.jpg\",\r\n    \"https://example.com/images/charizard2.jpg\",\r\n    \"https://example.com/images/charizard3.jpg\"\r\n  ],\r\n  \"shipping\": {\r\n    \"shippingCost\": 15.00,\r\n    \"weight\": 0.2,\r\n    \"dimensions\": { \r\n      \"length\": 10,\r\n      \"width\": 5,\r\n      \"height\": 0.5\r\n    }\r\n  },\r\n  \"isDraft\": false\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/products/details/68d7cd326e68e38265146807",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"products",
+										"details",
+										"68d7cd326e68e38265146807"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Products",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"vendor\": \"68ce3947aa3b2c0748ddf305\",  // Replace with actual vendor ID\r\n  \"productName\": \"Rare Pokémon Card\",\r\n  \"description\": \"A rare first edition holographic Charizard card in excellent condition.\",\r\n  \"category\": \"Collectibles\",\r\n  \"condition\": \"Near Mint\",\r\n  \"rarity\": \"Rare\",\r\n  \"tags\": [\"Pokémon\", \"Card\", \"Rare\", \"Collectible\"],\r\n  \"price\": 199.99,\r\n  \"optionalPrice\": 250.00,\r\n  \"stockQuantity\": 5,\r\n  \"images\": [\r\n    \"https://example.com/images/charizard1.jpg\",\r\n    \"https://example.com/images/charizard2.jpg\",\r\n    \"https://example.com/images/charizard3.jpg\"\r\n  ],\r\n  \"shipping\": {\r\n    \"shippingCost\": 15.00,\r\n    \"weight\": 0.2,\r\n    \"dimensions\": { \r\n      \"length\": 10,\r\n      \"width\": 5,\r\n      \"height\": 0.5\r\n    }\r\n  },\r\n  \"isDraft\": false\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/products/remove/68ce554ac7bfe4261870dfbb",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"products",
+										"remove",
+										"68ce554ac7bfe4261870dfbb"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Edite Single Products",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"productName\": \"Nothings Products\"\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/products/edite/68d7cd326e68e38265146807",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"products",
+										"edite",
+										"68d7cd326e68e38265146807"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "All Products",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/products/all-products",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"products",
+										"all-products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SearchProducts",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/products/search?query=Princess&page=1&limit=10",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"products",
+										"search"
+									],
+									"query": [
+										{
+											"key": "query",
+											"value": "Princess"
+										},
+										{
+											"key": "category",
+											"value": "Fashion ",
+											"disabled": true
+										},
+										{
+											"key": " SneakersminPrice",
+											"value": "50",
+											"disabled": true
+										},
+										{
+											"key": "maxPrice",
+											"value": "500",
+											"disabled": true
+										},
+										{
+											"key": "condition",
+											"value": "Mint",
+											"disabled": true
+										},
+										{
+											"key": "sortBy",
+											"value": "lowToHigh",
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Vendor Dahsboard",
+					"item": [
+						{
+							"name": "Payment Request",
+							"item": [
+								{
+									"name": "Create New Payment Request",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n\"bankDetails\":\"68f07cd3627f59b21f8fd696\",\r\n  \"withdrawalAmount\": 20000\r\n//   \"invoiceImage\": \"https://example.com/uploads/invoices/invoice_101.png\"\r\n}\r\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/payments/create-pay",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"payments",
+												"create-pay"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get All The payment Request",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{ \r\n  \"totalItems\": [\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 2,\r\n      \"price\": 345,\r\n      \"vendorId\":\"68de3b40db779995498e194d\",\r\n                \"images\": [\r\n            \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n          ]\r\n    },\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 3,\r\n      \"price\": 243,\r\n      \"vendorId\":\"68de3b40db779995498e194d\",\r\n                \"images\": [\r\n            \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n          ]\r\n    }\r\n  ],\r\n  \"total\": 250,\r\n  \"shipping\": 20,\r\n  \"tax\": 30,\r\n  \"orderNotes\": \"Please deliver before 5 PM\" //optional notes\r\n}\r\n\r\n\r\n\r\n// {\r\n//   \"items\": [\r\n//     {\r\n//       \"price_data\": {\r\n//         \"currency\": \"usd\",\r\n//         \"product_data\": {\r\n//           \"name\": \"Oraimo SpaceBuds Neo\",\r\n//           \"description\": \"This is a test product\",\r\n//           \"images\": [\r\n//             \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n//           ]\r\n//         },\r\n//         \"unit_amount\": 25000\r\n//       },\r\n//       \"quantity\": 1\r\n//     },\r\n//     {\r\n//       \"price_data\": {\r\n//         \"currency\": \"usd\",\r\n//         \"product_data\": {\r\n//           \"name\": \"Lenovo IdeaPad Slim 3 15AMN8 Ryzen 5 7520U 15.6 FHD TN Laptop\",\r\n//           \"description\": \"This is another test product\",\r\n//           \"images\": [\r\n//             \"https://www.startech.com.bd/image/cache/catalog/laptop/lenovo/ideapad-slim-3-15amn8/ideapad-slim-3-15amn8-abyss-blue-04-500x500.webp\"\r\n//           ]\r\n//         },\r\n//         \"unit_amount\": 35000\r\n//       },\r\n//       \"quantity\": 5\r\n//     }\r\n//   ]\r\n// }\r\n"
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/payments/my-pay-request?page=1&limit=5&search=&status=pending&sort=lowToHigh",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"payments",
+												"my-pay-request"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "1"
+												},
+												{
+													"key": "limit",
+													"value": "5"
+												},
+												{
+													"key": "search",
+													"value": ""
+												},
+												{
+													"key": "status",
+													"value": "pending"
+												},
+												{
+													"key": "sort",
+													"value": "lowToHigh"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update Payment Details",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PATCH",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\r\n  \"seller\": \"652f91b5c1e7f912a8d7a2c4\",\r\n  \"bankName\": \"Dutch-Bangla Bank Limited\",\r\n  \"accountNumber\": \"1234567890123456\",\r\n  \"accountType\": \"savings\", //[\"savings\", \"current\", \"checking\", \"other\"]\r\n  \"phoneNumber\": \"+8801712345678\"\r\n//   \"amountRequested\": 20000,\r\n//   \"withdrawalAmount\": 19500,\r\n//   \"invoiceImage\": \"https://example.com/uploads/invoices/invoice_101.png\"\r\n//\"status\": \"pending\" //[\"pending\", \"paid\", \"rejected\"],\r\n}\r\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/payments/update-pay-request-status/:id",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"payments",
+												"update-pay-request-status",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": ""
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Eligiagle Withdrawl",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{ \r\n  \"totalItems\": [\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 2,\r\n      \"price\": 345,\r\n      \"vendorId\":\"68de3b40db779995498e194d\",\r\n                \"images\": [\r\n            \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n          ]\r\n    },\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 3,\r\n      \"price\": 243,\r\n      \"vendorId\":\"68de3b40db779995498e194d\",\r\n                \"images\": [\r\n            \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n          ]\r\n    }\r\n  ],\r\n  \"total\": 250,\r\n  \"shipping\": 20,\r\n  \"tax\": 30,\r\n  \"orderNotes\": \"Please deliver before 5 PM\" //optional notes\r\n}\r\n\r\n\r\n\r\n// {\r\n//   \"items\": [\r\n//     {\r\n//       \"price_data\": {\r\n//         \"currency\": \"usd\",\r\n//         \"product_data\": {\r\n//           \"name\": \"Oraimo SpaceBuds Neo\",\r\n//           \"description\": \"This is a test product\",\r\n//           \"images\": [\r\n//             \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n//           ]\r\n//         },\r\n//         \"unit_amount\": 25000\r\n//       },\r\n//       \"quantity\": 1\r\n//     },\r\n//     {\r\n//       \"price_data\": {\r\n//         \"currency\": \"usd\",\r\n//         \"product_data\": {\r\n//           \"name\": \"Lenovo IdeaPad Slim 3 15AMN8 Ryzen 5 7520U 15.6 FHD TN Laptop\",\r\n//           \"description\": \"This is another test product\",\r\n//           \"images\": [\r\n//             \"https://www.startech.com.bd/image/cache/catalog/laptop/lenovo/ideapad-slim-3-15amn8/ideapad-slim-3-15amn8-abyss-blue-04-500x500.webp\"\r\n//           ]\r\n//         },\r\n//         \"unit_amount\": 35000\r\n//       },\r\n//       \"quantity\": 5\r\n//     }\r\n//   ]\r\n// }\r\n"
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/payments/my-eligable-withdrawl",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"payments",
+												"my-eligable-withdrawl"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Payment Request Stats",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{ \r\n  \"totalItems\": [\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 2,\r\n      \"price\": 345,\r\n      \"vendorId\":\"68de3b40db779995498e194d\",\r\n                \"images\": [\r\n            \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n          ]\r\n    },\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 3,\r\n      \"price\": 243,\r\n      \"vendorId\":\"68de3b40db779995498e194d\",\r\n                \"images\": [\r\n            \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n          ]\r\n    }\r\n  ],\r\n  \"total\": 250,\r\n  \"shipping\": 20,\r\n  \"tax\": 30,\r\n  \"orderNotes\": \"Please deliver before 5 PM\" //optional notes\r\n}\r\n\r\n\r\n\r\n// {\r\n//   \"items\": [\r\n//     {\r\n//       \"price_data\": {\r\n//         \"currency\": \"usd\",\r\n//         \"product_data\": {\r\n//           \"name\": \"Oraimo SpaceBuds Neo\",\r\n//           \"description\": \"This is a test product\",\r\n//           \"images\": [\r\n//             \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n//           ]\r\n//         },\r\n//         \"unit_amount\": 25000\r\n//       },\r\n//       \"quantity\": 1\r\n//     },\r\n//     {\r\n//       \"price_data\": {\r\n//         \"currency\": \"usd\",\r\n//         \"product_data\": {\r\n//           \"name\": \"Lenovo IdeaPad Slim 3 15AMN8 Ryzen 5 7520U 15.6 FHD TN Laptop\",\r\n//           \"description\": \"This is another test product\",\r\n//           \"images\": [\r\n//             \"https://www.startech.com.bd/image/cache/catalog/laptop/lenovo/ideapad-slim-3-15amn8/ideapad-slim-3-15amn8-abyss-blue-04-500x500.webp\"\r\n//           ]\r\n//         },\r\n//         \"unit_amount\": 35000\r\n//       },\r\n//       \"quantity\": 5\r\n//     }\r\n//   ]\r\n// }\r\n"
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/payments/payment-request-stats",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"payments",
+												"payment-request-stats"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Single Product Details",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{ \r\n  \"totalItems\": [\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 2,\r\n      \"price\": 345,\r\n      \"vendorId\":\"68de3b40db779995498e194d\",\r\n                \"images\": [\r\n            \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n          ]\r\n    },\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 3,\r\n      \"price\": 243,\r\n      \"vendorId\":\"68de3b40db779995498e194d\",\r\n                \"images\": [\r\n            \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n          ]\r\n    }\r\n  ],\r\n  \"total\": 250,\r\n  \"shipping\": 20,\r\n  \"tax\": 30,\r\n  \"orderNotes\": \"Please deliver before 5 PM\" //optional notes\r\n}\r\n\r\n\r\n\r\n// {\r\n//   \"items\": [\r\n//     {\r\n//       \"price_data\": {\r\n//         \"currency\": \"usd\",\r\n//         \"product_data\": {\r\n//           \"name\": \"Oraimo SpaceBuds Neo\",\r\n//           \"description\": \"This is a test product\",\r\n//           \"images\": [\r\n//             \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n//           ]\r\n//         },\r\n//         \"unit_amount\": 25000\r\n//       },\r\n//       \"quantity\": 1\r\n//     },\r\n//     {\r\n//       \"price_data\": {\r\n//         \"currency\": \"usd\",\r\n//         \"product_data\": {\r\n//           \"name\": \"Lenovo IdeaPad Slim 3 15AMN8 Ryzen 5 7520U 15.6 FHD TN Laptop\",\r\n//           \"description\": \"This is another test product\",\r\n//           \"images\": [\r\n//             \"https://www.startech.com.bd/image/cache/catalog/laptop/lenovo/ideapad-slim-3-15amn8/ideapad-slim-3-15amn8-abyss-blue-04-500x500.webp\"\r\n//           ]\r\n//         },\r\n//         \"unit_amount\": 35000\r\n//       },\r\n//       \"quantity\": 5\r\n//     }\r\n//   ]\r\n// }\r\n"
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/payments/details/68e4d5dc98891b70162fba2e",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"payments",
+												"details",
+												"68e4d5dc98891b70162fba2e"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Vendor Overview",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/lpx/vendor/overview",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"lpx",
+										"vendor",
+										"overview"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Vendor Recent Order",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/lpx/vendor/recent-order",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"lpx",
+										"vendor",
+										"recent-order"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Vendor- Products",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/lpx/vendor/products?page=1&limit=10&search&status=out_of_stock&sortBy=",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"lpx",
+										"vendor",
+										"products"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										},
+										{
+											"key": "search",
+											"value": null
+										},
+										{
+											"key": "status",
+											"value": "out_of_stock"
+										},
+										{
+											"key": "sortBy",
+											"value": ""
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Vendor Dashboard Analytics",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/lpx/vendor/analytics",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"lpx",
+										"vendor",
+										"analytics"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Top Selling Products",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/lpx/vendor/top-selling",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"lpx",
+										"vendor",
+										"top-selling"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Bank Information",
+					"item": [
+						{
+							"name": "Get All Banks Cards",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/banks/my-cards",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"banks",
+										"my-cards"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add New Banks Cards",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"bankName\": \"Encrypted Bank Name\",    // The bank name to be encrypted\r\n  \"IBAN\": \"GB29XABC10161234567801\",    // IBAN to be encrypted\r\n  \"SWIFT\": \"ABCDGB2L\",                  // SWIFT/BIC code to be encrypted\r\n  \"Currency\": \"USD\"                    // Currency type to be encrypted\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/banks/add",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"banks",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Details Of Bank Cards",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/banks/details/68f8748e0cb916f0ca03cee5",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"banks",
+										"details",
+										"68f8748e0cb916f0ca03cee5"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delate Bank Single Information",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/banks/remove/68f0791a14f61b4226014bb5",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"banks",
+										"remove",
+										"68f0791a14f61b4226014bb5"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Customer 🧑‍🤝‍🧑",
+			"item": [
+				{
+					"name": "Cart",
+					"item": [
+						{
+							"name": "My Cart List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/carts/my-carts",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"carts",
+										"my-carts"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add To New Cart",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"product\": \"68ce54d7c7bfe4261870dfb6\",\r\n  \"vendorId\": \"68ce3947aa3b2c0748ddf305\",\r\n  \"quantity\": 1,\r\n  \"price\": 15\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/carts/add",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"carts",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete From Cart List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/carts/remove/id",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"carts",
+										"remove",
+										"id"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove all Cart",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "WishList",
+					"item": [
+						{
+							"name": "Get My wishList",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/wishlists/my-wishlist",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wishlists",
+										"my-wishlist"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove From Wish List",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/wishlists/remove/id",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wishlists",
+										"remove",
+										"id"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add to wishlist",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"products\": \"68d775a6f825cbb06efd1d58\",\r\n    \"vendorId\":\"68d7b280192d5b574ea6f1f2\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/wishlists/add",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wishlists",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete All From WishList",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/wishlists/remove-all",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"wishlists",
+										"remove-all"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Customer Dashboard",
+					"item": [
+						{
+							"name": "Customer DashBoardStatitics",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/lpx/customer-dashboard",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"lpx",
+										"customer-dashboard"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Notifications",
+					"item": [
+						{
+							"name": "Create New Notifications",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n\r\n  \"sendTo\": \"68cba8313def97af02cf06c8\",  // Replace with the actual user ID who is sending the notification (optional)\r\n  \"transactionId\": \"12345\",  // Optional, replace with a transaction ID if available\r\n  \"title\": \"New Order Received\",  // Title of the notification\r\n  \"description\": \"You have received a new order in your store.\",  // Description or content of the notification\r\n  \"isRead\": false,  // Default is false, indicating that the notification is unread\r\n  \"type\": \"promotion\",  // Type of the notification (can be \"order\", \"system\", \"promotion\", \"vendor\", \"price_alert\")\r\n  \"priority\": \"high\",  // Priority of the notification (\"low\", \"medium\", \"high\")\r\n  \"isDeleted\": false  // Default is false, indicating the notification is not deleted\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/notifications/add",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notifications",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Notification",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"userId\": \"60d21b4667d0d8992e610c85\",  \r\n  \"sendBy\": \"68cba8313def97af02cf06c8\",  // Replace with the actual user ID who is sending the notification (optional)\r\n  \"transactionId\": \"12345\",  // Optional, replace with a transaction ID if available\r\n  \"title\": \"New Order Received\",  // Title of the notification\r\n  \"description\": \"You have received a new order in your store.\",  // Description or content of the notification\r\n  \"isRead\": false,  // Default is false, indicating that the notification is unread\r\n  \"type\": \"orders\",  // Type of the notification (can be \"orders\", \"systems\", \"promotions\", \"vendor\", \"price alerts\")\r\n  \"priority\": \"high\",  // Priority of the notification (\"low\", \"medium\", \"high\")\r\n  \"isDeleted\": false  // Default is false, indicating the notification is not deleted\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/notifications/remove/id",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notifications",
+										"remove",
+										"id"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Make Read Notifications",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"userId\": \"60d21b4667d0d8992e610c85\",  \r\n  \"sendBy\": \"68cba8313def97af02cf06c8\",  // Replace with the actual user ID who is sending the notification (optional)\r\n  \"transactionId\": \"12345\",  // Optional, replace with a transaction ID if available\r\n  \"title\": \"New Order Received\",  // Title of the notification\r\n  \"description\": \"You have received a new order in your store.\",  // Description or content of the notification\r\n  \"isRead\": false,  // Default is false, indicating that the notification is unread\r\n  \"type\": \"orders\",  // Type of the notification (can be \"orders\", \"systems\", \"promotions\", \"vendor\", \"price alerts\")\r\n  \"priority\": \"high\",  // Priority of the notification (\"low\", \"medium\", \"high\")\r\n  \"isDeleted\": false  // Default is false, indicating the notification is not deleted\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/notifications/make-as-read/notificationId",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notifications",
+										"make-as-read",
+										"notificationId"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get all Notification and With Type As Well",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": ""
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/notifications/my-notifications?type=orders",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notifications",
+										"my-notifications"
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "orders"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Make All Notification Reed",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/notifications/make-as-read-all",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"notifications",
+										"make-as-read-all"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Order",
+					"item": [
+						{
+							"name": "Get all My Order",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/orders/my-order?sortBy=newestFirst&page=1&limit=10",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"orders",
+										"my-order"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "pending",
+											"description": "pending, processing, shipped, delivered, cancelled",
+											"disabled": true
+										},
+										{
+											"key": "sortBy",
+											"value": "newestFirst",
+											"description": "newestFirst,oldestFirst,highToLow,lowToHigh"
+										},
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "limit",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create New Order",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"paymentCardId\":\"68d66b79169180354a4e960f\",\r\n  \"totalAmount\": 300,\r\n  \"shippingInformation\": {\r\n    \"firstName\": \"John\",\r\n    \"lastName\": \"Doe\",\r\n    \"email\": \"johndoe@example.com\",\r\n    \"phoneNumber\": \"+1234567890\",\r\n    \"streetAddress\": \"123 Main St\",\r\n    \"apartment\": \"Apt 4B\",\r\n    \"city\": \"New York\",\r\n    \"state\": \"NY\",\r\n    \"zipCode\": \"10001\",\r\n    \"country\": \"USA\",\r\n    \"deliveryInstructions\": \"Leave package at the front door\"\r\n  },\r\n  \"shippingIsequal\": true,\r\n  \r\n  \"totalItems\": [\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 2,\r\n      \"price\": 345,\r\n      \"vendorId\":\"68de3b40db779995498e194d\"\r\n    },\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 3,\r\n      \"price\": 243,\r\n      \"vendorId\":\"68de3b40db779995498e194d\"\r\n    }\r\n  ],\r\n  \"total\": 250,\r\n  \"shipping\": 20,\r\n  \"tax\": 30,\r\n  \"orderNotes\": \"Please deliver before 5 PM\" //optional notes\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/orders/add",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"orders",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Single Order Details",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/orders/order-details/68d67174c94144664ee11181",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"orders",
+										"order-details",
+										"68d67174c94144664ee11181"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Download Invoice",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/orders/invoice/68e4efb84ba209f1afebafb9",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"orders",
+										"invoice",
+										"68e4efb84ba209f1afebafb9"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Ratings",
+					"item": [
+						{
+							"name": "Add New ratings",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "//FOR vendor type\r\n// {\r\n//   \"ratingType\": \"vendor\",  \r\n//   \"referenceId\": \"68d65e1f1a9ad5b0174b9285\",  \r\n//   \"rating\": 4,  \r\n//   \"review\": \"Great Shop, I would like to come again!\"  \r\n// }\r\n\r\n\r\n{\r\n\r\n  \"ratingType\": \"product\",  \r\n  \"referenceId\": \"68d778052f9e07ffea13da93\",  \r\n  \"rating\": 4.2,  \r\n  \"review\": \"Amazing product, I will not  recommend no more 😑!\"  \r\n}\r\n\r\n\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/ratings/add",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"ratings",
+										"add"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Products or Vendor Rating",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "// \"vendor\", \"product\""
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/ratings/my-ratings?type=vendor&id=68d7b280192d5b574ea6f1f2",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"ratings",
+										"my-ratings"
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "vendor",
+											"description": "//product //vendor"
+										},
+										{
+											"key": "id",
+											"value": "68d7b280192d5b574ea6f1f2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update ratings",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"rating\": 3,  \r\n  \"review\": \"Amazing product, I will not  recommend no more 😑!\"  \r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/ratings/update/68d7c31e4af29882dbfd33e1",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"ratings",
+										"update",
+										"68d7c31e4af29882dbfd33e1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Single Ratings",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/ratings/remove/68d7c31e4af29882dbfd33e1",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"ratings",
+										"remove",
+										"68d7c31e4af29882dbfd33e1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Payments 💰",
+			"item": [
+				{
+					"name": "Stripe Section",
+					"item": [
+						{
+							"name": "Create New Checkout Session",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{ \r\n  \"totalItems\": [\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 1,\r\n      \"price\": 50,\r\n      \"vendorId\":\"68de3b40db779995498e194d\",\r\n                \"images\": [\r\n            \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n          ]\r\n    },\r\n    {\r\n      \"productId\": \"68d7cd326e68e38265146807\",\r\n      \"quantity\": 1,\r\n      \"price\": 50,\r\n      \"vendorId\":\"68de3b40db779995498e194d\",\r\n        \"images\": [\r\n            \"https://www.startech.com.bd/image/cache/catalog/earbuds/oraimo/spacebuds-neo/spacebuds-neo-01-500x500.webp\"\r\n          ]\r\n    }\r\n  ],\r\n  \"total\": 250,\r\n  \"shipping\": 20,\r\n  \"tax\": 30,\r\n  \"orderNotes\": \"Please deliver before 5 PM\" //optional notes\r\n}\r\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/stripes/checkout",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"stripes",
+										"checkout"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Completion Data over there",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"items\": [\r\n    {\r\n      \"price_data\": {\r\n        \"currency\": \"usd\",\r\n        \"product_data\": {\r\n          \"name\": \"Product 1\",\r\n          \"description\": \"This is a test product\",\r\n          \"images\": [\r\n            \"https://example.com/product-image.jpg\"\r\n          ]\r\n        },\r\n        \"unit_amount\": 1500\r\n      },\r\n      \"quantity\": 1\r\n    },\r\n    {\r\n      \"price_data\": {\r\n        \"currency\": \"usd\",\r\n        \"product_data\": {\r\n          \"name\": \"Product 2\",\r\n          \"description\": \"This is another test product\",\r\n          \"images\": [\r\n            \"https://example.com/product2-image.jpg\"\r\n          ]\r\n        },\r\n        \"unit_amount\": 2500\r\n      },\r\n      \"quantity\": 2\r\n    }\r\n  ]\r\n}\r\n"
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/stripes/completion?session_id=cs_test_b1JxviNTkEaFi8Ch4gibQOoFEoETWHbUf8FNcnljMvNX4fp94J2b1L1q94",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"stripes",
+										"completion"
+									],
+									"query": [
+										{
+											"key": "session_id",
+											"value": "cs_test_b1JxviNTkEaFi8Ch4gibQOoFEoETWHbUf8FNcnljMvNX4fp94J2b1L1q94",
+											"description": "// here  will be the session id"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin Dashaboard",
+			"item": [
+				{
+					"name": "Products",
+					"item": [
+						{
+							"name": "Get Admin Products Stats",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/product-stats",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"product-stats"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Products with filter and non filter",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/all-products",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"all-products"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Dashboard",
+					"item": [
+						{
+							"name": "Admin Dasboard",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/dashboard",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"dashboard"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Vendor",
+					"item": [
+						{
+							"name": "Update Vendor Status",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"id\":\"\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/admin/update-vendor",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"update-vendor"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "approved",
+											"disabled": true
+										},
+										{
+											"key": "id",
+											"value": "9348759345",
+											"disabled": true
+										},
+										{
+											"key": "user",
+											"value": "875464325",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Vendors with search",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "image",
+											"type": "file",
+											"src": [
+												"/C:/Users/Faysal/Downloads/images.jpg",
+												"/C:/Users/Faysal/Downloads/Star Tech - 1758193005.png"
+											]
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/admin/vendors?status=pending&search",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"vendors"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "pending"
+										},
+										{
+											"key": "search",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Orders",
+					"item": [
+						{
+							"name": "Get Order Stats",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/order-stats",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"order-stats"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get All Orders",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/all-orders?query=LPX-1759297488215-290",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"all-orders"
+									],
+									"query": [
+										{
+											"key": "query",
+											"value": "LPX-1759297488215-290"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Payments",
+					"item": [
+						{
+							"name": "Get Admin Payment Request Stats",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/all-payment-requests?search=&status&sortBy&page&limit",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"all-payment-requests"
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": ""
+										},
+										{
+											"key": "status",
+											"value": null
+										},
+										{
+											"key": "sortBy",
+											"value": null
+										},
+										{
+											"key": "page",
+											"value": null
+										},
+										{
+											"key": "limit",
+											"value": null
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Payment Request Stats",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/all-payment-stats",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"all-payment-stats"
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": "al",
+											"disabled": true
+										},
+										{
+											"key": "status",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "sortBy",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Vendor Summer",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/pay-vendor-summaries",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"pay-vendor-summaries"
+									],
+									"query": [
+										{
+											"key": "search",
+											"value": "al",
+											"disabled": true
+										},
+										{
+											"key": "status",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "sortBy",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "page",
+											"value": null,
+											"disabled": true
+										},
+										{
+											"key": "limit",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Gen Financial Overview",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/pay-financial-overview",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"pay-financial-overview"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Payment Approved",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "image",
+											"type": "file",
+											"src": "/C:/Users/Faysal/Downloads/user.png"
+										},
+										{
+											"key": "note",
+											"value": "this is me",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/admin/payment-completed/68e513d1ac69297acff28c25",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"payment-completed",
+										"68e513d1ac69297acff28c25"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Analytics",
+					"item": [
+						{
+							"name": "Get Analytics Stats",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "image",
+											"type": "file",
+											"src": "/C:/Users/Faysal/Downloads/user.png"
+										},
+										{
+											"key": "note",
+											"value": "this is me",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/admin/analytics-stats",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"analytics-stats"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Total Sales Trends",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "image",
+											"type": "file",
+											"src": "/C:/Users/Faysal/Downloads/user.png"
+										},
+										{
+											"key": "note",
+											"value": "this is me",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/admin/analytics-total-sales",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"analytics-total-sales"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Total User Trends",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "image",
+											"type": "file",
+											"src": "/C:/Users/Faysal/Downloads/user.png"
+										},
+										{
+											"key": "note",
+											"value": "this is me",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/admin/analytics-total-users",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"analytics-total-users"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Total Products Trends",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/analytics-total-products",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"analytics-total-products"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Total Revinue",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/analytics-total-revinue",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"analytics-total-revinue"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Top Selling Categories",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/analytics-top-selling-categories",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"analytics-top-selling-categories"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Recent Trends",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/admin/analytics-recent-trends",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"admin",
+										"analytics-recent-trends"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Generals",
+					"item": [
+						{
+							"name": "Categories",
+							"item": [
+								{
+									"name": "Get All Categories",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{url}}/api/v1/generals/category-all",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"generals",
+												"category-all"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add New Categories",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "\r\n  {\r\n    \"name\": \"TCG\",\r\n    \"description\": \"Trading Card Games category, including collectibles and cards.\"\r\n  }\r\n\r\n\r\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/generals/categories/add",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"generals",
+												"categories",
+												"add"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Single remove",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{url}}/api/v1/generals/categories/remove/:id",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"generals",
+												"categories",
+												"remove",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": ""
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Cupons",
+							"item": [
+								{
+									"name": "Get All The Cupons",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{url}}/api/v1/generals/coupon-all",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"generals",
+												"coupon-all"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add New Cupon",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{ \"code\": \"SAVE20\", \"percentage\": 20 }",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/generals/coupon/add",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"generals",
+												"coupon",
+												"add"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Remove Single Cupon",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [],
+										"url": {
+											"raw": "{{url}}/api/v1/generals/coupon/remove/:id",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"generals",
+												"coupon",
+												"remove",
+												":id"
+											],
+											"variable": [
+												{
+													"key": "id",
+													"value": ""
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Condition",
+							"item": [
+								{
+									"name": "Add New Condition",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{ \"condition\": \"Near Mint\" }",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/generals/conditions/add",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"generals",
+												"conditions",
+												"add"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Remove Single Conditions",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{accessToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{ \"condition\": \"Near Mint\" }"
+										},
+										"url": {
+											"raw": "{{url}}/api/v1/generals/conditions/remove/id",
+											"host": [
+												"{{url}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"generals",
+												"conditions",
+												"remove",
+												"id"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Gen Generals",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/generals",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"generals"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Generals",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{accessToken}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "PATCH",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{ \"shippingCharge\": 10 }",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/generals/update",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"generals",
+										"update"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "User Search",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/admin//update-vendor?status=approved&id=9348759345",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"admin",
+								"",
+								"update-vendor"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "approved"
+								},
+								{
+									"key": "id",
+									"value": "9348759345"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Shipping Companies Apis",
+			"item": [
+				{
+					"name": "Create Shipment From Apis",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "JjEeEeBbLlYy1200",
+								"type": "text"
+							},
+							{
+								"key": "client_key",
+								"value": "1118X251014011357Y4b68616c6564456c736164656b",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"delivery_type\": \"Next Day\",\r\n  \"load_type\": \"Non-document\",\r\n  \"consignment_type\": \"Forward\",\r\n  \"description\": \"Baby Milky Glow\",\r\n  \"weight\": 1,\r\n  \"payment_type\": \"prepaid\",\r\n  \"cod_amount\": 0,\r\n  \"num_pieces\": 1,\r\n  \"consignment_number\": \"Order-69085689983ae54e82683979-69047d7ffb940563da0f5179\",\r\n  \"origin_address_name\": \"Microless \",\r\n  \"origin_address_mob_no_country_code\": \"+971\",\r\n  \"origin_address_mobile_number\": \"+88016461771762\",\r\n  \"origin_address_house_no\": \"Al\",\r\n  \"origin_address_building_name\": \"Quoz\",\r\n  \"origin_address_area\": \"Ind\",\r\n  \"origin_address_landmark\": \"N/A\",\r\n  \"origin_address_city\": \"Dubai\",\r\n  \"origin_address_type\": \"Normal\",\r\n  \"destination_address_name\": \"Swapon Islam\",\r\n  \"destination_address_mob_no_country_code\": \"+971\",\r\n  \"destination_address_mobile_number\": \"501234567\",\r\n  \"destination_address_house_no\": \"Building 24, Al Muraqqabat Street\",\r\n  \"destination_address_building_name\": \"Building 24, Al Muraqqabat Street\",\r\n  \"destination_address_area\": \"Building 24, Al Muraqqabat Street\",\r\n  \"destination_address_landmark\": \"N/A\",\r\n  \"destination_address_city\": \"Umm Al-Quwain\", //Al-Ain\r\n  \"destination_address_type\": \"Western\",\r\n  \"pickup_date\": \"2025-11-04\"\r\n}\r\n\r\n\r\n\r\n// {\r\n//   \"delivery_type\": \"Next Day\",\r\n//   \"load_type\": \"Non-document\",\r\n//   \"consignment_type\": \"Forward\",\r\n//   \"description\": \"Pants\",\r\n//   \"weight\": 1,\r\n//   \"payment_type\": \"prepaid\",\r\n//   \"cod_amount\": 0,\r\n//   \"num_pieces\": 3,\r\n//   \"consignment_number\": \"Order-69044bab5d1f8e708151f1f0-69044bab5d1f8e708151f1f5\",\r\n//   \"origin_address_name\": \"Swapon Islam\",\r\n//   \"origin_address_mob_no_country_code\": \"+971\",\r\n//   \"origin_address_mobile_number\": \"501234567\",\r\n//   \"origin_address_house_no\": \"Dammam\",\r\n//   \"origin_address_city\": \"\",\r\n//   \"origin_address_type\": \"Normal\",\r\n//   \"destination_address_name\": \"Swapon Islam\",\r\n//   \"destination_address_mob_no_country_code\": \"+971\",\r\n//   \"destination_address_mobile_number\": \"501234567\",\r\n//   \"destination_address_house_no\": \"Dammam\",\r\n//   \"destination_address_city\": \"\",\r\n//   \"destination_address_type\": \"Western\",\r\n//   \"pickup_date\": \"2025-10-31\"\r\n// }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://demo.jeebly.com/customer/create_shipment",
+							"protocol": "https",
+							"host": [
+								"demo",
+								"jeebly",
+								"com"
+							],
+							"path": [
+								"customer",
+								"create_shipment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Scheduled Order tracking Api",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "JjEeEeBbLlYy1200",
+								"type": "text"
+							},
+							{
+								"key": "client_key",
+								"value": "1118X251014011357Y4b68616c6564456c736164656b",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"reference_number\": \"JB106147\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://demo.jeebly.com/customer/track_shipment",
+							"protocol": "https",
+							"host": [
+								"demo",
+								"jeebly",
+								"com"
+							],
+							"path": [
+								"customer",
+								"track_shipment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Webhook Informations",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-api-key",
+								"value": "JjEeEeBbLlYy1200",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"client_name\": \"Aysha Test Client\",\r\n  \"reference_no\": \"JB100626\",\r\n  \"status\": \"Delivered\",\r\n  \"desc\": \"Consignment is out for delivery\",\r\n  \"hub_name\": \"DXB\",\r\n  \"event_date_time\": \"2024-09-30T07:29:35Z\",\r\n  \"cod_amount\": \"0\",\r\n  \"shipper_phone\": \"+9718962107950\",\r\n  \"recipient_phone\": \"+9718962107950\",\r\n  \"rider_code\": \"\",\r\n  \"rider_name\": \"\",\r\n  \"destination_details\": \"1828Test Building +9718962107950\",\r\n  \"pod_image\": null,\r\n  \"signature_image\": null,\r\n  \"failure_reason\": null\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://faysal3000.sobhoy.com/api/v1/jeebly/webhook",
+							"protocol": "https",
+							"host": [
+								"faysal3000",
+								"sobhoy",
+								"com"
+							],
+							"path": [
+								"api",
+								"v1",
+								"jeebly",
+								"webhook"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "https://faysal3000.sobhoy.com"
+		}
+	]
+}
